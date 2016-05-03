@@ -43,8 +43,9 @@ object Application extends JSApp{
 
   }
 
-  def initApp($http: HttpService) = {
+  def initApp($http: HttpService, $rootScope: js.Dynamic, $location: js.Dynamic) = {
     println("App initialized")
+    $rootScope.location = $location
   }
 
   def initRoutes($routeProvider: RouteProvider) = {

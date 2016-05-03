@@ -1,5 +1,5 @@
 <div class="navigationbar">
-    <div class="item" ng-repeat="item in items" ng-class="{selected: $index==0}">
+    <div class="item" ng-repeat="item in items" ng-class="{selected: item.path==location.path()}">
         <a ng-href="{{item.url}}">
             <img ng-src="{{item.img}}">
         </a>
@@ -11,3 +11,4 @@
 
     </div>
 </div>
+Current path: {{location.path()}}

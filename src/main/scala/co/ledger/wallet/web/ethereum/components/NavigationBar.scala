@@ -67,6 +67,11 @@ class NavigationBar extends Directive {
       "url" -> "#account/20"
     )
   )
+
+  for (item <- items) {
+    item("path") = "/" + item("url").substring(1)
+  }
+
 }
 
 object NavigationBar {
