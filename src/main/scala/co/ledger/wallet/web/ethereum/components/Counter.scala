@@ -31,6 +31,8 @@ class Counter {
 
   def toto() = count += 10
 
+
+
 }
 
 

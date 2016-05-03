@@ -6,9 +6,15 @@
     <script src="ledger-wallet-ethereum-chrome-fastopt.js"></script>
     <script src="angular/jquery.min.js"></script>
     <script src="angular/angular.min.js"></script>
+    <script src="angular/angular-route.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="angular/angular.css">
 </head>
 <body ng-csp="no-inline-style;no-unsafe-eval" ng-controller="WindowController as ctrl">
 {{ctrl.toto}}
+<navigation-bar ng-hide="!ctrl.showNavigationBar">This is a navigation bar</navigation-bar>
+<a href="#toto">Go to toto</a>
+
+<div ng-view></div>
 </body>
 <script src="ledger-wallet-ethereum-chrome-launcher.js"></script>
 </html>

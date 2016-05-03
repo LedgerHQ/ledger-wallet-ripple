@@ -2,6 +2,8 @@ package co.ledger.wallet.web.ethereum.controllers
 
 import biz.enef.angulate.Controller
 import biz.enef.angulate.Module.RichModule
+import co.ledger.wallet.web.ethereum.Application
+import co.ledger.wallet.web.ethereum.services.WindowService
 
 /**
   *
@@ -33,15 +35,18 @@ import biz.enef.angulate.Module.RichModule
   * SOFTWARE.
   *
   */
-class WindowController extends Controller {
+class WindowController(windowService: WindowService) extends Controller {
 
-  var toto = "Hello World!"
+  var showNavigationBar = true
 
+  windowService onNavigationBarVisibilityChanged {(isVisible) =>
+    showNavigationBar = isVisible
+  }
 }
 
 object WindowController {
 
-  def init()(implicit module: RichModule) = {
+  def init(module: RichModule) = {
     module.controllerOf[WindowController]("WindowController")
   }
 
