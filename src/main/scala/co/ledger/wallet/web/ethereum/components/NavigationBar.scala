@@ -1,16 +1,18 @@
-package co.ledger.wallet.web.ethereum.controllers
+package co.ledger.wallet.web.ethereum.components
 
-import biz.enef.angulate.Controller
 import biz.enef.angulate.Module.RichModule
-import co.ledger.wallet.web.ethereum.Application
-import co.ledger.wallet.web.ethereum.services.WindowService
+import biz.enef.angulate.core.{Attributes, JQLite}
+import biz.enef.angulate.{Component, ComponentDef, Directive}
+
+import scala.scalajs.js
+import scala.scalajs.js.{Dictionary, Dynamic}
 
 /**
   *
-  * WindowController
+  * NavigationBar
   * ledger-wallet-ethereum-chrome
   *
-  * Created by Pierre Pollastri on 02/05/2016.
+  * Created by Pierre Pollastri on 03/05/2016.
   *
   * The MIT License (MIT)
   *
@@ -35,19 +37,42 @@ import co.ledger.wallet.web.ethereum.services.WindowService
   * SOFTWARE.
   *
   */
-class WindowController(windowService: WindowService) extends Controller {
+/*
+@Component(ComponentDef(
+  selector = "navigationbar",
+  templateUrl = "/templates/components/navigation-bar.html"
+))
+*/
+class NavigationBar extends Directive {
+  override type ScopeType = js.Dynamic
 
-  var showNavigationBar = false
+  override def templateUrl: String = "/templates/components/navigation-bar.html"
 
-  windowService onNavigationBarVisibilityChanged {(isVisible) =>
-    showNavigationBar = isVisible
+
+  override def controller(ctrl: ControllerType, scope: Dynamic, elem: JQLite, attrs: Attributes): Unit = {
+    scope.items = items
   }
+
+  val items = js.Array(
+    js.Dictionary(
+      "img" -> "./images/navigation_bar/ic_home.png",
+      "url" -> "#account/1"
+    ),
+    js.Dictionary(
+      "img" -> "images/navigation_bar/ic_send.png",
+      "url" -> "#account/10"
+    ),
+    js.Dictionary(
+      "img" -> "images/navigation_bar/ic_receive.png",
+      "url" -> "#account/20"
+    )
+  )
 }
 
-object WindowController {
+object NavigationBar {
 
   def init(module: RichModule) = {
-    module.controllerOf[WindowController]("WindowController")
+    //module.componentOf[NavigationBar]
+    module.directiveOf[NavigationBar]("navigationbar")
   }
-
 }

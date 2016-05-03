@@ -1,0 +1,65 @@
+@import "reset";
+@import "font";
+
+// Components
+
+@import "components/navigation_bar";
+
+.navigationbar {
+  display: flex;
+  height: 62px;
+  overflow: hidden;
+  background-color: @color-night-blue;
+  padding-left: @metrics-medium-padding;
+
+  .item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 32px;
+    margin-right: 22px;
+    padding-top: 19px;
+
+    a {
+      opacity: 0.75;
+    }
+
+    a:hover {
+      opacity: 1.0;
+    }
+
+    .spacer {
+      flex-grow: 1;
+    }
+
+    &.selected {
+      a {
+        opacity: 1.0;
+      }
+
+      .selector {
+        background-color: @color-invalid-red;
+      }
+
+    }
+
+    .selector {
+      height: 5px;
+      background-color: transparent;
+      width: 100%;
+    }
+  }
+
+  .spacer {
+    flex-grow: 1;
+  }
+
+  .right {
+    background-color: @color-dark-grey-blue;
+    height: 100%;
+    width: 84px;
+
+    padding-right: @metrics-medium-padding;
+  }
+
+}

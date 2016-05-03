@@ -3,10 +3,13 @@ package co.ledger.wallet.web.ethereum
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate._
 import biz.enef.angulate.core.HttpService
-import biz.enef.angulate.ext.{Route, RouteProvider}
-import co.ledger.wallet.web.ethereum.controllers.{TestController, WindowController}
+import biz.enef.angulate.ext.RouteProvider
+import co.ledger.wallet.web.ethereum.components.NavigationBar
+import co.ledger.wallet.web.ethereum.controllers.WindowController
+import co.ledger.wallet.web.ethereum.controllers.wallet.AccountController
 import co.ledger.wallet.web.ethereum.services.WindowService
 
+import scala.scalajs.js
 import scala.scalajs.js.JSApp
 
 /**
@@ -21,20 +24,23 @@ object Application extends JSApp{
     _module = module
 
     // Components
-
+    NavigationBar.init(module)
 
     // Controllers
     WindowController.init(module)
-    TestController.init(module)
+    AccountController.init(module)
 
     // Services
     WindowService.init(module)
 
     module.config(initRoutes _)
+    module.config(($compileProvider: js.Dynamic) => {
+     // $compileProvider.urlSanitizationWhitelist(js.RegExp("^\\s*(https?|ftp|mailto|file|chrome-extension):"))
+      $compileProvider.aHrefSanitizationWhitelist(js.RegExp("^\\s*(https?|ftp|mailto|file|chrome-extension):"))
+      $compileProvider.imgSrcSanitizationWhitelist(js.RegExp("^\\s*(https?|ftp|mailto|file|chrome-extension):"))
+    })
     module.run(initApp _)
-    val toto: Directive = null
-    println("Hello World!")
-    println(classOf[TestController].getName)
+
   }
 
   def initApp($http: HttpService) = {
@@ -42,12 +48,10 @@ object Application extends JSApp{
   }
 
   def initRoutes($routeProvider: RouteProvider) = {
-    $routeProvider
-      .when("/toto", Route(templateUrl = "/templates/toto.html" ))
-      .otherwise( Route( redirectTo = "/" ) )
+    Routes.declare($routeProvider)
   }
 
   private var _module: RichModule = _
-  def module = _module.self
+  def module = _module
 
 }

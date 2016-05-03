@@ -17,7 +17,10 @@ libraryDependencies += "biz.enef" %%% "scalajs-angulate" % "0.2.4"
 resolvers += Resolver.sonatypeRepo("snapshots")
 resolvers += Resolver.sonatypeRepo("releases")
 
-seq(lessSettings:_*)
+lazy val root = (project in file(".")).enablePlugins(SbtWeb)
+includeFilter in (Assets, LessKeys.less) := "*.less"
+
+excludeFilter in (Assets, LessKeys.less) := "_*.less"
 
 build := {
   val appDir = target(_/"chrome-app").value
@@ -39,7 +42,7 @@ build := {
   IO.copyFile(launcherFile, new File(appDir, launcherFile.name))
 
   // Copy less files in bundle
-  IO.copyDirectory(new File(sourceFile.getParentFile, "resource_managed/main/css"), appDir)
+  IO.copyDirectory(new File(sourceFile.getParentFile.getParentFile, "web/less/main/stylesheets"), appDir)
   ()
 }
 

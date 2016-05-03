@@ -31,10 +31,7 @@ class Counter {
 
   def toto() = count += 10
 
-
-
 }
-
 
 object Counter {
   def init(module: RichModule) = {

@@ -1,16 +1,13 @@
-package co.ledger.wallet.web.ethereum.controllers
+package co.ledger.wallet.web.ethereum
 
-import biz.enef.angulate.Controller
-import biz.enef.angulate.Module.RichModule
-import co.ledger.wallet.web.ethereum.Application
-import co.ledger.wallet.web.ethereum.services.WindowService
+import biz.enef.angulate.ext.{Route, RouteProvider}
 
 /**
   *
-  * WindowController
+  * Routes
   * ledger-wallet-ethereum-chrome
   *
-  * Created by Pierre Pollastri on 02/05/2016.
+  * Created by Pierre Pollastri on 03/05/2016.
   *
   * The MIT License (MIT)
   *
@@ -35,19 +32,13 @@ import co.ledger.wallet.web.ethereum.services.WindowService
   * SOFTWARE.
   *
   */
-class WindowController(windowService: WindowService) extends Controller {
+object Routes {
 
-  var showNavigationBar = false
+  def declare($routeProvider: RouteProvider) = {
+    $routeProvider
+      .when("/account/:id", Route(templateUrl = "/templates/wallet/account.html"))
 
-  windowService onNavigationBarVisibilityChanged {(isVisible) =>
-    showNavigationBar = isVisible
-  }
-}
-
-object WindowController {
-
-  def init(module: RichModule) = {
-    module.controllerOf[WindowController]("WindowController")
+      .otherwise( Route( redirectTo = "/account/0" ) )
   }
 
 }
