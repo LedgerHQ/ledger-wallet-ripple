@@ -17,6 +17,8 @@ libraryDependencies += "biz.enef" %%% "scalajs-angulate" % "0.2.4"
 resolvers += Resolver.sonatypeRepo("snapshots")
 resolvers += Resolver.sonatypeRepo("releases")
 
+seq(lessSettings:_*)
+
 build := {
   val appDir = target(_/"chrome-app").value
   appDir.mkdir()
@@ -35,6 +37,9 @@ build := {
     IO.copyFile(sourceFile, new File(appDir, mapSourceFile.name))
   val launcherFile = new File(sourceFile.getParent, name.value + "-launcher.js")
   IO.copyFile(launcherFile, new File(appDir, launcherFile.name))
+
+  // Copy less files in bundle
+  IO.copyDirectory(new File(sourceFile.getParentFile, "resource_managed/main/css"), appDir)
   ()
 }
 
