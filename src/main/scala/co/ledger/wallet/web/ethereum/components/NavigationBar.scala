@@ -66,11 +66,11 @@ class NavigationBar extends Directive {
     ),
     js.Dictionary(
       "img" -> "images/navigation_bar/ic_send.png",
-      "url" -> "#account/10"
+      "url" -> "#send"
     ),
     js.Dictionary(
       "img" -> "images/navigation_bar/ic_receive.png",
-      "url" -> "#account/20"
+      "url" -> "#receive"
     )
   )
 

@@ -1,13 +1,15 @@
-package co.ledger.wallet.web.ethereum
+package co.ledger.wallet.web.ethereum.controllers.wallet
 
-import biz.enef.angulate.ext.{Route, RouteProvider}
+import biz.enef.angulate.Controller
+import biz.enef.angulate.Module.RichModule
+import co.ledger.wallet.web.ethereum.services.WindowService
 
 /**
   *
-  * Routes
+  * ReceiveController
   * ledger-wallet-ethereum-chrome
   *
-  * Created by Pierre Pollastri on 03/05/2016.
+  * Created by Pierre Pollastri on 04/05/2016.
   *
   * The MIT License (MIT)
   *
@@ -32,14 +34,10 @@ import biz.enef.angulate.ext.{Route, RouteProvider}
   * SOFTWARE.
   *
   */
-object Routes {
+class ReceiveController(override val windowService: WindowService) extends Controller with WalletController{
 
-  def declare($routeProvider: RouteProvider) = {
-    $routeProvider
-      .when("/account/:id", Route(templateUrl = "/templates/wallet/account.html"))
-      .when("/send", Route(templateUrl = "/templates/wallet/send/index.html"))
-      .when("/receive", Route(templateUrl = "/templates/wallet/receive.html"))
-      .otherwise( Route( redirectTo = "/account/0" ) )
-  }
+}
 
+object ReceiveController {
+  def init(module: RichModule) = module.controllerOf[SendIndexController]("ReceiveController")
 }

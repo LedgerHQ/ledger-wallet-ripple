@@ -6,7 +6,7 @@ import biz.enef.angulate.core.HttpService
 import biz.enef.angulate.ext.RouteProvider
 import co.ledger.wallet.web.ethereum.components.{NavigationBar, RefreshButton}
 import co.ledger.wallet.web.ethereum.controllers.WindowController
-import co.ledger.wallet.web.ethereum.controllers.wallet.AccountController
+import co.ledger.wallet.web.ethereum.controllers.wallet.{AccountController, ReceiveController, SendIndexController}
 import co.ledger.wallet.web.ethereum.services.WindowService
 
 import scala.scalajs.js
@@ -30,6 +30,8 @@ object Application extends JSApp{
     // Controllers
     WindowController.init(module)
     AccountController.init(module)
+    SendIndexController.init(module)
+    ReceiveController.init(module)
 
     // Services
     WindowService.init(module)
