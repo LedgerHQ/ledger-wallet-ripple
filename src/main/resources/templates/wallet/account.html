@@ -1,4 +1,30 @@
-<div ng-controller="AccountController as ctrl">
-    Account controller {{ctrl.accountId}}
+<div class="wallet-view" ng-controller="AccountController as ctrl">
+    <!-- Balance section -->
+    <section>
+        <header>
+            <h1>my account</h1>
+        </header>
+        <table>
+            <thead>
+            <tr>
+                <td class="stretch-content">balance</td>
+                <td class="align-right">sync</td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="no-border">
+                <td><span class="bold-ultra-large-text">125.24743486</span> <span class="light-ultra-large-text">Ether</span></td>
+                <td class="align-right"><refreshbutton running="{{ctrl.isRefreshing}}" ng-click="ctrl.refresh()"></refreshbutton></td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
 
+    <!--- Operations section -->
+    <section>
+        <header>
+            <h1>last operations</h1>
+        </header>
+
+    </section>
 </div>

@@ -1,18 +1,16 @@
-package co.ledger.wallet.web.ethereum.controllers.wallet
+package co.ledger.wallet.web.ethereum.components
 
-import biz.enef.angulate.Controller
 import biz.enef.angulate.Module.RichModule
-import co.ledger.wallet.web.ethereum.services.WindowService
+import biz.enef.angulate.{Component, ComponentDef}
 
 import scala.scalajs.js
-import scala.scalajs.js.JSON
 
 /**
   *
-  * OperationController
+  * RefreshButton
   * ledger-wallet-ethereum-chrome
   *
-  * Created by Pierre Pollastri on 03/05/2016.
+  * Created by Pierre Pollastri on 04/05/2016.
   *
   * The MIT License (MIT)
   *
@@ -37,27 +35,30 @@ import scala.scalajs.js.JSON
   * SOFTWARE.
   *
   */
-class AccountController(override val windowService: WindowService,
-                       $routeParams: js.Dictionary[String])
-  extends Controller with WalletController {
+@Component(ComponentDef(
+  selector = "refreshbutton",  // component name (i.e. the HTML tag)
+  template = """<img class="refresh-button" ng-class="{spinning: running}" src="images/refresh_button/ic_green_refresh.png"/>""",
+  // - or -
+  // templateUrl = "counter.html"
+  bind = js.Dictionary(
+    "running" -> "@" // assign the value of the DOM attribute 'init' to the class property with the same name
+  )
+))
+class RefreshButton {
 
-  println(JSON.stringify($routeParams))
-
-  val accountId = $routeParams("id").toInt
-
-  def refresh(): Unit = {
-    println("Refresh now!")
-    isRefreshing = !isRefreshing
+  def running: Boolean = _running
+  def running_=(v: String) = {
+    println("Set is running " + v)
+    _running = v.toBoolean
   }
 
-  var isRefreshing = false
-
+  private var _running = false
 }
 
-object AccountController {
+object RefreshButton {
 
   def init(module: RichModule) = {
-    module.controllerOf[AccountController]("AccountController")
+    module.componentOf[RefreshButton]
   }
-  
+
 }

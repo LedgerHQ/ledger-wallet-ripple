@@ -4,7 +4,7 @@ import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate._
 import biz.enef.angulate.core.HttpService
 import biz.enef.angulate.ext.RouteProvider
-import co.ledger.wallet.web.ethereum.components.NavigationBar
+import co.ledger.wallet.web.ethereum.components.{NavigationBar, RefreshButton}
 import co.ledger.wallet.web.ethereum.controllers.WindowController
 import co.ledger.wallet.web.ethereum.controllers.wallet.AccountController
 import co.ledger.wallet.web.ethereum.services.WindowService
@@ -25,6 +25,7 @@ object Application extends JSApp{
 
     // Components
     NavigationBar.init(module)
+    RefreshButton.init(module)
 
     // Controllers
     WindowController.init(module)
