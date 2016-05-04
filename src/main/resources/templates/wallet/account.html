@@ -25,6 +25,19 @@
         <header>
             <h1>last operations</h1>
         </header>
-
+        <table>
+            <thead>
+            <tr>
+                <td class="fit-content">date & time</td>
+                <td class="fit-content align-right">amount</td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="fit-content" ng-class="{'no-border': $last}" ng-repeat="operation in ctrl.operations">
+                <td class="regular-grey-text">{{operation.date}}</td>
+                <td ng-class="{'regular-valid-text': !operation.isSend, 'regular-invalid-text': operation.isSend}" class="align-right">{{operation.amount}}</td>
+            </tr>
+            </tbody>
+        </table>
     </section>
 </div>

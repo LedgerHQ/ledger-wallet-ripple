@@ -52,6 +52,39 @@ class AccountController(override val windowService: WindowService,
 
   var isRefreshing = false
 
+  var operations = js.Array(
+    js.Dictionary(
+      "date" -> "03/18/2016 at 12:45 PM",
+      "amount" -> "+1.25104961 Ether",
+      "isSend" -> false
+    ),
+    js.Dictionary(
+      "date" -> "03/18/2016 at 12:45 PM",
+      "amount" -> "-1.25104961 Ether",
+      "isSend" -> true
+    ),
+    js.Dictionary(
+      "date" -> "03/18/2016 at 12:45 PM",
+      "amount" -> "+1.25104961 Ether",
+      "isSend" -> false
+    ),
+    js.Dictionary(
+      "date" -> "03/18/2016 at 12:45 PM",
+      "amount" -> "-1.25104961 Ether",
+      "isSend" -> true
+    ),
+    js.Dictionary(
+      "date" -> "03/18/2016 at 12:45 PM",
+      "amount" -> "+1.25104961 Ether",
+      "isSend" -> false
+    ),
+    js.Dictionary(
+      "date" -> "03/18/2016 at 12:45 PM",
+      "amount" -> "-1.25104961 Ether",
+      "isSend" -> true
+    )
+  )
+
 }
 
 object AccountController {
