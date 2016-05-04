@@ -51,12 +51,18 @@ class NavigationBar extends Directive {
 
   override def controller(ctrl: ControllerType, scope: Dynamic, elem: JQLite, attrs: Attributes): Unit = {
     scope.items = items
+    scope.help = help
+    scope.openHelpCenter = openHelpCenter _
+  }
+
+  def openHelpCenter(): Unit = {
+    println("Opening")
   }
 
   val items = js.Array(
     js.Dictionary(
       "img" -> "./images/navigation_bar/ic_home.png",
-      "url" -> "#account/1"
+      "url" -> "#account/0"
     ),
     js.Dictionary(
       "img" -> "images/navigation_bar/ic_send.png",
@@ -66,6 +72,10 @@ class NavigationBar extends Directive {
       "img" -> "images/navigation_bar/ic_receive.png",
       "url" -> "#account/20"
     )
+  )
+
+  val help = js.Dictionary(
+    "img" -> "images/navigation_bar/ic_help.png"
   )
 
   for (item <- items) {
