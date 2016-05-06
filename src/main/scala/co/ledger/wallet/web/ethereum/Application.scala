@@ -49,6 +49,8 @@ object Application extends JSApp{
     try {
       val address = "5884Fcfc9aa4d4A9F1B8580b9d375c9bBB74008A"
       println(s"$address => ${Address(address).toIBAN}")
+      val iban = "XE55AC8PZRVLEOA7642GXN1T2GF15DFNFD6"
+      println(s"$iban => ${Address(iban).toString}")
     } catch {
       case er: Throwable => er.printStackTrace()
     }

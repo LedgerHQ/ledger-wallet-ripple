@@ -2,8 +2,6 @@ package co.ledger.wallet.web.ethereum.core.eth
 
 import co.ledger.wallet.core.utils.HexUtils
 
-import scala.scalajs.js.annotation.JSExport
-
 /**
   *
   * Address
@@ -44,19 +42,17 @@ class Address(bytes: Array[Byte]) {
       else
         c
     }.mkString("")
-    val checksum = ("0" + (98 - mod9710(checksumed)).toString).takeRight(2)
+    val checksum = ("0" + (98 - Address.mod9710(checksumed)).toString).takeRight(2)
     s"XE$checksum$bban"
   }
 
   def toBigInt = BigInt(bytes)
   override def toString: String = "0x" + HexUtils.bytesToHex(bytes)
 
-  private def mod9710(value: String) = value.foldLeft(0)((r, c) => (r * 10 + (c - '0')) % 97)
+
 }
 
 object Address {
-
-  val Base36 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
   def apply(str: String): Address = {
     if (str.startsWith("iban:") || str.startsWith("XE"))
@@ -66,8 +62,21 @@ object Address {
   }
 
   def fromIban(iban: String): Address = {
-    BigInt(0).toString(36)
-    null
+    if (!iban.startsWith("XE")) {
+      throw new Exception(s"[$iban] is not a valid ICAP")
+    }
+    val checksum = iban.substring(2, 4).toInt
+    val bban = BigInt(iban.substring(4), 36)
+    val checksumed = (iban.substring(4) + iban.substring(0, 4)).map(_.toString).map {(c) =>
+      if (c.charAt(0) >= 'A' && c.charAt(0) <= 'Z')
+        (c.charAt(0) - 'A' + 10).toString
+      else
+        c
+    }.mkString("")
+    if (mod9710(checksumed) != 1) {
+      throw new Exception(s"[$iban] is not a valid ICAP (invalid checksum)")
+    }
+    new Address(bban.toByteArray)
   }
 
   def fromHex(hex: String): Address = {
@@ -77,5 +86,6 @@ object Address {
       new Address(HexUtils.decodeHex(hex))
   }
 
+  private def mod9710(value: String) = value.foldLeft(0)((r, c) => (r * 10 + (c - '0')) % 97)
 }
 
