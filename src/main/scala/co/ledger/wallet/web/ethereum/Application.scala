@@ -38,7 +38,6 @@ object Application extends JSApp{
 
     module.config(initRoutes _)
     module.config(($compileProvider: js.Dynamic) => {
-     // $compileProvider.urlSanitizationWhitelist(js.RegExp("^\\s*(https?|ftp|mailto|file|chrome-extension):"))
       $compileProvider.aHrefSanitizationWhitelist(js.RegExp("^\\s*(https?|ftp|mailto|file|chrome-extension):"))
       $compileProvider.imgSrcSanitizationWhitelist(js.RegExp("^\\s*(https?|ftp|mailto|file|chrome-extension):"))
     })

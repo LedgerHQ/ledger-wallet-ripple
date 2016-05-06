@@ -48,7 +48,6 @@ class NavigationBar extends Directive {
 
   override def templateUrl: String = "/templates/components/navigation-bar.html"
 
-
   override def controller(ctrl: ControllerType, scope: Dynamic, elem: JQLite, attrs: Attributes): Unit = {
     scope.items = items
     scope.help = help
