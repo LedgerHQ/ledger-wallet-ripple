@@ -4,9 +4,11 @@ import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate._
 import biz.enef.angulate.core.HttpService
 import biz.enef.angulate.ext.RouteProvider
+import co.ledger.wallet.core.utils.HexUtils
 import co.ledger.wallet.web.ethereum.components.{LButton, NavigationBar, RefreshButton}
 import co.ledger.wallet.web.ethereum.controllers.WindowController
 import co.ledger.wallet.web.ethereum.controllers.wallet.{AccountController, ReceiveController, SendIndexController}
+import co.ledger.wallet.web.ethereum.core.eth.Address
 import co.ledger.wallet.web.ethereum.services.WindowService
 
 import scala.scalajs.js
@@ -44,6 +46,12 @@ object Application extends JSApp{
     })
     module.run(initApp _)
 
+    try {
+      val address = "5884Fcfc9aa4d4A9F1B8580b9d375c9bBB74008A"
+      println(s"$address => ${Address(address).toIBAN}")
+    } catch {
+      case er: Throwable => er.printStackTrace()
+    }
   }
 
   def initApp($http: HttpService, $rootScope: js.Dynamic, $location: js.Dynamic) = {
