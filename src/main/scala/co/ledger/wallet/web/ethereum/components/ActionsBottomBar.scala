@@ -1,16 +1,16 @@
 package co.ledger.wallet.web.ethereum.components
 
+import biz.enef.angulate.Directive
 import biz.enef.angulate.Module.RichModule
-import biz.enef.angulate.{Component, ComponentDef}
 
 import scala.scalajs.js
 
 /**
   *
-  * LButton
+  * ActionsBottomBar
   * ledger-wallet-ethereum-chrome
   *
-  * Created by Pierre Pollastri on 06/05/2016.
+  * Created by Pierre Pollastri on 09/05/2016.
   *
   * The MIT License (MIT)
   *
@@ -35,33 +35,16 @@ import scala.scalajs.js
   * SOFTWARE.
   *
   */
-@Component(ComponentDef(
-  selector = "lbutton",
-  template =
-    """
-      |<div class='lbutton' ng-class="{green: type == 'validate', disabled: disabled, grey: type == 'cancel'}">
-      | <span>{{text}}</span>
-      |</div>
-      |""".stripMargin,
-  bind = js.Dictionary(
-    "text" -> "@",
-    "type" -> "@",
-    "disabled" -> "@"
-  )
-))
-class LButton {
-  var text = ""
-  var `type` = "validate"
+class ActionsBottomBar extends Directive {
 
-  def disabled = _disabled
-  def disabled_=(v: String) = _disabled = v.toBoolean
-  private var _disabled = false
+  override type ScopeType = js.Dynamic
+
+  override def templateUrl: String = "/templates/components/actions-bottom-bar.html"
+
+  override def transclude: Boolean = true
 }
 
-object LButton {
-
-  def init(module: RichModule) = {
-    module.componentOf[LButton]
-  }
-
+object ActionsBottomBar {
+  def init(module: RichModule) =
+    module.directiveOf[ActionsBottomBar]("actionsbottombar")
 }

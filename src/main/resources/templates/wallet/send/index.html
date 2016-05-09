@@ -4,7 +4,32 @@
         <header>
             <h1>send ether</h1>
         </header>
-
+        <div class="form">
+            <div>
+                <div>Amount</div>
+                <div>
+                    <input id="amount_input" placeholder="Amount" class="large-text-input" type="text" />
+                    <label class="large-text-input">Ether</label>
+                </div>
+            </div>
+            <div>
+                <div>to</div>
+                <div>
+                    <input id="receiver_input" placeholder="Ethereum account" class="text-input" type="text" />
+                </div>
+            </div>
+            <div>
+                <div>transaction fees</div>
+                <div><div class="regular-grey-text-small">0.0001 Ether</div></div>
+            </div>
+            <div>
+                <div class="optional">total spent</div>
+                <div><div class="regular-grey-text-small">1.2350 Ether (incl. transaction fees)</div></div>
+            </div>
+        </div>
     </section>
-    <lbutton text="validate" type="cancel" disabled="false"></lbutton>
+    <actionsbottombar>
+        <lbutton text="scan qr code" type="cancel" disabled="false"></lbutton>
+        <lbutton text="send" type="validate" disabled="false"></lbutton>
+    </actionsbottombar>
 </div>

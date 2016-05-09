@@ -1,16 +1,14 @@
-package co.ledger.wallet.web.ethereum.components
+package co.ledger.wallet.web.ethereum.services
 
 import biz.enef.angulate.Module.RichModule
-import biz.enef.angulate.{Component, ComponentDef}
-
-import scala.scalajs.js
+import biz.enef.angulate.Service
 
 /**
   *
-  * LButton
+  * WindowService
   * ledger-wallet-ethereum-chrome
   *
-  * Created by Pierre Pollastri on 06/05/2016.
+  * Created by Pierre Pollastri on 02/05/2016.
   *
   * The MIT License (MIT)
   *
@@ -35,33 +33,37 @@ import scala.scalajs.js
   * SOFTWARE.
   *
   */
-@Component(ComponentDef(
-  selector = "lbutton",
-  template =
-    """
-      |<div class='lbutton' ng-class="{green: type == 'validate', disabled: disabled, grey: type == 'cancel'}">
-      | <span>{{text}}</span>
-      |</div>
-      |""".stripMargin,
-  bind = js.Dictionary(
-    "text" -> "@",
-    "type" -> "@",
-    "disabled" -> "@"
-  )
-))
-class LButton {
-  var text = ""
-  var `type` = "validate"
+/***
+  * Configures the window
+  */
+class WindowService extends Service {
 
-  def disabled = _disabled
-  def disabled_=(v: String) = _disabled = v.toBoolean
-  private var _disabled = false
+  def showNavigationBar(): Unit = {
+    if (!_navigationIsVisible) {
+      _navigationIsVisible = true
+      _navigationBarVisibilityListener.foreach(_(_navigationIsVisible))
+    }
+  }
+
+  def hideNavigationBar(): Unit = {
+    if (_navigationIsVisible) {
+      _navigationIsVisible = false
+      _navigationBarVisibilityListener.foreach(_(_navigationIsVisible))
+    }
+  }
+
+  def onNavigationBarVisibilityChanged(handler: (Boolean) => Unit) = {
+    _navigationBarVisibilityListener = Option(handler)
+  }
+
+  private var _navigationBarVisibilityListener: Option[(Boolean) => Unit] = None
+  private var _navigationIsVisible = false
 }
 
-object LButton {
+object WindowService {
 
   def init(module: RichModule) = {
-    module.componentOf[LButton]
+    module.serviceOf[WindowService]("windowService")
   }
 
 }

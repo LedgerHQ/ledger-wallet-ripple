@@ -1,0 +1,23 @@
+@import (reference) "../constants";
+
+.actions-bottom-bar {
+  position: absolute;
+  left: 0;
+  bottom: @metrics-medium-padding;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding-left: @metrics-medium-padding;
+  padding-right: @metrics-medium-padding;
+
+  div {
+    > * {
+      margin-left: @metrics-extra-small-padding;
+    }
+
+    > *:first-child {
+      margin-left: 0px;
+    }
+  }
+}

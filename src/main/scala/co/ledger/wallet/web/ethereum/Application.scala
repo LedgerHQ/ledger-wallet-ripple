@@ -5,7 +5,7 @@ import biz.enef.angulate._
 import biz.enef.angulate.core.HttpService
 import biz.enef.angulate.ext.RouteProvider
 import co.ledger.wallet.core.utils.HexUtils
-import co.ledger.wallet.web.ethereum.components.{LButton, NavigationBar, RefreshButton}
+import co.ledger.wallet.web.ethereum.components.{ActionsBottomBar, LButton, NavigationBar, RefreshButton}
 import co.ledger.wallet.web.ethereum.controllers.WindowController
 import co.ledger.wallet.web.ethereum.controllers.wallet.{AccountController, ReceiveController, SendIndexController}
 import co.ledger.wallet.web.ethereum.core.eth.Address
@@ -29,6 +29,7 @@ object Application extends JSApp{
     NavigationBar.init(module)
     RefreshButton.init(module)
     LButton.init(module)
+    ActionsBottomBar.init(module)
 
     // Controllers
     WindowController.init(module)

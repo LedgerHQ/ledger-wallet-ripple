@@ -1,7 +1,15 @@
 @import (reference) "constants";
 
+
 .wallet-view {
   padding: @metrics-medium-padding;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  .spacer {
+    flex-grow: 1;
+  }
 
   section {
     width: 100%;
@@ -130,6 +138,50 @@
         padding-right: @metrics-ultra-large-padding;
       }
     }
+
+    .form {
+      display: flex;
+      flex-direction: column;
+
+      > div {
+        display: flex;
+        align-items: center;
+        flex-direction: row;
+        padding-top: 12px;
+        height: 40px;
+        padding-bottom: 12px;
+        vertical-align: middle;
+        border-bottom: 1px solid @color-very-light-grey;
+        font-size: @font-size-medium;
+
+        > div:first-child {
+          .uppercase-section-column;
+          padding-right: @metrics-large-padding;
+          &.top-aligned {
+            vertical-align: top;
+          }
+          &.optional {
+            color: @color-dark-grey;
+          }
+        }
+
+        > div:nth-child(2) {
+          text-align: right;
+          flex-grow: 1;
+        }
+
+      }
+
+      > div:first-child {
+        margin-top: @metrics-almost-small-padding;
+      }
+
+      > div:last-child {
+        border-bottom: 0px solid @color-very-light-grey;
+      }
+
+    }
+
   }
 
   // texts
@@ -287,6 +339,51 @@
   }
   .light-grey-icon-medium {
     .icon(@color-light-grey, @font-size-large);
+  }
+
+  // inputs
+  .text-input {
+    border: 0;
+    background-color: transparent;
+    outline: none;
+    text-align: right;
+    font-size: @font-size-medium;
+
+    &::-webkit-input-placeholder {
+      color: @color-soft-grey;
+    }
+
+    &.optional {
+      color: @color-dark-grey;
+    }
+  }
+  .large-text-input {
+    .text-input;
+    font-size: @font-size-extra-large;
+    font-weight: @font-weight-light;
+    letter-spacing: -0.8px;
+  }
+  .small-text-input {
+    .text-input;
+    font-size: @font-size-very-small;
+  }
+  .textarea-input {
+    border: 0;
+    background-color: transparent;
+    outline: none;
+    text-align: left;
+    font-size: @font-size-medium;
+    resize: none;
+  }
+  .rounded-text-area {
+    border: 1px solid @color-very-light-grey;
+    border-radius: @border-radius-default-value;
+    background-color: @color-white;
+    outline: none;
+    font-family: @font-family-name;
+    font-size: @font-size-small;
+    resize: none;
+    padding: @metrics-almost-small-padding @metrics-small-padding;
   }
 
   // inputs
