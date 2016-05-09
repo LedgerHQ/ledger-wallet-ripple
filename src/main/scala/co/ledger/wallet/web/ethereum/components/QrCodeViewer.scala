@@ -43,8 +43,8 @@ class QrCodeViewer extends Directive {
   override type ScopeType = Scope
   override type ControllerType = js.Dynamic
 
-  val DefaultWidth = 196
-  val DefaultHeight = 196
+  val DefaultWidth = 138
+  val DefaultHeight = 138
   val DefaultDarkColor = "#000000"
   val DefaultLightColor = "#ffffff"
   val DefaultCorrectionLevel = g.QRCode.CorrectLevel.H

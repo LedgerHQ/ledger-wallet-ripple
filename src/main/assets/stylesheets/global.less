@@ -5,10 +5,15 @@
   opacity: 0;
 }
 
+body {
+  display: flex;
+  flex-direction: column;
+}
+
 div[ng-view] {
   display: flex;
   flex-direction: column;
   background-color: @color-background-color;
-  height: 100%;
   width: 100%;
+  flex-grow: 1;
 }
