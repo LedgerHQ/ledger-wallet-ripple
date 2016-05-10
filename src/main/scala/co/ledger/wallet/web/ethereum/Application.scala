@@ -31,6 +31,7 @@ object Application extends JSApp{
     LButton.init(module)
     ActionsBottomBar.init(module)
     QrCodeViewer.init(module)
+    ProgressBar.init(module)
 
     // Controllers
     WindowController.init(module)

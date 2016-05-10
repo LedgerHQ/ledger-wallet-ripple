@@ -1,0 +1,28 @@
+@import (reference) "../constants";
+
+.progressbar {
+  display: flex;
+  align-items: center;
+
+  > div:first-child {
+    @height: 2px;
+    height: @height;
+    display: flex;
+    flex-direction: row;
+    background-color: @color-light-grey;
+
+    > .left {
+      width: 0%;
+      background-color: @color-soft-grey;
+      height: 100%;
+
+      &.animated {
+        transition: width 0.25s ease-in-out;
+      }
+    }
+  }
+
+  > div:nth-child(2) {
+    margin-left: @metrics-small-padding;
+  }
+}
