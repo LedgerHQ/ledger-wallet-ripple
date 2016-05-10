@@ -1,13 +1,11 @@
 package co.ledger.wallet.web.ethereum.components
 
+import biz.enef.angulate.Directive
 import biz.enef.angulate.Module.RichModule
-import biz.enef.angulate.{Component, ComponentDef}
-
-import scala.scalajs.js
 
 /**
   *
-  * ProgressBar
+  * QrCodeScanner
   * ledger-wallet-ethereum-chrome
   *
   * Created by Pierre Pollastri on 10/05/2016.
@@ -35,41 +33,12 @@ import scala.scalajs.js
   * SOFTWARE.
   *
   */
-@Component(ComponentDef(
-  template =
-    """
-      |<div class="progressbar" >
-      | <div style="width: {{width}}px">
-      |   <div class="left" style="width: {{percent}}%" ng-class="{animated: animated}"></div>
-      | </div>
-      | <div class="regular-text-small">{{percent}}%</div>
-      |</div>
-    """.stripMargin,
-  selector = "progressbar",
-  bind = js.Dictionary(
-    "progress" -> "@",
-    "total" -> "@",
-    "percent" -> "@",
-    "width" -> "@",
-    "animated" -> "@"
-  )
-))
-class ProgressBar {
+class QrCodeScanner extends Directive {
+  override def templateUrl: String = "templates/components/qrcode_scanner.html"
 
-  var width = 300
-  var animated = true
-
-  def percent_=(percent: String): Unit = {
-    _total = 100
-    _progress = percent.toInt
-  }
-  def percent = Math.min((_progress * 100) / _total, 100)
-
-  private var _total = 100
-  private var _progress = 0
 
 }
 
-object ProgressBar {
-  def init(module: RichModule) = module.componentOf[ProgressBar]
+object QrCodeScanner {
+  def init(module: RichModule) = module.directiveOf[QrCodeScanner]("qrcodescanner")
 }

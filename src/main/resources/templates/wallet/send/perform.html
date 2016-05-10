@@ -6,7 +6,7 @@
         </header>
         <div>
             <div class="regular-text">Preparing transaction...</div>
-            <progressbar class="almost-small-top-margin"></progressbar>
+            <progressbar percent="{{ctrl.progression}}" class="almost-small-top-margin"></progressbar>
             <div class="almost-small-top-margin regular-grey-text-small">Please wait, this operation may take a few moments.</div>
         </div>
     </section>
@@ -15,8 +15,9 @@
             <h1>send ether</h1>
         </header>
         <div>
-            <div class="regular-text">Confirm transaction</div>
-            <div class="small-top-margin regular-grey-text-small centered-text regular-line-height">
+            <img src="images/send/ic_nano_blue.png"/>
+            <div class="almost-medium-top-margin regular-text">Confirm transaction</div>
+            <div class="very-small-top-margin regular-grey-text-small centered-text regular-line-height">
                 Review displayed information on your Ledger device<br/>
                 and confirm the transaction to continue.
             </div>

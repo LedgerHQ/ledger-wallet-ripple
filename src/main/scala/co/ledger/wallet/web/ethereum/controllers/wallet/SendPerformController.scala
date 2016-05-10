@@ -1,6 +1,6 @@
 package co.ledger.wallet.web.ethereum.controllers.wallet
 
-import biz.enef.angulate.Controller
+import biz.enef.angulate.{Controller, Scope}
 import biz.enef.angulate.Module.RichModule
 
 /**
@@ -33,8 +33,9 @@ import biz.enef.angulate.Module.RichModule
   * SOFTWARE.
   *
   */
-class SendPerformController extends Controller {
+class SendPerformController($scope: Scope) extends Controller {
   import SendPerformController._
+  import scala.scalajs.js.timers._
 
   def isInProgressionMode = _currentMode == ProgressionMode
   def isInWaitingMode = _currentMode == WaitingMode
@@ -46,7 +47,20 @@ class SendPerformController extends Controller {
       _currentMode = ProgressionMode
   }
 
+  private def iterate(): Unit = {
+    setTimeout(500) {
+      progression = progression + 1
+      $scope.$digest()
+      println(s"Progression $progression")
+      iterate()
+    }
+  }
+
+  var progression = 0
   private var _currentMode = ProgressionMode
+
+
+  iterate()
 }
 
 object SendPerformController {

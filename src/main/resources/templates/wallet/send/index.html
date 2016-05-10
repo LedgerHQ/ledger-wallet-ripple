@@ -1,36 +1,55 @@
-<div class="wallet-view" ng-controller="SendIndexController as ctrl">
-    <!-- Balance section -->
-    <section>
-        <header>
-            <h1>send ether</h1>
-        </header>
-        <div class="form">
-            <div>
-                <div>Amount</div>
+<div class="fullsize-flex" ng-controller="SendIndexController as ctrl">
+    <div class="wallet-view" ng-hide="ctrl.isScanning">
+        <section>
+            <header>
+                <h1>send ether</h1>
+            </header>
+            <div class="form">
                 <div>
-                    <input id="amount_input" placeholder="Amount" class="large-text-input" type="text" />
-                    <label class="large-text-input">Ether</label>
+                    <div>Amount</div>
+                    <div>
+                        <input id="amount_input" placeholder="Amount" class="large-text-input" type="text" />
+                        <label class="large-text-input">Ether</label>
+                    </div>
+                </div>
+                <div>
+                    <div>to</div>
+                    <div>
+                        <input id="receiver_input" placeholder="Ethereum account" class="text-input" type="text" />
+                    </div>
+                </div>
+                <div>
+                    <div>transaction fees</div>
+                    <div><div class="regular-grey-text-small">0.0001 Ether</div></div>
+                </div>
+                <div>
+                    <div class="optional">total spent</div>
+                    <div><div class="regular-grey-text-small">1.2350 Ether (incl. transaction fees)</div></div>
                 </div>
             </div>
+        </section>
+        <div class="spacer"></div>
+        <actionsbottombar>
+            <lbutton text="scan qr code" type="cancel" disabled="false" ng-click="ctrl.scanQrCode()"></lbutton>
+            <lbutton text="send" type="validate" disabled="false" ng-click="ctrl.send()"></lbutton>
+        </actionsbottombar>
+    </div>
+    <div class="wallet-view" ng-hide="!ctrl.isScanning">
+        <section class="fullsize centered-content no-top-margin" ng-hide="ctrl.isInProgressionMode">
+            <header>
+                <h1>scan qr code</h1>
+            </header>
             <div>
-                <div>to</div>
-                <div>
-                    <input id="receiver_input" placeholder="Ethereum account" class="text-input" type="text" />
+                <qrcodescanner></qrcodescanner>
+                <div class="almost-medium-top-margin regular-text">Confirm transaction</div>
+                <div class="very-small-top-margin regular-grey-text-small centered-text regular-line-height">
+                    Review displayed information on your Ledger device<br/>
+                    and confirm the transaction to continue.
                 </div>
             </div>
-            <div>
-                <div>transaction fees</div>
-                <div><div class="regular-grey-text-small">0.0001 Ether</div></div>
-            </div>
-            <div>
-                <div class="optional">total spent</div>
-                <div><div class="regular-grey-text-small">1.2350 Ether (incl. transaction fees)</div></div>
-            </div>
-        </div>
-    </section>
-    <div class="spacer"></div>
-    <actionsbottombar>
-        <lbutton text="scan qr code" type="cancel" disabled="false" ng-click="ctrl.scanQrCode()"></lbutton>
-        <lbutton text="send" type="validate" disabled="false" ng-click="ctrl.send()"></lbutton>
-    </actionsbottombar>
+        </section>
+        <actionsbottombar>
+            <lbutton text="cancel" type="cancel" disabled="false" ng-click="ctrl.cancelScanQrCode()"></lbutton>
+        </actionsbottombar>
+    </div>
 </div>

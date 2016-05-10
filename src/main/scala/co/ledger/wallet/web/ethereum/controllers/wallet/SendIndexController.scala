@@ -1,11 +1,14 @@
 package co.ledger.wallet.web.ethereum.controllers.wallet
 
-import biz.enef.angulate.Controller
+import biz.enef.angulate.{Controller, Scope}
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.JQLite
+import co.ledger.wallet.web.ethereum.core.utils.PermissionsHelper
 import co.ledger.wallet.web.ethereum.services.WindowService
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
+import scala.util.{Failure, Success}
 
 /**
   *
@@ -37,10 +40,26 @@ import scala.scalajs.js
   * SOFTWARE.
   *
   */
-class SendIndexController(override val windowService: WindowService, $location: js.Dynamic, $element: JQLite) extends Controller with WalletController{
+class SendIndexController(override val windowService: WindowService, $location: js.Dynamic, $element: JQLite, $scope: Scope) extends Controller with WalletController{
+
+  var isScanning = false
 
   def scanQrCode() = {
+    PermissionsHelper.requestIfNecessary("videoCapture") map {(hasPermission) =>
+      if (!hasPermission)
+        throw new Exception("No Video capture permission")
+      ()
+    } onComplete {
+      case Success(_) =>
+        isScanning = true
+        $scope.$digest()
+      case Failure(_) =>
 
+    }
+  }
+
+  def cancelScanQrCode() = {
+    isScanning = false
   }
 
   def send() = {
