@@ -39,14 +39,15 @@ import scala.scalajs.js
   selector = "lbutton",
   template =
     """
-      |<div class='lbutton' ng-class="{green: type == 'validate', disabled: disabled, grey: type == 'cancel'}">
+      |<a class='lbutton' ng-class="{green: type == 'validate', disabled: disabled, grey: type == 'cancel'}">
       | <span>{{text}}</span>
-      |</div>
+      |</a>
       |""".stripMargin,
   bind = js.Dictionary(
     "text" -> "@",
     "type" -> "@",
-    "disabled" -> "@"
+    "disabled" -> "@",
+    "href" -> "@"
   )
 ))
 class LButton {

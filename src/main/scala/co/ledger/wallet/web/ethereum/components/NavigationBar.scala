@@ -52,6 +52,11 @@ class NavigationBar extends Directive {
     scope.items = items
     scope.help = help
     scope.openHelpCenter = openHelpCenter _
+    scope.isSelected = isSelected _
+  }
+
+  def isSelected(itemPath: String, currentPath: String) = {
+    currentPath.startsWith(itemPath)
   }
 
   def openHelpCenter(): Unit = {

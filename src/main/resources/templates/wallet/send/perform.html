@@ -1,0 +1,27 @@
+<div class="wallet-view" ng-controller="SendPerformController as ctrl">
+    <!-- Balance section -->
+    <section class="fullsize centered-content" ng-hide="ctrl.isInProgressionMode">
+        <header>
+            <h1>receive ether</h1>
+        </header>
+        <div>
+            <div class="regular-text">Preparing transaction...</div>
+            <div class="small-top-margin regular-grey-text-small">Please wait, this operation may take a few moments.</div>
+        </div>
+    </section>
+    <section class="fullsize centered-content no-top-margin" ng-hide="ctrl.isInWaitingMode">
+        <header>
+            <h1>receive ether</h1>
+        </header>
+        <div>
+            <div class="regular-text">Confirm transaction</div>
+            <div class="small-top-margin regular-grey-text-small centered-text regular-line-height">
+                Review displayed information on your Ledger device<br/>
+                and confirm the transaction to continue.
+            </div>
+        </div>
+    </section>
+    <actionsbottombar>
+        <lbutton text="cancel" type="cancel" disabled="false" ng-click="ctrl.switchMode()"></lbutton>
+    </actionsbottombar>
+</div>

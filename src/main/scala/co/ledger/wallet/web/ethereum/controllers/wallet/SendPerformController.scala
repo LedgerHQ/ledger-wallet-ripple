@@ -2,17 +2,13 @@ package co.ledger.wallet.web.ethereum.controllers.wallet
 
 import biz.enef.angulate.Controller
 import biz.enef.angulate.Module.RichModule
-import biz.enef.angulate.core.JQLite
-import co.ledger.wallet.web.ethereum.services.WindowService
-
-import scala.scalajs.js
 
 /**
   *
-  * SendIndexController
+  * SendPerformViewController
   * ledger-wallet-ethereum-chrome
   *
-  * Created by Pierre Pollastri on 04/05/2016.
+  * Created by Pierre Pollastri on 10/05/2016.
   *
   * The MIT License (MIT)
   *
@@ -37,34 +33,27 @@ import scala.scalajs.js
   * SOFTWARE.
   *
   */
-class SendIndexController(override val windowService: WindowService, $location: js.Dynamic, $element: JQLite) extends Controller with WalletController{
+class SendPerformController extends Controller {
+  import SendPerformController._
 
-  def scanQrCode() = {
+  def isInProgressionMode = _currentMode == ProgressionMode
+  def isInWaitingMode = _currentMode == WaitingMode
 
+  def switchMode() = {
+    if (isInProgressionMode)
+      _currentMode = WaitingMode
+    else
+      _currentMode = ProgressionMode
   }
 
-  def send() = {
-    try {
-      val amount = BigDecimal($element.find("#amount_input").asInstanceOf[JQLite].`val`().toString)
-      val recipient = $element.find("#receiver_input").asInstanceOf[JQLite].`val`().toString
-      val isIban = true
-      val fees = BigDecimal(0)
-      println(s"Amount: $amount")
-      println(s"Recipient: $recipient")
-      println(s"Is IBAN: $isIban")
-      println(s"Fees: $fees")
-      val formattedRecipient = recipient
-      $location.path(s"/send/$amount/to/$formattedRecipient/from/0/with/$fees")
-    } catch {
-      case any: Throwable =>
-        any.printStackTrace()
-        // Display error message
-    }
-    //
-  }
-
+  private var _currentMode = ProgressionMode
 }
 
-object SendIndexController {
-  def init(module: RichModule) = module.controllerOf[SendIndexController]("SendIndexController")
+object SendPerformController {
+
+  val ProgressionMode = 0
+  val WaitingMode = 1
+
+  def init(module: RichModule) = module.controllerOf[SendPerformController]("SendPerformController")
+
 }

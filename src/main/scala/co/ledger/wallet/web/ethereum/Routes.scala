@@ -38,6 +38,7 @@ object Routes {
     $routeProvider
       .when("/account/:id", Route(templateUrl = "/templates/wallet/account.html"))
       .when("/send", Route(templateUrl = "/templates/wallet/send/index.html"))
+      .when("/send/:amount/to/:recipient/from/:account_id/with/:fees", Route(templateUrl = "/templates/wallet/send/perform.html"))
       .when("/receive", Route(templateUrl = "/templates/wallet/receive.html"))
       .otherwise( Route( redirectTo = "/account/0" ) )
   }

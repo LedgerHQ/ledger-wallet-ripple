@@ -7,7 +7,7 @@ import biz.enef.angulate.ext.RouteProvider
 import co.ledger.wallet.core.utils.HexUtils
 import co.ledger.wallet.web.ethereum.components._
 import co.ledger.wallet.web.ethereum.controllers.WindowController
-import co.ledger.wallet.web.ethereum.controllers.wallet.{AccountController, ReceiveController, SendIndexController}
+import co.ledger.wallet.web.ethereum.controllers.wallet.{AccountController, ReceiveController, SendIndexController, SendPerformController}
 import co.ledger.wallet.web.ethereum.core.eth.Address
 import co.ledger.wallet.web.ethereum.services.WindowService
 
@@ -36,6 +36,7 @@ object Application extends JSApp{
     WindowController.init(module)
     AccountController.init(module)
     SendIndexController.init(module)
+    SendPerformController.init(module)
     ReceiveController.init(module)
 
     // Services
@@ -47,7 +48,7 @@ object Application extends JSApp{
       $compileProvider.imgSrcSanitizationWhitelist(js.RegExp("^\\s*(https?|ftp|mailto|file|chrome-extension):"))
     })
     module.run(initApp _)
-
+    println("/send/".split("/")(0))
     try {
       val address = "5884Fcfc9aa4d4A9F1B8580b9d375c9bBB74008A"
       println(s"$address => ${Address(address).toIBAN}")
