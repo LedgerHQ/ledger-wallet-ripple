@@ -1,14 +1,16 @@
 package co.ledger.wallet.web.ethereum.controllers.wallet
 
-import biz.enef.angulate.{Controller, Scope}
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.JQLite
+import biz.enef.angulate.{Controller, Scope}
 import co.ledger.wallet.web.ethereum.components.QrCodeScanner
 import co.ledger.wallet.web.ethereum.core.utils.PermissionsHelper
 import co.ledger.wallet.web.ethereum.services.WindowService
+import org.scalajs.dom
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
+import scala.scalajs.js.Dynamic
 import scala.util.{Failure, Success}
 
 /**
@@ -86,6 +88,13 @@ class SendIndexController(override val windowService: WindowService, $location: 
   }
 
   private val scanner = $element.find("qrcodescanner").scope().asInstanceOf[QrCodeScanner.Controller]
+  private val addressInput = $element.find("#receiver_input").asInstanceOf[JQLite](0).asInstanceOf[dom.html.Input]
+  scanner.$on("qr-code", {(event: js.Any, value: String) =>
+    cancelScanQrCode()
+    $scope.$digest()
+    Dynamic.global.console.log(value)
+    addressInput.value = value
+  })
 }
 
 object SendIndexController {

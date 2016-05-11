@@ -54,6 +54,7 @@ class QrCodeScanner extends Directive {
     scope.asInstanceOf[Scope].$on("$destroy", () => {
       stop()
     })
+    _scope = scope.asInstanceOf[QrCodeScanner.Controller]
   }
 
   override def postLink(scope: ScopeType, element: JQLite, attrs: Attributes, controller: ControllerType): Unit = {
@@ -167,7 +168,8 @@ class QrCodeScanner extends Directive {
       val result = Dynamic.global.zbarProcessImageData(context.getImageData(0, 0, width, height)).asInstanceOf[js.Array[js.Dynamic]]
       if (result.length > 0 && result(0).asInstanceOf[js.Array[js.Dynamic]](0).asInstanceOf[String] == "QR-Code") {
         val qrCode = result(0).asInstanceOf[js.Array[js.Dynamic]](2).asInstanceOf[String]
-        println(s"Result is $qrCode")
+        _scope.$emit("qr-code", qrCode)
+        stop()
       }
       else if (_running)
         scheduleQrCodeDecoder()
@@ -182,6 +184,7 @@ class QrCodeScanner extends Directive {
   private var _overlay: dom.html.Canvas = null
   private var _buffer: dom.html.Canvas = null
   private var _stream: js.Dynamic = null
+  private var _scope: QrCodeScanner.Controller = null
 }
 
 object QrCodeScanner {
