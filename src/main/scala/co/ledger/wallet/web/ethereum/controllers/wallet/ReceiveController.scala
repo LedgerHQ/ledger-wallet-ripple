@@ -39,5 +39,5 @@ class ReceiveController(override val windowService: WindowService) extends Contr
 }
 
 object ReceiveController {
-  def init(module: RichModule) = module.controllerOf[SendIndexController]("ReceiveController")
+  def init(module: RichModule) = module.controllerOf[ReceiveController]("ReceiveController")
 }
