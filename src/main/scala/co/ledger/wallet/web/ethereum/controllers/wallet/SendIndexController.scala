@@ -3,6 +3,7 @@ package co.ledger.wallet.web.ethereum.controllers.wallet
 import biz.enef.angulate.{Controller, Scope}
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.JQLite
+import co.ledger.wallet.web.ethereum.components.QrCodeScanner
 import co.ledger.wallet.web.ethereum.core.utils.PermissionsHelper
 import co.ledger.wallet.web.ethereum.services.WindowService
 
@@ -52,6 +53,7 @@ class SendIndexController(override val windowService: WindowService, $location: 
     } onComplete {
       case Success(_) =>
         isScanning = true
+        scanner.start()
         $scope.$digest()
       case Failure(_) =>
 
@@ -60,6 +62,7 @@ class SendIndexController(override val windowService: WindowService, $location: 
 
   def cancelScanQrCode() = {
     isScanning = false
+    scanner.stop()
   }
 
   def send() = {
@@ -82,6 +85,7 @@ class SendIndexController(override val windowService: WindowService, $location: 
     //
   }
 
+  private val scanner = $element.find("qrcodescanner").scope().asInstanceOf[QrCodeScanner.Controller]
 }
 
 object SendIndexController {

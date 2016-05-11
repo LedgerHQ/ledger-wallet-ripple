@@ -1,0 +1,29 @@
+@import (reference) "../constants";
+
+.qrcode-scanner {
+  background-color: @color-black;
+  overflow: hidden;
+  position: relative;
+
+  canvas {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  video {
+    transform: rotateY(180deg);
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+  }
+}
