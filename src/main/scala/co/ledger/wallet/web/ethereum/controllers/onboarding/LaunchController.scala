@@ -1,13 +1,15 @@
-package co.ledger.wallet.web.ethereum
+package co.ledger.wallet.web.ethereum.controllers.onboarding
 
-import biz.enef.angulate.ext.{Route, RouteProvider}
+import biz.enef.angulate.Controller
+import biz.enef.angulate.Module.RichModule
+import co.ledger.wallet.web.ethereum.services.WindowService
 
 /**
   *
-  * Routes
+  * LaunchController
   * ledger-wallet-ethereum-chrome
   *
-  * Created by Pierre Pollastri on 03/05/2016.
+  * Created by Pierre Pollastri on 11/05/2016.
   *
   * The MIT License (MIT)
   *
@@ -32,16 +34,12 @@ import biz.enef.angulate.ext.{Route, RouteProvider}
   * SOFTWARE.
   *
   */
-object Routes {
+class LaunchController(override val windowService: WindowService) extends Controller with OnBoardingController{
 
-  def declare($routeProvider: RouteProvider) = {
-    $routeProvider
-      .when("/onboarding/launch", Route(templateUrl = "/templates/onboarding/launch.html"))
-      .when("/account/:id", Route(templateUrl = "/templates/wallet/account.html"))
-      .when("/send", Route(templateUrl = "/templates/wallet/send/index.html"))
-      .when("/send/:amount/to/:recipient/from/:account_id/with/:fees", Route(templateUrl = "/templates/wallet/send/perform.html"))
-      .when("/receive", Route(templateUrl = "/templates/wallet/receive.html"))
-      .otherwise( Route( redirectTo = "/onboarding/launch" ) )
-  }
+  println("Hey")
 
+}
+
+object LaunchController {
+  def init(module: RichModule) = module.controllerOf[LaunchController]("LaunchController")
 }
