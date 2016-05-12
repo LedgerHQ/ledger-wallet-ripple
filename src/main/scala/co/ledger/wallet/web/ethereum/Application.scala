@@ -7,7 +7,7 @@ import biz.enef.angulate.ext.RouteProvider
 import co.ledger.wallet.core.utils.HexUtils
 import co.ledger.wallet.web.ethereum.components._
 import co.ledger.wallet.web.ethereum.controllers.WindowController
-import co.ledger.wallet.web.ethereum.controllers.onboarding.LaunchController
+import co.ledger.wallet.web.ethereum.controllers.onboarding.{LaunchController, OpeningController}
 import co.ledger.wallet.web.ethereum.controllers.wallet.{AccountController, ReceiveController, SendIndexController, SendPerformController}
 import co.ledger.wallet.web.ethereum.core.eth.Address
 import co.ledger.wallet.web.ethereum.services.WindowService
@@ -34,10 +34,12 @@ object Application extends JSApp{
     QrCodeViewer.init(module)
     QrCodeScanner.init(module)
     ProgressBar.init(module)
+    Spinner.init(module)
 
     // Controllers
 
     LaunchController.init(module)
+    OpeningController.init(module)
     WindowController.init(module)
     AccountController.init(module)
     SendIndexController.init(module)
