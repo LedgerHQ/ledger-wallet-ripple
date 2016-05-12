@@ -15,6 +15,7 @@ libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.8.0"
 libraryDependencies += "biz.enef" %%% "scalajs-angulate" % "0.2.4"
 libraryDependencies += "net.lullabyte" %%% "scala-js-chrome" % "0.2.1"
 libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.0"
+libraryDependencies += "be.doeraene" %%% "scalajs-jquery" % "0.9.0"
 
 resolvers += Resolver.sonatypeRepo("snapshots")
 resolvers += Resolver.sonatypeRepo("releases")

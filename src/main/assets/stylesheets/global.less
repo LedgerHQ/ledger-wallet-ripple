@@ -24,6 +24,9 @@ div[ng-view] {
 .regular-text-small {
   .text(@color-black, @font-size-very-small);
 }
+.light-large-text {
+  .text(@color-black, @font-size-large, @font-weight-light);
+}
 .bold-regular-text {
   .text(@color-black, @font-size-medium, @font-weight-semibold);
   letter-spacing: -0.5px;
@@ -66,6 +69,12 @@ div[ng-view] {
   .text(@color-dark-grey, @font-size-very-large, @font-weight-light);
   letter-spacing: -0.2px;
 }
+
+.very-light-grey-text-very-large {
+  .text(@color-soft-grey, @font-size-very-large, @font-weight-light);
+  letter-spacing: -0.2px;
+}
+
 .page-title {
   font-weight: @font-weight-light;
   font-size: @font-size-ultra-ultra-ultra-large;

@@ -1,13 +1,13 @@
-package co.ledger.wallet.web.ethereum
+package co.ledger.wallet.web.ethereum.core.utils
 
-import biz.enef.angulate.ext.{Route, RouteProvider}
+import scala.scalajs.js
 
 /**
   *
-  * Routes
+  * JQueryHelper
   * ledger-wallet-ethereum-chrome
   *
-  * Created by Pierre Pollastri on 03/05/2016.
+  * Created by Pierre Pollastri on 12/05/2016.
   *
   * The MIT License (MIT)
   *
@@ -32,16 +32,14 @@ import biz.enef.angulate.ext.{Route, RouteProvider}
   * SOFTWARE.
   *
   */
-object Routes {
+object JQueryHelper {
 
-  def declare($routeProvider: RouteProvider) = {
-    $routeProvider
-      .when("/onboarding/launch/:animated?", Route(templateUrl = "/templates/onboarding/launch.html"))
-      .when("/account/:id", Route(templateUrl = "/templates/wallet/account.html"))
-      .when("/send", Route(templateUrl = "/templates/wallet/send/index.html"))
-      .when("/send/:amount/to/:recipient/from/:account_id/with/:fees", Route(templateUrl = "/templates/wallet/send/perform.html"))
-      .when("/receive", Route(templateUrl = "/templates/wallet/receive.html"))
-      .otherwise( Route( redirectTo = "/onboarding/launch/animated" ) )
+  def injectCustomEasings() = {
+      js.Dynamic.global.$.easing.default = defaultEasing
+  }
+
+  private def defaultEasing: Function1[Double, Double] = {(p) =>
+    1 - Math.pow(1.0 - p, 6)
   }
 
 }
