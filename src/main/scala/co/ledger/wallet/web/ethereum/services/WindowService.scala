@@ -2,6 +2,7 @@ package co.ledger.wallet.web.ethereum.services
 
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.Service
+import co.ledger.wallet.web.ethereum.components.SnackBar.SnackBarInstance
 
 /**
   *
@@ -38,6 +39,7 @@ import biz.enef.angulate.Service
   */
 class WindowService extends Service {
 
+  // Navigation bar features
   def showNavigationBar(): Unit = {
     if (!_navigationIsVisible) {
       _navigationIsVisible = true
@@ -58,12 +60,11 @@ class WindowService extends Service {
 
   private var _navigationBarVisibilityListener: Option[(Boolean) => Unit] = None
   private var _navigationIsVisible = false
+
+  // SnackBar features
+  var configureSnackBar: (Int, String, String) => SnackBarInstance = (_, _, _) => null
 }
 
 object WindowService {
-
-  def init(module: RichModule) = {
-    module.serviceOf[WindowService]("windowService")
-  }
-
+  def init(module: RichModule) = module.serviceOf[WindowService]("windowService")
 }

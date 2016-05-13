@@ -2,6 +2,7 @@ package co.ledger.wallet.web.ethereum.controllers.wallet
 
 import biz.enef.angulate.Controller
 import biz.enef.angulate.Module.RichModule
+import co.ledger.wallet.web.ethereum.components.SnackBar
 import co.ledger.wallet.web.ethereum.services.WindowService
 
 import scala.scalajs.js
@@ -47,6 +48,7 @@ class AccountController(override val windowService: WindowService,
 
   def refresh(): Unit = {
     println("Refresh now!")
+    SnackBar.success("Transaction completed", "Successfully broadcasted to network").show()
     isRefreshing = !isRefreshing
   }
 

@@ -2,7 +2,9 @@ package co.ledger.wallet.web.ethereum.controllers
 
 import biz.enef.angulate.Controller
 import biz.enef.angulate.Module.RichModule
+import biz.enef.angulate.core.JQLite
 import co.ledger.wallet.web.ethereum.Application
+import co.ledger.wallet.web.ethereum.components.SnackBar.SnackBarScope
 import co.ledger.wallet.web.ethereum.services.WindowService
 
 /**
@@ -35,13 +37,21 @@ import co.ledger.wallet.web.ethereum.services.WindowService
   * SOFTWARE.
   *
   */
-class WindowController(windowService: WindowService) extends Controller {
+class WindowController(windowService: WindowService, $element: JQLite) extends Controller {
 
   var showNavigationBar = false
 
   windowService onNavigationBarVisibilityChanged {(isVisible) =>
     showNavigationBar = isVisible
   }
+
+
+  windowService.configureSnackBar = {(mode: Int, title: String, subtitle: String) =>
+    _snackBarScope.create().mode(mode).title(title).subtitle(subtitle)
+  }
+
+  private val _snackBarScope = $element.find("> snackbar").scope().asInstanceOf[SnackBarScope]
+
 }
 
 object WindowController {

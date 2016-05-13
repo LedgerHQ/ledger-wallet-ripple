@@ -42,8 +42,8 @@ object Routes {
       .when("/send", Route(templateUrl = "/templates/wallet/send/index.html"))
       .when("/send/:amount/to/:recipient/from/:account_id/with/:fees", Route(templateUrl = "/templates/wallet/send/perform.html"))
       .when("/receive", Route(templateUrl = "/templates/wallet/receive.html"))
-      //.otherwise( Route( redirectTo = "/onboarding/launch/animated" ) )
-      .otherwise( Route( redirectTo = "/onboarding/opening" ) )
+      .otherwise( Route( redirectTo = "/onboarding/launch/animated"))
+      .otherwise( Route( redirectTo = "/account/0"))
   }
 
 }

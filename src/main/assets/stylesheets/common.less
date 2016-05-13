@@ -5,6 +5,7 @@
 // Global
 @import "global";
 @import "wallet";
+@import "onboarding";
 
 // Components
 @import "components/navigation_bar";
@@ -14,65 +15,9 @@
 @import "components/qrcode_viewer";
 @import "components/qrcode_scanner";
 @import "components/progress_bar";
+@import "components/snackbar";
 
 // Controllers
 @import "controllers/wallet/send/index";
 
-.onboarding-view {
-  .fullsize-flex;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-
-  > header {
-    position: relative;
-    z-index: 1000;
-  }
-
-  > section {
-    width: 100%;
-    height: 227px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: @color-extra-light-grey;
-    border-top: solid @color-very-light-grey 1px;
-    border-bottom: solid @color-very-light-grey 1px;
-    margin-top: 55px;
-    margin-bottom: @metrics-extra-large-padding;
-  }
-
-  > footer {
-    width: 100%;
-    text-align: center;
-    .regular-soft-grey-text-small;
-
-    &.large {
-      .very-light-grey-text-very-large;
-    }
-  }
-
-  .footers-container {
-    position: relative;
-    width: 100%;
-
-    > footer {
-      position: absolute;
-      top: 0;
-      height: 11px;
-      width: 100%;
-      text-align: center;
-      .regular-soft-grey-text-small;
-
-      &.large {
-        .very-light-grey-text-very-large;
-      }
-    }
-
-  }
-
-}
-
-// 1111
+// 111111111111111

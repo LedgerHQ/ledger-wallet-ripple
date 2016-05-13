@@ -7,6 +7,7 @@ import co.ledger.wallet.web.ethereum.services.WindowService
   */
 trait WalletController {
   val windowService: WindowService
+  implicit val ws = windowService
 
   windowService.showNavigationBar()
 }

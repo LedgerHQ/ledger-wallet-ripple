@@ -1,0 +1,45 @@
+@import (reference) "../constants";
+@import (reference) "../global";
+
+.snackbar {
+  position: absolute;
+  width: 100%;
+  bottom: -72px;
+  padding: @metrics-small-padding;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &.success {
+    background-color: @color-valid-green;
+  }
+
+  &.error {
+    background-color: @color-invalid-red;
+  }
+
+  &.neutral {
+    background-color: @color-dark-grey;
+  }
+
+  > img {
+    margin-right: @metrics-small-padding;
+  }
+
+  > div {
+
+    > h1 {
+      .regular-text;
+      color: @color-white;
+    }
+
+    > h2 {
+      margin-top: 8px;
+      .regular-soft-grey-text-small;
+      color: #e2e2e2;
+    }
+
+  }
+
+}

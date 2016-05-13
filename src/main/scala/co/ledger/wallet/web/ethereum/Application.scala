@@ -35,6 +35,7 @@ object Application extends JSApp{
     QrCodeScanner.init(module)
     ProgressBar.init(module)
     Spinner.init(module)
+    SnackBar.init(module)
 
     // Controllers
 
@@ -55,19 +56,9 @@ object Application extends JSApp{
       $compileProvider.imgSrcSanitizationWhitelist(js.RegExp("^\\s*(https?|ftp|mailto|file|chrome-extension):"))
     })
     module.run(initApp _)
-    println("/send/".split("/")(0))
-    try {
-      val address = "5884Fcfc9aa4d4A9F1B8580b9d375c9bBB74008A"
-      println(s"$address => ${Address(address).toIBAN}")
-      val iban = "XE55AC8PZRVLEOA7642GXN1T2GF15DFNFD6"
-      println(s"$iban => ${Address(iban).toString}")
-    } catch {
-      case er: Throwable => er.printStackTrace()
-    }
   }
 
   def initApp($http: HttpService, $rootScope: js.Dynamic, $location: js.Dynamic) = {
-    println("App initialized")
     $rootScope.location = $location
   }
 

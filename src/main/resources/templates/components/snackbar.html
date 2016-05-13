@@ -1,0 +1,7 @@
+<div class="snackbar" ng-class="{success: isSuccess(), error: isError(), neutral: isNeutral()}" ng-click="dismiss()">
+    <img ng-src="{{icon()}}"/>
+    <div>
+        <h1>{{title()}}</h1>
+        <h2>{{subtitle()}}</h2>
+    </div>
+</div>
