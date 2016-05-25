@@ -10,9 +10,10 @@ import co.ledger.wallet.web.ethereum.controllers.onboarding.{LaunchController, O
 import co.ledger.wallet.web.ethereum.controllers.wallet.{AccountController, ReceiveController, SendIndexController, SendPerformController}
 import co.ledger.wallet.web.ethereum.core.utils.ChromePreferences
 import co.ledger.wallet.web.ethereum.services.WindowService
-
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
 import scala.scalajs.js.JSApp
+import scala.util.{Failure, Success}
 
 /**
   * Created by pollas_p on 28/04/2016.
@@ -55,6 +56,15 @@ object Application extends JSApp{
       $compileProvider.imgSrcSanitizationWhitelist(js.RegExp("^\\s*(https?|ftp|mailto|file|chrome-extension):"))
     })
     module.run(initApp _)
+
+    // Preferences tests
+    ChromePreferences.load("toto", "toto") onComplete {
+      case Success(_) =>
+        val preferences = new ChromePreferences("Test")
+        preferences.edit().putString("pref", "hey").commit()
+        println(preferences.string("pref").get)
+      case Failure(ex) => ex.printStackTrace()
+    }
   }
 
   def initApp($http: HttpService, $rootScope: js.Dynamic, $location: js.Dynamic) = {

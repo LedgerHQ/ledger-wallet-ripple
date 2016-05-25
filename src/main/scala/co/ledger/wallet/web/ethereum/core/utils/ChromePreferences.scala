@@ -1,9 +1,11 @@
 package co.ledger.wallet.web.ethereum.core.utils
 
 import co.ledger.wallet.core.utils.Preferences
+import upickle.Js
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
+import scala.scalajs.js
 
 /**
   *
@@ -97,9 +99,9 @@ class ChromePreferences(name: String) extends Preferences {
     override def commit(): Unit = {
       // Clear data if necessary
       if (_clearAll) {
-        _data = Map[String, _]()
+        _data = Map[String, Any]()
       }
-      val data = scala.collection.mutable.Map[String, _]()
+      val data = scala.collection.mutable.Map[String, Any]()
       // Restore data in mutable state
       _data foreach {
         case (key, value) =>
@@ -118,7 +120,7 @@ class ChromePreferences(name: String) extends Preferences {
       ChromePreferences.save(name, _data)
     }
 
-    private val _changes = scala.collection.mutable.Map[String, _]()
+    private val _changes = scala.collection.mutable.Map[String, Any]()
     private val _remove = ArrayBuffer[String]()
     private var _clearAll = false
   }
@@ -127,17 +129,74 @@ class ChromePreferences(name: String) extends Preferences {
 }
 
 object ChromePreferences {
+  import upickle.default._
 
-  def load(password: String): Future[Unit] = {
-    null
+
+  def load(name: String, password: String): Future[Unit] = {
+    import js._
+    import Dynamic._
+
+    val promise = scala.concurrent.Promise[Unit]()
+    val chrome = global.chrome
+    chrome.storage.local.get(name, {(result: Dictionary[String]) =>
+      global.console.log("Result is ", result)
+      val json = if (result.contains(name)) result(name) else "{}"
+      read[Map[String, String]](json) foreach {
+        case (key, value) =>
+          _data(key) = value
+      }
+      promise.success()
+    })
+    promise.future
   }
 
   private[ChromePreferences] def save(name: String, data: Map[String, _]): Unit = {
 
+    def scala2JsonValue(x: Any): Js.Value = {
+      x match {
+        case true =>
+          Js.True
+        case false =>
+          Js.False
+        case null =>
+          Js.Null
+        case value:Int =>
+          Js.Num(value)
+        case value:Float =>
+          Js.Num(value)
+        case value:Double =>
+          Js.Num(value)
+        case value:Short =>
+          Js.Num(value)
+        case value: String =>
+          Js.Str(value)
+      }
+    }
+    var kvs = Seq[(String, Js.Value)]()
+    data foreach {
+      case (key, value: Array[Any]) =>
+        var array = Seq[Js.Value]()
+        for (v <- array)
+          array = array :+ scala2JsonValue(v)
+        kvs = kvs :+ (key -> Js.Arr(array:_*))
+      case (key, value) =>
+        kvs = kvs :+ (key -> scala2JsonValue(value))
+    }
+    val serialized = upickle.json.write(Js.Obj(kvs:_*))
+    println("Serialized is " + serialized)
   }
 
   private[ChromePreferences] def get(name: String): Map[String, _] = {
-    null
+    if (_data.contains(name)) {
+      Map[String, Any]()
+    } else {
+      Map[String, Any]()
+    }
   }
 
+  def close() = {
+    _data.clear()
+  }
+
+  private val _data = scala.collection.mutable.Map[String, String]()
 }

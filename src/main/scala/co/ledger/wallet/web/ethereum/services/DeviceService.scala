@@ -57,7 +57,7 @@ class DeviceService extends Service with DeviceManager[Any] {
 
   )
 
-  private val _preferences = new ChromePreferences()
+  private val _preferences = new ChromePreferences("DeviceService")
 }
 
 object DeviceService {

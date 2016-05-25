@@ -10,5 +10,8 @@
   },
   "optional_permissions": [
     "videoCapture"
+  ],
+  "permissions": [
+    "storage"
   ]
 }
