@@ -67,20 +67,22 @@ class SnackBar extends Directive {
     }
     show = (a: Any) => {
       currentInstance = a.asInstanceOf[SnackBarInstance]
-      currentInstance.dismissHandler = {() =>
+      currentInstance.dismissHandler = () => {
+        println("Dismiss delay")
+        if (currentInstance == a)
+          scope.dismiss()
+      }
+      setTimeout(0) {
         scope.$digest()
         element.css("bottom", -element.outerHeight(false))
         JQueryHelper.injectCustomEasings()
         element.animate(js.Dictionary("bottom" -> 0), 400, "default", () => {
-          setTimeout(currentInstance.delay.toMillis) {
-            println("Dismiss delay")
-            if (currentInstance == a)
-              scope.dismiss()
+          setTimeout(currentInstance.delay.toMillis){
+            if (currentInstance != null)
+              currentInstance.dismissHandler()
           }
         })
-        ()
       }
-      setTimeout(0)(currentInstance.dismissHandler)
       ()
     }
   }

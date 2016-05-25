@@ -32,9 +32,10 @@ package co.ledger.wallet.core.device
 
 import java.util.UUID
 
-import co.ledger.wallet.core.device.DeviceFactory.{DeviceLost, DeviceDiscovered, ScanRequest}
+import co.ledger.wallet.core.device.DeviceFactory.{DeviceDiscovered, DeviceLost, ScanRequest}
+import co.ledger.wallet.core.utils.Preferences
 
-import scala.concurrent.{Promise, ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future, Promise}
 
 trait DeviceManager[Context]  {
   import DeviceManager._
@@ -72,13 +73,11 @@ trait DeviceManager[Context]  {
     val uuid = UUID.randomUUID()
     device.uuid = uuid
     _registeredDevices(uuid) = device
-    /*
-    preferences(context).edit()
+    preferences.edit()
       .putString("last_device_type", connectivityTypeToString(device.connectivityType))
       .putString("last_device_info", device.info)
       .putString("last_device_uuid", uuid.toString)
       .commit()
-     */
     uuid
   }
 
@@ -96,31 +95,27 @@ trait DeviceManager[Context]  {
   }
 
   def lastConnectedDevice(): Future[Device] = ???
-    /*if (!preferences(context).contains("last_device_uuid"))
+    if (!preferences.contains("last_device_uuid"))
       Future.failed(new Exception("No last device"))
     else
-      connectedDevice(UUID.fromString(preferences(context).getString("last_device_uuid", null)))
-      */
+      connectedDevice(UUID.fromString(preferences.string("last_device_uuid").orNull))
 
   def lastConnectedDeviceInfo(): Future[(DeviceFactory, String)] = Future {
-    //val deviceType = stringToConnectivityType(preferences(context).getString("last_device_type", null))
-    //val deviceInfo = preferences(context).getString("last_device_info", null)
-    //(_deviceManager(deviceType), deviceInfo)
-    null
+    val deviceType = stringToConnectivityType(preferences.string("last_device_type").orNull)
+    val deviceInfo = preferences.string("last_device_info").orNull
+    (_deviceManager(deviceType), deviceInfo)
   }
 
+  protected def preferences: Preferences
   def context: Context
 
   protected[this] val _registeredDevices = scala.collection.mutable.Map[UUID, Device]()
 
   import DeviceManager.ConnectivityTypes._
-  private[this] lazy val _deviceManager = Map[ConnectivityType, DeviceFactory](
-    //Ble -> new BleDeviceFactory(context, ec),
-    //Usb -> new UsbDeviceFactory(context, ec),
-    //Nfc -> new NfcDeviceFactory(context, ec)
-  )
+  protected val _deviceManager: Map[ConnectivityType, DeviceFactory]
 
-  //override def PreferencesName: String = "DeviceManager"
+  type DelayedFunctionHandler = (Long, () => Unit) => Unit
+  protected def delayedFunctionHandler: DelayedFunctionHandler
 
   private class CompoundScanRequest(requests: Iterable[ScanRequest]) extends ScanRequest {
 
@@ -136,6 +131,8 @@ trait DeviceManager[Context]  {
         request.start()
       }
     }
+
+    override protected def runDelayed(delay: Long)(f: => Unit): Unit = delayedFunctionHandler(delay, f _)
 
     override def onStop(): Unit = {
       for (request <- requests) {

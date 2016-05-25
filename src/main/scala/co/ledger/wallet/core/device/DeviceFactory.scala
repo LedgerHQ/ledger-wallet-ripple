@@ -80,11 +80,9 @@ object DeviceFactory {
       _isStarted = true
       onStart()
       if (duration != InfiniteScanDuration) {
-        /*
-        new Handler().postDelayed(new Runnable {
-          override def run(): Unit = stop()
-        }, duration)
-        */
+        runDelayed(duration) {
+          stop()
+        }
       }
     }
     def onStart(): Unit
@@ -99,6 +97,8 @@ object DeviceFactory {
       }
 
     }
+
+    protected def runDelayed(delay: Long)(f: => Unit): Unit
 
     private[this] var _duration = DefaultScanDuration
     def duration = _duration

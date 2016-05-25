@@ -4,12 +4,11 @@ import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate._
 import biz.enef.angulate.core.HttpService
 import biz.enef.angulate.ext.RouteProvider
-import co.ledger.wallet.core.utils.HexUtils
 import co.ledger.wallet.web.ethereum.components._
 import co.ledger.wallet.web.ethereum.controllers.WindowController
 import co.ledger.wallet.web.ethereum.controllers.onboarding.{LaunchController, OpeningController}
 import co.ledger.wallet.web.ethereum.controllers.wallet.{AccountController, ReceiveController, SendIndexController, SendPerformController}
-import co.ledger.wallet.web.ethereum.core.eth.Address
+import co.ledger.wallet.web.ethereum.core.utils.ChromePreferences
 import co.ledger.wallet.web.ethereum.services.WindowService
 
 import scala.scalajs.js
