@@ -94,11 +94,12 @@ trait DeviceManager[Context]  {
     _registeredDevices.getOrElse(uuid, throw new Exception("No such device"))
   }
 
-  def lastConnectedDevice(): Future[Device] = ???
+  def lastConnectedDevice(): Future[Device] = {
     if (!preferences.contains("last_device_uuid"))
       Future.failed(new Exception("No last device"))
     else
       connectedDevice(UUID.fromString(preferences.string("last_device_uuid").orNull))
+  }
 
   def lastConnectedDeviceInfo(): Future[(DeviceFactory, String)] = Future {
     val deviceType = stringToConnectivityType(preferences.string("last_device_type").orNull)

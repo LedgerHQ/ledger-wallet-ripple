@@ -8,8 +8,9 @@ import co.ledger.wallet.web.ethereum.components._
 import co.ledger.wallet.web.ethereum.controllers.WindowController
 import co.ledger.wallet.web.ethereum.controllers.onboarding.{LaunchController, OpeningController}
 import co.ledger.wallet.web.ethereum.controllers.wallet.{AccountController, ReceiveController, SendIndexController, SendPerformController}
-import co.ledger.wallet.web.ethereum.core.utils.ChromePreferences
+import co.ledger.wallet.web.ethereum.core.utils.{ChromeGlobalPreferences, ChromePreferences}
 import co.ledger.wallet.web.ethereum.services.WindowService
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
 import scala.scalajs.js.JSApp
@@ -58,20 +59,47 @@ object Application extends JSApp{
     module.run(initApp _)
 
     // Preferences tests
-    ChromePreferences.load("toto", "toto") onComplete {
-      case Success(_) =>
-        val preferences = new ChromePreferences("Test")
-        println(s"Before ${preferences.string("pref")}")
-        println(s"Before ${preferences.int("int")}")
-        println(s"Before ${preferences.float("float")}")
-        preferences.edit()
-          .putString("pref", "hey")
+    ChromePreferences.init() foreach {(_) =>
+      ChromePreferences.load("toto", "toto") onComplete {
+        case Success(_) =>
+        {
+          val preferences = new ChromePreferences("Test")
+          println(s"Before ${preferences.string("pref")}")
+          println(s"Before ${preferences.int("int")}")
+          println(s"Before ${preferences.float("float")}")
+          preferences.edit()
+            .putString("pref", "hey")
             .putInt("int", 12)
             .putFloat("float", 12.5f)
-          .commit()
-        println(preferences.string("pref").get)
-      case Failure(ex) => ex.printStackTrace()
+            .commit()
+          println(preferences.string("pref").get)
+        }
+        {
+          val preferences = new ChromePreferences("SuperTest")
+          println(s"Before ${preferences.string("pref")}")
+          println(s"Before ${preferences.int("int")}")
+          println(s"Before ${preferences.float("float")}")
+          preferences.edit()
+            .putString("pref", "hey")
+            .putInt("int", 12)
+            .putFloat("float", 12.5f)
+            .commit()
+          println(preferences.string("pref").get)
+        }
+        case Failure(ex) => ex.printStackTrace()
+      }
+      val preferences = new ChromeGlobalPreferences("GTest")
+      println(s"Global ${preferences.string("pref")}")
+      println(s"Global ${preferences.int("int")}")
+      println(s"Global ${preferences.float("float")}")
+      preferences.edit()
+        .putString("pref", "hey")
+        .putInt("int", 12)
+        .putFloat("float", 12.5f)
+        .commit()
+      println(preferences.string("pref").get)
     }
+
   }
 
   def initApp($http: HttpService, $rootScope: js.Dynamic, $location: js.Dynamic) = {

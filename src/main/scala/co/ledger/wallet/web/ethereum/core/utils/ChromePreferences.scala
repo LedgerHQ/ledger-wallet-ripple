@@ -117,7 +117,7 @@ class ChromePreferences(name: String) extends Preferences {
           data(key) = value
       }
       _data = data.toMap
-      ChromePreferences.save(name, _data)
+      ChromePreferences.save(name, _data, isGlobal)
     }
 
     private val _changes = scala.collection.mutable.Map[String, Any]()
@@ -125,14 +125,25 @@ class ChromePreferences(name: String) extends Preferences {
     private var _clearAll = false
   }
 
-  private var _data = ChromePreferences.get(name)
+  private var _data = ChromePreferences.get(name, isGlobal)
+
+  def isGlobal = false
+}
+
+class ChromeGlobalPreferences(name: String) extends ChromePreferences(name) {
+  override def isGlobal: Boolean = true
 }
 
 object ChromePreferences {
   import upickle.default._
 
+  val GlobalStoreName = "global"
 
-  def load(name: String, password: String): Future[Unit] = {
+  def init(): Future[Unit] = load(GlobalStoreName, "", _globals)
+
+  def load(name: String, password: String): Future[Unit] = load(name, password, _data)
+
+  private def load(name: String, password: String, map: scala.collection.mutable.Map[String, String]): Future[Unit] = {
     import js._
     import Dynamic._
 
@@ -144,15 +155,15 @@ object ChromePreferences {
       val json = if (result.contains(name)) result(name) else "{}"
       read[Map[String, String]](json) foreach {
         case (key, value) =>
-          _data(key) = value
+          map(key) = value
       }
       promise.success()
     })
     promise.future
   }
 
-  private[ChromePreferences] def save(name: String, data: Map[String, _]): Unit = {
-
+  private[ChromePreferences] def save(name: String, data: Map[String, _], global: Boolean): Unit = {
+    val d = if (global) _globals else _data
     def scala2JsonValue(x: Any): Js.Value = {
       x match {
         case true =>
@@ -187,29 +198,32 @@ object ChromePreferences {
     // Time for encryption
     val encrypted = serialized
     // Storage time
-    _data(name) = encrypted
-    save()
+    d(name) = encrypted
+    save(global)
   }
 
-  private def save(): Unit = {
+  private def save(isGlobal: Boolean): Unit = {
     import js._
     import Dynamic._
     val chrome = global.chrome
 
+    val name = if (isGlobal) GlobalStoreName else _currentStoreName
+    val data = if (isGlobal) _globals else _data
     var kvs = Seq[(String, Js.Value)]()
-    _data foreach {
+    data foreach {
       case (key, value) =>
         kvs = kvs :+ (key -> Js.Str(value))
     }
     val serialized = upickle.json.write(Js.Obj(kvs:_*))
     chrome.storage.local.set(js.Dictionary[String](
-      _currentStoreName -> serialized
+      name -> serialized
     ))
   }
 
-  private[ChromePreferences] def get(name: String): Map[String, _] = {
-    if (_data.contains(name)) {
-      upickle.json.read(_data(name)).obj map {
+  private[ChromePreferences] def get(name: String, global: Boolean): Map[String, _] = {
+    val data = if (global) _globals else _data
+    if (data.contains(name)) {
+      upickle.json.read(data(name)).obj map {
         case (key, value: Js.Str) =>
           (key, value.value)
         case (key, value: Js.Num) =>
@@ -239,5 +253,6 @@ object ChromePreferences {
   }
 
   private val _data = scala.collection.mutable.Map[String, String]()
+  private val _globals = scala.collection.mutable.Map[String, String]()
   private var _currentStoreName = ""
 }
