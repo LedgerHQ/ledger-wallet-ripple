@@ -5,7 +5,8 @@ import biz.enef.angulate.Service
 import co.ledger.wallet.core.device.DeviceManager.ConnectivityTypes.ConnectivityType
 import co.ledger.wallet.core.device.{DeviceFactory, DeviceManager}
 import co.ledger.wallet.core.utils.Preferences
-import co.ledger.wallet.web.ethereum.core.utils.ChromePreferences
+import co.ledger.wallet.web.ethereum.core.device.UsbDeviceFactory
+import co.ledger.wallet.web.ethereum.core.utils.{ChromeGlobalPreferences, ChromePreferences}
 
 import scala.concurrent.{ExecutionContext, duration}
 import scala.scalajs.js.timers._
@@ -42,6 +43,8 @@ import scala.scalajs.js.timers._
   *
   */
 class DeviceService extends Service with DeviceManager[Any] {
+  import co.ledger.wallet.core.device.DeviceManager.ConnectivityTypes._
+
   override implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
   override protected def delayedFunctionHandler: DelayedFunctionHandler = (delay: Long, f: () => Unit) => {
@@ -54,16 +57,16 @@ class DeviceService extends Service with DeviceManager[Any] {
   override def context: Any = this
 
   override protected val _deviceManager: Map[ConnectivityType, DeviceFactory] = Map(
-
+    Usb -> new UsbDeviceFactory
   )
 
-  private val _preferences = new ChromePreferences("DeviceService")
+  private val _preferences = new ChromeGlobalPreferences("DeviceService")
 }
 
 object DeviceService {
 
   def init(module: RichModule) = {
-    module.serviceOf[DeviceService]("DeviceService")
+    module.serviceOf[DeviceService]("deviceService")
   }
 
 }

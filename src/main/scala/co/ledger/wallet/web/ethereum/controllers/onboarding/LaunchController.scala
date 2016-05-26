@@ -3,9 +3,12 @@ package co.ledger.wallet.web.ethereum.controllers.onboarding
 import biz.enef.angulate.Controller
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.JQLite
+import co.ledger.wallet.core.device.DeviceFactory
+import co.ledger.wallet.core.device.DeviceFactory.{DeviceDiscovered, DeviceLost, ScanRequest}
 import co.ledger.wallet.web.ethereum.core.utils.JQueryHelper
-import co.ledger.wallet.web.ethereum.services.WindowService
+import co.ledger.wallet.web.ethereum.services.{DeviceService, WindowService}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
 import scala.scalajs.js.timers
 import org.scalajs.jquery.jQuery
@@ -41,6 +44,7 @@ import org.scalajs.jquery.jQuery
   *
   */
 class LaunchController(override val windowService: WindowService,
+                       val deviceService: DeviceService,
                        $element: JQLite,
                        $routeParams: js.Dictionary[String])
   extends Controller with OnBoardingController {
@@ -75,6 +79,26 @@ class LaunchController(override val windowService: WindowService,
 
       introFooter.fadeOut(duration * 0.60)
       plugFooter.fadeIn(duration * 0.60)
+
+      startDeviceDiscovery()
+    }
+  }
+
+  private def startDeviceDiscovery(): Unit = {
+    _scanRequest = deviceService.requestScan()
+    _scanRequest.onScanUpdate {
+      case DeviceDiscovered(device) =>
+        println("Discovered " + device)
+      case DeviceLost(device) =>
+        println("Lost " + device)
+    }
+    _scanRequest.duration = DeviceFactory.InfiniteScanDuration
+    _scanRequest.start()
+  }
+
+  private def stopDeviceDiscovery(): Unit = {
+    Option(_scanRequest) foreach {(request) =>
+      request.stop()
     }
   }
 
@@ -83,8 +107,10 @@ class LaunchController(override val windowService: WindowService,
   if ($routeParams.contains("animated")) {
     animate()
   } else {
-
+    startDeviceDiscovery()
   }
+
+  private var _scanRequest: ScanRequest = null
 }
 
 object LaunchController {

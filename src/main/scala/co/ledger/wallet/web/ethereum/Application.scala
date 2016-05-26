@@ -9,7 +9,7 @@ import co.ledger.wallet.web.ethereum.controllers.WindowController
 import co.ledger.wallet.web.ethereum.controllers.onboarding.{LaunchController, OpeningController}
 import co.ledger.wallet.web.ethereum.controllers.wallet.{AccountController, ReceiveController, SendIndexController, SendPerformController}
 import co.ledger.wallet.web.ethereum.core.utils.{ChromeGlobalPreferences, ChromePreferences}
-import co.ledger.wallet.web.ethereum.services.WindowService
+import co.ledger.wallet.web.ethereum.services.{DeviceService, WindowService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
@@ -50,6 +50,7 @@ object Application extends JSApp{
 
     // Services
     WindowService.init(module)
+    DeviceService.init(module)
 
     module.config(initRoutes _)
     module.config(($compileProvider: js.Dynamic) => {
