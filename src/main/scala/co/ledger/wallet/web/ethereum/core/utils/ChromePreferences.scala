@@ -136,6 +136,7 @@ object ChromePreferences {
     import js._
     import Dynamic._
 
+    _currentStoreName = name
     val promise = scala.concurrent.Promise[Unit]()
     val chrome = global.chrome
     chrome.storage.local.get(name, {(result: Dictionary[String]) =>
@@ -183,12 +184,51 @@ object ChromePreferences {
         kvs = kvs :+ (key -> scala2JsonValue(value))
     }
     val serialized = upickle.json.write(Js.Obj(kvs:_*))
-    println("Serialized is " + serialized)
+    // Time for encryption
+    val encrypted = serialized
+    // Storage time
+    _data(name) = encrypted
+    save()
+  }
+
+  private def save(): Unit = {
+    import js._
+    import Dynamic._
+    val chrome = global.chrome
+
+    var kvs = Seq[(String, Js.Value)]()
+    _data foreach {
+      case (key, value) =>
+        kvs = kvs :+ (key -> Js.Str(value))
+    }
+    val serialized = upickle.json.write(Js.Obj(kvs:_*))
+    chrome.storage.local.set(js.Dictionary[String](
+      _currentStoreName -> serialized
+    ))
   }
 
   private[ChromePreferences] def get(name: String): Map[String, _] = {
     if (_data.contains(name)) {
-      Map[String, Any]()
+      upickle.json.read(_data(name)).obj map {
+        case (key, value: Js.Str) =>
+          (key, value.value)
+        case (key, value: Js.Num) =>
+          (key, value.value)
+        case (key, value: Js.Obj) =>
+          (key, "")
+        case (key, Js.False) =>
+          (key, false)
+        case (key, Js.True) =>
+          (key, true)
+        case (key, Js.Null) =>
+          (key, null)
+        case (key, value: Js.Arr) =>
+          val array = value.value map {
+            case Js.Str(v) => v
+            case other => ""
+          }
+          (key, array)
+      }
     } else {
       Map[String, Any]()
     }
@@ -199,4 +239,5 @@ object ChromePreferences {
   }
 
   private val _data = scala.collection.mutable.Map[String, String]()
+  private var _currentStoreName = ""
 }

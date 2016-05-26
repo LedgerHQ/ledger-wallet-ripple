@@ -61,7 +61,14 @@ object Application extends JSApp{
     ChromePreferences.load("toto", "toto") onComplete {
       case Success(_) =>
         val preferences = new ChromePreferences("Test")
-        preferences.edit().putString("pref", "hey").commit()
+        println(s"Before ${preferences.string("pref")}")
+        println(s"Before ${preferences.int("int")}")
+        println(s"Before ${preferences.float("float")}")
+        preferences.edit()
+          .putString("pref", "hey")
+            .putInt("int", 12)
+            .putFloat("float", 12.5f)
+          .commit()
         println(preferences.string("pref").get)
       case Failure(ex) => ex.printStackTrace()
     }
