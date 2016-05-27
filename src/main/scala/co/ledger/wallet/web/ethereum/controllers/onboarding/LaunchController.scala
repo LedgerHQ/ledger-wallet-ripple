@@ -120,6 +120,7 @@ class LaunchController(override val windowService: WindowService,
   if ($routeParams.contains("animated")) {
     animate()
   } else {
+    jQuery($element.find("#introFooter")).fadeOut(0)
     startDeviceDiscovery()
   }
 
