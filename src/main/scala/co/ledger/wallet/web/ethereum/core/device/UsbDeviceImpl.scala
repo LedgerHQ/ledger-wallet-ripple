@@ -1,11 +1,13 @@
 package co.ledger.wallet.web.ethereum.core.device
 
 import co.ledger.wallet.core.device.Device
-import co.ledger.wallet.core.device.DeviceManager.ConnectivityType
+import co.ledger.wallet.core.device.DeviceManager.{ConnectivityType, ConnectivityTypes}
 import co.ledger.wallet.core.device.utils.EventEmitter
 import co.ledger.wallet.web.ethereum.core.device.UsbDeviceFactory.HidDeviceInfo
-
-import scala.concurrent.Future
+import co.ledger.wallet.web.ethereum.core.device.UsbDeviceImpl.Connection
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{Future, Promise}
+import scala.scalajs.js
 
 /**
   *
@@ -38,9 +40,19 @@ import scala.concurrent.Future
   *
   */
 class UsbDeviceImpl(deviceInfo: HidDeviceInfo) extends Device {
-  override def connect(): Future[Device] = ???
+  private val chrome = js.Dynamic.global.chrome
 
-  override def connectivityType: ConnectivityType = ???
+  override def connect(): Future[Device] = {
+    _connectionPromise.getOrElse({
+      _connectionPromise = Option(Promise())
+      chrome.hid.connect(deviceInfo.deviceId, {(connection: UsbDeviceImpl.Connection) =>
+        _connectionPromise.get.success(connection)
+      })
+      _connectionPromise.get
+    }).future.map({(_) => this})
+  }
+
+  override def connectivityType: ConnectivityType = ConnectivityTypes.Usb
 
   override def debug_=(enable: Boolean): Unit = ???
 
@@ -54,11 +66,11 @@ class UsbDeviceImpl(deviceInfo: HidDeviceInfo) extends Device {
 
   override def name: String = ???
 
-  override def isConnected: Boolean = ???
+  override def isConnected: Boolean = _connectionPromise.exists(_.isCompleted)
 
-  override def eventBus: EventEmitter = ???
+  override def eventBus: EventEmitter = _emitter
 
-  override def info: String = ???
+  override def info: String = ""
 
   override def toString: String =
     s"""Device Id: ${deviceInfo.deviceId}
@@ -70,7 +82,19 @@ class UsbDeviceImpl(deviceInfo: HidDeviceInfo) extends Device {
   @throws[AssertionError]("If there is already an exchange going on")
   override def exchange(command: Array[Byte]): Future[Array[Byte]] = ???
 
-  override def matchInfo(info: String): Future[Boolean] = ???
+  override def matchInfo(info: String): Future[Boolean] = Future.successful(false)
 
-  override def isConnecting: Boolean = ???
+  override def isConnecting: Boolean = _connectionPromise.exists(!_.isCompleted)
+
+  private var _connectionPromise: Option[Promise[Connection]] = None
+  private val _emitter: EventEmitter = null
+}
+
+object UsbDeviceImpl {
+
+  @js.native
+  trait Connection extends js.Object {
+    val connectionId: Int = js.native
+  }
+
 }

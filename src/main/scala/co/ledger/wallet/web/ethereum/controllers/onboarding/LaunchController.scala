@@ -1,8 +1,9 @@
 package co.ledger.wallet.web.ethereum.controllers.onboarding
 
-import biz.enef.angulate.Controller
+import biz.enef.angulate.{Controller, Scope}
 import biz.enef.angulate.Module.RichModule
-import biz.enef.angulate.core.JQLite
+import biz.enef.angulate.core.{JQLite, Location}
+import biz.enef.angulate.ext.Route
 import co.ledger.wallet.core.device.DeviceFactory
 import co.ledger.wallet.core.device.DeviceFactory.{DeviceDiscovered, DeviceLost, ScanRequest}
 import co.ledger.wallet.web.ethereum.core.utils.JQueryHelper
@@ -12,6 +13,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
 import scala.scalajs.js.timers
 import org.scalajs.jquery.jQuery
+
+import scala.util.{Failure, Success}
 
 /**
   *
@@ -45,13 +48,14 @@ import org.scalajs.jquery.jQuery
   */
 class LaunchController(override val windowService: WindowService,
                        val deviceService: DeviceService,
+                       $scope: Scope,
                        $element: JQLite,
+                       $location: Location,
+                       $route: js.Dynamic,
                        $routeParams: js.Dictionary[String])
   extends Controller with OnBoardingController {
   import LaunchController._
   import timers._
-
-
 
   private def animate() = {
     // Initialize default state
@@ -89,6 +93,15 @@ class LaunchController(override val windowService: WindowService,
     _scanRequest.onScanUpdate {
       case DeviceDiscovered(device) =>
         println("Discovered " + device)
+        device.connect() flatMap {(_) =>
+          deviceService.registerDevice(device)
+        } onComplete {
+          case Success(uuid) =>
+            $location.url("/onboarding/opening")
+            $route.reload()
+          case Failure(ex) =>
+            ex.printStackTrace()
+        }
       case DeviceLost(device) =>
         println("Lost " + device)
     }
@@ -109,6 +122,10 @@ class LaunchController(override val windowService: WindowService,
   } else {
     startDeviceDiscovery()
   }
+
+  $scope.$on("$destroy", {() =>
+    stopDeviceDiscovery()
+  })
 
   private var _scanRequest: ScanRequest = null
 }
