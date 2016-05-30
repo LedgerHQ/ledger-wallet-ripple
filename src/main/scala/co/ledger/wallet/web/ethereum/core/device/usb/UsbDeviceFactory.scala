@@ -1,11 +1,11 @@
-package co.ledger.wallet.web.ethereum.core.device
+package co.ledger.wallet.web.ethereum.core.device.usb
 
-import co.ledger.wallet.core.device.{Device, DeviceFactory}
-import co.ledger.wallet.core.device.DeviceFactory.{ScanRequest, ScanUpdate}
+import co.ledger.wallet.core.device.DeviceFactory.ScanRequest
 import co.ledger.wallet.core.device.DeviceManager.{ConnectivityType, ConnectivityTypes}
-import co.ledger.wallet.web.ethereum.core.device.UsbDeviceFactory.HidDeviceInfo
+import co.ledger.wallet.core.device.{Device, DeviceFactory}
+import co.ledger.wallet.web.ethereum.core.device.usb.UsbDeviceFactory.HidDeviceInfo
 
-import scala.concurrent.{ExecutionContext, Future, duration}
+import scala.concurrent.Future
 import scala.scalajs.js
 import scala.scalajs.js.timers
 
@@ -71,6 +71,7 @@ class UsbDeviceFactory extends DeviceFactory {
     val chrome = js.Dynamic.global.chrome
 
     override def onStart(): Unit = {
+      println("ON START")
       _running = true
       def tick(): Unit = {
         chrome.hid.getDevices(js.Dictionary(), {(devices: js.Array[HidDeviceInfo]) =>
@@ -100,7 +101,9 @@ class UsbDeviceFactory extends DeviceFactory {
     }
 
     override def onStop(): Unit = {
+      println("ON STOP")
       _running = false
+      _devices.clear()
     }
 
     override protected def runDelayed(delay: Long)(f: => Unit): Unit = {

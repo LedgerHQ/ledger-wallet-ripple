@@ -1,14 +1,20 @@
 package co.ledger.wallet.web.ethereum.services
 
+import java.util.UUID
+
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.Service
+import biz.enef.angulate.core.Location
+import co.ledger.wallet.core.device.Device.{Connect, Disconnect}
 import co.ledger.wallet.core.device.DeviceManager.ConnectivityTypes.ConnectivityType
-import co.ledger.wallet.core.device.{DeviceFactory, DeviceManager}
+import co.ledger.wallet.core.device.utils.EventReceiver
+import co.ledger.wallet.core.device.{Device, DeviceFactory, DeviceManager}
 import co.ledger.wallet.core.utils.Preferences
-import co.ledger.wallet.web.ethereum.core.device.UsbDeviceFactory
+import co.ledger.wallet.web.ethereum.core.device.usb.UsbDeviceFactory
 import co.ledger.wallet.web.ethereum.core.utils.{ChromeGlobalPreferences, ChromePreferences}
 
-import scala.concurrent.{ExecutionContext, duration}
+import scala.concurrent.{ExecutionContext, Future, duration}
+import scala.scalajs.js
 import scala.scalajs.js.timers._
 
 
@@ -42,7 +48,7 @@ import scala.scalajs.js.timers._
   * SOFTWARE.
   *
   */
-class DeviceService extends Service with DeviceManager[Any] {
+class DeviceService($location: Location,  $route: js.Dynamic) extends Service with DeviceManager[Any] {
   import co.ledger.wallet.core.device.DeviceManager.ConnectivityTypes._
 
   override implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
@@ -56,11 +62,32 @@ class DeviceService extends Service with DeviceManager[Any] {
 
   override def context: Any = this
 
+
+  override def registerDevice(device: Device): Future[UUID] = {
+    device.eventBus.register(_eventReceiver)
+    super.registerDevice(device)
+  }
+
+
+  override def unregisterDevice(device: Device): Unit = {
+    device.eventBus.unregister(_eventReceiver)
+    super.unregisterDevice(device)
+  }
+
   override protected val _deviceManager: Map[ConnectivityType, DeviceFactory] = Map(
     Usb -> new UsbDeviceFactory
   )
 
   private val _preferences = new ChromeGlobalPreferences("DeviceService")
+
+  private val _eventReceiver = new EventReceiver {
+    override def receive: Receive = {
+      case Connect(_) =>
+      case Disconnect(_) =>
+        $location.path("/onboarding/launch")
+        $route.reload()
+    }
+  }
 }
 
 object DeviceService {

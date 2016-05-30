@@ -3,9 +3,11 @@ package co.ledger.wallet.web.ethereum.controllers.onboarding
 import biz.enef.angulate.Controller
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.{JQLite, Location}
-import co.ledger.wallet.web.ethereum.services.WindowService
+import co.ledger.wallet.web.ethereum.services.{DeviceService, WindowService}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
+import scala.scalajs.js.UndefOr
 
 /**
   *
@@ -38,11 +40,16 @@ import scala.scalajs.js
   *
   */
 class OpeningController(override val windowService: WindowService,
+                        deviceService: DeviceService,
                         $location: Location,
                         $route: js.Dynamic,
                         $element: JQLite)
   extends Controller with OnBoardingController {
 
+  println("Create open")
+  deviceService.lastConnectedDevice() foreach {(device) =>
+    device.exchange(Array[Byte](0xE0.toByte, 0xC4.toByte, 0x00, 0x00, 0x00))
+  }
 
 }
 

@@ -72,4 +72,6 @@ object Device {
   case class Connect(device: Device) extends Event
   case class Disconnect(device: Device) extends Event
 
+  case class CommunicationException(cause: String) extends Exception(cause)
+
 }

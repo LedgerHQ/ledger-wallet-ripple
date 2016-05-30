@@ -1,11 +1,13 @@
-package co.ledger.wallet.core.device.utils
+package co.ledger.wallet.web.ethereum.core.event
+
+import co.ledger.wallet.core.device.utils.{EventEmitter, EventReceiver}
 
 /**
   *
-  * EventEmitter
+  * JsEventEmitter
   * ledger-wallet-ethereum-chrome
   *
-  * Created by Pierre Pollastri on 06/05/2016.
+  * Created by Pierre Pollastri on 30/05/2016.
   *
   * The MIT License (MIT)
   *
@@ -30,14 +32,20 @@ package co.ledger.wallet.core.device.utils
   * SOFTWARE.
   *
   */
-trait EventEmitter {
-  def emit(event: AnyRef): Unit
-  def register(receiver: EventReceiver): Unit
-  def unregister(receiver: EventReceiver): Unit
-}
+class JsEventEmitter extends EventEmitter {
+  override def emit(event: AnyRef): Unit = {
+    for (receiver <- _receivers) {
+      receiver.receive(event)
+    }
+  }
 
-trait EventReceiver {
-  type Receive = PartialFunction[AnyRef, Unit]
+  override def register(receiver: EventReceiver): Unit = {
+    _receivers += receiver
+  }
 
-  def receive: Receive
+  override def unregister(receiver: EventReceiver): Unit = {
+    _receivers -= receiver
+  }
+
+  private val _receivers = scala.collection.mutable.Set[EventReceiver]()
 }

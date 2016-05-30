@@ -4,7 +4,7 @@ import biz.enef.angulate.{Controller, Scope}
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.{JQLite, Location}
 import biz.enef.angulate.ext.Route
-import co.ledger.wallet.core.device.DeviceFactory
+import co.ledger.wallet.core.device.{Device, DeviceFactory}
 import co.ledger.wallet.core.device.DeviceFactory.{DeviceDiscovered, DeviceLost, ScanRequest}
 import co.ledger.wallet.web.ethereum.core.utils.JQueryHelper
 import co.ledger.wallet.web.ethereum.services.{DeviceService, WindowService}
@@ -56,6 +56,11 @@ class LaunchController(override val windowService: WindowService,
   extends Controller with OnBoardingController {
   import LaunchController._
   import timers._
+  private var _scanRequest: ScanRequest = null
+
+  val test = toto
+  toto += 1
+  println(s"Create $test")
 
   private def animate() = {
     // Initialize default state
@@ -89,28 +94,42 @@ class LaunchController(override val windowService: WindowService,
   }
 
   private def startDeviceDiscovery(): Unit = {
+    println(s"START DISCOVERY $test")
     _scanRequest = deviceService.requestScan()
+    println(_scanRequest)
     _scanRequest.onScanUpdate {
       case DeviceDiscovered(device) =>
-        println("Discovered " + device)
-        device.connect() flatMap {(_) =>
-          deviceService.registerDevice(device)
-        } onComplete {
-          case Success(uuid) =>
-            $location.url("/onboarding/opening")
-            $route.reload()
-          case Failure(ex) =>
-            ex.printStackTrace()
+        println(s"Discovered $test " + device)
+        if (_scanRequest != null) {
+          connectDevice(device)
+          _scanRequest.stop()
+          _scanRequest = null
         }
       case DeviceLost(device) =>
-        println("Lost " + device)
+        println(s"Lost $test " + device)
     }
     _scanRequest.duration = DeviceFactory.InfiniteScanDuration
     _scanRequest.start()
   }
 
+  def connectDevice(device: Device): Unit = {
+    device.connect() flatMap {(_) =>
+      deviceService.registerDevice(device)
+    } onComplete {
+      case Success(uuid) =>
+        $location.url("/onboarding/opening/")
+        $route.reload()
+      case Failure(ex) =>
+        ex.printStackTrace()
+        startDeviceDiscovery()
+    }
+  }
+
   private def stopDeviceDiscovery(): Unit = {
+    println(s"STOP DISCOVERY $test")
+    println(_scanRequest)
     Option(_scanRequest) foreach {(request) =>
+      println("SCAN STOP")
       request.stop()
     }
   }
@@ -124,15 +143,14 @@ class LaunchController(override val windowService: WindowService,
     startDeviceDiscovery()
   }
 
-  $scope.$on("$destroy", {() =>
+  $scope.$on("$destroy", {(obj: js.Any, ob: js.Any) =>
+    js.Dynamic.global.console.log(obj, ob)
     stopDeviceDiscovery()
   })
-
-  private var _scanRequest: ScanRequest = null
 }
 
 object LaunchController {
   val OpeningAnimationDelay = 1500
-
+  var toto = 0
   def init(module: RichModule) = module.controllerOf[LaunchController]("LaunchController")
 }
