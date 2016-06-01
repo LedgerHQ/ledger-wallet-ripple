@@ -1,19 +1,17 @@
 package co.ledger.wallet.web.ethereum.controllers.onboarding
 
-import biz.enef.angulate.{Controller, Scope}
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.{JQLite, Location}
-import biz.enef.angulate.ext.Route
-import co.ledger.wallet.core.device.{Device, DeviceFactory}
+import biz.enef.angulate.{Controller, Scope}
 import co.ledger.wallet.core.device.DeviceFactory.{DeviceDiscovered, DeviceLost, ScanRequest}
+import co.ledger.wallet.core.device.{Device, DeviceFactory}
 import co.ledger.wallet.web.ethereum.core.utils.JQueryHelper
 import co.ledger.wallet.web.ethereum.services.{DeviceService, WindowService}
+import org.scalajs.jquery.jQuery
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
 import scala.scalajs.js.timers
-import org.scalajs.jquery.jQuery
-
 import scala.util.{Failure, Success}
 
 /**
@@ -55,6 +53,7 @@ class LaunchController(override val windowService: WindowService,
                        $routeParams: js.Dictionary[String])
   extends Controller with OnBoardingController {
   import LaunchController._
+
   import timers._
   private var _scanRequest: ScanRequest = null
 
