@@ -11,7 +11,6 @@ class BuildI18nFiles {
     val localesDir = new File(sources, "locales")
     val i18nDir = new File(target, "_locales")
     for (file <- localesDir.listFiles()) {
-      println(s"Got file $file")
       buildSingleFile(file, new File(i18nDir, file.getName))
     }
     buildI18nManifest(i18nDir)
@@ -19,11 +18,9 @@ class BuildI18nFiles {
 
   private def buildSingleFile(dir: File, dest: File): Unit = {
     val language = dir.getName
-    println(s"Got language $language")
     val messagesFile = new File(dir, "messages.yml")
     if (messagesFile.exists()) {
       val root = YmlNode.parse(messagesFile)
-      println(root)
       var writer = new StringWriter()
       root.writeJson(writer)
       IO.write(new File(dest, "translation.json"), writer.toString)
@@ -42,7 +39,6 @@ class BuildI18nFiles {
         root("language", "name").flatMap(_.value).getOrElse("").toString,
         filter
       )
-      println(root("language", "name"))
       _manifest = I18nManifest(_manifest.languages :+ entry)
     }
   }

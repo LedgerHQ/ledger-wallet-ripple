@@ -106,7 +106,7 @@ object YmlNode {
         case event: MappingEndEvent =>
           node = node.parent.get
         case other =>
-          println(other)
+          //println(other)
       }
     }
     node

@@ -24,7 +24,7 @@ object Application extends JSApp{
 
   @scala.scalajs.js.annotation.JSExport
   override def main(): Unit = {
-    implicit val module = angular.createModule("app", Seq("ngRoute"))
+    implicit val module = angular.createModule("app", Seq("ngRoute", "pascalprecht.translate"))
     _module = module
 
     // Components

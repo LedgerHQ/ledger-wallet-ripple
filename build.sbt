@@ -38,8 +38,6 @@ build := {
 
   // Copy all resources in chrome unpackaged directory
   IO.copyDirectory(resDir, appDir)
-  println(s"AppDir is ${appDir.absolutePath}")
-  println(s"ResDir is ${resDir.absolutePath}")
 
   // Build the application and copy to app directory
   val sourceFile = fastOptJS.in(Compile).value.data
