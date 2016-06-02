@@ -19,11 +19,12 @@ class BuildI18nFiles {
   private def buildSingleFile(dir: File, dest: File): Unit = {
     val language = dir.getName
     val messagesFile = new File(dir, "messages.yml")
+    val translationsDir = dest.getParentFile
     if (messagesFile.exists()) {
       val root = YmlNode.parse(messagesFile)
       var writer = new StringWriter()
       root.writeJson(writer)
-      IO.write(new File(dest, "translation.json"), writer.toString)
+      IO.write(new File(translationsDir, s"$language.json"), writer.toString)
       writer = new StringWriter()
       buildChromeI18nFile(root).writeJson(writer)
       IO.write(new File(dest, "messages.json"), writer.toString)
@@ -44,8 +45,7 @@ class BuildI18nFiles {
   }
 
   private def buildChromeI18nFile(root: YmlNode): YmlNode = {
-    val result = new YmlNode(new YmlNode())
-    result.name = "application"
+    val result = new YmlNode()
 
     def flatten(node: YmlNode): Unit = {
       for (child <- node.children) {
@@ -74,7 +74,7 @@ class BuildI18nFiles {
       }
     }
     iterate(0)
-    result.parent.get
+    result
   }
 
   private def buildI18nManifest(dest: File): Unit = {

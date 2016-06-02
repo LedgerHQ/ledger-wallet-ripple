@@ -1,11 +1,10 @@
 package co.ledger.wallet.web.ethereum.i18n
 
-import scala.concurrent.Future
 import scala.scalajs.js
 
 /**
   *
-  * I18n
+  * TranslateProvider
   * ledger-wallet-ethereum-chrome
   *
   * Created by Pierre Pollastri on 02/06/2016.
@@ -33,15 +32,9 @@ import scala.scalajs.js
   * SOFTWARE.
   *
   */
-object I18n {
+@js.native
+trait TranslateProvider extends js.Any {
 
-  def init(provider: TranslateProvider): Future[Unit] = {
-    provider.useStaticFilesLoader(js.Dictionary(
-      "prefix" -> "_locales/",
-      "suffix" -> ".json"
-    ))
-    provider.preferredLanguage("en")
-    null
-  }
-
+  def useStaticFilesLoader(options: js.Dictionary[String]): Unit
+  def preferredLanguage(language: String): Unit
 }

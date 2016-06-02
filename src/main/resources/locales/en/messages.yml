@@ -14,3 +14,7 @@ application:
     reload_application: Reload the application
     update_firmware: Update the chip firmware
     export_logs: Export the global logs
+
+# Opening screen
+opening:
+  title: Opening your wallet...

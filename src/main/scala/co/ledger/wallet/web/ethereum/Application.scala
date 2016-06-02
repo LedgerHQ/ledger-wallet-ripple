@@ -9,6 +9,7 @@ import co.ledger.wallet.web.ethereum.controllers.WindowController
 import co.ledger.wallet.web.ethereum.controllers.onboarding.{LaunchController, OpeningController}
 import co.ledger.wallet.web.ethereum.controllers.wallet.{AccountController, ReceiveController, SendIndexController, SendPerformController}
 import co.ledger.wallet.web.ethereum.core.utils.{ChromeGlobalPreferences, ChromePreferences}
+import co.ledger.wallet.web.ethereum.i18n.{I18n, TranslateProvider}
 import co.ledger.wallet.web.ethereum.services.{DeviceService, WindowService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -57,6 +58,8 @@ object Application extends JSApp{
       $compileProvider.aHrefSanitizationWhitelist(js.RegExp("^\\s*(https?|ftp|mailto|file|chrome-extension):"))
       $compileProvider.imgSrcSanitizationWhitelist(js.RegExp("^\\s*(https?|ftp|mailto|file|chrome-extension):"))
     })
+    module.config(initTranslate _)
+
     module.run(initApp _)
 
     // Preferences tests
@@ -109,6 +112,10 @@ object Application extends JSApp{
 
   def initRoutes($routeProvider: RouteProvider) = {
     Routes.declare($routeProvider)
+  }
+
+  def initTranslate($translateProvider: TranslateProvider) = {
+    I18n.init($translateProvider)
   }
 
   private var _module: RichModule = _
