@@ -4,8 +4,8 @@ language:
 
 # Application
 application:
-  name: Ledger Wallet
-  small_description: Ledger Wallet manages your Bitcoin accounts efficiently and securely.
+  name: Ledger Wallet Ethereum
+  small_description: Ledger Wallet manages your Ethereum accounts efficiently and securely.
   support_url: http\://support.ledgerwallet.com/
   support_key_not_recognized_url: https\://ledger.groovehq.com/knowledge_base/categories/troubleshooting-20
   support_coinkite_url: https\://ledger.groovehq.com/knowledge_base/topics/how-to-use-the-coinkite-app

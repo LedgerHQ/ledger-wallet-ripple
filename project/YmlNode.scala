@@ -3,8 +3,7 @@ import java.io.{FileReader, Reader, StringWriter, Writer}
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.events.{MappingEndEvent, MappingStartEvent, ScalarEvent}
 import sbt._
-import upickle.Js
-import upickle._
+import upickle.{Js, _}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -17,6 +16,37 @@ class YmlNode(val parent: Option[YmlNode] = None) {
   var name = ""
   def value: Option[Any] = _value
   def value_=(v: Any) = _value = Some(v)
+
+  def apply(keys: String*): Option[YmlNode] = {
+    def find(index: Int, node: YmlNode): Option[YmlNode] = {
+      node.children.find({ (n) =>
+        n.name == keys(index)
+      }) flatMap {(n) =>
+        if (index + 1 >= keys.length) {
+          Some(n)
+        } else {
+         find(index + 1, n)
+        }
+      }
+    }
+    find(0, this)
+  }
+
+  def path: String = {
+    def iterate(node: YmlNode): String = {
+      node.parent match {
+        case Some(p) =>
+          val result = iterate(p)
+          if (result.isEmpty)
+            node.name
+          else
+            s"$result.${node.name}"
+        case None =>
+          ""
+      }
+    }
+    iterate(this)
+  }
 
   private def addChild(child: YmlNode): Unit = {
     _children += child
@@ -46,7 +76,7 @@ class YmlNode(val parent: Option[YmlNode] = None) {
       Js.Obj(seq:_*)
     }
     else {
-      Js.Str(value.getOrElse("").toString)
+      Js.Str(value.get.toString)
     }
   }
 

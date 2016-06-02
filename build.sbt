@@ -3,7 +3,6 @@ import java.io.{FileReader, StringWriter}
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.events.ScalarEvent
 
-
 name := "ledger-wallet-ethereum-chrome"
 
 version := "1.0"
@@ -32,29 +31,6 @@ includeFilter in (Assets, LessKeys.less) := "*.less"
 
 excludeFilter in (Assets, LessKeys.less) := "_*.less"
 
-def compileI18NFile(dir: File): Unit = {
-  val messagesFile = new File(dir, "messages.yml")
-  if (messagesFile.exists()) {
-    val root = YmlNode.parse(messagesFile)
-    println(root)
-    val writer = new StringWriter()
-    root.writeJson(writer)
-    println(writer)
-  }
-}
-
-def compileI18NManifest(languages: Array[String]): Unit = {
-
-}
-
-def compileI18NFiles(resourceDir: File): Unit = {
-  val localesDir = new File(resourceDir, "locales")
-  for (file <- localesDir.listFiles()) {
-    println(s"Got file $file")
-    compileI18NFile(file)
-  }
-}
-
 build := {
   val appDir = target(_/"chrome-app").value
   appDir.mkdir()
@@ -78,7 +54,7 @@ build := {
   IO.copyDirectory(new File(sourceFile.getParentFile.getParentFile, "web/less/main/stylesheets"), appDir)
 
   // Compile i18n files
-  compileI18NFiles(resDir)
+  new BuildI18nFiles().build(resDir, appDir)
   ()
 }
 
