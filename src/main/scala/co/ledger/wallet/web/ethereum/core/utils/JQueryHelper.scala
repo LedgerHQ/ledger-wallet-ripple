@@ -38,6 +38,8 @@ object JQueryHelper {
       js.Dynamic.global.$.easing.default = defaultEasing
   }
 
+  def $ = js.Dynamic.global.$
+
   private def defaultEasing: Function1[Double, Double] = {(p) =>
     1 - Math.pow(1.0 - p, 6)
   }

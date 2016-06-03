@@ -34,7 +34,9 @@ import scala.scalajs.js
   */
 @js.native
 trait TranslateProvider extends js.Any {
-
-  def useStaticFilesLoader(options: js.Dictionary[String]): Unit
-  def preferredLanguage(language: String): Unit
+  def useStaticFilesLoader(options: js.Dictionary[String]): TranslateProvider = js.native
+  def preferredLanguage(language: String): TranslateProvider = js.native
+  def useSanitizeValueStrategy(strategy: String): TranslateProvider = js.native
+  def determinePreferredLanguage(): TranslateProvider = js.native
+  def fallbackLanguage(language: String): TranslateProvider = js.native
 }

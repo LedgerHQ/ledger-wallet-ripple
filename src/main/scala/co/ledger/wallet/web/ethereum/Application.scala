@@ -25,6 +25,10 @@ object Application extends JSApp{
 
   @scala.scalajs.js.annotation.JSExport
   override def main(): Unit = {
+    run()
+  }
+
+  def run(): Unit = {
     implicit val module = angular.createModule("app", Seq("ngRoute", "pascalprecht.translate"))
     _module = module
 
@@ -59,7 +63,6 @@ object Application extends JSApp{
       $compileProvider.imgSrcSanitizationWhitelist(js.RegExp("^\\s*(https?|ftp|mailto|file|chrome-extension):"))
     })
     module.config(initTranslate _)
-
     module.run(initApp _)
 
     // Preferences tests

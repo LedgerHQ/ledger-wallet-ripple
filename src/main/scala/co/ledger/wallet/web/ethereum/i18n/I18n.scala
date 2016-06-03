@@ -1,7 +1,11 @@
 package co.ledger.wallet.web.ethereum.i18n
 
-import scala.concurrent.Future
+import org.scalajs.jquery.{JQueryAjaxSettings, JQueryXHR, _}
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{Future, Promise}
 import scala.scalajs.js
+import scala.util.{Failure, Success}
 
 /**
   *
@@ -35,13 +39,43 @@ import scala.scalajs.js
   */
 object I18n {
 
-  def init(provider: TranslateProvider): Future[Unit] = {
-    provider.useStaticFilesLoader(js.Dictionary(
-      "prefix" -> "_locales/",
-      "suffix" -> ".json"
-    ))
-    provider.preferredLanguage("en")
-    null
+  def init(provider: TranslateProvider): Unit = {
+    provider
+      .useStaticFilesLoader(js.Dictionary(
+        "prefix" -> "_locales/",
+        "suffix" -> ".json"
+      ))
+      .useSanitizeValueStrategy("escape")
+      .fallbackLanguage("en")
+      .determinePreferredLanguage()
   }
+
+  def loadManifest(): Future[I18nManifest] = {
+    val promise = Promise[I18nManifest]()
+
+    jQuery.ajax(js.Dynamic.literal(
+      url = "_locales/manifest.json",
+      success = { (data: String, textStatus: String, jqXHR: JQueryXHR) =>
+        import upickle.default._
+        promise.success(read[I18nManifest](data))
+      },
+      error = { (jqXHR: JQueryXHR, textStatus: String, errorThrow: String) =>
+        new Exception("No i18n manifest").printStackTrace()
+      },
+      `type` = "GET"
+    ).asInstanceOf[JQueryAjaxSettings])
+
+    promise.future andThen {
+      case Success(manifest) => _manifest = manifest
+      case Failure(ex) => ex.printStackTrace()
+    }
+  }
+
+  def manifest = _manifest
+  private var _manifest: I18nManifest = _
+
+  case class I18nManifest(languages: Array[I18nLanguageEntry])
+
+  case class I18nLanguageEntry(code: String, name: String, keys: String)
 
 }
