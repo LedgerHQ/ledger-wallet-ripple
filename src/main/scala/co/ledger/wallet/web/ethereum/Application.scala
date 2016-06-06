@@ -14,7 +14,7 @@ import co.ledger.wallet.web.ethereum.services.{DeviceService, WindowService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
-import scala.scalajs.js.JSApp
+import scala.scalajs.js.{JSApp, timers}
 import scala.util.{Failure, Success}
 
 /**

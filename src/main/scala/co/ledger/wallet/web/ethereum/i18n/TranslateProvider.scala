@@ -39,4 +39,5 @@ trait TranslateProvider extends js.Any {
   def useSanitizeValueStrategy(strategy: String): TranslateProvider = js.native
   def determinePreferredLanguage(): TranslateProvider = js.native
   def fallbackLanguage(language: String): TranslateProvider = js.native
+  def registerAvailableLanguageKeys(languageKeys: js.Array[String], aliases: js.Dictionary[String]): TranslateProvider = js.native
 }

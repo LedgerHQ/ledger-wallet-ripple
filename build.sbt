@@ -31,6 +31,13 @@ includeFilter in (Assets, LessKeys.less) := "*.less"
 
 excludeFilter in (Assets, LessKeys.less) := "_*.less"
 
+sourceGenerators in Compile <+= sourceManaged in Compile map { dir =>
+  val file = dir / "co" / "ledger" / "wallet" / "web" / "ethereum" / "i18n" / "I18nLanguagesManifest.scala"
+  file.getParentFile.mkdirs()
+  new BuildI18nFiles().buildManifest(new File("src/main/resources/locales"), file)
+  Seq(file)
+}
+
 build := {
   val appDir = target(_/"chrome-app").value
   appDir.mkdir()

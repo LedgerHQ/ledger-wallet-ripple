@@ -1,4 +1,4 @@
-import java.io.{File, StringWriter}
+import java.io.{File, _}
 
 import BuildI18nFiles.{I18nLanguageEntry, I18nManifest}
 import sbt._
@@ -13,7 +13,6 @@ class BuildI18nFiles {
     for (file <- localesDir.listFiles()) {
       buildSingleFile(file, new File(i18nDir, file.getName))
     }
-    buildI18nManifest(i18nDir)
   }
 
   private def buildSingleFile(dir: File, dest: File): Unit = {
@@ -28,19 +27,6 @@ class BuildI18nFiles {
       writer = new StringWriter()
       buildChromeI18nFile(root).writeJson(writer)
       IO.write(new File(dest, "messages.json"), writer.toString)
-      val filter = {
-        if (language.contains("-")) {
-          language.replace('-', '_')
-        } else {
-          language + "_*"
-        }
-      }
-      val entry = I18nLanguageEntry(
-        language,
-        root("language", "name").flatMap(_.value).getOrElse("").toString,
-        filter
-      )
-      _manifest = I18nManifest(_manifest.languages :+ entry)
     }
   }
 
@@ -77,12 +63,65 @@ class BuildI18nFiles {
     result
   }
 
-  private def buildI18nManifest(dest: File): Unit = {
-    import upickle.default._
-    IO.write(new File(dest, "manifest.json"), write(_manifest))
+  def buildManifest(sources: File, file: File): Unit = {
+    var manifest = I18nManifest(Array())
+    for (dir <- sources.listFiles()) {
+      val language = dir.getName
+      val messagesFile = new File(dir, "messages.yml")
+      if (messagesFile.exists()) {
+        val root = YmlNode.parse(messagesFile)
+        val filter = {
+          if (language.contains("-")) {
+            language.replace('-', '_')
+          } else {
+            language + "_*"
+          }
+        }
+        val entry = I18nLanguageEntry(
+          language,
+          root("language", "name").flatMap(_.value).getOrElse("").toString,
+          filter
+        )
+        manifest = I18nManifest(manifest.languages :+ entry)
+      }
+    }
+    writeManifest(file, manifest)
   }
 
-  private var _manifest = I18nManifest(Array())
+  private def writeManifest(file: File, manifest: I18nManifest): Unit = {
+    val out = new BufferedWriter(new FileWriter(file))
+    out << "package co.ledger.wallet.web.ethereum.i18n"
+    out << "object I18nLanguagesManifest {"
+    for (language <- manifest.languages) {
+      out << s" val ${language.code} = new I18nLanguageEntry(${language.code.quote}, ${language.name.quote}, ${language.keys.quote})"
+    }
+    out << " val languages = Array("
+    for (language <- manifest.languages) {
+      var sep = ""
+      if (language.code != manifest.languages.last.code) {
+        sep = ","
+      }
+      out << s"  ${language.code}$sep"
+    }
+    out << " )"
+    out <<
+      """
+        | case class I18nLanguageEntry(code: String, name: String, keys: String)
+      """.stripMargin
+    out << "}"
+    out.close()
+  }
+
+  private implicit class BetterWriter(w: Writer) {
+    def <<(str: String) = {
+      w.append(str)
+      w.append('\n')
+    }
+  }
+
+  private implicit class BetterString(string: String) {
+    def quote = "\"" + string + "\""
+  }
 }
 
 object BuildI18nFiles {

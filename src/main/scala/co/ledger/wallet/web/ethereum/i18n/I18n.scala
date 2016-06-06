@@ -40,6 +40,12 @@ import scala.util.{Failure, Success}
 object I18n {
 
   def init(provider: TranslateProvider): Unit = {
+    val allKeys = js.Array[String]()
+    val aliases = js.Dictionary[String]()
+    for (language <- I18nLanguagesManifest.languages) {
+      allKeys.push(language.code)
+      aliases(language.keys) = language.code
+    }
     provider
       .useStaticFilesLoader(js.Dictionary(
         "prefix" -> "_locales/",
@@ -47,35 +53,8 @@ object I18n {
       ))
       .useSanitizeValueStrategy("escape")
       .fallbackLanguage("en")
+      .registerAvailableLanguageKeys(allKeys, aliases)
       .determinePreferredLanguage()
   }
-
-  def loadManifest(): Future[I18nManifest] = {
-    val promise = Promise[I18nManifest]()
-
-    jQuery.ajax(js.Dynamic.literal(
-      url = "_locales/manifest.json",
-      success = { (data: String, textStatus: String, jqXHR: JQueryXHR) =>
-        import upickle.default._
-        promise.success(read[I18nManifest](data))
-      },
-      error = { (jqXHR: JQueryXHR, textStatus: String, errorThrow: String) =>
-        new Exception("No i18n manifest").printStackTrace()
-      },
-      `type` = "GET"
-    ).asInstanceOf[JQueryAjaxSettings])
-
-    promise.future andThen {
-      case Success(manifest) => _manifest = manifest
-      case Failure(ex) => ex.printStackTrace()
-    }
-  }
-
-  def manifest = _manifest
-  private var _manifest: I18nManifest = _
-
-  case class I18nManifest(languages: Array[I18nLanguageEntry])
-
-  case class I18nLanguageEntry(code: String, name: String, keys: String)
 
 }
