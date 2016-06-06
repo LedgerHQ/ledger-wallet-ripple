@@ -37,6 +37,51 @@ import scala.scalajs.js
   * SOFTWARE.
   *
   */
+/**
+  *
+  * @example
+  * // Preferences tests
+  * ChromePreferences.init() foreach {(_) =>
+      ChromePreferences.load("toto", "toto") onComplete {
+        case Success(_) =>
+        {
+          val preferences = new ChromePreferences("Test")
+          println(s"Before ${preferences.string("pref")}")
+          println(s"Before ${preferences.int("int")}")
+          println(s"Before ${preferences.float("float")}")
+          preferences.edit()
+            .putString("pref", "hey")
+            .putInt("int", 12)
+            .putFloat("float", 12.5f)
+            .commit()
+          println(preferences.string("pref").get)
+        }
+        {
+          val preferences = new ChromePreferences("SuperTest")
+          println(s"Before ${preferences.string("pref")}")
+          println(s"Before ${preferences.int("int")}")
+          println(s"Before ${preferences.float("float")}")
+          preferences.edit()
+            .putString("pref", "hey")
+            .putInt("int", 12)
+            .putFloat("float", 12.5f)
+            .commit()
+          println(preferences.string("pref").get)
+        }
+        case Failure(ex) => ex.printStackTrace()
+      }
+      val preferences = new ChromeGlobalPreferences("GTest")
+      println(s"Global ${preferences.string("pref")}")
+      println(s"Global ${preferences.int("int")}")
+      println(s"Global ${preferences.float("float")}")
+      preferences.edit()
+        .putString("pref", "hey")
+        .putInt("int", 12)
+        .putFloat("float", 12.5f)
+        .commit()
+      println(preferences.string("pref").get)
+    }
+ */
 class ChromePreferences(name: String) extends Preferences {
   override def all: Map[String, _] = _data
 
