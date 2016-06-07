@@ -1,10 +1,8 @@
-package co.ledger.wallet.web.ethereum.content
-
-import co.ledger.wallet.web.ethereum.core.database.{DatabaseDeclaration, Model, ModelCreator, QueryHelper}
+package co.ledger.wallet.web.ethereum.core.idb
 
 /**
   *
-  * SampleModel
+  * Transaction
   * ledger-wallet-ethereum-chrome
   *
   * Created by Pierre Pollastri on 07/06/2016.
@@ -32,19 +30,6 @@ import co.ledger.wallet.web.ethereum.core.database.{DatabaseDeclaration, Model, 
   * SOFTWARE.
   *
   */
-/***
-  * A sample model to demonstrate API capabilities
-  */
-class SampleModel extends Model("sample") {
-  val aInt = int("aInt").unique().index()
-  val aString = string("aString")
+class Transaction {
 
-}
-
-object SampleModel extends QueryHelper[SampleModel] with ModelCreator[SampleModel] {
-  override def database: DatabaseDeclaration = SamplesDatabaseDeclaration
-
-  override def creator: ModelCreator[SampleModel] = this
-
-  override def newInstance(): SampleModel = new SampleModel
 }

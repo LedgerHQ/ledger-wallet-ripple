@@ -5,7 +5,7 @@ import biz.enef.angulate._
 import biz.enef.angulate.core.HttpService
 import biz.enef.angulate.ext.RouteProvider
 import co.ledger.wallet.web.ethereum.components._
-import co.ledger.wallet.web.ethereum.content.SamplesDatabaseDeclaration
+import co.ledger.wallet.web.ethereum.content.{SampleModel, SamplesDatabaseDeclaration}
 import co.ledger.wallet.web.ethereum.controllers.WindowController
 import co.ledger.wallet.web.ethereum.controllers.onboarding.{LaunchController, OpeningController}
 import co.ledger.wallet.web.ethereum.controllers.wallet.{AccountController, ReceiveController, SendIndexController, SendPerformController}
@@ -70,7 +70,12 @@ object Application extends JSApp{
     module.run(initApp _)
 
     IndexedDb.delete(SamplesDatabaseDeclaration.name)
-    SamplesDatabaseDeclaration.open()
+    SamplesDatabaseDeclaration.open() foreach {(_) =>
+      val m = SampleModel(js.Dictionary(
+        "aInt" -> 12
+      ))
+      js.Dynamic.global.console.log(m.toDictionary)
+    }
   }
 
   def initApp($http: HttpService, $rootScope: js.Dynamic, $location: js.Dynamic) = {

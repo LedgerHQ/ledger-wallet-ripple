@@ -1,9 +1,12 @@
 package co.ledger.wallet.web.ethereum.core.database
 
-import co.ledger.wallet.web.ethereum.core.idb.DatabaseConnection
+import co.ledger.wallet.web.ethereum.core.idb.{DatabaseConnection, Transaction}
 
+import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
 import scala.reflect.ClassTag
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.scalajs.js
 
 /**
   *
@@ -39,12 +42,43 @@ trait QueryHelper[M <: Model] {
   def database: DatabaseDeclaration
   def creator: ModelCreator[M]
   def newInstance(): M
-}
 
-object QueryHelper {
+  def readonly(): ReadOnlyQueryBuilder = new ReadOnlyQueryBuilder
+  def readwrite(): ReadWriteQueryBuilder = new ReadWriteQueryBuilder
 
-  def connection(databaseName: String): Future[DatabaseConnection] = {
-    null
+  trait QueryBuilder {
+
+    def commit(): Future[Unit] = {
+      _steps.commit().map((_) => ())
+    }
+
+    def :+(perform: PerformStep) = _steps = new QueryStep(_steps, perform)
+    private var _steps: QueryStep = new QueryStep(null, (_) => Future.successful(js.Dictionary()))
   }
 
+  class ReadOnlyQueryBuilder extends QueryBuilder {
+
+  }
+
+  class ReadWriteQueryBuilder extends ReadOnlyQueryBuilder {
+    def add(item: M): this.type = {
+      this
+    }
+
+    def add(items: Array[M]): this.type  = {
+      for (item <- items)
+        add(item)
+      this
+    }
+  }
+
+  private class QueryStep(parent: QueryStep,  perform: PerformStep) {
+
+    def commit(): Future[Any] = {
+      null
+    }
+  }
+
+  type PerformStep = (Transaction) => Future[js.Dictionary[String]]
 }
+

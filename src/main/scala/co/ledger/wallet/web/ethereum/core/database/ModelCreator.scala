@@ -1,8 +1,8 @@
 package co.ledger.wallet.web.ethereum.core.database
 
-import co.ledger.wallet.web.ethereum.core.idb.{DatabaseConnection, ObjectStore}
+import co.ledger.wallet.web.ethereum.core.idb.DatabaseConnection
 
-import scala.reflect.ClassTag
+import scala.scalajs.js
 
 /**
   *
@@ -42,6 +42,23 @@ trait ModelCreator[M <: Model] {
       val store = database.createObjectStore(m.entityName)
 
     }
+  }
+
+  def apply(map: js.Dictionary[js.Any]): M = {
+    val result = newInstance()
+    for (field <- result.structure.toSeq.map(_._2) if map.contains(field.key)) {
+      field match {
+        case f: result.IntValue =>
+          f.set(map(f.key).asInstanceOf[Int])
+        case f: result.StringValue =>
+          f.set(map(f.key).asInstanceOf[String])
+        case f: result.DoubleValue =>
+          f.set(map(f.key).asInstanceOf[Double])
+        case f: result.BooleanValue =>
+          f.set(map(f.key).asInstanceOf[Boolean])
+      }
+    }
+    result
   }
 
   def newInstance(): M

@@ -42,4 +42,6 @@ class DatabaseConnection(ref: idb.Database) {
 
   def containsStore(name: String) = ref.objectStoreNames.contains(name)
 
+  def close(): Unit = ref.close()
+
 }

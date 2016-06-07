@@ -2,6 +2,8 @@ package co.ledger.wallet.web.ethereum.core.database
 
 import java.rmi.activation.ActivationGroup_Stub
 
+import scala.scalajs.js
+
 /**
   *
   * Model
@@ -35,11 +37,24 @@ import java.rmi.activation.ActivationGroup_Stub
 class Model(val entityName: String) {
   private val _structure = scala.collection.mutable.Map[String, Value[_]]()
   def structure = _structure.toMap
-  protected def int(key: String): Value[Int] = new Value[Int](key)
-  protected def string(key: String): Value[String] = new Value[String](key)
-  protected def boolean(key: String): Value[Boolean] = new Value[Boolean](key)
-  protected def double(key: String): Value[Double] = new Value[Double](key)
-  protected def long(key: String): Value[Long] = new Value[Long](key)
+  protected def int(key: String): Value[Int] = new IntValue(key)
+  protected def string(key: String): Value[String] = new StringValue(key)
+  protected def boolean(key: String): Value[Boolean] = new BooleanValue(key)
+  protected def double(key: String): Value[Double] = new DoubleValue(key)
+  protected def long(key: String): Value[Long] = new LongValue(key)
+
+  def toDictionary: js.Dictionary[js.Any] = {
+    val dictionary = js.Dictionary[js.Any]()
+    for (field <- structure.toSeq.map(_._2) if field().isDefined) {
+      dictionary(field.key) = field match {
+        case f: IntValue => f().get
+        case f: StringValue => f().get
+        case f: DoubleValue => f().get
+        case f: BooleanValue => f().get
+      }
+    }
+    dictionary
+  }
 
   class Value[A <: Any](val key: String) {
     _structure(key) = this
@@ -64,5 +79,11 @@ class Model(val entityName: String) {
 
     private var _value: Option[A] = None
   }
+
+  class IntValue(key: String) extends Value[Int](key)
+  class StringValue(key: String) extends Value[String](key)
+  class BooleanValue(key: String) extends Value[Boolean](key)
+  class DoubleValue(key: String) extends Value[Double](key)
+  class LongValue(key: String) extends Value[Long](key)
 
 }

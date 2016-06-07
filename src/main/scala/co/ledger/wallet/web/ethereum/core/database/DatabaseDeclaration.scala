@@ -1,8 +1,9 @@
 package co.ledger.wallet.web.ethereum.core.database
 
 import co.ledger.wallet.web.ethereum.core.idb.{DatabaseConnection, IndexedDb}
-
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
 /**
   *
@@ -45,8 +46,14 @@ trait DatabaseDeclaration {
       for (model <- models) {
         model.creator.create(connection)
       }
+    } andThen {
+      case Success(connection) => _connection = Option(connection)
+      case Failure(ex) => ex.printStackTrace()
     }
   }
-
-
+  def close(): Unit = {
+    _connection.foreach(_.close())
+  }
+  def connection: Option[DatabaseConnection] = _connection
+  private var _connection: Option[DatabaseConnection] = None
 }
