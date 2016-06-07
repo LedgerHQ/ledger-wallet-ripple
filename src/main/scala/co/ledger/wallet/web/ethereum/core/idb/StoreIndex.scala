@@ -2,14 +2,12 @@ package co.ledger.wallet.web.ethereum.core.idb
 
 import org.scalajs.dom.idb
 
-import scala.scalajs.js
-
 /**
   *
-  * ObjectStore
+  * StoreIndex
   * ledger-wallet-ethereum-chrome
   *
-  * Created by Pierre Pollastri on 06/06/2016.
+  * Created by Pierre Pollastri on 07/06/2016.
   *
   * The MIT License (MIT)
   *
@@ -34,10 +32,8 @@ import scala.scalajs.js
   * SOFTWARE.
   *
   */
-class ObjectStore(ref: idb.ObjectStore) {
+class StoreIndex(ref: idb.Index) {
 
-  def createIndex(name: String, keyPath: String, options: js.Dictionary[js.Any]) = {
-    ref.createIndex(name, keyPath, options)
-  }
+
 
 }

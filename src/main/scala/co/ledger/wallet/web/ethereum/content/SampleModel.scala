@@ -1,15 +1,13 @@
-package co.ledger.wallet.web.ethereum.core.idb
+package co.ledger.wallet.web.ethereum.content
 
-import org.scalajs.dom.idb
-
-import scala.scalajs.js
+import co.ledger.wallet.web.ethereum.core.database.{DatabaseDeclaration, Model, ModelCreator, QueryHelper}
 
 /**
   *
-  * ObjectStore
+  * SampleModel
   * ledger-wallet-ethereum-chrome
   *
-  * Created by Pierre Pollastri on 06/06/2016.
+  * Created by Pierre Pollastri on 07/06/2016.
   *
   * The MIT License (MIT)
   *
@@ -34,10 +32,19 @@ import scala.scalajs.js
   * SOFTWARE.
   *
   */
-class ObjectStore(ref: idb.ObjectStore) {
+/***
+  * A sample model to demonstrate API capabilities
+  */
+class SampleModel extends Model("sample") {
+  val aInt = int("a_int").unique().index()
+  val aString = string("a_string")
 
-  def createIndex(name: String, keyPath: String, options: js.Dictionary[js.Any]) = {
-    ref.createIndex(name, keyPath, options)
-  }
+}
 
+object SampleModel extends QueryHelper[SampleModel] with ModelCreator[SampleModel] {
+  override def database: DatabaseDeclaration = SamplesDatabaseDeclaration
+
+  override def creator: ModelCreator[SampleModel] = this
+
+  override def newInstance(): SampleModel = new SampleModel
 }

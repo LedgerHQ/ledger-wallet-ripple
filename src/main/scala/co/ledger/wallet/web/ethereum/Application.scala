@@ -5,6 +5,7 @@ import biz.enef.angulate._
 import biz.enef.angulate.core.HttpService
 import biz.enef.angulate.ext.RouteProvider
 import co.ledger.wallet.web.ethereum.components._
+import co.ledger.wallet.web.ethereum.content.SamplesDatabaseDeclaration
 import co.ledger.wallet.web.ethereum.controllers.WindowController
 import co.ledger.wallet.web.ethereum.controllers.onboarding.{LaunchController, OpeningController}
 import co.ledger.wallet.web.ethereum.controllers.wallet.{AccountController, ReceiveController, SendIndexController, SendPerformController}
@@ -68,12 +69,8 @@ object Application extends JSApp{
     module.config(initTranslate _)
     module.run(initApp _)
 
-    IndexedDb.open("test", Some(2)) {(connection) =>
-      connection.createObjectStore("toto")
-    } onSuccess {
-      case connection =>
-        println("Connected")
-    }
+    IndexedDb.delete(SamplesDatabaseDeclaration.name)
+    SamplesDatabaseDeclaration.open()
   }
 
   def initApp($http: HttpService, $rootScope: js.Dynamic, $location: js.Dynamic) = {

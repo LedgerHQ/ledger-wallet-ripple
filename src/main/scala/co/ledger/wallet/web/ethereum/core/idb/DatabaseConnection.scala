@@ -36,7 +36,7 @@ import scala.scalajs.js
   */
 class DatabaseConnection(ref: idb.Database) {
 
-  def createObjectStore(name: String, params: js.Dictionary[js.Any]): ObjectStore = {
+  def createObjectStore(name: String, params: js.Dictionary[js.Any] = js.Dictionary()): ObjectStore = {
     new ObjectStore(ref.createObjectStore(name, params))
   }
 

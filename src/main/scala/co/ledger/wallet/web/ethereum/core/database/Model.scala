@@ -1,15 +1,13 @@
-package co.ledger.wallet.web.ethereum.core.idb
+package co.ledger.wallet.web.ethereum.core.database
 
-import org.scalajs.dom.idb
-
-import scala.scalajs.js
+import java.rmi.activation.ActivationGroup_Stub
 
 /**
   *
-  * ObjectStore
+  * Model
   * ledger-wallet-ethereum-chrome
   *
-  * Created by Pierre Pollastri on 06/06/2016.
+  * Created by Pierre Pollastri on 07/06/2016.
   *
   * The MIT License (MIT)
   *
@@ -34,10 +32,37 @@ import scala.scalajs.js
   * SOFTWARE.
   *
   */
-class ObjectStore(ref: idb.ObjectStore) {
+class Model(val entityName: String) {
+  private val _structure = scala.collection.mutable.Map[String, Value[_]]()
+  def structure = _structure.toMap
+  protected def int(key: String): Value[Int] = new Value[Int](key)
+  protected def string(key: String): Value[String] = new Value[String](key)
+  protected def boolean(key: String): Value[Boolean] = new Value[Boolean](key)
+  protected def double(key: String): Value[Double] = new Value[Double](key)
+  protected def long(key: String): Value[Long] = new Value[Long](key)
 
-  def createIndex(name: String, keyPath: String, options: js.Dictionary[js.Any]) = {
-    ref.createIndex(name, keyPath, options)
+  class Value[A <: Any](val key: String) {
+    _structure(key) = this
+    def set(v: A) = {
+      _value = Option(v)
+      Model.this
+    }
+
+    def clear() = {
+      _value = None
+      Model.this
+    }
+    def apply() = _value
+
+    def unique() = {
+      this
+    }
+
+    def index(indexName: String = key) = {
+      this
+    }
+
+    private var _value: Option[A] = None
   }
 
 }

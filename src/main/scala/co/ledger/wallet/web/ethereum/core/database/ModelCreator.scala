@@ -1,15 +1,15 @@
-package co.ledger.wallet.web.ethereum.core.idb
+package co.ledger.wallet.web.ethereum.core.database
 
-import org.scalajs.dom.idb
+import co.ledger.wallet.web.ethereum.core.idb.{DatabaseConnection, ObjectStore}
 
-import scala.scalajs.js
+import scala.reflect.ClassTag
 
 /**
   *
-  * ObjectStore
+  * ModelCreator
   * ledger-wallet-ethereum-chrome
   *
-  * Created by Pierre Pollastri on 06/06/2016.
+  * Created by Pierre Pollastri on 07/06/2016.
   *
   * The MIT License (MIT)
   *
@@ -34,10 +34,16 @@ import scala.scalajs.js
   * SOFTWARE.
   *
   */
-class ObjectStore(ref: idb.ObjectStore) {
+trait ModelCreator[M <: Model] {
 
-  def createIndex(name: String, keyPath: String, options: js.Dictionary[js.Any]) = {
-    ref.createIndex(name, keyPath, options)
+  def create(database: DatabaseConnection): Unit = {
+    val m = newInstance()
+    if (!database.containsStore(m.entityName)) {
+      val store = database.createObjectStore(m.entityName)
+
+    }
   }
+
+  def newInstance(): M
 
 }

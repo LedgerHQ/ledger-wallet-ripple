@@ -65,7 +65,7 @@ class NavigationBar extends Directive {
 
   val items = js.Array(
     js.Dictionary(
-      "img" -> "./images/navigation_bar/ic_home.png",
+      "img" -> "images/navigation_bar/ic_home.png",
       "url" -> "#account/0"
     ),
     js.Dictionary(

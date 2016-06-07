@@ -58,6 +58,10 @@ object IndexedDb {
     promise.future
   }
 
+  def delete(databaseName: String) = {
+    factory.deleteDatabase(databaseName)
+  }
+
   private def factory = js.Dynamic.global.indexedDB.asInstanceOf[idb.Factory]
 
 }
