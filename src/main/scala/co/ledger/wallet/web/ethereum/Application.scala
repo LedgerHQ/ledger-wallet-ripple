@@ -77,8 +77,13 @@ object Application extends JSApp{
         val m = SampleModel(js.Dictionary(
           "aInt" -> 12
         ))
-        SampleModel.readwrite().add(m).commit()
-        js.Dynamic.global.console.log(m.toDictionary)
+        SampleModel.readwrite().add(m).commit() foreach {(_) =>
+          SampleModel.readonly().get(12).items foreach {(items) =>
+            println("GET ITEM")
+            js.Dynamic.global.console.log(items.head.toDictionary)
+          }
+        }
+
       }
     }
 

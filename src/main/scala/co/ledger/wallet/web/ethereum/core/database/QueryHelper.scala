@@ -38,7 +38,7 @@ import scala.scalajs.js
   * SOFTWARE.
   *
   */
-trait QueryHelper[M <: Model] {
+abstract class QueryHelper[M <: Model](implicit classTag: ClassTag[M]) {
   private val modelDeclaration = newInstance()
   def database: DatabaseDeclaration
   def creator: ModelCreator[M]
@@ -52,6 +52,8 @@ trait QueryHelper[M <: Model] {
     def commit(): Future[QueryResult] = {
       _steps.commit(mode)
     }
+    def cursor: Future[Cursor[M]] = commit().map(_.cursor)
+    def items: Future[Array[M]] = commit().map(_.items)
 
     protected def :+(perform: PerformStep) = _steps = new QueryStep(_steps, perform)
     private var _steps: QueryStep = new QueryStep(null, (_, _) => Future.successful())
@@ -59,6 +61,24 @@ trait QueryHelper[M <: Model] {
 
   class ReadOnlyQueryBuilder extends QueryBuilder {
     override protected def mode: String = "readonly"
+
+    def get(primaryKey: js.Any): this.type = {
+      this :+ {(transaction, result) =>
+        val promise = Promise[Unit]()
+        val objectStore = transaction.objectStore(modelDeclaration.entityName)
+        val request = objectStore.get(primaryKey)
+        request.onerror = {(event: ErrorEvent) =>
+          promise.failure(new Exception(event.message))
+        }
+        request.onsuccess = {(event: Event) =>
+          val r = creator(event.asInstanceOf[js.Dynamic].target.result.asInstanceOf[js.Dictionary[js.Any]])
+          result.addItem(r)
+          promise.success()
+        }
+        promise.future
+      }
+      this
+    }
   }
 
   class ReadWriteQueryBuilder extends ReadOnlyQueryBuilder {
@@ -132,7 +152,9 @@ trait QueryHelper[M <: Model] {
   private class MutableQueryResult extends QueryResult {
     override def cursor: Cursor[M] = ???
 
-    override def items: Array[M] = ???
+    override def items: Array[M] = _items.toArray
+    def addItem(item: M) = _items.append(item)
+    private val _items = ArrayBuffer[M]()
   }
 
   private type PerformStep = (idb.Transaction, MutableQueryResult) => Future[Unit]
