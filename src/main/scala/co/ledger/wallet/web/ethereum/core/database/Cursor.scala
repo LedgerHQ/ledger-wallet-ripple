@@ -1,5 +1,8 @@
 package co.ledger.wallet.web.ethereum.core.database
 
+import scala.collection.mutable.ArrayBuffer
+import scala.concurrent.{Future, Promise}
+
 /**
   *
   * Cursor
@@ -32,8 +35,59 @@ package co.ledger.wallet.web.ethereum.core.database
   */
 class Cursor[M <: Model] {
 
+  def foreach(f: (Option[M]) => Unit): Unit = foreach(-1)
+  def foreach(limit: Int)(f: (Option[M]) => Unit) = foreach(0, limit)(f)
+  def foreach(offset: Int, limit: Int)(f: (Option[M]) => Unit) = {
+    var index = 0
+    val maxIndex = offset + limit
+    foreach {(item) =>
+      if (limit > 0 && index >= maxIndex) {
+        close()
+      } else if (index >= offset) {
+        f(item)
+      }
+      index += 1
+    }
+  }
+
+  def toArray: Future[Array[M]] = toArray(-1)
+  def toArray(limit: Int): Future[Array[M]] = toArray(0, limit)
+  def toArray(offset: Int, limit: Int): Future[Array[M]] = {
+    val promise = Promise[Array[M]]()
+    val result = ArrayBuffer[M]()
+    foreach(offset, limit) {
+      case Some(item) => result.append(item)
+      case None => promise.success(result.toArray)
+    }
+    promise.future
+  }
+
+  def advance(n: Int): Future[Unit] = ???
+  def continue(): Future[Unit] = ???
+  def offset: Int = ???
+  def value: Option[M] = ???
+
+  def close(): Unit = {
+
+  }
 }
 
-class CursorBuilder[M <: Model] extends Cursor[M] {
+class WriteCursor[M <: Model] extends Cursor[M] {
+
+  def delete(): Unit = {
+
+  }
+
+  def update(newData: M): Unit = {
+
+  }
+
+}
+
+class CursorBuilder[M <: Model](creator: ModelCreator[M]) {
+
+  def build(): Cursor[M] = {
+    null
+  }
 
 }

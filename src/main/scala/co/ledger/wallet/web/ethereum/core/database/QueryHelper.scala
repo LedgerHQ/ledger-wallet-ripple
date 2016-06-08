@@ -85,16 +85,13 @@ abstract class QueryHelper[M <: Model](implicit classTag: ClassTag[M]) {
     override protected def mode: String = "readwrite"
     def add(item: M): this.type = {
       this :+ {(transaction, result) =>
-        println("ADDING")
         val promise = Promise[Unit]()
         try {
           val request = transaction.objectStore(modelDeclaration.entityName).add(item.toDictionary)
           request.onerror = { (event: ErrorEvent) =>
-            println("ADDING FAILED")
             promise.failure(new Exception(event.message))
           }
           request.onsuccess = { (event: Event) =>
-            println("ADDING SUCCEED")
             promise.success()
           }
         } catch {
@@ -151,7 +148,6 @@ abstract class QueryHelper[M <: Model](implicit classTag: ClassTag[M]) {
 
   private class MutableQueryResult extends QueryResult {
     override def cursor: Cursor[M] = ???
-
     override def items: Array[M] = _items.toArray
     def addItem(item: M) = _items.append(item)
     private val _items = ArrayBuffer[M]()
