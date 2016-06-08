@@ -1,9 +1,9 @@
 package co.ledger.wallet.web.ethereum.core.database
 
-import co.ledger.wallet.web.ethereum.core.idb.{DatabaseConnection, Transaction}
+import org.scalajs.dom.{ErrorEvent, Event, idb}
 
 import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.Future
+import scala.concurrent.{Future, Promise}
 import scala.reflect.ClassTag
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
@@ -39,6 +39,7 @@ import scala.scalajs.js
   *
   */
 trait QueryHelper[M <: Model] {
+  private val modelDeclaration = newInstance()
   def database: DatabaseDeclaration
   def creator: ModelCreator[M]
   def newInstance(): M
@@ -47,21 +48,40 @@ trait QueryHelper[M <: Model] {
   def readwrite(): ReadWriteQueryBuilder = new ReadWriteQueryBuilder
 
   trait QueryBuilder {
-
-    def commit(): Future[Unit] = {
-      _steps.commit().map((_) => ())
+    protected def mode: String
+    def commit(): Future[QueryResult] = {
+      _steps.commit(mode)
     }
 
-    def :+(perform: PerformStep) = _steps = new QueryStep(_steps, perform)
-    private var _steps: QueryStep = new QueryStep(null, (_) => Future.successful(js.Dictionary()))
+    protected def :+(perform: PerformStep) = _steps = new QueryStep(_steps, perform)
+    private var _steps: QueryStep = new QueryStep(null, (_, _) => Future.successful())
   }
 
   class ReadOnlyQueryBuilder extends QueryBuilder {
-
+    override protected def mode: String = "readonly"
   }
 
   class ReadWriteQueryBuilder extends ReadOnlyQueryBuilder {
+    override protected def mode: String = "readwrite"
     def add(item: M): this.type = {
+      this :+ {(transaction, result) =>
+        println("ADDING")
+        val promise = Promise[Unit]()
+        try {
+          val request = transaction.objectStore(modelDeclaration.entityName).add(item.toDictionary)
+          request.onerror = { (event: ErrorEvent) =>
+            println("ADDING FAILED")
+            promise.failure(new Exception(event.message))
+          }
+          request.onsuccess = { (event: Event) =>
+            println("ADDING SUCCEED")
+            promise.success()
+          }
+        } catch {
+          case er: Throwable => promise.failure(er)
+        }
+        promise.future
+      }
       this
     }
 
@@ -72,13 +92,48 @@ trait QueryHelper[M <: Model] {
     }
   }
 
-  private class QueryStep(parent: QueryStep,  perform: PerformStep) {
+  private class QueryStep(val parent: QueryStep, val perform: PerformStep) {
+    var child: QueryStep = null
 
-    def commit(): Future[Any] = {
-      null
+    if (parent != null) {
+      parent.child = this
+    }
+
+    def root: QueryStep = {
+      var n = this
+      while (n.parent != null)
+        n = n.parent
+      n
+    }
+
+    def commit(mode: String): Future[QueryResult] = {
+      val r = root
+      val result = new MutableQueryResult
+      database.obtainConnection() flatMap {(connection) =>
+        val transaction = connection.transaction(js.Array(modelDeclaration.entityName), mode)
+        def iterate(step: QueryStep): Future[Unit] = {
+          if (step == null)
+            Future.successful()
+          else
+            step.perform(transaction, result) flatMap {(_) =>
+              iterate(step.child)
+            }
+        }
+        iterate(r)
+      } map((_) => result.asInstanceOf[QueryResult])
     }
   }
 
-  type PerformStep = (Transaction) => Future[js.Dictionary[String]]
-}
+  trait QueryResult {
+    def cursor: Cursor[M]
+    def items: Array[M]
+  }
 
+  private class MutableQueryResult extends QueryResult {
+    override def cursor: Cursor[M] = ???
+
+    override def items: Array[M] = ???
+  }
+
+  private type PerformStep = (idb.Transaction, MutableQueryResult) => Future[Unit]
+}

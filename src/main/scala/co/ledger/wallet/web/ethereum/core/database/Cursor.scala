@@ -1,15 +1,11 @@
-package co.ledger.wallet.web.ethereum.core.idb
-
-import org.scalajs.dom.idb
-
-import scala.scalajs.js
+package co.ledger.wallet.web.ethereum.core.database
 
 /**
   *
-  * ObjectStore
+  * Cursor
   * ledger-wallet-ethereum-chrome
   *
-  * Created by Pierre Pollastri on 06/06/2016.
+  * Created by Pierre Pollastri on 08/06/2016.
   *
   * The MIT License (MIT)
   *
@@ -34,10 +30,10 @@ import scala.scalajs.js
   * SOFTWARE.
   *
   */
-class ObjectStore(ref: idb.ObjectStore) {
+class Cursor[M <: Model] {
 
-  def createIndex(name: String, keyPath: String, options: js.Dictionary[js.Any]) = {
-    ref.createIndex(name, keyPath, options)
-  }
+}
+
+class CursorBuilder[M <: Model] extends Cursor[M] {
 
 }

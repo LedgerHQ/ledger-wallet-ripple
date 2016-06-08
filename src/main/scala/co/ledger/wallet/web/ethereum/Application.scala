@@ -69,13 +69,19 @@ object Application extends JSApp{
     module.config(initTranslate _)
     module.run(initApp _)
 
-    IndexedDb.delete(SamplesDatabaseDeclaration.name)
-    SamplesDatabaseDeclaration.open() foreach {(_) =>
-      val m = SampleModel(js.Dictionary(
-        "aInt" -> 12
-      ))
-      js.Dynamic.global.console.log(m.toDictionary)
+    import timers._
+
+    setTimeout(1000) {
+      IndexedDb.delete(SamplesDatabaseDeclaration.name)
+      SamplesDatabaseDeclaration.open() foreach {(_) =>
+        val m = SampleModel(js.Dictionary(
+          "aInt" -> 12
+        ))
+        SampleModel.readwrite().add(m).commit()
+        js.Dynamic.global.console.log(m.toDictionary)
+      }
     }
+
   }
 
   def initApp($http: HttpService, $rootScope: js.Dynamic, $location: js.Dynamic) = {

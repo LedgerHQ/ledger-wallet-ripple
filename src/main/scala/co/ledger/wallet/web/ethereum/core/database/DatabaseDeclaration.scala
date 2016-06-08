@@ -1,6 +1,9 @@
 package co.ledger.wallet.web.ethereum.core.database
 
-import co.ledger.wallet.web.ethereum.core.idb.{DatabaseConnection, IndexedDb}
+import co.ledger.wallet.web.ethereum.core.idb.IndexedDb
+import com.sun.org.apache.xpath.internal.functions.FuncTranslate
+import org.scalajs.dom.idb
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
@@ -40,7 +43,7 @@ trait DatabaseDeclaration {
   def version: Int
   def models: Seq[QueryHelper[_]]
 
-  def open(): Future[DatabaseConnection] = {
+  def open(): Future[idb.Database] = {
     IndexedDb.open(name, Some(version)) {(connection) =>
       // Create all store
       for (model <- models) {
@@ -51,9 +54,15 @@ trait DatabaseDeclaration {
       case Failure(ex) => ex.printStackTrace()
     }
   }
+  def obtainConnection(): Future[idb.Database] = {
+    connection match {
+      case Some(c) => Future.successful(c)
+      case None => open()
+    }
+  }
   def close(): Unit = {
     _connection.foreach(_.close())
   }
-  def connection: Option[DatabaseConnection] = _connection
-  private var _connection: Option[DatabaseConnection] = None
+  def connection: Option[idb.Database] = _connection
+  private var _connection: Option[idb.Database] = None
 }

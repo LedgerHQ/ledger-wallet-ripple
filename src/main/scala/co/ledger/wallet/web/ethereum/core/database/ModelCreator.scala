@@ -1,6 +1,6 @@
 package co.ledger.wallet.web.ethereum.core.database
 
-import co.ledger.wallet.web.ethereum.core.idb.DatabaseConnection
+import org.scalajs.dom.idb
 
 import scala.scalajs.js
 
@@ -36,11 +36,18 @@ import scala.scalajs.js
   */
 trait ModelCreator[M <: Model] {
 
-  def create(database: DatabaseConnection): Unit = {
+  def create(database: idb.Database): Unit = {
     val m = newInstance()
-    if (!database.containsStore(m.entityName)) {
-      val store = database.createObjectStore(m.entityName)
-
+    val keyPath = m.structure.find({
+      case (key, value) => value.isUnique
+    }).map(_._2)
+    if (!database.objectStoreNames.contains(m.entityName)) {
+      val store = keyPath match {
+        case Some(k) =>
+          database.createObjectStore(m.entityName, js.Dictionary("keyPath" -> k.key))
+        case None =>
+          database.createObjectStore(m.entityName, js.Dictionary("autoincrement" -> true))
+      }
     }
   }
 

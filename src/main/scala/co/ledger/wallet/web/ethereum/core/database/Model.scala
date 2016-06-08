@@ -69,13 +69,20 @@ class Model(val entityName: String) {
     }
     def apply() = _value
 
+    def isUnique = _unique
     def unique() = {
+      _unique = true
       this
     }
+    private var _unique = false
 
+    def hasIndex = _index.isDefined
     def index(indexName: String = key) = {
+      _index = Option(indexName)
       this
     }
+    def index = _index
+    private var _index: Option[String] = None
 
     private var _value: Option[A] = None
   }

@@ -1,7 +1,7 @@
 package co.ledger.wallet.web.ethereum.content
 
 import co.ledger.wallet.web.ethereum.core.database.{DatabaseDeclaration, ModelCreator, QueryHelper}
-import co.ledger.wallet.web.ethereum.core.idb.{DatabaseConnection, IndexedDb}
+import co.ledger.wallet.web.ethereum.core.idb.IndexedDb
 
 import scala.concurrent.Future
 
