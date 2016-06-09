@@ -59,8 +59,12 @@ abstract class QueryHelper[M <: Model](implicit classTag: ClassTag[M]) {
     private var _steps: QueryStep = new QueryStep(null, (_, _) => Future.successful())
   }
 
-  class ReadOnlyQueryBuilder extends QueryBuilder {
+  class ReadOnlyQueryBuilder extends QueryBuilder with CursorBuilder[M] {
+    override protected implicit val modelClassTag: ClassTag[M] = classTag
+    override protected val modelDeclaration: M = QueryHelper.this.modelDeclaration
     override protected def mode: String = "readonly"
+
+    override protected val creator: ModelCreator[M] = QueryHelper.this.creator
 
     def get(primaryKey: js.Any): this.type = {
       this :+ {(transaction, result) =>
@@ -79,6 +83,18 @@ abstract class QueryHelper[M <: Model](implicit classTag: ClassTag[M]) {
       }
       this
     }
+
+    def openCursor(keys: String*): this.type = {
+      this :+ {(transaction, result) =>
+
+        buildCursor(transaction) map {(c) =>
+          result.setCursor(c)
+          ()
+        }
+      }
+      this
+    }
+
   }
 
   class ReadWriteQueryBuilder extends ReadOnlyQueryBuilder {
@@ -102,11 +118,14 @@ abstract class QueryHelper[M <: Model](implicit classTag: ClassTag[M]) {
       this
     }
 
+    def writeCursor: Future[WriteCursor[M]] = commit().map(_.cursor.asInstanceOf[WriteCursor[M]])
     def add(items: Array[M]): this.type  = {
       for (item <- items)
         add(item)
       this
     }
+
+    useWriteCursor()
   }
 
   private class QueryStep(val parent: QueryStep, val perform: PerformStep) {
@@ -147,10 +166,12 @@ abstract class QueryHelper[M <: Model](implicit classTag: ClassTag[M]) {
   }
 
   private class MutableQueryResult extends QueryResult {
-    override def cursor: Cursor[M] = ???
+    override def cursor: Cursor[M] = _cursor
     override def items: Array[M] = _items.toArray
     def addItem(item: M) = _items.append(item)
+    def setCursor(cursor: Cursor[M]): Unit = _cursor = cursor
     private val _items = ArrayBuffer[M]()
+    private var _cursor: Cursor[M] = null
   }
 
   private type PerformStep = (idb.Transaction, MutableQueryResult) => Future[Unit]

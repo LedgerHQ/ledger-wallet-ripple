@@ -2,6 +2,7 @@ package co.ledger.wallet.web.ethereum.core.database
 
 import java.rmi.activation.ActivationGroup_Stub
 
+import scala.collection.mutable.ArrayBuffer
 import scala.scalajs.js
 
 /**
@@ -42,6 +43,7 @@ class Model(val entityName: String) {
   protected def boolean(key: String): Value[Boolean] = new BooleanValue(key)
   protected def double(key: String): Value[Double] = new DoubleValue(key)
   protected def long(key: String): Value[Long] = new LongValue(key)
+  protected def index(keys: String*): Unit = _indexes.append(Index(keys.mkString(", "), keys))
 
   def toDictionary: js.Dictionary[js.Any] = {
     val dictionary = js.Dictionary[js.Any]()
@@ -55,6 +57,10 @@ class Model(val entityName: String) {
     }
     dictionary
   }
+
+  private val _indexes = ArrayBuffer[Index]()
+
+  case class Index(name: String, keys: Seq[String])
 
   class Value[A <: Any](val key: String) {
     _structure(key) = this
@@ -79,6 +85,7 @@ class Model(val entityName: String) {
     def hasIndex = _index.isDefined
     def index(indexName: String = key) = {
       _index = Option(indexName)
+      _indexes.append(Index(indexName, Array(key)))
       this
     }
     def index = _index
@@ -92,5 +99,4 @@ class Model(val entityName: String) {
   class BooleanValue(key: String) extends Value[Boolean](key)
   class DoubleValue(key: String) extends Value[Double](key)
   class LongValue(key: String) extends Value[Long](key)
-
 }

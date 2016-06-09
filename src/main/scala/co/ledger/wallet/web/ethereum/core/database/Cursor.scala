@@ -1,7 +1,11 @@
 package co.ledger.wallet.web.ethereum.core.database
 
+import org.scalajs.dom.idb
+
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{Future, Promise}
+import scala.reflect.ClassTag
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
   *
@@ -33,11 +37,11 @@ import scala.concurrent.{Future, Promise}
   * SOFTWARE.
   *
   */
-class Cursor[M <: Model] {
+class Cursor[M <: Model](request: idb.Request)(implicit classTag: ClassTag[M]) {
 
-  def foreach(f: (Option[M]) => Unit): Unit = foreach(-1)
-  def foreach(limit: Int)(f: (Option[M]) => Unit) = foreach(0, limit)(f)
-  def foreach(offset: Int, limit: Int)(f: (Option[M]) => Unit) = {
+  def foreach(f: (Option[M]) => Unit): Unit = foreach(-1)(f)
+  def foreach(limit: Int)(f: (Option[M]) => Unit): Unit = foreach(0, limit)(f)
+  def foreach(offset: Int, limit: Int)(f: (Option[M]) => Unit): Unit = {
     var index = 0
     val maxIndex = offset + limit
     foreach {(item) =>
@@ -70,9 +74,11 @@ class Cursor[M <: Model] {
   def close(): Unit = {
 
   }
+
+  def futureValue: Future[M] = ???
 }
 
-class WriteCursor[M <: Model] extends Cursor[M] {
+class WriteCursor[M <: Model](request: idb.Request)(implicit classTag: ClassTag[M]) extends Cursor[M](request) {
 
   def delete(): Unit = {
 
@@ -84,10 +90,34 @@ class WriteCursor[M <: Model] extends Cursor[M] {
 
 }
 
-class CursorBuilder[M <: Model](creator: ModelCreator[M]) {
-
-  def build(): Cursor[M] = {
-    null
+trait CursorBuilder[M <: Model] {
+  protected implicit val modelClassTag: ClassTag[M]
+  protected val modelDeclaration: M
+  protected val creator: ModelCreator[M]
+  protected def useWriteCursor() = _writable = true
+  protected def buildCursor(transaction: idb.Transaction): Future[Cursor[M]] = {
+    val store = transaction.objectStore(modelDeclaration.entityName)
+    val direction = "continue"
+    val request = indexName match {
+      case Some(name) =>
+        store.index(name).openCursor()
+      case None =>
+        store.openCursor()
+    }
+    val cursor = {
+      if (_writable)
+        new WriteCursor[M](request)
+      else
+        new Cursor[M](request)
+    }
+    cursor.futureValue.map((_) => cursor)
   }
-
+  def reverse(): this.type = {
+    this
+  }
+  def unique(): this.type  = {
+    this
+  }
+  protected var indexName: Option[String] = None
+  private var _writable = false
 }
