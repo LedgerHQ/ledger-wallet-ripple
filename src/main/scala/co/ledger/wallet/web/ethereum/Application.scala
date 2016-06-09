@@ -79,7 +79,7 @@ object Application extends JSApp{
         ))
         SampleModel.readwrite().add(m).commit() foreach {(_) =>
           SampleModel.readonly().get(12).items foreach {(items) =>
-            //js.Dynamic.global.console.log(items.head.toDictionary)
+            js.Dynamic.global.console.log(items.head.toDictionary)
           }
         }
         SampleModel.readonly().cursor foreach {(cursor) =>

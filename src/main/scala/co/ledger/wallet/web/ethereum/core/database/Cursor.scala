@@ -56,7 +56,6 @@ class Cursor[M >: Null <: Model](request: idb.Request, creator: ModelCreator[M])
       if (limit > 0 && index >= maxIndex) {
         close()
       } else if (index >= offset) {
-        println(value)
         f(value)
       }
       index += 1
