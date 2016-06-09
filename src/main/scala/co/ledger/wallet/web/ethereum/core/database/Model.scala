@@ -44,6 +44,7 @@ class Model(val entityName: String) {
   protected def double(key: String): Value[Double] = new DoubleValue(key)
   protected def long(key: String): Value[Long] = new LongValue(key)
   protected def index(keys: String*): Unit = _indexes.append(Index(keys.mkString(", "), keys))
+  def indexes = _indexes.toArray
 
   def toDictionary: js.Dictionary[js.Any] = {
     val dictionary = js.Dictionary[js.Any]()

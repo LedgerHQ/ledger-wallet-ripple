@@ -44,10 +44,10 @@ trait DatabaseDeclaration {
   def models: Seq[QueryHelper[_]]
 
   def open(): Future[idb.Database] = {
-    IndexedDb.open(name, Some(version)) {(connection) =>
+    IndexedDb.open(name, Some(version)) {(connection, transaction) =>
       // Create all store
       for (model <- models) {
-        model.creator.create(connection)
+        model.creator.create(connection, transaction)
       }
     } andThen {
       case Success(connection) => _connection = Option(connection)

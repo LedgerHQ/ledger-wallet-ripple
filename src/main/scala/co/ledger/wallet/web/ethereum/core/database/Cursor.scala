@@ -1,11 +1,12 @@
 package co.ledger.wallet.web.ethereum.core.database
 
-import org.scalajs.dom.idb
+import org.scalajs.dom.{ErrorEvent, Event, idb}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{Future, Promise}
 import scala.reflect.ClassTag
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.scalajs.js
 
 /**
   *
@@ -37,21 +38,28 @@ import scala.concurrent.ExecutionContext.Implicits.global
   * SOFTWARE.
   *
   */
-class Cursor[M <: Model](request: idb.Request)(implicit classTag: ClassTag[M]) {
+class Cursor[M >: Null <: Model](request: idb.Request, creator: ModelCreator[M])(implicit classTag: ClassTag[M]) {
 
   def foreach(f: (Option[M]) => Unit): Unit = foreach(-1)(f)
   def foreach(limit: Int)(f: (Option[M]) => Unit): Unit = foreach(0, limit)(f)
   def foreach(offset: Int, limit: Int)(f: (Option[M]) => Unit): Unit = {
     var index = 0
     val maxIndex = offset + limit
-    foreach {(item) =>
-      if (limit > 0 && index >= maxIndex) {
-        close()
-      } else if (index >= offset) {
-        f(item)
+    def iterate(): Unit = {
+      if (!isClosed) {
+        continue() foreach {(_) =>
+          if (limit > 0 && index >= maxIndex) {
+            close()
+          } else if (index >= offset) {
+            println(value)
+            f(value)
+          }
+          index += 1
+          iterate()
+        }
       }
-      index += 1
     }
+    iterate()
   }
 
   def toArray: Future[Array[M]] = toArray(-1)
@@ -66,19 +74,46 @@ class Cursor[M <: Model](request: idb.Request)(implicit classTag: ClassTag[M]) {
     promise.future
   }
 
-  def advance(n: Int): Future[Unit] = ???
-  def continue(): Future[Unit] = ???
+  def advance(n: Int): Future[Unit] = {
+    futureValue.flatMap {(_) =>
+      _cursor.advance(n)
+      _valuePromise = Promise()
+      _valuePromise.future.map((_) => ())
+    }
+  }
+  def continue(): Future[Unit] = {
+    futureValue.flatMap {(_) =>
+      _cursor.continue()
+      _valuePromise = Promise()
+      _valuePromise.future.map((_) => ())
+    }
+  }
   def offset: Int = ???
-  def value: Option[M] = ???
+  def value: Option[M] = futureValue.value.flatMap(_.toOption).flatMap(Option(_))
 
   def close(): Unit = {
-
+    _closed = true
   }
 
-  def futureValue: Future[M] = ???
+  def isClosed = _closed
+  def futureValue: Future[M] = _valuePromise.future
+  private var _closed = false
+  private var _cursor: idb.Cursor = null
+  private var _valuePromise = Promise[M]()
+  request.onsuccess = {(event: Event) =>
+    _cursor = event.target.asInstanceOf[js.Dynamic].result.asInstanceOf[idb.Cursor]
+    println(_cursor)
+    if (_cursor != null)
+      _valuePromise.success(creator(_cursor.asInstanceOf[js.Dynamic].value.asInstanceOf[js.Dictionary[js.Any]]))
+    else
+      _valuePromise.success(null)
+  }
+  request.onerror = {(event: ErrorEvent) =>
+    _valuePromise.failure(new Exception(event.message))
+  }
 }
 
-class WriteCursor[M <: Model](request: idb.Request)(implicit classTag: ClassTag[M]) extends Cursor[M](request) {
+class WriteCursor[M >: Null <: Model](request: idb.Request, creator: ModelCreator[M])(implicit classTag: ClassTag[M]) extends Cursor[M](request, creator) {
 
   def delete(): Unit = {
 
@@ -90,34 +125,49 @@ class WriteCursor[M <: Model](request: idb.Request)(implicit classTag: ClassTag[
 
 }
 
-trait CursorBuilder[M <: Model] {
+trait CursorBuilder[M >: Null <: Model] {
   protected implicit val modelClassTag: ClassTag[M]
   protected val modelDeclaration: M
   protected val creator: ModelCreator[M]
   protected def useWriteCursor() = _writable = true
   protected def buildCursor(transaction: idb.Transaction): Future[Cursor[M]] = {
     val store = transaction.objectStore(modelDeclaration.entityName)
-    val direction = "continue"
+    val direction = {
+      if (!_reverse && !_unique)
+        "next"
+      else if (_reverse && !_unique)
+        "prev"
+      else if (!_reverse && _unique)
+        "nextunique"
+      else
+        "prevunique"
+    }
+    val range: idb.KeyRange = null
     val request = indexName match {
       case Some(name) =>
-        store.index(name).openCursor()
+        store.index(name).openCursor(range, direction)
       case None =>
-        store.openCursor()
+        store.openCursor(range, direction)
     }
     val cursor = {
       if (_writable)
-        new WriteCursor[M](request)
+        new WriteCursor[M](request, creator)
       else
-        new Cursor[M](request)
+        new Cursor[M](request, creator)
     }
+    println("WAITING FOR THE REQUEST")
     cursor.futureValue.map((_) => cursor)
   }
   def reverse(): this.type = {
+    _reverse = true
     this
   }
-  def unique(): this.type  = {
+  def uniq(): this.type  = {
+    _unique = true
     this
   }
   protected var indexName: Option[String] = None
   private var _writable = false
+  private var _reverse = false
+  private var _unique = false
 }

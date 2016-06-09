@@ -83,7 +83,13 @@ object Application extends JSApp{
             js.Dynamic.global.console.log(items.head.toDictionary)
           }
         }
-
+        SampleModel.readonly().cursor foreach {(cursor) =>
+          cursor foreach {(item) =>
+            println("CURSOR ITEM")
+            if (item.isDefined)
+              js.Dynamic.global.console.log(item.get.toDictionary)
+          }
+        }
       }
     }
 

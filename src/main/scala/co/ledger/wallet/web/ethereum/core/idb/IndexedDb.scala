@@ -38,7 +38,7 @@ import scala.scalajs.js
   */
 object IndexedDb {
 
-  def open(databaseName: String, version: Option[Int] = Some(1))(upgradeHandler: (idb.Database) => Unit): Future[idb.Database] = {
+  def open(databaseName: String, version: Option[Int] = Some(1))(upgradeHandler: (idb.Database, idb.Transaction) => Unit): Future[idb.Database] = {
     val promise = Promise[idb.Database]()
     val request = version match {
       case Some(v) => factory.open(databaseName, v)
@@ -46,7 +46,8 @@ object IndexedDb {
     }
     request.onupgradeneeded = {(event: IDBVersionChangeEvent) =>
       val db = event.target.asInstanceOf[js.Dynamic].result.asInstanceOf[idb.Database]
-      upgradeHandler(db)
+      val transaction = event.currentTarget.asInstanceOf[js.Dynamic].transaction.asInstanceOf[idb.Transaction]
+      upgradeHandler(db, transaction)
     }
     request.onsuccess = {(event: Event) =>
       val db = event.target.asInstanceOf[js.Dynamic].result.asInstanceOf[idb.Database]

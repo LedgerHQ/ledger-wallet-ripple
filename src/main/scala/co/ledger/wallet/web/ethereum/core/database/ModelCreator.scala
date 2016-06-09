@@ -36,17 +36,26 @@ import scala.scalajs.js
   */
 trait ModelCreator[M <: Model] {
 
-  def create(database: idb.Database): Unit = {
+  def create(database: idb.Database, transaction: idb.Transaction): Unit = {
     val m = newInstance()
     val keyPath = m.structure.find({
       case (key, value) => value.isUnique
     }).map(_._2)
-    if (!database.objectStoreNames.contains(m.entityName)) {
-      val store = keyPath match {
-        case Some(k) =>
-          database.createObjectStore(m.entityName, js.Dictionary("keyPath" -> k.key))
-        case None =>
-          database.createObjectStore(m.entityName, js.Dictionary("autoincrement" -> true))
+    val store = {
+      if (!database.objectStoreNames.contains(m.entityName)) {
+        keyPath match {
+          case Some(k) =>
+            database.createObjectStore(m.entityName, js.Dictionary("keyPath" -> k.key))
+          case None =>
+            database.createObjectStore(m.entityName, js.Dictionary("autoincrement" -> true))
+        }
+      } else {
+        transaction.objectStore(m.entityName)
+      }
+    }
+    for (index <- m.indexes) {
+      if (!store.indexNames.contains(index.name)) {
+        store.asInstanceOf[js.Dynamic].createIndex(index.name, js.Array(index.keys:_*))
       }
     }
   }

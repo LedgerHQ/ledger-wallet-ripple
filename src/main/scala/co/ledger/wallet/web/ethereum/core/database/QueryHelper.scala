@@ -38,7 +38,7 @@ import scala.scalajs.js
   * SOFTWARE.
   *
   */
-abstract class QueryHelper[M <: Model](implicit classTag: ClassTag[M]) {
+abstract class QueryHelper[M >: Null <: Model](implicit classTag: ClassTag[M]) {
   private val modelDeclaration = newInstance()
   def database: DatabaseDeclaration
   def creator: ModelCreator[M]
@@ -52,9 +52,9 @@ abstract class QueryHelper[M <: Model](implicit classTag: ClassTag[M]) {
     def commit(): Future[QueryResult] = {
       _steps.commit(mode)
     }
-    def cursor: Future[Cursor[M]] = commit().map(_.cursor)
+    def cursor: Future[Cursor[M]] = openCursor().commit().map(_.cursor)
     def items: Future[Array[M]] = commit().map(_.items)
-
+    def openCursor(keys: String*): this.type
     protected def :+(perform: PerformStep) = _steps = new QueryStep(_steps, perform)
     private var _steps: QueryStep = new QueryStep(null, (_, _) => Future.successful())
   }
@@ -84,12 +84,18 @@ abstract class QueryHelper[M <: Model](implicit classTag: ClassTag[M]) {
       this
     }
 
-    def openCursor(keys: String*): this.type = {
+    override def openCursor(keys: String*): this.type = {
+      println("OPEN CURSOR")
       this :+ {(transaction, result) =>
-
-        buildCursor(transaction) map {(c) =>
-          result.setCursor(c)
-          ()
+        if (result.cursor == null) {
+          println("OPENING CURSOR")
+          buildCursor(transaction) map { (c) =>
+            println("GOT CURSOR " + c)
+            result.setCursor(c)
+            ()
+          }
+        } else {
+          Future.successful()
         }
       }
       this
