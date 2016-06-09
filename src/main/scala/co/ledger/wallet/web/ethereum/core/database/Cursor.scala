@@ -48,18 +48,21 @@ class Cursor[M >: Null <: Model](request: idb.Request, creator: ModelCreator[M])
     def iterate(): Unit = {
       if (!isClosed) {
         continue() foreach {(_) =>
-          if (limit > 0 && index >= maxIndex) {
-            close()
-          } else if (index >= offset) {
-            println(value)
-            f(value)
-          }
-          index += 1
-          iterate()
+          handleValue()
         }
       }
     }
-    iterate()
+    def handleValue(): Unit = {
+      if (limit > 0 && index >= maxIndex) {
+        close()
+      } else if (index >= offset) {
+        println(value)
+        f(value)
+      }
+      index += 1
+      iterate()
+    }
+    handleValue()
   }
 
   def toArray: Future[Array[M]] = toArray(-1)
@@ -88,7 +91,6 @@ class Cursor[M >: Null <: Model](request: idb.Request, creator: ModelCreator[M])
       _valuePromise.future.map((_) => ())
     }
   }
-  def offset: Int = ???
   def value: Option[M] = futureValue.value.flatMap(_.toOption).flatMap(Option(_))
 
   def close(): Unit = {
@@ -102,7 +104,6 @@ class Cursor[M >: Null <: Model](request: idb.Request, creator: ModelCreator[M])
   private var _valuePromise = Promise[M]()
   request.onsuccess = {(event: Event) =>
     _cursor = event.target.asInstanceOf[js.Dynamic].result.asInstanceOf[idb.Cursor]
-    println(_cursor)
     if (_cursor != null)
       _valuePromise.success(creator(_cursor.asInstanceOf[js.Dynamic].value.asInstanceOf[js.Dictionary[js.Any]]))
     else
@@ -155,7 +156,6 @@ trait CursorBuilder[M >: Null <: Model] {
       else
         new Cursor[M](request, creator)
     }
-    println("WAITING FOR THE REQUEST")
     cursor.futureValue.map((_) => cursor)
   }
   def reverse(): this.type = {
