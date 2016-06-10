@@ -43,6 +43,7 @@ class Model(val entityName: String) {
   protected def boolean(key: String): Value[Boolean] = new BooleanValue(key)
   protected def double(key: String): Value[Double] = new DoubleValue(key)
   protected def long(key: String): Value[Long] = new LongValue(key)
+  protected def date(key: String): Value[js.Date] = new DateValue(key)
   protected def index(keys: String*): Unit = _indexes.append(Index(keys.mkString(", "), keys))
   def indexes = _indexes.toArray
 
@@ -54,6 +55,7 @@ class Model(val entityName: String) {
         case f: StringValue => f().get
         case f: DoubleValue => f().get
         case f: BooleanValue => f().get
+        case f: DateValue => f().get
       }
     }
     dictionary
@@ -70,6 +72,13 @@ class Model(val entityName: String) {
       Model.this
     }
 
+    def isAutoincrement = _autoincrement
+    def autoincrement() = {
+      _autoincrement = true
+      this
+    }
+    private var _autoincrement = false
+
     def clear() = {
       _value = None
       Model.this
@@ -82,6 +91,13 @@ class Model(val entityName: String) {
       this
     }
     private var _unique = false
+
+    def isEncrypted = _encrypted
+    def encrypted() = {
+      _encrypted = true
+      this
+    }
+    private var _encrypted = false
 
     def hasIndex = _index.isDefined
     def index(indexName: String = key) = {
@@ -100,4 +116,5 @@ class Model(val entityName: String) {
   class BooleanValue(key: String) extends Value[Boolean](key)
   class DoubleValue(key: String) extends Value[Double](key)
   class LongValue(key: String) extends Value[Long](key)
+  class DateValue(key: String) extends Value[js.Date](key)
 }

@@ -39,15 +39,18 @@ trait ModelCreator[M <: Model] {
   def create(database: idb.Database, transaction: idb.Transaction): Unit = {
     val m = newInstance()
     val keyPath = m.structure.find({
-      case (key, value) => value.isUnique
+      case (key, value) => value.isUnique || value.isAutoincrement
     }).map(_._2)
     val store = {
       if (!database.objectStoreNames.contains(m.entityName)) {
         keyPath match {
           case Some(k) =>
-            database.createObjectStore(m.entityName, js.Dictionary("keyPath" -> k.key))
+            if (!k.isAutoincrement)
+              database.createObjectStore(m.entityName, js.Dictionary("keyPath" -> k.key))
+            else
+              database.createObjectStore(m.entityName, js.Dictionary("keyPath" -> k.key, "autoIncrement" -> true))
           case None =>
-            database.createObjectStore(m.entityName, js.Dictionary("autoincrement" -> true))
+            database.createObjectStore(m.entityName, js.Dictionary("autoIncrement" -> true))
         }
       } else {
         transaction.objectStore(m.entityName)
@@ -72,6 +75,8 @@ trait ModelCreator[M <: Model] {
           f.set(map(f.key).asInstanceOf[Double])
         case f: result.BooleanValue =>
           f.set(map(f.key).asInstanceOf[Boolean])
+        case f: result.DateValue =>
+          f.set(map(f.key).asInstanceOf[js.Date])
       }
     }
     result

@@ -4,22 +4,18 @@ import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate._
 import biz.enef.angulate.core.HttpService
 import biz.enef.angulate.ext.RouteProvider
+import co.ledger.wallet.core.utils.logs.{LogEntry, Logger}
 import co.ledger.wallet.web.ethereum.components._
-import co.ledger.wallet.web.ethereum.content.{SampleModel, SamplesDatabaseDeclaration}
 import co.ledger.wallet.web.ethereum.controllers.WindowController
 import co.ledger.wallet.web.ethereum.controllers.onboarding.{LaunchController, OpeningController}
 import co.ledger.wallet.web.ethereum.controllers.wallet.{AccountController, ReceiveController, SendIndexController, SendPerformController}
-import co.ledger.wallet.web.ethereum.core.idb.IndexedDb
-import co.ledger.wallet.web.ethereum.core.utils.{ChromeGlobalPreferences, ChromePreferences}
+import co.ledger.wallet.web.ethereum.core.database.Cursor
 import co.ledger.wallet.web.ethereum.i18n.{I18n, TranslateProvider}
 import co.ledger.wallet.web.ethereum.services.{DeviceService, WindowService}
-import org.scalajs.dom.idb
-import org.scalajs.dom.raw.Event
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
-import scala.scalajs.js.{JSApp, timers}
-import scala.util.{Failure, Success}
+import scala.scalajs.js.JSApp
 
 /**
   * Created by pollas_p on 28/04/2016.
@@ -69,28 +65,17 @@ object Application extends JSApp{
     module.config(initTranslate _)
     module.run(initApp _)
 
-    import timers._
-
-    setTimeout(1000) {
-      IndexedDb.delete(SamplesDatabaseDeclaration.name)
-      SamplesDatabaseDeclaration.open() foreach {(_) =>
-        val m = SampleModel(js.Dictionary(
-          "aInt" -> 12
-        ))
-        SampleModel.readwrite().add(m).commit() foreach {(_) =>
-          SampleModel.readonly().get(12).items foreach {(items) =>
-            js.Dynamic.global.console.log(items.head.toDictionary)
-          }
-        }
-        SampleModel.readonly().cursor foreach {(cursor) =>
-          cursor foreach {(item) =>
-            if (item.isDefined)
-              js.Dynamic.global.console.log(item.get.toDictionary)
-          }
+    Logger.d("Test log", js.Dictionary("key" -> 12))
+    Logger.d("Test log", js.Dictionary("key" -> 13))
+    Logger.d("Test log", js.Dictionary("key" -> 14))
+    LogEntry.readonly().cursor.foreach({(cursor: Cursor[LogEntry]) =>
+      cursor.foreach {(entry: Option[LogEntry]) =>
+        entry match {
+          case Some(m) => js.Dynamic.global.console.log(m.toDictionary)
+          case None =>
         }
       }
-    }
-
+    })
   }
 
   def initApp($http: HttpService, $rootScope: js.Dynamic, $location: js.Dynamic) = {

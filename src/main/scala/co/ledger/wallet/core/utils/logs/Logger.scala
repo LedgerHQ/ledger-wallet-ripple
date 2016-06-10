@@ -1,7 +1,9 @@
 package co.ledger.wallet.core.utils.logs
 
 import scala.scalajs.js
-
+import scala.scalajs.js.JSON
+import scala.util.{Failure, Success}
+import scala.concurrent.ExecutionContext.Implicits.global
 /**
   *
   * Logger
@@ -37,25 +39,59 @@ class Logger {
 
   def d(log: js.Any*)(implicit LogTag: String = null, DisableLogging: Boolean = false) = {
     if (!DisableLogging) {
-      //js.Dynamic.global.console.log(log:_*)
+      append("D", LogTag, log)
     }
-
   }
 
-  def i(log: Any*)(implicit LogTag: String = null, DisableLogging: Boolean = false) = {
-
+  def i(log: js.Any*)(implicit LogTag: String = null, DisableLogging: Boolean = false) = {
+    if (!DisableLogging) {
+      append("I", LogTag, log)
+    }
   }
 
-  def v(log: Any*)(implicit LogTag: String = null, DisableLogging: Boolean = false) = {
-
+  def v(log: js.Any*)(implicit LogTag: String = null, DisableLogging: Boolean = false) = {
+    if (!DisableLogging) {
+      append("V", LogTag, log)
+    }
   }
 
-  def e(log: Any*)(implicit LogTag: String = null, DisableLogging: Boolean = false) = {
-
+  def e(log: js.Any*)(implicit LogTag: String = null, DisableLogging: Boolean = false) = {
+    if (!DisableLogging) {
+      append("E", LogTag, log)
+    }
   }
 
-  def wtf(log: Any*)(implicit LogTag: String = null, DisableLogging: Boolean = false) = {
+  def wtf(log: js.Any*)(implicit LogTag: String = null, DisableLogging: Boolean = false) = {
+    if (!DisableLogging) {
+      append("WTF", LogTag, log)
+    }
+  }
 
+  private def append(level: String, tag: String, values: Seq[js.Any]) = {
+    val entry = new StringBuilder
+    for (v <- values) {
+      v match {
+        case o: js.Object => entry.append(JSON.stringify(o))
+        case other => entry.append(other.toString)
+      }
+      entry.append(" ")
+    }
+    put(level, Option(tag).getOrElse("Global"), entry.toString())
+  }
+
+  private def put(level: String, tag: String, value: String) = {
+    val date = new js.Date()
+    println(s"${date.toISOString()} $level/$tag: $value")
+    val entry = new LogEntry
+    entry.level.set(level)
+    entry.tag.set(tag)
+    entry.entry.set(value)
+    entry.createdAt.set(date)
+
+    LogEntry.readwrite().add(entry).commit().onComplete {
+      case Success(_) =>
+      case Failure(ex) => ex.printStackTrace()
+    }
   }
 
 }

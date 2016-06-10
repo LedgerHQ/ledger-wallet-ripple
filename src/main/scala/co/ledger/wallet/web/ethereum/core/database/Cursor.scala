@@ -99,7 +99,7 @@ class Cursor[M >: Null <: Model](request: idb.Request, creator: ModelCreator[M])
   def isClosed = _closed
   def futureValue: Future[M] = _valuePromise.future
   private var _closed = false
-  private var _cursor: idb.Cursor = null
+  protected var _cursor: idb.Cursor = null
   private var _valuePromise = Promise[M]()
   request.onsuccess = {(event: Event) =>
     _cursor = event.target.asInstanceOf[js.Dynamic].result.asInstanceOf[idb.Cursor]
@@ -116,11 +116,11 @@ class Cursor[M >: Null <: Model](request: idb.Request, creator: ModelCreator[M])
 class WriteCursor[M >: Null <: Model](request: idb.Request, creator: ModelCreator[M])(implicit classTag: ClassTag[M]) extends Cursor[M](request, creator) {
 
   def delete(): Unit = {
-
+    _cursor.delete()
   }
 
   def update(newData: M): Unit = {
-
+    _cursor.update(newData.toDictionary)
   }
 
 }
@@ -142,7 +142,7 @@ trait CursorBuilder[M >: Null <: Model] {
       else
         "prevunique"
     }
-    val range: idb.KeyRange = null
+    val range: idb.KeyRange = createRange()
     val request = indexName match {
       case Some(name) =>
         store.index(name).openCursor(range, direction)
@@ -157,16 +157,78 @@ trait CursorBuilder[M >: Null <: Model] {
     }
     cursor.futureValue.map((_) => cursor)
   }
+
   def reverse(): this.type = {
     _reverse = true
     this
   }
+
   def uniq(): this.type  = {
     _unique = true
     this
   }
+
+  def gt(values: js.Any*): this.type = {
+    _gt.append(values)
+    this
+  }
+
+  def gte(values: js.Any*): this.type = {
+    _gte.append(values)
+    this
+  }
+
+  def lt(values: js.Any*): this.type = {
+    _lt.append(values)
+    this
+  }
+
+  def lte(values: js.Any*): this.type = {
+    _lte.append(values)
+    this
+  }
+
+  def eq(values: js.Any*): this.type = {
+    _eq.append(values)
+    this
+  }
+
+  private def createRange(): idb.KeyRange = {
+    if (_eq.isEmpty && _gt.isEmpty && _lt.isEmpty && _lte.isEmpty && _gte.isEmpty) {
+      null
+    } else if (_eq.nonEmpty && _gt.isEmpty && _lt.isEmpty && _lte.isEmpty && _gte.isEmpty) {
+      // ==
+      idb.KeyRange.only(js.Array(_eq:_*))
+    } else if (_eq.isEmpty && _gt.nonEmpty && _lt.isEmpty && _lte.isEmpty && _gte.isEmpty) {
+      // <
+      idb.KeyRange.lowerBound(js.Array(_lt:_*), true)
+    } else if (_eq.isEmpty && _gt.isEmpty && _lt.nonEmpty && _lte.isEmpty && _gte.isEmpty) {
+      // >
+      idb.KeyRange.upperBound(js.Array(_gt:_*), true)
+    } else if (_eq.isEmpty && _gt.nonEmpty && _lt.nonEmpty && _lte.isEmpty && _gte.isEmpty) {
+      // > <
+      idb.KeyRange.bound(js.Array(_lt:_*), js.Array(_gt:_*), true, true)
+    } else if (_eq.isEmpty && _gt.isEmpty && _lt.isEmpty && _lte.nonEmpty && _gte.nonEmpty) {
+      // >= <=
+      idb.KeyRange.bound(js.Array(_lte:_*), js.Array(_gte:_*), false, false)
+    } else if (_eq.isEmpty && _gt.nonEmpty && _lt.isEmpty && _lte.nonEmpty && _gte.isEmpty) {
+      // > <=
+      idb.KeyRange.bound(js.Array(_lte:_*), js.Array(_gt:_*), true, false)
+    } else if (_eq.isEmpty && _gt.isEmpty && _lt.nonEmpty && _lte.isEmpty && _gte.nonEmpty) {
+      // >= <
+      idb.KeyRange.bound(js.Array(_lte:_*), js.Array(_gt:_*), false, true)
+    } else {
+      throw new Exception("Invalid range")
+    }
+  }
+
   protected var indexName: Option[String] = None
   private var _writable = false
   private var _reverse = false
   private var _unique = false
+  private val _gt = ArrayBuffer[js.Any]()
+  private val _gte = ArrayBuffer[js.Any]()
+  private val _eq = ArrayBuffer[js.Any]()
+  private val _lt = ArrayBuffer[js.Any]()
+  private val _lte = ArrayBuffer[js.Any]()
 }
