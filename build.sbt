@@ -51,7 +51,7 @@ build := {
   IO.copyFile(sourceFile, new File(appDir, sourceFile.name))
   val mapSourceFile = new File(sourceFile.absolutePath + ".map")
   if (mapSourceFile.exists())
-    IO.copyFile(sourceFile, new File(appDir, mapSourceFile.name))
+    IO.copyFile(mapSourceFile, new File(appDir, mapSourceFile.name))
   val launcherFile = new File(sourceFile.getParent, name.value + "-launcher.js")
   IO.copyFile(launcherFile, new File(appDir, launcherFile.name))
 

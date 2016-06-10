@@ -4,7 +4,7 @@ import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate._
 import biz.enef.angulate.core.HttpService
 import biz.enef.angulate.ext.RouteProvider
-import co.ledger.wallet.core.utils.logs.{LogEntry, Logger}
+import co.ledger.wallet.core.utils.logs.{LogEntry, LogExporter, Logger, LoggerPrintStream}
 import co.ledger.wallet.web.ethereum.components._
 import co.ledger.wallet.web.ethereum.controllers.WindowController
 import co.ledger.wallet.web.ethereum.controllers.onboarding.{LaunchController, OpeningController}
@@ -65,19 +65,16 @@ object Application extends JSApp{
     module.config(initTranslate _)
     module.run(initApp _)
 
-
+    LoggerPrintStream.init()
     Logger.d("Test log", js.Dictionary("key" -> 12))
     Logger.d("Test log", js.Dictionary("key" -> 13))
     Logger.d("Test log", js.Dictionary("key" -> 14))
-    LogEntry.readonly().cursor.foreach({(cursor: Cursor[LogEntry]) =>
-      cursor.foreach {(entry: Option[LogEntry]) =>
-        entry match {
-          case Some(m) => js.Dynamic.global.console.log(m.toDictionary)
-          case None =>
-        }
-      }
-    })
-    Logger.download()
+    Logger.e("An error")
+    Logger.i("An info")
+    Logger.v("Verbose")
+    Logger.wtf("WTF")
+    new Exception("An exception").printStackTrace()
+    LogExporter.download()
   }
 
   def initApp($http: HttpService, $rootScope: js.Dynamic, $location: js.Dynamic) = {

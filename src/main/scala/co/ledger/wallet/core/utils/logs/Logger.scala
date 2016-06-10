@@ -1,6 +1,6 @@
 package co.ledger.wallet.core.utils.logs
 
-import java.io.StringWriter
+import java.io.{PrintStream, StringWriter}
 import java.util.Date
 
 import org.scalajs.dom.raw.{Blob, URL}
@@ -82,12 +82,12 @@ class Logger {
       }
       entry.append(" ")
     }
-    put(level, Option(tag).getOrElse("Global"), entry.toString())
+    log(level, Option(tag).getOrElse("Global"), entry.toString())
   }
 
-  private def put(level: String, tag: String, value: String) = {
+  def log(level: String, tag: String, value: String) = {
     val date = new js.Date()
-    println(Logger.formatLog(level, tag, value, date))
+    js.Dynamic.global.console.log("%c" + LogExporter.formatLog(level, tag, value, date), s"color: ${levelToColor(level)}")
     val entry = new LogEntry
     entry.level.set(level)
     entry.tag.set(tag)
@@ -100,10 +100,23 @@ class Logger {
     }
   }
 
+  private def levelToColor(level: String) = level match {
+    case "D" => "#000000"
+    case "I" => "#3fb34f"
+    case "V" => "#999999"
+    case "E" => "#ea2e49"
+    case "WTF" => "#FF0000; font-weight: 800;"
+  }
+
 }
 
 object Logger extends Logger {
 
+  println(System.err)
+
+}
+
+object LogExporter {
   def toBlob: Future[Blob] = {
     val promise = Promise[Blob]()
     val writer = new StringWriter()
