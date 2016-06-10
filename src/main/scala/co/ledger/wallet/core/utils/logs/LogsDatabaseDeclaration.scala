@@ -32,8 +32,8 @@ import co.ledger.wallet.web.ethereum.core.database.{DatabaseDeclaration, QueryHe
   * SOFTWARE.
   *
   */
-class LogsDatabaseDeclaration(sessionId: String, password: Option[String]) extends DatabaseDeclaration {
-  override def name: String = s"logs_$sessionId"
+object LogsDatabaseDeclaration extends DatabaseDeclaration {
+  override def name: String = "logs"
 
   override def models: Seq[QueryHelper[_]] = Seq(
     LogEntry

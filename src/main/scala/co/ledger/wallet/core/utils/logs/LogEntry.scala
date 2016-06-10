@@ -39,13 +39,12 @@ class LogEntry extends Model("log_entry") {
   val tag = string("tag")
   val entry = string("entry")
   val createdAt = date("createdAt").index()
+  val owner = string("owner")
 
 }
 
 object LogEntry extends QueryHelper[LogEntry] with ModelCreator[LogEntry] {
-  val d = new LogsDatabaseDeclaration("public", None)
-  override def database: DatabaseDeclaration = d
-
+  override def database: DatabaseDeclaration = LogsDatabaseDeclaration
   override def creator: ModelCreator[LogEntry] = this
   override def newInstance(): LogEntry = new LogEntry
 }

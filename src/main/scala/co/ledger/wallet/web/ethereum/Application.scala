@@ -65,6 +65,7 @@ object Application extends JSApp{
     module.config(initTranslate _)
     module.run(initApp _)
 
+
     Logger.d("Test log", js.Dictionary("key" -> 12))
     Logger.d("Test log", js.Dictionary("key" -> 13))
     Logger.d("Test log", js.Dictionary("key" -> 14))
@@ -76,6 +77,7 @@ object Application extends JSApp{
         }
       }
     })
+    Logger.download()
   }
 
   def initApp($http: HttpService, $rootScope: js.Dynamic, $location: js.Dynamic) = {

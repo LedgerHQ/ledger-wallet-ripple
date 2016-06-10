@@ -1,9 +1,15 @@
 package co.ledger.wallet.core.utils.logs
 
+import java.io.StringWriter
+import java.util.Date
+
+import org.scalajs.dom.raw.{Blob, URL}
+
 import scala.scalajs.js
 import scala.scalajs.js.JSON
 import scala.util.{Failure, Success}
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{Future, Promise}
 /**
   *
   * Logger
@@ -81,7 +87,7 @@ class Logger {
 
   private def put(level: String, tag: String, value: String) = {
     val date = new js.Date()
-    println(s"${date.toISOString()} $level/$tag: $value")
+    println(Logger.formatLog(level, tag, value, date))
     val entry = new LogEntry
     entry.level.set(level)
     entry.tag.set(tag)
@@ -97,5 +103,43 @@ class Logger {
 }
 
 object Logger extends Logger {
+
+  def toBlob: Future[Blob] = {
+    val promise = Promise[Blob]()
+    val writer = new StringWriter()
+    LogEntry.readonly().cursor flatMap {(cursor) =>
+      cursor foreach {(item) =>
+        item match {
+          case Some(entry) =>
+            writer.append(formatLog(
+              entry.level().orNull,
+              entry.tag().orNull,
+              entry.entry().orNull,
+              entry.createdAt().orNull
+            )).append("\n")
+          case None =>
+            val blob = new Blob(js.Array(writer.toString))
+            promise.success(blob)
+        }
+      }
+      promise.future
+    }
+  }
+
+  def toUri: Future[URL] = {
+    toBlob.map((blob) => js.Dynamic.global.URL.createObjectURL(blob).asInstanceOf[URL])
+  }
+
+  def download(): Future[Unit] = {
+    toUri.map {(url: URL) =>
+      val link = js.Dynamic.global.document.createElement("a");
+      link.download = s"ledger_wallet_ethereum_${new Date().getTime}.logs"
+      link.href = url
+      link.click()
+      ()
+    }
+  }
+
+  def formatLog(level: String, tag: String, value: String, date: js.Date) = s"${date.toISOString()} $level/$tag: $value"
 
 }
