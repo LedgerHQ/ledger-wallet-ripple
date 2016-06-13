@@ -4,18 +4,19 @@ import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate._
 import biz.enef.angulate.core.HttpService
 import biz.enef.angulate.ext.RouteProvider
-import co.ledger.wallet.core.utils.logs.{LogEntry, LogExporter, Logger, LoggerPrintStream}
+import co.ledger.wallet.core.utils.logs._
 import co.ledger.wallet.web.ethereum.components._
 import co.ledger.wallet.web.ethereum.controllers.WindowController
 import co.ledger.wallet.web.ethereum.controllers.onboarding.{LaunchController, OpeningController}
 import co.ledger.wallet.web.ethereum.controllers.wallet.{AccountController, ReceiveController, SendIndexController, SendPerformController}
 import co.ledger.wallet.web.ethereum.core.database.Cursor
+import co.ledger.wallet.web.ethereum.core.utils.JQueryHelper
 import co.ledger.wallet.web.ethereum.i18n.{I18n, TranslateProvider}
 import co.ledger.wallet.web.ethereum.services.{DeviceService, WindowService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
-import scala.scalajs.js.JSApp
+import scala.scalajs.js.{JSApp, timers}
 
 /**
   * Created by pollas_p on 28/04/2016.
@@ -66,15 +67,21 @@ object Application extends JSApp{
     module.run(initApp _)
 
     LoggerPrintStream.init()
-    Logger.d("Test log", js.Dictionary("key" -> 12))
-    Logger.d("Test log", js.Dictionary("key" -> 13))
-    Logger.d("Test log", js.Dictionary("key" -> 14))
-    Logger.e("An error")
-    Logger.i("An info")
-    Logger.v("Verbose")
-    Logger.wtf("WTF")
-    new Exception("An exception").printStackTrace()
-    LogExporter.download()
+    LogSourceMapper.init()
+
+    import timers._
+
+    setTimeout(1000) {
+      Logger.d("Test log", js.Dictionary("key" -> 12))
+      Logger.d("Test log", js.Dictionary("key" -> 13))
+      Logger.d("Test log", js.Dictionary("key" -> 14))
+      Logger.e("An error")
+      Logger.i("An info")
+      Logger.v("Verbose")
+      Logger.wtf("WTF")
+      new Exception("An exception").printStackTrace()
+      LogExporter.download()
+    }
   }
 
   def initApp($http: HttpService, $rootScope: js.Dynamic, $location: js.Dynamic) = {

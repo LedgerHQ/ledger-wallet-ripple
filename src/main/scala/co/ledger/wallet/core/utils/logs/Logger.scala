@@ -3,6 +3,8 @@ package co.ledger.wallet.core.utils.logs
 import java.io.{PrintStream, StringWriter}
 import java.util.Date
 
+import co.ledger.wallet.web.ethereum.core.utils.JQueryHelper
+import co.ledger.wallet.web.ethereum.core.utils.JQueryHelper._
 import org.scalajs.dom.raw.{Blob, URL}
 
 import scala.scalajs.js
@@ -10,6 +12,7 @@ import scala.scalajs.js.JSON
 import scala.util.{Failure, Success}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Future, Promise}
+import scala.scalajs.js.annotation.JSName
 /**
   *
   * Logger
@@ -85,13 +88,33 @@ class Logger {
     log(level, Option(tag).getOrElse("Global"), entry.toString())
   }
 
+  private def computeOriginalSource(line: String): String = {
+    if (LogSourceMapper.mapping.isDefined) {
+      val pattern = "\\((chrome-extension://.*/ledger-wallet-ethereum-chrome-fastopt.js:(\\d*):(\\d*))\\)".r
+      var out = line
+      pattern.findAllMatchIn(line).foreach({ (m) =>
+        val l = m.group(2).toInt
+        val c = m.group(3).toInt
+        val source = LogSourceMapper.originalPositionFor(l, c)
+        out = out.replace(m.group(1), s"${source.file}:${source.line}:${source.column}")
+      })
+      out
+    } else {
+      line
+    }
+  }
+
   def log(level: String, tag: String, value: String) = {
     val date = new js.Date()
-    js.Dynamic.global.console.log("%c" + LogExporter.formatLog(level, tag, value, date), s"color: ${levelToColor(level)}")
+    var v = value
+    if (level == "E") {
+      v = computeOriginalSource(value)
+    }
+    js.Dynamic.global.console.log("%c" + LogExporter.formatLog(level, tag, v, date), s"color: ${levelToColor(level)}")
     val entry = new LogEntry
     entry.level.set(level)
     entry.tag.set(tag)
-    entry.entry.set(value)
+    entry.entry.set(v)
     entry.createdAt.set(date)
 
     LogEntry.readwrite().add(entry).commit().onComplete {
@@ -112,7 +135,37 @@ class Logger {
 
 object Logger extends Logger {
 
-  println(System.err)
+}
+
+object LogSourceMapper {
+
+  def init() = {
+    import JQueryHelper._
+    $.getJSON("ledger-wallet-ethereum-chrome-fastopt.js.map", { (rawSourceMap: js.Object) =>
+      _mapper = new SourceMapConsumer(rawSourceMap)
+      _mapping = Some(rawSourceMap)
+    })
+  }
+
+  def originalPositionFor(line: Int, column: Int): OriginalPosition = {
+    val r = _mapper.originalPositionFor(js.Dictionary(
+      "line" -> line,
+      "column" -> column
+    ))
+    OriginalPosition(r("line").asInstanceOf[Int], r("column").asInstanceOf[Int], r("source").asInstanceOf[String])
+  }
+
+  def mapping = _mapping
+  private var _mapping: Option[js.Object] = None
+  private var _mapper: SourceMapConsumer = null
+
+  case class OriginalPosition(line: Int, column: Int, file: String)
+
+  @JSName("sourceMap.SourceMapConsumer")
+  @js.native
+  class SourceMapConsumer(mapping: js.Object) extends js.Object {
+    def originalPositionFor(params: js.Dictionary[js.Any]): js.Dictionary[js.Any] = js.native
+  }
 
 }
 

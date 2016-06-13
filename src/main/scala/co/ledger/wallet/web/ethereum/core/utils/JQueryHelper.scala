@@ -1,6 +1,7 @@
 package co.ledger.wallet.web.ethereum.core.utils
 
 import scala.scalajs.js
+import org.scalajs.jquery._
 
 /**
   *
@@ -39,6 +40,8 @@ object JQueryHelper {
   }
 
   def $ = js.Dynamic.global.$
+
+  def jQuery = $.asInstanceOf[JQuery]
 
   private def defaultEasing: Function1[Double, Double] = {(p) =>
     1 - Math.pow(1.0 - p, 6)
