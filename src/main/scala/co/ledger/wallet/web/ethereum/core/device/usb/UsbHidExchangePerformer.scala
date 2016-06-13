@@ -2,6 +2,7 @@ package co.ledger.wallet.web.ethereum.core.device.usb
 
 import co.ledger.wallet.core.device.Device.CommunicationException
 import co.ledger.wallet.core.utils.HexUtils
+import co.ledger.wallet.core.utils.logs.{Loggable, Logger}
 import co.ledger.wallet.web.ethereum.core.device.LedgerTransportHelper
 import co.ledger.wallet.web.ethereum.core.device.usb.UsbDeviceImpl.UsbExchangePerformer
 
@@ -44,7 +45,9 @@ import scala.util.{Failure, Success}
 class UsbHidExchangePerformer(connection: UsbDeviceImpl.Connection,
                               var debug: Boolean,
                               var useLedgerTransport: Boolean
-                             ) extends UsbExchangePerformer {
+                             ) extends UsbExchangePerformer with Loggable {
+
+  override implicit val LogTag: String = "APDU"
   val HidBufferSize = 64
   val LedgerDefaultChannel = 1
   val Sw1DataAvailable = 0x61
@@ -57,7 +60,7 @@ class UsbHidExchangePerformer(connection: UsbDeviceImpl.Connection,
 
   override def performExchange(cmd: Array[Byte]): Future[Array[Byte]] = {
     var command = cmd
-    println("=> " + HexUtils.encodeHex(command))
+    Logger.v("=> " + HexUtils.encodeHex(command))
     if (useLedgerTransport) {
       command = LedgerTransportHelper.wrapCommandAPDU(LedgerDefaultChannel, cmd, HidBufferSize)
     }
@@ -93,7 +96,7 @@ class UsbHidExchangePerformer(connection: UsbDeviceImpl.Connection,
     }
     sendBlocks().flatMap((_) => receiveBlocks()) andThen {
       case Success(result) =>
-        println("<= " + HexUtils.encodeHex(result))
+        Logger.v("<= " + HexUtils.encodeHex(result))
       case Failure(ex) =>
         ex.printStackTrace()
     }

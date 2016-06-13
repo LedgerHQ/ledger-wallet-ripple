@@ -128,6 +128,6 @@ object LoggerPrintStream {
 
   def init(): Unit = {
     System.setErr(new LoggerPrintStream("E"))
-    System.setOut(new LoggerPrintStream("I"))
+    System.setOut(new LoggerPrintStream("D"))
   }
 }
