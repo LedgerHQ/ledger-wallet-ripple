@@ -3,11 +3,17 @@ package co.ledger.wallet.web.ethereum.controllers.onboarding
 import biz.enef.angulate.Controller
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.{JQLite, Location}
+import co.ledger.wallet.core.device.ethereum.LedgerDerivationApi
+import co.ledger.wallet.core.device.ethereum.LedgerDerivationApi.PublicAddressResult
+import co.ledger.wallet.core.utils.DerivationPath
+import co.ledger.wallet.core.wallet.ethereum.EthereumAccount
+import co.ledger.wallet.web.ethereum.content.SessionsManager
 import co.ledger.wallet.web.ethereum.services.{DeviceService, WindowService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.scalajs.js
-import scala.scalajs.js.UndefOr
+import scala.util.{Failure, Success}
 
 /**
   *
@@ -46,9 +52,18 @@ class OpeningController(override val windowService: WindowService,
                         $element: JQLite)
   extends Controller with OnBoardingController {
 
-  println("Create open")
   deviceService.lastConnectedDevice() foreach {(device) =>
     device.exchange(Array[Byte](0xE0.toByte, 0xC4.toByte, 0x00, 0x00, 0x00))
+    SessionsManager.startNewSessions(new LedgerDerivationApi {
+      override def derivePublicAddress(path: DerivationPath): Future[PublicAddressResult] = {
+        Future.successful(new PublicAddressResult(Array(), EthereumAccount("0x9e6316f44baeeee5d41a1070516cc5fa47baf227")))
+      }
+    }) onComplete {
+      case Success(_) =>
+        $location.url("/account/0")
+        $route.reload()
+      case Failure(ex) => ex.printStackTrace()
+    }
   }
 
 }

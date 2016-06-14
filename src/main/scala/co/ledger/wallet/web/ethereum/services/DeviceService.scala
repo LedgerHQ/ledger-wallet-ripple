@@ -10,6 +10,7 @@ import co.ledger.wallet.core.device.DeviceManager.ConnectivityTypes.Connectivity
 import co.ledger.wallet.core.device.utils.EventReceiver
 import co.ledger.wallet.core.device.{Device, DeviceFactory, DeviceManager}
 import co.ledger.wallet.core.utils.Preferences
+import co.ledger.wallet.web.ethereum.content.SessionsManager
 import co.ledger.wallet.web.ethereum.core.device.usb.UsbDeviceFactory
 import co.ledger.wallet.web.ethereum.core.utils.{ChromeGlobalPreferences, ChromePreferences}
 
@@ -84,6 +85,7 @@ class DeviceService($location: Location,  $route: js.Dynamic) extends Service wi
     override def receive: Receive = {
       case Connect(_) =>
       case Disconnect(_) =>
+        SessionsManager.stopCurrentSessions()
         $location.path("/onboarding/launch")
         $route.reload()
     }

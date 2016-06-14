@@ -1,11 +1,14 @@
-package co.ledger.wallet.core.wallet.ethereum.api
+package co.ledger.wallet.core.device.ethereum
 
-import co.ledger.wallet.core.wallet.ethereum.Wallet
-import co.ledger.wallet.core.wallet.ethereum.database.DatabaseBackedWalletClient
+import co.ledger.wallet.core.device.ethereum.LedgerDerivationApi.PublicAddressResult
+import co.ledger.wallet.core.utils.DerivationPath
+import co.ledger.wallet.core.wallet.ethereum.EthereumAccount
+
+import scala.concurrent.Future
 
 /**
   *
-  * AbstractApiWalletClient
+  * LedgerDerivationApi
   * ledger-wallet-ethereum-chrome
   *
   * Created by Pierre Pollastri on 14/06/2016.
@@ -33,8 +36,14 @@ import co.ledger.wallet.core.wallet.ethereum.database.DatabaseBackedWalletClient
   * SOFTWARE.
   *
   */
-abstract class AbstractApiWalletClient(override val name: String) extends Wallet with DatabaseBackedWalletClient {
+trait LedgerDerivationApi {
 
+  def derivePublicAddress(path: DerivationPath): Future[PublicAddressResult]
 
+}
+
+object LedgerDerivationApi {
+
+  class PublicAddressResult(val publicKey: Array[Byte], val account: EthereumAccount)
 
 }

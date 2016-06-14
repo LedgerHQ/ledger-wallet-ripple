@@ -1,11 +1,13 @@
-package co.ledger.wallet.core.wallet.ethereum.api
+package co.ledger.wallet.web.ethereum.content
 
-import co.ledger.wallet.core.wallet.ethereum.Wallet
-import co.ledger.wallet.core.wallet.ethereum.database.DatabaseBackedWalletClient
+import co.ledger.wallet.core.device.ethereum.LedgerDerivationApi
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 /**
   *
-  * AbstractApiWalletClient
+  * SessionsManager
   * ledger-wallet-ethereum-chrome
   *
   * Created by Pierre Pollastri on 14/06/2016.
@@ -33,8 +35,30 @@ import co.ledger.wallet.core.wallet.ethereum.database.DatabaseBackedWalletClient
   * SOFTWARE.
   *
   */
-abstract class AbstractApiWalletClient(override val name: String) extends Wallet with DatabaseBackedWalletClient {
+object SessionsManager {
 
+  def startNewSessions(derivationApi: LedgerDerivationApi): Future[Unit] = {
+    import co.ledger.wallet.core.utils.DerivationPath.dsl._
+    derivationApi.derivePublicAddress(44.h/60.h/0.h/0/0) flatMap {(result) =>
+      println("Got address " + result.account.toString)
+      val session = new Session("toto", "password")
+      _currentSession = Some(session)
+      Future.successful()
+    }
+  }
 
+  def stopCurrentSessions(): Future[Unit] = {
+    println("Stop current session")
+    Future.successful()
+  }
+
+  def currentSession = None
+  private var _currentSession: Option[Session] = None
+
+  class Session(val name: String, val password: String) {
+
+  }
 
 }
+
+

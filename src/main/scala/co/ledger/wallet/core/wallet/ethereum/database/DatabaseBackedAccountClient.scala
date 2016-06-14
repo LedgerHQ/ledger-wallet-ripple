@@ -34,4 +34,6 @@ import co.ledger.wallet.core.wallet.ethereum.Account
   */
 trait DatabaseBackedAccountClient extends Account {
 
+
+
 }

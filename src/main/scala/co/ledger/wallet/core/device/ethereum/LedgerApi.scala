@@ -1,11 +1,15 @@
-package co.ledger.wallet.core.wallet.ethereum.api
+package co.ledger.wallet.core.device.ethereum
 
-import co.ledger.wallet.core.wallet.ethereum.Wallet
-import co.ledger.wallet.core.wallet.ethereum.database.DatabaseBackedWalletClient
+import java.util.UUID
+
+import co.ledger.wallet.core.device.Device
+import co.ledger.wallet.core.device.DeviceManager.ConnectivityTypes
+
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   *
-  * AbstractApiWalletClient
+  * LedgerApi
   * ledger-wallet-ethereum-chrome
   *
   * Created by Pierre Pollastri on 14/06/2016.
@@ -33,8 +37,30 @@ import co.ledger.wallet.core.wallet.ethereum.database.DatabaseBackedWalletClient
   * SOFTWARE.
   *
   */
-abstract class AbstractApiWalletClient(override val name: String) extends Wallet with DatabaseBackedWalletClient {
+class LedgerApi(override val device: Device) extends LedgerCommonApiInterface {
 
+  override implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
+  def walletIdentifier(): Future[String] = ???
 
+  val uuid = UUID.randomUUID()
+
+}
+
+object LedgerApi {
+
+  def apply(device: Device): LedgerApi = {
+    val lastApi = _lastApi.filter(device.uuid == _.device.uuid)
+    lastApi.getOrElse {
+      val api = device.connectivityType match {
+        case others => new LedgerApi(device)
+      }
+      _lastApi = Some(api)
+      api
+    }
+  }
+
+  def apply(uuid: UUID): Option[LedgerApi] = _lastApi filter(_.uuid == uuid)
+
+  private var _lastApi: Option[LedgerApi] = None
 }
