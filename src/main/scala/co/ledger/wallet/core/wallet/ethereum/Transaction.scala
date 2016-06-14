@@ -1,5 +1,7 @@
 package co.ledger.wallet.core.wallet.ethereum
 
+import java.util.Date
+
 /**
   *
   * Trait
@@ -31,5 +33,13 @@ package co.ledger.wallet.core.wallet.ethereum
   *
   */
 trait Transaction {
-
+  def hash: String
+  def receivedAt: Date
+  def value: Ether
+  def gas: Ether
+  def gasPrice: Ether
+  def cumulativeGasUsed: Ether
+  def from: String
+  def to: String
+  def block: Option[Block]
 }

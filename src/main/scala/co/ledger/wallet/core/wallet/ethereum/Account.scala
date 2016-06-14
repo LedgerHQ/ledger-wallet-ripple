@@ -1,5 +1,7 @@
 package co.ledger.wallet.core.wallet.ethereum
 
+import co.ledger.wallet.core.concurrent.AsyncCursor
+
 import scala.concurrent.Future
 
 /**
@@ -33,10 +35,13 @@ import scala.concurrent.Future
   *
   */
 trait Account {
-
   def index: Int
+  def wallet: Wallet
+
   def synchronize(): Future[Unit]
   def isSynchronizing(): Future[Boolean]
-
+  def operations(limit: Int = -1, batchSize: Int = Wallet.DefaultOperationsBatchSize): Future[AsyncCursor[Operation]]
+  def freshEthereumAccount(): Future[EthereumAccount]
+  def balance(): Future[Ether]
 
 }

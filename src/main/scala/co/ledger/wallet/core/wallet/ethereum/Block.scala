@@ -1,5 +1,7 @@
 package co.ledger.wallet.core.wallet.ethereum
 
+import java.util.Date
+
 /**
   *
   * Block
@@ -31,5 +33,7 @@ package co.ledger.wallet.core.wallet.ethereum
   *
   */
 trait Block {
-
+  def hash: String
+  def height: Long
+  def time: Date
 }

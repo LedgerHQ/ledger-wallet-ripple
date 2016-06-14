@@ -1,16 +1,13 @@
-package co.ledger.wallet.core.wallet.ethereum
-
-import co.ledger.wallet.core.concurrent.AsyncCursor
-import co.ledger.wallet.core.device.utils.EventEmitter
+package co.ledger.wallet.core.concurrent
 
 import scala.concurrent.Future
 
 /**
   *
-  * Wallet
+  * AsyncCursor
   * ledger-wallet-ethereum-chrome
   *
-  * Created by Pierre Pollastri on 13/06/2016.
+  * Created by Pierre Pollastri on 14/06/2016.
   *
   * The MIT License (MIT)
   *
@@ -35,20 +32,19 @@ import scala.concurrent.Future
   * SOFTWARE.
   *
   */
-trait Wallet {
-  def name: String
-  def account(index: Int): Future[Account]
-  def accounts(): Future[Array[Account]]
-  def balance(): Future[Ether]
-  def synchronize(): Future[Unit]
-  def isSynchronizing(): Future[Boolean]
-  def mostRecentBlock(): Future[Block]
-  def pushTransaction(transaction: Transaction): Future[Unit]
-  def operations(from: Int, batchSize: Int = Wallet.DefaultOperationsBatchSize): Future[AsyncCursor[Operation]]
-  def eventEmitter: EventEmitter
-  def stop(): Unit
-}
+trait AsyncCursor[T] {
+  def count: Int
+  def chunkSize: Int
+  def chunkCount: Int
+  def loadedChunkCount: Int
 
-object Wallet {
-  val DefaultOperationsBatchSize = 20
+  def loadChunk(index: Int): Future[Array[T]]
+  def loadAllChunks(): Future[Array[T]]
+  def chunk(index: Int): Option[Array[T]]
+
+  def item(index: Int): Option[T]
+  def loadItem(index: Int): Future[T]
+
+  def close(): Unit
+  def requery(): Future[AsyncCursor[T]]
 }

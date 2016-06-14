@@ -1,16 +1,13 @@
-package co.ledger.wallet.core.wallet.ethereum
+package co.ledger.wallet.core.wallet.ethereum.database
 
-import co.ledger.wallet.core.concurrent.AsyncCursor
-import co.ledger.wallet.core.device.utils.EventEmitter
-
-import scala.concurrent.Future
+import co.ledger.wallet.core.wallet.ethereum.Wallet
 
 /**
   *
-  * Wallet
+  * AbstractDatabaseBackedWalletClient
   * ledger-wallet-ethereum-chrome
   *
-  * Created by Pierre Pollastri on 13/06/2016.
+  * Created by Pierre Pollastri on 14/06/2016.
   *
   * The MIT License (MIT)
   *
@@ -35,20 +32,6 @@ import scala.concurrent.Future
   * SOFTWARE.
   *
   */
-trait Wallet {
-  def name: String
-  def account(index: Int): Future[Account]
-  def accounts(): Future[Array[Account]]
-  def balance(): Future[Ether]
-  def synchronize(): Future[Unit]
-  def isSynchronizing(): Future[Boolean]
-  def mostRecentBlock(): Future[Block]
-  def pushTransaction(transaction: Transaction): Future[Unit]
-  def operations(from: Int, batchSize: Int = Wallet.DefaultOperationsBatchSize): Future[AsyncCursor[Operation]]
-  def eventEmitter: EventEmitter
-  def stop(): Unit
-}
+trait DatabaseBackedWalletClient extends Wallet {
 
-object Wallet {
-  val DefaultOperationsBatchSize = 20
 }
