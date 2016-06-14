@@ -1,13 +1,16 @@
-package co.ledger.wallet.web.ethereum.content
+package co.ledger.wallet.web.ethereum.services
 
+import biz.enef.angulate.Module.RichModule
+import biz.enef.angulate.Service
 import co.ledger.wallet.core.device.ethereum.LedgerDerivationApi
+import co.ledger.wallet.core.utils.DerivationPath
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 /**
   *
-  * SessionsManager
+  * SessionService
   * ledger-wallet-ethereum-chrome
   *
   * Created by Pierre Pollastri on 14/06/2016.
@@ -35,7 +38,7 @@ import scala.concurrent.Future
   * SOFTWARE.
   *
   */
-object SessionsManager {
+class SessionService extends Service {
 
   def startNewSessions(derivationApi: LedgerDerivationApi): Future[Unit] = {
     import co.ledger.wallet.core.utils.DerivationPath.dsl._
@@ -59,6 +62,11 @@ object SessionsManager {
 
   }
 
+
 }
 
+object SessionService {
 
+  def init(module: RichModule) = module.serviceOf[SessionService]("sessionService")
+
+}

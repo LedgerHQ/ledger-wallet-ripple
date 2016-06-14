@@ -12,7 +12,7 @@ import co.ledger.wallet.web.ethereum.controllers.wallet.{AccountController, Rece
 import co.ledger.wallet.web.ethereum.core.database.Cursor
 import co.ledger.wallet.web.ethereum.core.utils.JQueryHelper
 import co.ledger.wallet.web.ethereum.i18n.{I18n, TranslateProvider}
-import co.ledger.wallet.web.ethereum.services.{DeviceService, WindowService}
+import co.ledger.wallet.web.ethereum.services.{DeviceService, SessionService, WindowService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
@@ -57,6 +57,7 @@ object Application extends JSApp{
     // Services
     WindowService.init(module)
     DeviceService.init(module)
+    SessionService.init(module)
 
     module.config(initRoutes _)
     module.config(($compileProvider: js.Dynamic) => {

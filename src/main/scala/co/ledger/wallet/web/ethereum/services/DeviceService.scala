@@ -10,7 +10,6 @@ import co.ledger.wallet.core.device.DeviceManager.ConnectivityTypes.Connectivity
 import co.ledger.wallet.core.device.utils.EventReceiver
 import co.ledger.wallet.core.device.{Device, DeviceFactory, DeviceManager}
 import co.ledger.wallet.core.utils.Preferences
-import co.ledger.wallet.web.ethereum.content.SessionsManager
 import co.ledger.wallet.web.ethereum.core.device.usb.UsbDeviceFactory
 import co.ledger.wallet.web.ethereum.core.utils.{ChromeGlobalPreferences, ChromePreferences}
 
@@ -49,7 +48,7 @@ import scala.scalajs.js.timers._
   * SOFTWARE.
   *
   */
-class DeviceService($location: Location,  $route: js.Dynamic) extends Service with DeviceManager[Any] {
+class DeviceService($location: Location,  $route: js.Dynamic, sessionService: SessionService) extends Service with DeviceManager[Any] {
   import co.ledger.wallet.core.device.DeviceManager.ConnectivityTypes._
 
   override implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
@@ -85,7 +84,7 @@ class DeviceService($location: Location,  $route: js.Dynamic) extends Service wi
     override def receive: Receive = {
       case Connect(_) =>
       case Disconnect(_) =>
-        SessionsManager.stopCurrentSessions()
+        sessionService.stopCurrentSessions()
         $location.path("/onboarding/launch")
         $route.reload()
     }

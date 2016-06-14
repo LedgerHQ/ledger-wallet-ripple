@@ -7,8 +7,7 @@ import co.ledger.wallet.core.device.ethereum.LedgerDerivationApi
 import co.ledger.wallet.core.device.ethereum.LedgerDerivationApi.PublicAddressResult
 import co.ledger.wallet.core.utils.DerivationPath
 import co.ledger.wallet.core.wallet.ethereum.EthereumAccount
-import co.ledger.wallet.web.ethereum.content.SessionsManager
-import co.ledger.wallet.web.ethereum.services.{DeviceService, WindowService}
+import co.ledger.wallet.web.ethereum.services.{DeviceService, SessionService, WindowService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -49,12 +48,13 @@ class OpeningController(override val windowService: WindowService,
                         deviceService: DeviceService,
                         $location: Location,
                         $route: js.Dynamic,
+                        sessionService: SessionService,
                         $element: JQLite)
   extends Controller with OnBoardingController {
 
   deviceService.lastConnectedDevice() foreach {(device) =>
     device.exchange(Array[Byte](0xE0.toByte, 0xC4.toByte, 0x00, 0x00, 0x00))
-    SessionsManager.startNewSessions(new LedgerDerivationApi {
+    sessionService.startNewSessions(new LedgerDerivationApi {
       override def derivePublicAddress(path: DerivationPath): Future[PublicAddressResult] = {
         Future.successful(new PublicAddressResult(Array(), EthereumAccount("0x9e6316f44baeeee5d41a1070516cc5fa47baf227")))
       }
