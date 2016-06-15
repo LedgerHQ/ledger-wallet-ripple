@@ -1,6 +1,8 @@
 package co.ledger.wallet.core.wallet.ethereum.database
 
-import co.ledger.wallet.core.wallet.ethereum.Wallet
+import co.ledger.wallet.core.wallet.ethereum.{Block, Transaction, Wallet}
+
+import scala.concurrent.Future
 
 /**
   *
@@ -34,4 +36,31 @@ import co.ledger.wallet.core.wallet.ethereum.Wallet
   */
 trait DatabaseBackedWalletClient extends Wallet {
 
+  /**
+    * Insert or update a new block in the database
+    * @param block
+    * @return
+    */
+  protected def putBlock(block: Block): Future[Unit]
+
+  /**
+    * Insert or update a transaction in the database
+    * @param transaction
+    * @return
+    */
+  protected def putTransaction(transaction: Transaction): Future[Unit]
+
+  /**
+    *
+    * @param accountRow
+    * @return
+    */
+  protected def putAccount(accountRow: AccountRow): Future[Unit]
+
+  def startDatabaseTransaction(): Unit
+  def commitDatabaseTransaction(): Unit
+
+  protected def queryTransaction(hash: String): Future[Array[Transaction]]
+  protected def queryAccounts(from: Int, to: Int): Future[Array[AccountRow]]
+  protected def queryLastBlock(): Future[Block]
 }

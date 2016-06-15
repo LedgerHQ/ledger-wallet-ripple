@@ -51,4 +51,6 @@ trait Wallet {
 
 object Wallet {
   val DefaultOperationsBatchSize = 20
+
+  case class WalletNotSetupException() extends Exception("The wallet is currently empty")
 }

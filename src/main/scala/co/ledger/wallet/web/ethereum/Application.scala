@@ -45,7 +45,6 @@ object Application extends JSApp{
     SnackBar.init(module)
 
     // Controllers
-
     LaunchController.init(module)
     OpeningController.init(module)
     WindowController.init(module)
@@ -69,20 +68,6 @@ object Application extends JSApp{
 
     LoggerPrintStream.init()
     LogSourceMapper.init()
-
-    import timers._
-
-    setTimeout(1000) {
-      Logger.d("Test log", js.Dictionary("key" -> 12))
-      Logger.d("Test log", js.Dictionary("key" -> 13))
-      Logger.d("Test log", js.Dictionary("key" -> 14))
-      Logger.e("An error")
-      Logger.i("An info")
-      Logger.v("Verbose")
-      Logger.wtf("WTF")
-      new Exception("An exception").printStackTrace()
-      LogExporter.download()
-    }
   }
 
   def initApp($http: HttpService, $rootScope: js.Dynamic, $location: js.Dynamic) = {

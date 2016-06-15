@@ -1,14 +1,11 @@
-package co.ledger.wallet.core.wallet.ethereum.api
+package co.ledger.wallet.web.ethereum.content
 
-import co.ledger.wallet.core.concurrent.AsyncCursor
-import co.ledger.wallet.core.wallet.ethereum.{Account, Ether, EthereumAccount, Operation}
-import co.ledger.wallet.core.wallet.ethereum.database.{AccountRow, DatabaseBackedAccountClient}
-
-import scala.concurrent.Future
+import co.ledger.wallet.core.wallet.ethereum.database.AccountRow
+import co.ledger.wallet.web.ethereum.core.database.Model
 
 /**
   *
-  * AbstractApiAccountClient
+  * AccountModel
   * ledger-wallet-ethereum-chrome
   *
   * Created by Pierre Pollastri on 14/06/2016.
@@ -36,19 +33,9 @@ import scala.concurrent.Future
   * SOFTWARE.
   *
   */
-abstract class AbstractApiAccountClient(override val wallet: AbstractApiWalletClient,
-                                        private val accountRow: AccountRow)
-  extends Account
-    with DatabaseBackedAccountClient {
+class AccountModel extends Model("accounts") {
+  val index = int("index").unique()
+  val ethereumAccount = string("ethereumAccount")
 
-  override def index: Int = accountRow.index
-  override def freshEthereumAccount(): Future[EthereumAccount] = Future.successful(EthereumAccount(accountRow.ethereumAccount))
-
-  override def synchronize(): Future[Unit] = ???
-
-  override def operations(limit: Int, batchSize: Int): Future[AsyncCursor[Operation]] = ???
-
-  override def balance(): Future[Ether] = ???
-
-  override def isSynchronizing(): Future[Boolean] = ???
+  def proxy = new AccountRow(index().get, ethereumAccount().get)
 }

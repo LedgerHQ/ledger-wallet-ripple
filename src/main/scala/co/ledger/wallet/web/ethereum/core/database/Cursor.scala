@@ -77,10 +77,14 @@ class Cursor[M >: Null <: Model](request: idb.Request, creator: ModelCreator[M])
   }
 
   def advance(n: Int): Future[Unit] = {
-    futureValue.flatMap {(_) =>
-      _cursor.advance(n)
-      _valuePromise = Promise()
-      _valuePromise.future.map((_) => ())
+    if (n == 0)
+      Future.successful()
+    else {
+      futureValue.flatMap { (_) =>
+        _cursor.advance(n)
+        _valuePromise = Promise()
+        _valuePromise.future.map((_) => ())
+      }
     }
   }
   def continue(): Future[Unit] = {

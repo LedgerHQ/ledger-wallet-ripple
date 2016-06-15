@@ -54,15 +54,16 @@ trait DatabaseDeclaration {
       case Failure(ex) => ex.printStackTrace()
     }
   }
+
   def obtainConnection(): Future[idb.Database] = {
     connection match {
       case Some(c) => Future.successful(c)
       case None => open()
     }
   }
-  def close(): Unit = {
-    _connection.foreach(_.close())
-  }
+
+  def close(): Unit = _connection.foreach(_.close())
   def connection: Option[idb.Database] = _connection
+  def delete() = IndexedDb.delete(name)
   private var _connection: Option[idb.Database] = None
 }

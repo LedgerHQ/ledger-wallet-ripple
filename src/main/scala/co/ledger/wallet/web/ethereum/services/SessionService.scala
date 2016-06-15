@@ -4,6 +4,8 @@ import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.Service
 import co.ledger.wallet.core.device.ethereum.LedgerDerivationApi
 import co.ledger.wallet.core.utils.DerivationPath
+import co.ledger.wallet.core.wallet.ethereum.{EthereumAccount, EthereumAccountProvider, Wallet}
+import co.ledger.wallet.web.ethereum.wallet.ApiWalletClient
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -43,8 +45,13 @@ class SessionService extends Service {
   def startNewSessions(derivationApi: LedgerDerivationApi): Future[Unit] = {
     import co.ledger.wallet.core.utils.DerivationPath.dsl._
     derivationApi.derivePublicAddress(44.h/60.h/0.h/0/0) flatMap {(result) =>
-      println("Got address " + result.account.toString)
-      val session = new Session("toto", "password")
+      // TODO: Temporary
+      val provider = new EthereumAccountProvider {
+        override def getEthereumAccount(path: DerivationPath): Future[EthereumAccount] = {
+          derivationApi.derivePublicAddress(path).map(_.account)
+        }
+      }
+      val session = new Session("toto", "password", provider)
       _currentSession = Some(session)
       Future.successful()
     }
@@ -52,16 +59,19 @@ class SessionService extends Service {
 
   def stopCurrentSessions(): Future[Unit] = {
     println("Stop current session")
+    if (_currentSession.isDefined) {
+      _currentSession.get.wallet.stop()
+    }
+    _currentSession = None
     Future.successful()
   }
 
-  def currentSession = None
+  def currentSession = _currentSession
   private var _currentSession: Option[Session] = None
 
-  class Session(val name: String, val password: String) {
-
+  class Session(val name: String, val password: String, provider: EthereumAccountProvider) {
+    val wallet: Wallet = new ApiWalletClient(name, provider)
   }
-
 
 }
 

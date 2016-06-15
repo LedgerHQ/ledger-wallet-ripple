@@ -1,5 +1,7 @@
 package co.ledger.wallet.web.ethereum.controllers.onboarding
 
+import java.util.Date
+
 import biz.enef.angulate.Controller
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.{JQLite, Location}
@@ -7,12 +9,14 @@ import co.ledger.wallet.core.device.ethereum.LedgerDerivationApi
 import co.ledger.wallet.core.device.ethereum.LedgerDerivationApi.PublicAddressResult
 import co.ledger.wallet.core.utils.DerivationPath
 import co.ledger.wallet.core.wallet.ethereum.EthereumAccount
+import co.ledger.wallet.core.wallet.ethereum.Wallet.WalletNotSetupException
 import co.ledger.wallet.web.ethereum.services.{DeviceService, SessionService, WindowService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{Future, Promise, duration}
 import scala.scalajs.js
 import scala.util.{Failure, Success}
+import duration._
 
 /**
   *
@@ -58,12 +62,30 @@ class OpeningController(override val windowService: WindowService,
       override def derivePublicAddress(path: DerivationPath): Future[PublicAddressResult] = {
         Future.successful(new PublicAddressResult(Array(), EthereumAccount("0x9e6316f44baeeee5d41a1070516cc5fa47baf227")))
       }
-    }) onComplete {
+    }) flatMap {(_) =>
+      sessionService.currentSession.get.wallet.mostRecentBlock() flatMap {(block) =>
+        val now = new Date()
+        if (now.getTime - block.time.getTime >= 7.days.toMillis) {
+          synchronizeWallet()
+        } else {
+          synchronizeWallet()
+          Future.successful()
+        }
+      } recoverWith {
+        case walletNotSetup: WalletNotSetupException =>
+          synchronizeWallet()
+        case others => throw others
+      }
+    } onComplete {
       case Success(_) =>
         $location.url("/account/0")
         $route.reload()
       case Failure(ex) => ex.printStackTrace()
     }
+  }
+
+  def synchronizeWallet(): Future[Unit] = {
+    Promise[Unit]().future
   }
 
 }

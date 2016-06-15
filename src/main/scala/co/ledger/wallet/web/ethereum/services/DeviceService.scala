@@ -62,12 +62,10 @@ class DeviceService($location: Location,  $route: js.Dynamic, sessionService: Se
 
   override def context: Any = this
 
-
   override def registerDevice(device: Device): Future[UUID] = {
     device.eventBus.register(_eventReceiver)
     super.registerDevice(device)
   }
-
 
   override def unregisterDevice(device: Device): Unit = {
     device.eventBus.unregister(_eventReceiver)

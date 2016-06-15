@@ -30,7 +30,6 @@ package co.ledger.wallet.core.utils
   * SOFTWARE.
   *
   */
-import java.security.InvalidParameterException
 
 import scala.annotation.tailrec
 
@@ -78,24 +77,26 @@ object DerivationPath {
   object Root extends DerivationPath(null, -1) {
     override val depth = -1
   }
-  def apply(path: String): DerivationPath = {
-    @tailrec
-    def parse(parts: Array[String], offset: Int, node: DerivationPath): DerivationPath = {
-      if (offset >= parts.length)
-        node
-      else if (parts(offset) == "m" && offset == 0)
-        parse(parts, offset + 1, Root)
-      else {
-        val num = parts(offset).takeWhile(_.isDigit)
-        if (num.length == 0)
-          throw new InvalidParameterException(s"Unable to parse path $path")
-        val hardened = parts(offset).endsWith("'") || parts(offset).endsWith("h")
-        val childNum = num.toLong + (if (hardened) 0x80000000L else 0L)
-        parse(parts, offset + 1, new DerivationPath(node, childNum))
-      }
+  def apply(path: String): DerivationPath = parse(path.split('/'), 0, Root)
+
+  def parse(path: String): DerivationPath = parse(path.split('/'), 0, Root)
+
+  @tailrec
+  def parse(parts: Array[String], offset: Int, node: DerivationPath): DerivationPath = {
+    if (offset >= parts.length)
+      node
+    else if (parts(offset) == "m" && offset == 0)
+      parse(parts, offset + 1, Root)
+    else {
+      val num = parts(offset).takeWhile(_.isDigit)
+      if (num.length == 0)
+        throw new Exception(s"Unable to parse path ${parts.mkString("/")}")
+      val hardened = parts(offset).endsWith("'") || parts(offset).endsWith("h")
+      val childNum = num.toLong + (if (hardened) 0x80000000L else 0L)
+      parse(parts, offset + 1, new DerivationPath(node, childNum))
     }
-    parse(path.split('/'), 0, Root)
   }
+
   object dsl {
     implicit class DPInt(val num: Int) {
       def h: DerivationPath = new DerivationPath(Root, num.toLong + 0x80000000L)

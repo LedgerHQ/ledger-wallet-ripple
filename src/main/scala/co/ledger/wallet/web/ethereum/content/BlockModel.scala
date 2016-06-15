@@ -1,14 +1,13 @@
-package co.ledger.wallet.core.wallet.ethereum.api
+package co.ledger.wallet.web.ethereum.content
 
-import co.ledger.wallet.core.concurrent.AsyncCursor
-import co.ledger.wallet.core.wallet.ethereum.{Account, Ether, EthereumAccount, Operation}
-import co.ledger.wallet.core.wallet.ethereum.database.{AccountRow, DatabaseBackedAccountClient}
+import java.util.Date
 
-import scala.concurrent.Future
+import co.ledger.wallet.core.wallet.ethereum.Block
+import co.ledger.wallet.web.ethereum.core.database.Model
 
 /**
   *
-  * AbstractApiAccountClient
+  * BlockModel
   * ledger-wallet-ethereum-chrome
   *
   * Created by Pierre Pollastri on 14/06/2016.
@@ -36,19 +35,16 @@ import scala.concurrent.Future
   * SOFTWARE.
   *
   */
-abstract class AbstractApiAccountClient(override val wallet: AbstractApiWalletClient,
-                                        private val accountRow: AccountRow)
-  extends Account
-    with DatabaseBackedAccountClient {
+class BlockModel extends Model("blocks") {
 
-  override def index: Int = accountRow.index
-  override def freshEthereumAccount(): Future[EthereumAccount] = Future.successful(EthereumAccount(accountRow.ethereumAccount))
+  val hash = string("hash").unique().index()
+  val height = long("height")
+  val time = date("date")
 
-  override def synchronize(): Future[Unit] = ???
+  def proxy = new Block() {
+    override def hash: String = BlockModel.this.hash().get
+    override def height: Long = BlockModel.this.height().get
 
-  override def operations(limit: Int, batchSize: Int): Future[AsyncCursor[Operation]] = ???
-
-  override def balance(): Future[Ether] = ???
-
-  override def isSynchronizing(): Future[Boolean] = ???
+    override def time: Date = new Date(BlockModel.this.time().get.getTime().toLong)
+  }
 }
