@@ -2,7 +2,7 @@ package co.ledger.wallet.core.net
 
 /**
   *
-  * ResponseHelper
+  * BasicHttpLogger
   * ledger-wallet-ethereum-chrome
   *
   * Created by Pierre Pollastri on 15/06/2016.
@@ -30,50 +30,21 @@ package co.ledger.wallet.core.net
   * SOFTWARE.
   *
   */
+import co.ledger.wallet.core.utils.logs.Logger
 
-import java.io.{BufferedInputStream, ByteArrayOutputStream}
+class BasicHttpRequestLogger extends HttpRequestLogger {
 
-import scala.concurrent.Future
-import scala.io.Source
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success}
+  implicit val LogTag = "HTTP"
+  implicit val DisableLogging = false
 
-object ResponseHelper {
+  override def onSendRequest(request: HttpClient#Request): Unit =
+    Logger.d(s"[${request.method}] ${request.url.toString}")
 
-  implicit class ResponseFuture(f: Future[HttpClient#Response]) {
+  override def onRequestFailed(response: HttpClient#Response, cause: Throwable): Unit = {}
 
-    def string: Future[(String, HttpClient#Response)] = {
-      f.map { response =>
-        (Source.fromInputStream(response.body).mkString, response)
-      }
-    }
+  override def onRequestSucceed(response: HttpClient#Response): Unit = {}
 
-    def bytes: Future[(Array[Byte], HttpClient#Response)] = {
-      f.map { response =>
-        val input = new BufferedInputStream(response.body)
-        val output = new ByteArrayOutputStream()
-        val buffer = new Array[Byte](4096)
-        var read = 0
-        while ({read = input.read(buffer); read} > 0) {
-          output.write(buffer, 0, buffer.length)
-        }
-        val result = output.toByteArray
-        input.close()
-        output.close()
-        (result, response)
-      }
-    }
-
-    def noResponseBody: Future[HttpClient#Response] = {
-      f.andThen {
-        case Success(response) =>
-          response.body.close()
-          response
-        case Failure(cause) =>
-          throw cause
-      }
-    }
-
+  override def onRequestCompleted(response: HttpClient#Response): Unit = {
+    Logger.d(s"[${response.request.method}] ${response.request.url.toString} - ${response.statusCode} ${response.statusMessage}")
   }
-
 }

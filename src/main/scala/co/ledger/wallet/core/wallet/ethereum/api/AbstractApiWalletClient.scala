@@ -2,6 +2,7 @@ package co.ledger.wallet.core.wallet.ethereum.api
 
 import co.ledger.wallet.core.concurrent.AsyncCursor
 import co.ledger.wallet.core.device.utils.EventEmitter
+import co.ledger.wallet.core.net.HttpClient
 import co.ledger.wallet.core.utils.DerivationPath
 import co.ledger.wallet.core.wallet.ethereum.Wallet.WalletNotSetupException
 import co.ledger.wallet.core.wallet.ethereum.{Transaction, _}
@@ -41,6 +42,8 @@ import scala.concurrent.{Future, Promise}
   *
   */
 abstract class AbstractApiWalletClient(override val name: String) extends Wallet with DatabaseBackedWalletClient {
+
+  protected def http: HttpClient
 
   override def account(index: Int): Future[Account] = ???
 

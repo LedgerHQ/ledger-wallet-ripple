@@ -2,13 +2,10 @@ package co.ledger.wallet.core.net
 
 import java.io.{InputStream, StringWriter}
 
-import co.ledger.wallet.core.utils.logs.Logger
-
 import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.{Future, Promise, duration}
-import duration._
+import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContext, Future, Promise, duration}
 import scala.util.{Failure, Success}
-
 
 /**
   *
@@ -41,6 +38,22 @@ import scala.util.{Failure, Success}
   *
   */
 trait HttpClient {
+  implicit val ec: ExecutionContext
+  var defaultReadTimeout = 30.seconds
+  var defaultConnectTimeout = 10.seconds
+  var retryNumber = 3
+  var cacheResponses = true
+  var followRedirect = true
+  var defaultLogger: HttpRequestLogger
+
+  private[this] val _defaultHttpHeaders = scala.collection.mutable.Map[String, String]()
+
+  def setDefaultHttpHeader(headerField: (String, String)): Unit = {
+    synchronized {
+      _defaultHttpHeaders += headerField
+    }
+  }
+
   val baseUrl: String
 
   def get(path: String) = execute("GET", path)
@@ -49,7 +62,16 @@ trait HttpClient {
   def post(path: String) = execute("POST", path)
 
   def execute(method: String, path: String): RequestBuilder = new RequestBuilder(method, baseUrl, path)
-  protected def configure(requestBuilder: RequestBuilder): Unit
+  protected def configure(requestBuilder: RequestBuilder): Unit = {
+    requestBuilder
+      .readTimeout(defaultReadTimeout)
+      .connectTimeout(defaultConnectTimeout)
+      .retry(retryNumber)
+      .cached(cacheResponses)
+      .followRedirect(followRedirect)
+      .logger(defaultLogger)
+    _defaultHttpHeaders.foreach(requestBuilder.header(_))
+  }
   protected val executor: HttpRequestExecutor
   private[this] def createResponseBuilder(request: HttpClient#Request): ResponseBuilder = {
     new ResponseBuilder(request)
