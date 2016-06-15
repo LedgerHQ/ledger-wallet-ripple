@@ -1,13 +1,11 @@
-package co.ledger.wallet.core.wallet.ethereum
-
-import java.util.Date
+package co.ledger.wallet.core.net
 
 /**
   *
-  * Transaction
+  * HttpRequestLogger
   * ledger-wallet-ethereum-chrome
   *
-  * Created by Pierre Pollastri on 13/06/2016.
+  * Created by Pierre Pollastri on 15/06/2016.
   *
   * The MIT License (MIT)
   *
@@ -32,14 +30,12 @@ import java.util.Date
   * SOFTWARE.
   *
   */
-trait Transaction {
-  def hash: String
-  def receivedAt: Date
-  def value: Ether
-  def gas: Ether
-  def gasPrice: Ether
-  def cumulativeGasUsed: Ether
-  def from: String
-  def to: String
-  def block: Option[Block]
+
+trait HttpRequestLogger {
+
+  def onSendRequest(request: HttpClient#Request): Unit
+  def onRequestSucceed(response: HttpClient#Response): Unit
+  def onRequestFailed(response: HttpClient#Response, cause: Throwable): Unit
+  def onRequestCompleted(response: HttpClient#Response): Unit
+
 }

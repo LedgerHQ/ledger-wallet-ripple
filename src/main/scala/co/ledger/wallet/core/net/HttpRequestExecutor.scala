@@ -1,13 +1,11 @@
-package co.ledger.wallet.core.wallet.ethereum
-
-import java.util.Date
+package co.ledger.wallet.core.net
 
 /**
   *
-  * Transaction
+  * HttpRequestExecutor
   * ledger-wallet-ethereum-chrome
   *
-  * Created by Pierre Pollastri on 13/06/2016.
+  * Created by Pierre Pollastri on 15/06/2016.
   *
   * The MIT License (MIT)
   *
@@ -32,14 +30,7 @@ import java.util.Date
   * SOFTWARE.
   *
   */
-trait Transaction {
-  def hash: String
-  def receivedAt: Date
-  def value: Ether
-  def gas: Ether
-  def gasPrice: Ether
-  def cumulativeGasUsed: Ether
-  def from: String
-  def to: String
-  def block: Option[Block]
+
+trait HttpRequestExecutor {
+  def execute(responseBuilder: HttpClient#ResponseBuilder): Unit
 }
