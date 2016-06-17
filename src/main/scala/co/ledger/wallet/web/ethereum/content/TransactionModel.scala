@@ -33,15 +33,13 @@ import co.ledger.wallet.web.ethereum.core.database.Model
   *
   */
 class TransactionModel extends Model("transaction") {
-
   val hash = string("uid").unique().index()
   val receivedAt = date("receivedAt").index()
-  val value = long("value")
-  val gas = long("gas")
-  val gasPrice = long("gasPrice")
-  val cumulativeGasUsed = long("cumulativeGasUsed")
+  val value = string("value")
+  val gas = string("gas")
+  val gasPrice = string("gasPrice")
+  val cumulativeGasUsed = string("cumulativeGasUsed")
   val from = string("from")
   val to = string("to")
   val blockHash = string("blockHash")
-
 }

@@ -1,13 +1,11 @@
-package co.ledger.wallet.core.wallet.ethereum
-
-import java.util.Date
+package org.json
 
 /**
   *
-  * Block
+  * JSONException
   * ledger-wallet-ethereum-chrome
   *
-  * Created by Pierre Pollastri on 13/06/2016.
+  * Created by Pierre Pollastri on 16/06/2016.
   *
   * The MIT License (MIT)
   *
@@ -32,10 +30,4 @@ import java.util.Date
   * SOFTWARE.
   *
   */
-trait Block {
-  def hash: String
-  def height: Long
-  def time: Date
-
-  override def toString: String = s"{hash: $hash, height: $height, time: $time}"
-}
+class JSONException(message: String) extends Exception(message)

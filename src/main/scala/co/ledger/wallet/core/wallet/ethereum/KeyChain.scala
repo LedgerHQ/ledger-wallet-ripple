@@ -1,13 +1,11 @@
 package co.ledger.wallet.core.wallet.ethereum
 
-import java.util.Date
-
 /**
   *
-  * Block
+  * KeyChain
   * ledger-wallet-ethereum-chrome
   *
-  * Created by Pierre Pollastri on 13/06/2016.
+  * Created by Pierre Pollastri on 17/06/2016.
   *
   * The MIT License (MIT)
   *
@@ -32,10 +30,8 @@ import java.util.Date
   * SOFTWARE.
   *
   */
-trait Block {
-  def hash: String
-  def height: Long
-  def time: Date
+class KeyChain {
 
-  override def toString: String = s"{hash: $hash, height: $height, time: $time}"
+  def issuedKeys: Int = 0
+
 }

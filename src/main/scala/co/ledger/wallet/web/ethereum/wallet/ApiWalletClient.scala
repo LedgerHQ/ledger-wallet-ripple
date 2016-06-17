@@ -1,14 +1,17 @@
 package co.ledger.wallet.web.ethereum.wallet
 
+import java.util.Date
+
 import co.ledger.wallet.core.concurrent.AsyncCursor
 import co.ledger.wallet.core.device.utils.EventEmitter
 import co.ledger.wallet.core.net.HttpClient
 import co.ledger.wallet.core.wallet.ethereum._
-import co.ledger.wallet.core.wallet.ethereum.api.{AbstractApiAccountClient, AbstractApiWalletClient}
+import co.ledger.wallet.core.wallet.ethereum.api.{AbstractApiAccountClient, AbstractApiWalletClient, AbstractBlockRestClient, AbstractTransactionRestClient}
 import co.ledger.wallet.core.wallet.ethereum.database.AccountRow
 import co.ledger.wallet.web.ethereum.core.net.JQHttpClient
 
 import scala.concurrent.{Future, Promise}
+import scala.scalajs.js
 
 /**
   *
@@ -47,5 +50,15 @@ class ApiWalletClient(name: String, provider: EthereumAccountProvider) extends A
 
   override def ethereumAccountProvider: EthereumAccountProvider = provider
 
-  override protected def http: HttpClient = JQHttpClient.defaultInstance
+  protected def http: HttpClient = JQHttpClient.defaultInstance
+
+  override protected val blockRestClient = new AbstractBlockRestClient(http) {
+    override def stringToDate(string: String): Date = ApiWalletClient.this.stringToDate(string)
+  }
+
+  override protected val transactionRestClient = new AbstractTransactionRestClient(http, blockRestClient) {
+    override def stringToDate(string: String): Date = ApiWalletClient.this.stringToDate(string)
+  }
+
+  def stringToDate(string: String): Date = new Date(new js.Date(string).getTime().toLong)
 }

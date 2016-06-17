@@ -37,13 +37,14 @@ class Ether(private val value: BigInt) {
   def *(value: Ether) = new Ether(this.value * value.value)
   def %(value: Ether) = new Ether(this.value % value.value)
 
-
+  override def toString: String = value.toString()
 }
 
 object Ether {
 
   def apply(value: Int): Ether = new Ether(BigInt(value))
   def apply(value: Long): Ether = new Ether(BigInt(value))
+  def apply(value: String): Ether = new Ether(BigInt(value))
 
   object Implicits {
     implicit def int2Ether(value: Int): Ether = Ether(value)

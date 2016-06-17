@@ -1,13 +1,20 @@
-package co.ledger.wallet.core.wallet.ethereum
+package co.ledger.wallet.core.wallet.ethereum.api
 
 import java.util.Date
 
+import co.ledger.wallet.core.net.HttpClient
+import co.ledger.wallet.core.wallet.ethereum.Block
+import org.json.JSONObject
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+
 /**
   *
-  * Block
+  * BlockRestClient
   * ledger-wallet-ethereum-chrome
   *
-  * Created by Pierre Pollastri on 13/06/2016.
+  * Created by Pierre Pollastri on 16/06/2016.
   *
   * The MIT License (MIT)
   *
@@ -32,10 +39,17 @@ import java.util.Date
   * SOFTWARE.
   *
   */
-trait Block {
-  def hash: String
-  def height: Long
-  def time: Date
+abstract class AbstractBlockRestClient(http: HttpClient) {
 
-  override def toString: String = s"{hash: $hash, height: $height, time: $time}"
+  def currentBlock(): Future[Block] = http.get("/blocks/current").json.map({case (json, _) => new JsonBlock(json)})
+
+  def jsonToBlock(json: JSONObject) = new JsonBlock(json)
+
+  def stringToDate(string: String): Date
+
+  class JsonBlock(json: JSONObject) extends Block {
+    override def hash: String = json.getString("hash")
+    override def height: Long = json.getLong("height")
+    override def time: Date = stringToDate(json.getString("time"))
+  }
 }

@@ -61,28 +61,28 @@ class AccountController(override val windowService: WindowService,
       "isSend" -> false
     ),
     js.Dictionary(
-      "date" -> "03/18/2016 at 12:45 PM",
-      "amount" -> "-1.25104961 Ether",
+      "date" -> "03/18/2016 at 8:45 AM",
+      "amount" -> "-10.45 Ether",
       "isSend" -> true
     ),
     js.Dictionary(
-      "date" -> "03/18/2016 at 12:45 PM",
-      "amount" -> "+1.25104961 Ether",
+      "date" -> "03/16/2016 at 12:18 PM",
+      "amount" -> "+10.53 Ether",
       "isSend" -> false
     ),
     js.Dictionary(
-      "date" -> "03/18/2016 at 12:45 PM",
-      "amount" -> "-1.25104961 Ether",
-      "isSend" -> true
-    ),
-    js.Dictionary(
-      "date" -> "03/18/2016 at 12:45 PM",
-      "amount" -> "+1.25104961 Ether",
+      "date" -> "03/05/2016 at 13:58 PM",
+      "amount" -> "+0.56208423 Ether",
       "isSend" -> false
     ),
     js.Dictionary(
-      "date" -> "03/18/2016 at 12:45 PM",
-      "amount" -> "-1.25104961 Ether",
+      "date" -> "03/01/2016 at 6:32 PM",
+      "amount" -> "+0.14094542 Ether",
+      "isSend" -> false
+    ),
+    js.Dictionary(
+      "date" -> "02/16/2016 at 10:25 AM",
+      "amount" -> "-3.58437983 Ether",
       "isSend" -> true
     )
   )

@@ -1,10 +1,10 @@
 package co.ledger.wallet.core.wallet.ethereum.api
 
 import co.ledger.wallet.core.concurrent.AsyncCursor
-import co.ledger.wallet.core.wallet.ethereum.{Account, Ether, EthereumAccount, Operation}
+import co.ledger.wallet.core.wallet.ethereum._
 import co.ledger.wallet.core.wallet.ethereum.database.{AccountRow, DatabaseBackedAccountClient}
 
-import scala.concurrent.Future
+import scala.concurrent.{Future, Promise}
 
 /**
   *
@@ -44,11 +44,17 @@ abstract class AbstractApiAccountClient(override val wallet: AbstractApiWalletCl
   override def index: Int = accountRow.index
   override def freshEthereumAccount(): Future[EthereumAccount] = Future.successful(EthereumAccount(accountRow.ethereumAccount))
 
-  override def synchronize(): Future[Unit] = ???
+  override def synchronize(): Future[Unit] = wallet.synchronize()
+
+  private[api] def synchronize(syncToken: String): Future[Unit] = {
+    Promise[Unit].future
+  }
 
   override def operations(limit: Int, batchSize: Int): Future[AsyncCursor[Operation]] = ???
 
   override def balance(): Future[Ether] = ???
 
   override def isSynchronizing(): Future[Boolean] = ???
+
+  val keyChain = new KeyChain
 }

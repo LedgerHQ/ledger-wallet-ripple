@@ -43,7 +43,8 @@ import scala.concurrent.{Future, Promise}
   */
 abstract class AbstractApiWalletClient(override val name: String) extends Wallet with DatabaseBackedWalletClient {
 
-  protected def http: HttpClient
+  protected def transactionRestClient: AbstractTransactionRestClient
+  protected def blockRestClient: AbstractBlockRestClient
 
   override def account(index: Int): Future[Account] = ???
 
@@ -62,9 +63,59 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
 
   override def operations(from: Int, batchSize: Int): Future[AsyncCursor[Operation]] = ???
 
-  override def synchronize(): Future[Unit] = init() flatMap {(_) =>
-    println(s"Synchronize wallet $name")
-    Future.successful()
+  override def synchronize(): Future[Unit] = {
+
+    def synchronizeUntilEmptyAccount(syncToken: String, from: Int): Future[Unit] = {
+      init().flatMap {(_) =>
+        val accounts = _accounts.slice(from, _accounts.length)
+        Future.sequence(accounts.map(_.synchronize(syncToken)))
+      } flatMap {(_) =>
+        if (_accounts.last.keyChain.issuedKeys != 0) {
+          // Create an new account
+          val newAccountIndex = _accounts.length
+          createAccount(newAccountIndex) flatMap {(_) =>
+            synchronizeUntilEmptyAccount(syncToken, newAccountIndex)
+          }
+        }
+        else {
+          Future.successful()
+        }
+      }
+
+      Promise[Unit].future
+    }
+
+    transactionRestClient.obtainSyncToken() flatMap {(token) =>
+      synchronizeUntilEmptyAccount(token, 0)
+    }
+    /*
+    def synchronizeUntilEmptyAccount(syncToken: String, from: Int, block: ApiObjects.Block): Future[Unit]
+    = {
+      init().flatMap { (_) =>
+        val accounts = _accounts.slice(from, _accounts.length)
+        Future.sequence(accounts.map(_.synchronize(syncToken, block)).toList)
+      } flatMap { (_) =>
+        if (_accounts.last.keyChain.getIssuedExternalKeys != 0 ||
+          _accounts.last.keyChain.getIssuedInternalKeys != 0) {
+          // Create a new account
+          val newAccountIndex = _accounts.length
+          createAccount(_accounts.length, xpubProvider).flatMap { (_) =>
+            _accounts = Array[ApiAccountClient]()
+            synchronizeUntilEmptyAccount(syncToken, newAccountIndex, block)
+          }
+        } else {
+          Future.successful()
+        }
+      }
+    }
+    transactionRestClient.requestSyncToken().flatMap {(token) =>
+      blockRestClient.mostRecentBlock().flatMap {(block) =>
+        synchronizeUntilEmptyAccount(token, 0, block).flatMap { unit =>
+          transactionRestClient.deleteSyncToken(token)
+        }
+      }
+    }
+    */
   }
 
   def ethereumAccountProvider: EthereumAccountProvider
@@ -79,6 +130,15 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
 
   override def pushTransaction(transaction: Transaction): Future[Unit] = ???
 
+  private def createAccount(index: Int): Future[Account] = {
+    ethereumAccountProvider.getEthereumAccount(DerivationPath(s"44'/60'/$index'/0/0")).map {(ethereumAccount) =>
+      val account = new AccountRow(index, ethereumAccount.toString)
+      putAccount(account)
+      _accounts = Array(newAccountClient(account))
+      _accounts.last
+    }
+  }
+
   private def init(): Future[Unit] = {
     _initPromise.getOrElse({
       _initPromise = Some(Promise[Unit]())
@@ -86,12 +146,7 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
         println("Got accounts " + accounts.length)
         _accounts = accounts.map(newAccountClient(_))
         if (_accounts.length == 0) {
-          ethereumAccountProvider.getEthereumAccount(DerivationPath.parse("44'/60'/0'/0/0")).map {(ethereumAccount) =>
-            val firstAccount = new AccountRow(0, ethereumAccount.toString)
-            putAccount(firstAccount)
-            _accounts = Array(newAccountClient(firstAccount))
-            ()
-          }
+          createAccount(0).map((_) => ())
         } else {
           Future.successful()
         }

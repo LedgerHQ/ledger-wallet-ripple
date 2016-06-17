@@ -2,6 +2,8 @@ package co.ledger.wallet.core.net
 
 import java.io.{InputStream, StringWriter}
 
+import org.json.{JSONArray, JSONObject}
+
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future, Promise, duration}
@@ -61,7 +63,11 @@ trait HttpClient {
   def delete(path: String) = execute("DELETE", path)
   def post(path: String) = execute("POST", path)
 
-  def execute(method: String, path: String): RequestBuilder = new RequestBuilder(method, baseUrl, path)
+  def execute(method: String, path: String): RequestBuilder = {
+    val r = new RequestBuilder(method, baseUrl, path)
+    configure(r)
+    r
+  }
   protected def configure(requestBuilder: RequestBuilder): Unit = {
     requestBuilder
       .readTimeout(defaultReadTimeout)
@@ -146,23 +152,26 @@ trait HttpClient {
       val builder = createResponseBuilder(request)
       executor.execute(builder)
       _logger.onSendRequest(request)
-      builder.future.andThen {
-        case Success(r) =>
-          _logger.onRequestSucceed(r)
-          _logger.onRequestCompleted(r)
-          r
-        case Failure(cause: HttpException) =>
+      builder.future.map { (r) =>
+        _logger.onRequestSucceed(r)
+        _logger.onRequestCompleted(r)
+        r
+      } recover {
+        case cause: HttpException =>
           _logger.onRequestFailed(cause.response, cause)
           _logger.onRequestCompleted(cause.response)
           throw cause
+        case others => throw others
       }
     }
 
-    //def json: Future[(JSONObject, HttpClient#Response)] = response.json
-    //def jsonArray: Future[(JSONArray, HttpClient#Response)] = response.jsonArray
-    //def string: Future[(String, HttpClient#Response)] = response.string
-    //def bytes: Future[(Array[Byte], HttpClient#Response)] = response.bytes
-    //def noResponseBody: Future[HttpClient#Response] = response.noResponseBody
+    import ResponseHelper._
+
+    def json: Future[(JSONObject, HttpClient#Response)] = response.json
+    def jsonArray: Future[(JSONArray, HttpClient#Response)] = response.jsonArray
+    def string: Future[(String, HttpClient#Response)] = response.string
+    def bytes: Future[(Array[Byte], HttpClient#Response)] = response.bytes
+    def noResponseBody: Future[HttpClient#Response] = response.noResponseBody
 
     def toRequest = new Request(
       method,
@@ -228,6 +237,24 @@ trait HttpClient {
       }
       writer.toString
     }
+
+    def bodyAsString = {
+      if (body != null) {
+        val b = new StringWriter()
+        val buffer = new Array[Byte](4096)
+        var read = 0
+        body.reset()
+        while ( {
+          read = body.read(buffer); read
+        } > 0) {
+          b.append(new String(buffer, 0, read))
+        }
+        b.toString
+      } else {
+       ""
+      }
+    }
+
   }
 
   class Response(

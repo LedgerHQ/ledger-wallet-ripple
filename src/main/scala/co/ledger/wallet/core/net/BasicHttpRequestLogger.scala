@@ -38,13 +38,16 @@ class BasicHttpRequestLogger extends HttpRequestLogger {
   implicit val DisableLogging = false
 
   override def onSendRequest(request: HttpClient#Request): Unit =
-    Logger.d(s"[${request.method}] ${request.url.toString}")
+    Logger.i(s"[${request.method}] ${request.url.toString}")
 
   override def onRequestFailed(response: HttpClient#Response, cause: Throwable): Unit = {}
 
   override def onRequestSucceed(response: HttpClient#Response): Unit = {}
 
   override def onRequestCompleted(response: HttpClient#Response): Unit = {
-    Logger.d(s"[${response.request.method}] ${response.request.url.toString} - ${response.statusCode} ${response.statusMessage}")
+    if (response.statusCode >= 200 && response.statusCode < 300)
+      Logger.i(s"[${response.request.method}] ${response.request.url.toString} - ${response.statusCode} ${response.statusMessage}")
+    else
+      Logger.e(s"[${response.request.method}] ${response.request.url.toString} - ${response.statusCode} ${response.statusMessage}")
   }
 }

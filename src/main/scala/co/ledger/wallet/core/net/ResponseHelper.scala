@@ -33,6 +33,8 @@ package co.ledger.wallet.core.net
 
 import java.io.{BufferedInputStream, ByteArrayOutputStream}
 
+import org.json.{JSONArray, JSONObject}
+
 import scala.concurrent.Future
 import scala.io.Source
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -42,20 +44,32 @@ object ResponseHelper {
 
   implicit class ResponseFuture(f: Future[HttpClient#Response]) {
 
+    def json: Future[(JSONObject, HttpClient#Response)] = {
+      f.string.map { case (body, response) =>
+        (new JSONObject(body), response)
+      }
+    }
+
+    def jsonArray: Future[(JSONArray, HttpClient#Response)] = {
+      f.string.map { case (body, response) =>
+        (new JSONArray(body), response)
+      }
+    }
+
     def string: Future[(String, HttpClient#Response)] = {
-      f.map { response =>
-        (Source.fromInputStream(response.body).mkString, response)
+      f.bytes.map { case (body, response) =>
+        (new String(body), response)
       }
     }
 
     def bytes: Future[(Array[Byte], HttpClient#Response)] = {
       f.map { response =>
-        val input = new BufferedInputStream(response.body)
+        val input = response.body
         val output = new ByteArrayOutputStream()
         val buffer = new Array[Byte](4096)
         var read = 0
         while ({read = input.read(buffer); read} > 0) {
-          output.write(buffer, 0, buffer.length)
+          output.write(buffer, 0, read)
         }
         val result = output.toByteArray
         input.close()

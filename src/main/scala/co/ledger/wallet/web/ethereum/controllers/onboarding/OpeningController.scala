@@ -85,7 +85,7 @@ class OpeningController(override val windowService: WindowService,
   }
 
   def synchronizeWallet(): Future[Unit] = {
-    Promise[Unit]().future
+    sessionService.currentSession.get.wallet.synchronize()
   }
 
 }

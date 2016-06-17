@@ -1,7 +1,10 @@
 package co.ledger.wallet.web.ethereum.core.net
 
+import java.io.ByteArrayInputStream
+
 import co.ledger.wallet.core.net.{BasicHttpRequestLogger, HttpClient, HttpRequestExecutor, HttpRequestLogger}
 import co.ledger.wallet.web.ethereum.core.utils.JQueryHelper
+import org.scalajs.jquery.JQueryXHR
 
 import scala.concurrent.ExecutionContext
 import scala.scalajs.js
@@ -39,8 +42,6 @@ import scala.scalajs.js
 class JQHttpClient(override val baseUrl: String) extends HttpClient {
   override implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
-  override protected def configure(requestBuilder: RequestBuilder): Unit = ???
-
   override protected val executor: HttpRequestExecutor = new HttpRequestExecutor {
     override def execute(responseBuilder: co.ledger.wallet.core.net.HttpClient#ResponseBuilder): Unit = {
       val request = responseBuilder.request
@@ -49,15 +50,27 @@ class JQHttpClient(override val baseUrl: String) extends HttpClient {
         case (key, value) =>
           headers(key) = value.toString
       }
-      JQueryHelper.$.ajax(js.Dictionary[js.Any](
-        "method" -> request.method,
-        "url" -> request.url,
-        "headers" -> headers,
-        "timeout" -> (request.readTimeout.toMillis + request.connectionTimeout.toMillis),
-        "complete" -> {() =>
-
-        }
-      ))
+      try {
+        JQueryHelper.$.ajax(js.Dictionary[js.Any](
+          "method" -> request.method,
+          "url" -> request.url,
+          "headers" -> headers,
+          "timeout" -> (request.readTimeout.toMillis + request.connectionTimeout.toMillis),
+          "data" -> request.bodyAsString,
+          "complete" -> { (xhr: JQueryXHR, status: String) =>
+            responseBuilder.statusCode = xhr.status
+            responseBuilder.statusMessage = xhr.statusText
+            responseBuilder.bodyEncoding = "utf-8"
+            if (xhr.status != 0)
+              responseBuilder.body = new ByteArrayInputStream(xhr.responseText.getBytes)
+            responseBuilder.build()
+          }
+        ))
+      } catch {
+        case er: Throwable =>
+          responseBuilder.failure(er)
+      }
+      request.body.close()
     }
   }
   override var defaultLogger: HttpRequestLogger = new BasicHttpRequestLogger

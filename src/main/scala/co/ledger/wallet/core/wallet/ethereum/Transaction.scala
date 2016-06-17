@@ -42,4 +42,18 @@ trait Transaction {
   def from: String
   def to: String
   def block: Option[Block]
+
+  override def toString: String =
+    s"""{
+       |  hash: $hash
+       |  receiveAt: $receivedAt
+       |  value: $value
+       |  gas: $gas
+       |  gasPrice: $gasPrice
+       |  cumulativeGasUsed: $cumulativeGasUsed
+       |  from: $from
+       |  to: $to
+       |  block: $block
+       |}
+       |""".stripMargin
 }
