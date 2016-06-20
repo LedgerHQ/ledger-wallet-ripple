@@ -43,20 +43,21 @@ import scala.scalajs.js
   */
 abstract class AbstractTransactionRestClient(http: HttpClient, blockRestClient: AbstractBlockRestClient) {
 
-  def transactions(syncToken: String, ethereumAccounts: Array[String]): Future[TransactionsPage] = {
-    http.get(s"/addresses/${ethereumAccounts.mkString(",")}/transactions")
-        .header("X-LedgerWallet-SyncToken" -> syncToken).jsonArray map {
+  def transactions(syncToken: String, ethereumAccounts: Array[String], blockHash: Option[String]): Future[TransactionsPage] = {
+    val request = http.get(s"/addresses/${ethereumAccounts.mkString(",")}/transactions")
+        .header("X-LedgerWallet-SyncToken" -> syncToken)
+    if (blockHash.isDefined)
+      request.param("blockHash" -> blockHash.get)
+    request.jsonArray map {
       case (json, _) =>
         val result = new ArrayBuffer[Transaction](json.length())
         for (index <- 0 until json.length()) {
           result += new JsonTransaction(json.getJSONObject(index))
         }
-        TransactionsPage(result.toArray, false)
+        TransactionsPage(result.toArray, result.nonEmpty)
     }
   }
-
   def stringToDate(string: String): Date
-
   def obtainSyncToken(): Future[String] = http.get("/syncToken").json map(_._1.getString("token"))
   def deleteSyncToken(syncToken: String): Future[Unit] = {
     http.delete("/syncToken")

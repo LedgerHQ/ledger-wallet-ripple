@@ -1,8 +1,13 @@
 package co.ledger.wallet.web.ethereum.wallet
 
+import java.util.Date
+
 import co.ledger.wallet.core.wallet.ethereum.api.AbstractApiAccountClient
+import co.ledger.wallet.core.wallet.ethereum.api.AbstractApiAccountClient.{AccountSavedState, AccountSavedStateBatch}
 import co.ledger.wallet.core.wallet.ethereum.database.AccountRow
 
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 /**
   *
   * ApiAccountClient
@@ -36,4 +41,17 @@ import co.ledger.wallet.core.wallet.ethereum.database.AccountRow
 class ApiAccountClient(apiWalletClient: ApiWalletClient, accountRow: AccountRow)
   extends AbstractApiAccountClient(apiWalletClient, accountRow) {
 
+  override protected def load(): Future[AccountSavedState] = {
+    Future.successful(new AccountSavedState {
+      override var batches: Array[AccountSavedStateBatch] = Array()
+      override var lastSynchronizationDate: Long = new Date().getTime
+      override var lastSynchronizationStatus: Int = 1
+      override var batchSize: Int = 20
+      override var index: Int = accountRow.index
+    })
+  }
+
+  override protected def save(state: AccountSavedState): Future[Unit] = {
+    Future.successful()
+  }
 }

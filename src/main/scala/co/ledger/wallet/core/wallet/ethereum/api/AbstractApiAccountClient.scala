@@ -5,7 +5,8 @@ import co.ledger.wallet.core.wallet.ethereum._
 import co.ledger.wallet.core.wallet.ethereum.database.{AccountRow, DatabaseBackedAccountClient}
 
 import scala.concurrent.{Future, Promise}
-
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Failure, Success}
 /**
   *
   * AbstractApiAccountClient
@@ -47,8 +48,26 @@ abstract class AbstractApiAccountClient(override val wallet: AbstractApiWalletCl
   override def synchronize(): Future[Unit] = wallet.synchronize()
 
   private[api] def synchronize(syncToken: String): Future[Unit] = {
-    Promise[Unit].future
+    load() flatMap {(state) =>
+      println(s"Loaded ${accountRow.index}")
+      def synchronizeUntilEmpty(): Future[Unit] = {
+        val block = Option(state.batches).flatMap(_.headOption).map(_.blockHash)
+        wallet.transactionRestClient.transactions(syncToken, Array(accountRow.ethereumAccount), block) flatMap {(result) =>
+          // Add tx to database
+          if (result.isTruncated) {
+            synchronizeUntilEmpty()
+          } else {
+            Future.successful()
+          }
+        }
+      }
+      synchronizeUntilEmpty().flatMap((_) => save(state))
+    }
   }
+
+
+  protected def load(): Future[AbstractApiAccountClient.AccountSavedState]
+  protected def save(state: AbstractApiAccountClient.AccountSavedState): Future[Unit]
 
   override def operations(limit: Int, batchSize: Int): Future[AsyncCursor[Operation]] = ???
 
@@ -57,4 +76,27 @@ abstract class AbstractApiAccountClient(override val wallet: AbstractApiWalletCl
   override def isSynchronizing(): Future[Boolean] = ???
 
   val keyChain = new KeyChain
+}
+
+object AbstractApiAccountClient {
+
+  object SynchronizationStatus {
+    val Success = 1
+    val Failure = 2
+  }
+
+  trait AccountSavedState {
+    var index: Int
+    var batchSize: Int
+    var lastSynchronizationDate: Long
+    var lastSynchronizationStatus: Int
+    var batches: Array[AccountSavedStateBatch]
+  }
+
+  trait AccountSavedStateBatch {
+    var index: Int
+    var blockHash: String
+    var blockHeight: Int
+  }
+
 }

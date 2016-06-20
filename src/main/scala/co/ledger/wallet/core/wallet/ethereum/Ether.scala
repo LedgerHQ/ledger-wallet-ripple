@@ -42,6 +42,8 @@ class Ether(private val value: BigInt) {
 
 object Ether {
 
+  val Zero = Ether(0)
+
   def apply(value: Int): Ether = new Ether(BigInt(value))
   def apply(value: Long): Ether = new Ether(BigInt(value))
   def apply(value: String): Ether = new Ether(BigInt(value))
