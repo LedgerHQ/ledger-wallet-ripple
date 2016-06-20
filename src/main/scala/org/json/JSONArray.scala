@@ -35,7 +35,6 @@ import scala.scalajs.js.JSON
   */
 // Minimalistic version of the Android JSON library
 class JSONArray(private[json] val array: js.Array[js.Any]) {
-
   def this() = this(js.Array[js.Any]())
   def this(json: String) = this(JSON.parse(json).asInstanceOf[js.Array[js.Any]])
 

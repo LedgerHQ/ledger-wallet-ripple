@@ -108,7 +108,7 @@ abstract class QueryHelper[M >: Null <: Model](implicit classTag: ClassTag[M]) {
         try {
           val request = transaction.objectStore(modelDeclaration.entityName).add(item.toDictionary)
           request.onerror = { (event: ErrorEvent) =>
-            promise.failure(new Exception(event.message))
+            promise.failure(new Exception(event.asInstanceOf[js.Dynamic].target.error.message.asInstanceOf[String]))
           }
           request.onsuccess = { (event: Event) =>
             promise.success()

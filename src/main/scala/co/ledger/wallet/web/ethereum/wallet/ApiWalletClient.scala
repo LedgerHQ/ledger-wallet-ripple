@@ -64,4 +64,5 @@ class ApiWalletClient(name: String, provider: EthereumAccountProvider) extends A
   override val eventEmitter: EventEmitter = new JsEventEmitter
 
   def stringToDate(string: String): Date = new Date(new js.Date(string).getTime().toLong)
+
 }

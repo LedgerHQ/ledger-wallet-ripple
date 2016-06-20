@@ -31,5 +31,12 @@ package co.ledger.wallet.core.wallet.ethereum
   *
   */
 trait Operation {
+  def account: Account
+  def transaction: Transaction
+  def `type`: String
+}
 
+object Operation {
+  val SendType = "send"
+  val ReceiveType = "receive"
 }

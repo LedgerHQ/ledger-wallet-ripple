@@ -56,6 +56,7 @@ class Model(val entityName: String) {
         case f: DoubleValue => f().get
         case f: BooleanValue => f().get
         case f: DateValue => f().get
+        case f: LongValue => f().get
       }
     }
     dictionary

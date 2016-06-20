@@ -123,8 +123,16 @@ class WriteCursor[M >: Null <: Model](request: idb.Request, creator: ModelCreato
     _cursor.delete()
   }
 
-  def update(newData: M): Unit = {
-    _cursor.update(newData.toDictionary)
+  def update(newData: M): Future[Unit] = {
+    val request = _cursor.update(newData.toDictionary)
+    val promise = Promise[Unit]()
+    request.onsuccess = {(_: js.Any) =>
+      promise.success()
+    }
+    request.onerror = {(error: ErrorEvent) =>
+      promise.failure(new Exception(error.message))
+    }
+    promise.future
   }
 
 }
@@ -173,27 +181,27 @@ trait CursorBuilder[M >: Null <: Model] {
   }
 
   def gt(values: js.Any*): this.type = {
-    _gt.append(values)
+    _gt.appendAll(values)
     this
   }
 
   def gte(values: js.Any*): this.type = {
-    _gte.append(values)
+    _gte.appendAll(values)
     this
   }
 
   def lt(values: js.Any*): this.type = {
-    _lt.append(values)
+    _lt.appendAll(values)
     this
   }
 
   def lte(values: js.Any*): this.type = {
-    _lte.append(values)
+    _lte.appendAll(values)
     this
   }
 
-  def eq(values: js.Any*): this.type = {
-    _eq.append(values)
+  def exactly(values: js.Any*): this.type = {
+    _eq.appendAll(values)
     this
   }
 
@@ -202,10 +210,16 @@ trait CursorBuilder[M >: Null <: Model] {
       null
     } else if (_eq.nonEmpty && _gt.isEmpty && _lt.isEmpty && _lte.isEmpty && _gte.isEmpty) {
       // ==
-      idb.KeyRange.only(js.Array(_eq:_*))
+      if (_eq.length > 1)
+        idb.KeyRange.only(js.Array(_eq:_*))
+      else
+        idb.KeyRange.only(_eq.head)
     } else if (_eq.isEmpty && _gt.nonEmpty && _lt.isEmpty && _lte.isEmpty && _gte.isEmpty) {
       // <
-      idb.KeyRange.lowerBound(js.Array(_lt:_*), true)
+      if (_lt.length > 1)
+        idb.KeyRange.lowerBound(js.Array(_lt:_*), true)
+      else
+        idb.KeyRange.lowerBound(_lt.head, true)
     } else if (_eq.isEmpty && _gt.isEmpty && _lt.nonEmpty && _lte.isEmpty && _gte.isEmpty) {
       // >
       idb.KeyRange.upperBound(js.Array(_gt:_*), true)

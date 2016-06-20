@@ -1,6 +1,6 @@
 package co.ledger.wallet.web.ethereum.wallet
 
-import co.ledger.wallet.core.wallet.ethereum.{Block, Transaction}
+import co.ledger.wallet.core.wallet.ethereum.{Block, Operation, Transaction}
 import co.ledger.wallet.core.wallet.ethereum.database.{AccountRow, DatabaseBackedWalletClient}
 import co.ledger.wallet.web.ethereum.content
 import co.ledger.wallet.web.ethereum.content.{AccountModel, OperationModel, TransactionModel}
@@ -49,8 +49,8 @@ trait IndexedDBBackedWalletClient extends DatabaseBackedWalletClient {
   private val connection = DatabaseDeclaration.obtainConnection()
   // \Constructor
 
-  override protected def putBlock(block: Block): Future[Unit] = {
-    BlockModel.readwrite().add(BlockModel(block)).commit().map((_) => ())
+  override def putBlock(block: Block): Future[Unit] = {
+    BlockModel.readwrite().add(BlockModel(block)).commit().map((_) => ()).recover({case all => ()})
   }
 
   override protected def putAccount(accountRow: AccountRow): Future[Unit] = {
@@ -90,7 +90,37 @@ trait IndexedDBBackedWalletClient extends DatabaseBackedWalletClient {
     * @param transaction
     * @return
     */
-  override protected def putTransaction(transaction: Transaction): Future[Unit] = ???
+  override def putTransaction(transaction: Transaction): Future[Unit] = {
+    TransactionModel.readwrite().openCursor().exactly(transaction.hash).writeCursor flatMap {(cursor) =>
+      if (cursor.value.isEmpty) {
+        TransactionModel.readwrite().add(TransactionModel(transaction)).commit()
+      } else {
+        cursor.update(TransactionModel(transaction))
+      }
+    } map {(_) =>
+      ()
+    }
+  }
+
+  override def putTransactions(transactions: Array[Transaction]): Future[Unit] = {
+    def iterate(index: Int): Future[Unit] = {
+      if (index >= transactions.length) {
+        Future.successful()
+      } else {
+        putTransaction(transactions(index)) flatMap {(_) =>
+          transactions(index).block match {
+            case Some(block) => putBlock(block)
+            case None => Future.successful()
+          }
+        } flatMap {(_) =>
+          iterate(index + 1)
+        }
+      }
+    }
+    iterate(0)
+  }
+
+  override def putOperation(operation: Operation): Future[Unit] = ???
 
   override protected def queryTransaction(hash: String): Future[Array[Transaction]] = ???
   object BlockModel extends QueryHelper[content.BlockModel] with ModelCreator[content.BlockModel] {
@@ -122,6 +152,18 @@ trait IndexedDBBackedWalletClient extends DatabaseBackedWalletClient {
     override def database: DatabaseDeclaration = DatabaseDeclaration
     override def creator: ModelCreator[TransactionModel] = this
     override def newInstance(): TransactionModel = new content.TransactionModel()
+    def apply(transaction: Transaction) = {
+      val t = new content.TransactionModel
+      t.hash.set(transaction.hash)
+      t.blockHash.set(transaction.block.map(_.hash).orNull)
+      t.to.set(transaction.to)
+      t.from.set(transaction.from)
+      t.gas.set(transaction.gas.toString)
+      t.gasPrice.set(transaction.gasPrice.toString)
+      t.cumulativeGasUsed.set(transaction.cumulativeGasUsed.toString)
+      t.value.set(transaction.value.toString)
+      t
+    }
   }
 
   object OperationModel extends QueryHelper[content.OperationModel] with ModelCreator[content.OperationModel] {

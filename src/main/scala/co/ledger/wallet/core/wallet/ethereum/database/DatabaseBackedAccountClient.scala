@@ -2,6 +2,8 @@ package co.ledger.wallet.core.wallet.ethereum.database
 
 import co.ledger.wallet.core.wallet.ethereum.Account
 
+import scala.concurrent.Future
+
 /**
   *
   * AbstractDatabaseBackedAccountClient
@@ -33,7 +35,5 @@ import co.ledger.wallet.core.wallet.ethereum.Account
   *
   */
 trait DatabaseBackedAccountClient extends Account {
-
-
 
 }

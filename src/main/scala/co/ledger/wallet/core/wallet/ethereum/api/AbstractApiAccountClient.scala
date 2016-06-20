@@ -53,18 +53,18 @@ abstract class AbstractApiAccountClient(override val wallet: AbstractApiWalletCl
       def synchronizeUntilEmpty(): Future[Unit] = {
         val block = Option(state.batches).flatMap(_.headOption).map(_.blockHash)
         wallet.transactionRestClient.transactions(syncToken, Array(accountRow.ethereumAccount), block) flatMap {(result) =>
-          // Add tx to database
-          if (result.isTruncated) {
-            synchronizeUntilEmpty()
-          } else {
-            Future.successful()
+          wallet.putTransactions(result.transactions) flatMap {_ =>
+            if (result.isTruncated) {
+              synchronizeUntilEmpty()
+            } else {
+              Future.successful()
+            }
           }
         }
       }
       synchronizeUntilEmpty().flatMap((_) => save(state))
     }
   }
-
 
   protected def load(): Future[AbstractApiAccountClient.AccountSavedState]
   protected def save(state: AbstractApiAccountClient.AccountSavedState): Future[Unit]
@@ -73,7 +73,7 @@ abstract class AbstractApiAccountClient(override val wallet: AbstractApiWalletCl
 
   override def balance(): Future[Ether] = ???
 
-  override def isSynchronizing(): Future[Boolean] = ???
+  override def isSynchronizing(): Future[Boolean] = wallet.isSynchronizing()
 
   val keyChain = new KeyChain
 }

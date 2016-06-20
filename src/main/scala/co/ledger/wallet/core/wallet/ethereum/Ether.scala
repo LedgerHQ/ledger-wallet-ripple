@@ -41,12 +41,25 @@ class Ether(private val value: BigInt) {
 }
 
 object Ether {
-
   val Zero = Ether(0)
 
   def apply(value: Int): Ether = new Ether(BigInt(value))
   def apply(value: Long): Ether = new Ether(BigInt(value))
-  def apply(value: String): Ether = new Ether(BigInt(value))
+  def apply(value: String): Ether = {
+    // Parse Javascript double serialization (i.e. 1.654321e+200)
+    if (value.indexOf("e+") != -1) {
+      println("PARSE " + value)
+      val pattern = "(\\d*\\.?\\d*)e\\+(\\d*)".r
+      var r = ""
+      pattern.findAllMatchIn(value).foreach({(m) =>
+        r = s"${m.group(1).replace(".", "")}${"0" * m.group(2).toInt}"
+      })
+      println("RESULT " + r)
+      new Ether(BigInt(r))
+    } else {
+      new Ether(BigInt(value))
+    }
+  }
 
   object Implicits {
     implicit def int2Ether(value: Int): Ether = Ether(value)

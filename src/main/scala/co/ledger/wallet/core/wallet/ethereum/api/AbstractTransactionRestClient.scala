@@ -48,13 +48,14 @@ abstract class AbstractTransactionRestClient(http: HttpClient, blockRestClient: 
         .header("X-LedgerWallet-SyncToken" -> syncToken)
     if (blockHash.isDefined)
       request.param("blockHash" -> blockHash.get)
-    request.jsonArray map {
+    request.json map {
       case (json, _) =>
-        val result = new ArrayBuffer[Transaction](json.length())
-        for (index <- 0 until json.length()) {
-          result += new JsonTransaction(json.getJSONObject(index))
+        val txs = json.getJSONArray("txs")
+        val result = new ArrayBuffer[Transaction](txs.length())
+        for (index <- 0 until txs.length()) {
+          result += new JsonTransaction(txs.getJSONObject(index))
         }
-        TransactionsPage(result.toArray, result.nonEmpty)
+        TransactionsPage(result.toArray, json.getBoolean("truncated"))
     }
   }
   def stringToDate(string: String): Date

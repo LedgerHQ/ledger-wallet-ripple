@@ -2,11 +2,10 @@ package co.ledger.wallet.core.wallet.ethereum.api
 
 import co.ledger.wallet.core.concurrent.AsyncCursor
 import co.ledger.wallet.core.device.utils.EventEmitter
-import co.ledger.wallet.core.net.HttpClient
 import co.ledger.wallet.core.utils.DerivationPath
 import co.ledger.wallet.core.wallet.ethereum.Wallet.WalletNotSetupException
-import co.ledger.wallet.core.wallet.ethereum.{Transaction, _}
 import co.ledger.wallet.core.wallet.ethereum.database.{AccountRow, DatabaseBackedWalletClient}
+import co.ledger.wallet.core.wallet.ethereum.{Transaction, _}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Future, Promise}
