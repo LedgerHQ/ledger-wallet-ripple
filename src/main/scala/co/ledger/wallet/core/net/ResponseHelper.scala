@@ -31,13 +31,14 @@ package co.ledger.wallet.core.net
   *
   */
 
-import java.io.{BufferedInputStream, ByteArrayOutputStream}
+import java.io.{ByteArrayOutputStream, StringWriter}
+import java.nio.charset.Charset
 
 import org.json.{JSONArray, JSONObject}
 
-import scala.concurrent.Future
-import scala.io.Source
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.scalajs.js
 import scala.util.{Failure, Success}
 
 object ResponseHelper {
@@ -58,7 +59,11 @@ object ResponseHelper {
 
     def string: Future[(String, HttpClient#Response)] = {
       f.bytes.map { case (body, response) =>
-        (new String(body), response)
+        val writer = new StringWriter(body.length)
+        body foreach {(char) =>
+          writer.append(char.toChar)
+        }
+        (writer.toString, response)
       }
     }
 

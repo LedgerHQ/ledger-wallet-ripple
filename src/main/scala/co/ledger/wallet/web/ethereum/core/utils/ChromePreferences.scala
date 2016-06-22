@@ -91,13 +91,13 @@ class ChromePreferences(name: String) extends Preferences {
 
   override def float(key: String): Option[Float] = _data.lift(key).map(_.asInstanceOf[Float])
 
-  override def int(key: String): Option[Int] = _data.lift(key).map(_.asInstanceOf[Int])
+  override def int(key: String): Option[Int] = _data.lift(key).map(_.asInstanceOf[Double].toInt)
 
   override def string(key: String): Option[String] = _data.lift(key).map(_.asInstanceOf[String])
 
   override def edit(): Editor = new ChromeEditor()
 
-  override def long(key: String): Option[Long] = _data.lift(key).map(_.asInstanceOf[Long])
+  override def long(key: String): Option[Long] = _data.lift(key).map(_.asInstanceOf[Double].toLong)
 
   private class ChromeEditor extends this.Editor {
 
@@ -224,6 +224,8 @@ object ChromePreferences {
         case value:Double =>
           Js.Num(value)
         case value:Short =>
+          Js.Num(value)
+        case value:Long =>
           Js.Num(value)
         case value: String =>
           Js.Str(value)

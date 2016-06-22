@@ -205,18 +205,38 @@ trait CursorBuilder[M >: Null <: Model] {
     this
   }
 
+  protected def count(transaction: idb.Transaction): Future[Long] = {
+    val range = Option(createRange())
+    val store = transaction.objectStore(modelDeclaration.entityName)
+    val request = indexName match {
+      case Some(name) =>
+        store.index(name).count(range.orNull)
+      case None =>
+        store.count(range.orNull)
+    }
+    val promise = Promise[Long]()
+    request.onsuccess = {(event: Event) =>
+      js.Dynamic.global.console.log(indexName.toString, request, event)
+      promise.success(request.result.asInstanceOf[Double].toLong)
+    }
+    request.onerror = {(event: ErrorEvent) =>
+      promise.failure(new Exception(event.message))
+    }
+    promise.future
+  }
+
   private def createRange(): idb.KeyRange = {
     if (_eq.isEmpty && _gt.isEmpty && _lt.isEmpty && _lte.isEmpty && _gte.isEmpty) {
       null
     } else if (_eq.nonEmpty && _gt.isEmpty && _lt.isEmpty && _lte.isEmpty && _gte.isEmpty) {
       // ==
-      if (_eq.length > 1)
+      if (indexName.nonEmpty)
         idb.KeyRange.only(js.Array(_eq:_*))
       else
         idb.KeyRange.only(_eq.head)
     } else if (_eq.isEmpty && _gt.nonEmpty && _lt.isEmpty && _lte.isEmpty && _gte.isEmpty) {
       // <
-      if (_lt.length > 1)
+      if (indexName.nonEmpty)
         idb.KeyRange.lowerBound(js.Array(_lt:_*), true)
       else
         idb.KeyRange.lowerBound(_lt.head, true)

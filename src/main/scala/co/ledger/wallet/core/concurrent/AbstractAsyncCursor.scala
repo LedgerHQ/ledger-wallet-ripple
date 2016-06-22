@@ -42,9 +42,10 @@ abstract class AbstractAsyncCursor[A : ClassTag](executionContext: EC, override 
 
   require(chunkSize > 0, "Chunk size must be more than 0")
 
-  protected def performQuery(from: Int, to: Int): Array[A]
+  protected def performQuery(from: Int, to: Int): Future[Array[A]]
 
   override def loadAllChunks(): Future[Array[A]] = {
+    println(s"CHUNK COUNT $chunkCount $chunkSize $count ${count / chunkSize} ${Math.min(1, count % chunkSize)}")
     Future.sequence((0 until chunkCount) map loadChunk).map(_.flatten.toArray)
   }
 
@@ -56,8 +57,8 @@ abstract class AbstractAsyncCursor[A : ClassTag](executionContext: EC, override 
         val p = Promise[Array[A]]()
         ec.execute(new Runnable {
           override def run(): Unit =
-            p.complete(Try(performQuery(index * chunkSize,
-              Math.min(index * chunkSize + chunkSize, count))))
+            p.completeWith(performQuery(index * chunkSize,
+              Math.min(index * chunkSize + chunkSize, count)))
         })
         _chunks(index) = p.future
         p.future
@@ -98,7 +99,8 @@ abstract class AbstractAsyncCursor[A : ClassTag](executionContext: EC, override 
     }
   }
 
-  override val chunkCount = count / chunkSize + (if ((count % chunkSize) > 0) 1 else 0)
+  override lazy val chunkCount = count / chunkSize + Math.min(1, count % chunkSize)
+
   override def loadedChunkCount: Int = _chunks.count {
     case (_, future) => future.isCompleted
   }

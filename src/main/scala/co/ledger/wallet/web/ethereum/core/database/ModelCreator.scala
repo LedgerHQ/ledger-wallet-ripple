@@ -75,6 +75,8 @@ trait ModelCreator[M <: Model] {
           f.set(map(f.key).asInstanceOf[Double])
         case f: result.BooleanValue =>
           f.set(map(f.key).asInstanceOf[Boolean])
+        case f: result.LongValue =>
+          f.set(map(f.key).asInstanceOf[Double].toLong)
         case f: result.DateValue =>
           f.set(map(f.key).asInstanceOf[js.Date])
       }

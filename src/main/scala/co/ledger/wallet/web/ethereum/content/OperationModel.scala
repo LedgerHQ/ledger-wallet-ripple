@@ -35,8 +35,9 @@ import co.ledger.wallet.web.ethereum.core.database.Model
 class OperationModel extends Model("operations") {
 
   val uid = string("uid").unique()
-  val accountId = int("accountId")
+  val accountId = int("accountId").index()
   val operationType = string("operationType")
   val transactionHash = string("transactionHash").index()
+  val time = date("time").index()
 
 }

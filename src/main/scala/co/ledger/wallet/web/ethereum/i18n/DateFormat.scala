@@ -1,15 +1,15 @@
-package co.ledger.wallet.core.wallet.ethereum.database
+package co.ledger.wallet.web.ethereum.i18n
 
-import co.ledger.wallet.core.wallet.ethereum.{Block, Operation, Transaction, Wallet}
+import java.util.{Calendar, Date}
 
-import scala.concurrent.Future
+import org.widok.moment.Moment
 
 /**
   *
-  * AbstractDatabaseBackedWalletClient
+  * DateFormat
   * ledger-wallet-ethereum-chrome
   *
-  * Created by Pierre Pollastri on 14/06/2016.
+  * Created by Pierre Pollastri on 22/06/2016.
   *
   * The MIT License (MIT)
   *
@@ -34,36 +34,10 @@ import scala.concurrent.Future
   * SOFTWARE.
   *
   */
-trait DatabaseBackedWalletClient extends Wallet {
+object DateFormat {
 
-  /**
-    * Insert or update a new block in the database
-    * @param block
-    * @return
-    */
-  def putBlock(block: Block): Future[Unit]
+  def formatStandard(date: Date) = {
+    Moment(date.getTime).format("YYYY/MM/DD [at] HH:mm")
+  }
 
-  /**
-    * Insert or update a transaction in the database
-    * @param transaction
-    * @return
-    */
-  def putTransaction(transaction: Transaction): Future[Unit]
-  def putTransactions(transactions: Array[Transaction]): Future[Unit]
-  /**
-    *
-    * @param accountRow
-    * @return
-    */
-  protected def putAccount(accountRow: AccountRow): Future[Unit]
-
-  def putOperation(operation: Operation): Future[Unit]
-  def putOperations(operation: Array[Operation]): Future[Unit]
-
-  def startDatabaseTransaction(): Unit
-  def commitDatabaseTransaction(): Unit
-
-  protected def queryTransaction(hash: String): Future[Array[Transaction]]
-  protected def queryAccounts(from: Int, to: Int): Future[Array[AccountRow]]
-  protected def queryLastBlock(): Future[Block]
 }

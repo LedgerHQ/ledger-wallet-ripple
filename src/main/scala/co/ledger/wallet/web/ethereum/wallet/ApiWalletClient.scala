@@ -11,7 +11,7 @@ import co.ledger.wallet.core.wallet.ethereum.database.AccountRow
 import co.ledger.wallet.web.ethereum.core.event.JsEventEmitter
 import co.ledger.wallet.web.ethereum.core.net.JQHttpClient
 
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.scalajs.js
 
 /**
@@ -45,6 +45,9 @@ import scala.scalajs.js
   *
   */
 class ApiWalletClient(name: String, provider: EthereumAccountProvider) extends AbstractApiWalletClient(name) with IndexedDBBackedWalletClient {
+
+  override implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+
   override protected def newAccountClient(accountRow: AccountRow): AbstractApiAccountClient = {
     new ApiAccountClient(this, accountRow)
   }

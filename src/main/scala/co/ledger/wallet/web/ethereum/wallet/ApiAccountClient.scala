@@ -5,7 +5,10 @@ import java.util.Date
 import co.ledger.wallet.core.wallet.ethereum.api.AbstractApiAccountClient
 import co.ledger.wallet.core.wallet.ethereum.api.AbstractApiAccountClient.{AccountSavedState, AccountSavedStateBatch}
 import co.ledger.wallet.core.wallet.ethereum.database.AccountRow
+import co.ledger.wallet.web.ethereum.core.utils.ChromePreferences
+import co.ledger.wallet.web.ethereum.services.SessionService
 
+import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 /**
@@ -38,20 +41,60 @@ import scala.concurrent.ExecutionContext.Implicits.global
   * SOFTWARE.
   *
   */
-class ApiAccountClient(apiWalletClient: ApiWalletClient, accountRow: AccountRow)
-  extends AbstractApiAccountClient(apiWalletClient, accountRow) {
+class ApiAccountClient(override val wallet: ApiWalletClient, accountRow: AccountRow)
+  extends AbstractApiAccountClient(wallet, accountRow) with IndexedDBBackedAccountClient {
+
+
 
   override protected def load(): Future[AccountSavedState] = {
-    Future.successful(new AccountSavedState {
-      override var batches: Array[AccountSavedStateBatch] = Array()
-      override var lastSynchronizationDate: Long = new Date().getTime
-      override var lastSynchronizationStatus: Int = 1
-      override var batchSize: Int = 20
-      override var index: Int = accountRow.index
+    Future.successful({
+      if (prefs.int("batch_count").isEmpty) {
+        new AccountSavedState {
+          override var batches: Array[AccountSavedStateBatch] = Array()
+          override var lastSynchronizationDate: Long = new Date().getTime
+          override var lastSynchronizationStatus: Int = 1
+          override var batchSize: Int = 20
+          override var index: Int = accountRow.index
+        }
+      } else {
+        val serializedBatches = new ArrayBuffer[AccountSavedStateBatch]()
+        for (i <- 0 until prefs.int("batch_count").get) {
+          serializedBatches += new AccountSavedStateBatch {
+            override var blockHash: String = prefs.string(s"${i}_block_hash").get
+            override var blockHeight: Long = prefs.long(s"${i}_block_height").get
+            override var index: Int = prefs.int(s"${i}_index").get
+          }
+        }
+        new AccountSavedState {
+          override var batches: Array[AccountSavedStateBatch] = serializedBatches.toArray
+          override var lastSynchronizationDate: Long = prefs.long("last_sync_date").get
+          override var lastSynchronizationStatus: Int = prefs.int("last_sync_status").get
+          override var batchSize: Int = prefs.int("batch_size").get
+          override var index: Int = ApiAccountClient.this.index
+        }
+      }
     })
   }
 
   override protected def save(state: AccountSavedState): Future[Unit] = {
+    val editor = prefs.edit()
+    editor.putInt("batch_count", state.batches.length)
+          .putInt("batch_size", state.batchSize)
+          .putLong("last_sync_date", state.lastSynchronizationDate)
+          .putInt("last_sync_status", state.lastSynchronizationStatus)
+    for (i <- state.batches.indices) {
+      val batch = state.batches(i)
+      editor.putInt(s"${i}_index", batch.index)
+            .putString(s"${i}_block_hash", batch.blockHash)
+            .putLong(s"${i}_block_height", batch.blockHeight)
+    }
+    editor.commit()
     Future.successful()
   }
+
+  private def prefs = {
+    val prefName = s"api_client_$index"
+    new ChromePreferences(prefName)
+  }
+
 }

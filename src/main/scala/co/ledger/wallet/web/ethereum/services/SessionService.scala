@@ -73,10 +73,14 @@ class SessionService extends Service {
     val wallet: Wallet = new ApiWalletClient(name, provider)
   }
 
+  SessionService.setInstance(this)
 }
 
 object SessionService {
 
+  def instance = _instance
+  private def setInstance(service: SessionService) = _instance = service
+  private var _instance: SessionService = null
   def init(module: RichModule) = module.serviceOf[SessionService]("sessionService")
 
 }

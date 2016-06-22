@@ -22,6 +22,7 @@ libraryDependencies += "net.lullabyte" %%% "scala-js-chrome" % "0.2.1"
 libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.0"
 libraryDependencies += "be.doeraene" %%% "scalajs-jquery" % "0.9.0"
 libraryDependencies += "com.lihaoyi" %%% "upickle" % "0.4.0"
+libraryDependencies += "io.github.widok" %%% "scala-js-momentjs" % "0.1.5"
 
 resolvers += Resolver.sonatypeRepo("snapshots")
 resolvers += Resolver.sonatypeRepo("releases")

@@ -7,8 +7,7 @@ import co.ledger.wallet.core.wallet.ethereum.Wallet.WalletNotSetupException
 import co.ledger.wallet.core.wallet.ethereum.database.{AccountRow, DatabaseBackedWalletClient}
 import co.ledger.wallet.core.wallet.ethereum.{Transaction, _}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.{ExecutionContext, Future, Promise}
 
 /**
   *
@@ -41,6 +40,8 @@ import scala.concurrent.{Future, Promise}
   *
   */
 abstract class AbstractApiWalletClient(override val name: String) extends Wallet with DatabaseBackedWalletClient {
+
+  implicit val ec: ExecutionContext
 
   def transactionRestClient: AbstractTransactionRestClient
   def blockRestClient: AbstractBlockRestClient

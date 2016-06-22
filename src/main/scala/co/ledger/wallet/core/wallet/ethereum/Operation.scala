@@ -31,6 +31,7 @@ package co.ledger.wallet.core.wallet.ethereum
   *
   */
 trait Operation {
+  def uid: String = s"${transaction.hash}_${account.index}_${`type`}"
   def account: Account
   def transaction: Transaction
   def `type`: String

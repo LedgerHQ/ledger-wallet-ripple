@@ -1,13 +1,16 @@
 package co.ledger.wallet.web.ethereum.controllers.wallet
 
-import biz.enef.angulate.Controller
+import biz.enef.angulate.{Controller, Scope}
 import biz.enef.angulate.Module.RichModule
+import co.ledger.wallet.core.wallet.ethereum.Operation
 import co.ledger.wallet.web.ethereum.components.SnackBar
-import co.ledger.wallet.web.ethereum.services.WindowService
+import co.ledger.wallet.web.ethereum.i18n.DateFormat
+import co.ledger.wallet.web.ethereum.services.{SessionService, WindowService}
 
 import scala.scalajs.js
 import scala.scalajs.js.JSON
-
+import scala.util.{Failure, Success}
+import scala.concurrent.ExecutionContext.Implicits.global
 /**
   *
   * OperationController
@@ -39,9 +42,10 @@ import scala.scalajs.js.JSON
   *
   */
 class AccountController(override val windowService: WindowService,
+                        sessionService: SessionService,
+                        $scope: Scope,
                        $routeParams: js.Dictionary[String])
   extends Controller with WalletController {
-
   println(JSON.stringify($routeParams))
 
   val accountId = $routeParams("id").toInt
@@ -54,38 +58,32 @@ class AccountController(override val windowService: WindowService,
 
   var isRefreshing = false
 
-  var operations = js.Array(
-    js.Dictionary(
-      "date" -> "03/18/2016 at 12:45 PM",
-      "amount" -> "+1.25104961 Ether",
-      "isSend" -> false
-    ),
-    js.Dictionary(
-      "date" -> "03/18/2016 at 8:45 AM",
-      "amount" -> "-10.45 Ether",
-      "isSend" -> true
-    ),
-    js.Dictionary(
-      "date" -> "03/16/2016 at 12:18 PM",
-      "amount" -> "+10.53 Ether",
-      "isSend" -> false
-    ),
-    js.Dictionary(
-      "date" -> "03/05/2016 at 13:58 PM",
-      "amount" -> "+0.56208423 Ether",
-      "isSend" -> false
-    ),
-    js.Dictionary(
-      "date" -> "03/01/2016 at 6:32 PM",
-      "amount" -> "+0.14094542 Ether",
-      "isSend" -> false
-    ),
-    js.Dictionary(
-      "date" -> "02/16/2016 at 10:25 AM",
-      "amount" -> "-3.58437983 Ether",
-      "isSend" -> true
-    )
-  )
+  var operations = js.Array[js.Dictionary[js.Any]]()
+
+  def reloadOperations(): Unit = {
+    sessionService.currentSession.get.wallet.account(accountId).flatMap {
+      _.operations(6)
+    } onComplete {
+      case Success(cursor) =>
+        cursor.loadAllChunks() onComplete {
+          case Success(ops) =>
+            operations = js.Array()
+            ops foreach {(op) =>
+              operations.push(js.Dictionary[js.Any](
+                "date" -> DateFormat.formatStandard(op.transaction.receivedAt),//"02/16/2016 at 10:25 AM",
+                "amount" -> ((if (op.`type` == Operation.SendType) "-" else "+") + op.transaction.value.toEther.toString()),
+                "isSend" -> (op.`type` == Operation.SendType)
+              ))
+            }
+            js.Dynamic.global.console.log(operations)
+            $scope.$digest()
+          case Failure(ex) => ex.printStackTrace()
+        }
+      case Failure(ex) => ex.printStackTrace()
+    }
+  }
+
+ reloadOperations()
 
 }
 

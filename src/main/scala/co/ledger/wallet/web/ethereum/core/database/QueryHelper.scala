@@ -55,6 +55,7 @@ abstract class QueryHelper[M >: Null <: Model](implicit classTag: ClassTag[M]) {
     def cursor: Future[Cursor[M]] = openCursor().commit().map(_.cursor)
     def items: Future[Array[M]] = commit().map(_.items)
     def openCursor(keys: String*): this.type
+    def count: Future[Long]
     protected def :+(perform: PerformStep) = _steps = new QueryStep(_steps, perform)
     private var _steps: QueryStep = new QueryStep(null, (_, _) => Future.successful())
   }
@@ -87,6 +88,7 @@ abstract class QueryHelper[M >: Null <: Model](implicit classTag: ClassTag[M]) {
     override def openCursor(keys: String*): this.type = {
       this :+ {(transaction, result) =>
         if (result.cursor == null) {
+          indexName = if (keys.length == 0) None else Some(keys.mkString(","))
           buildCursor(transaction) map { (c) =>
             result.setCursor(c)
             ()
@@ -98,6 +100,16 @@ abstract class QueryHelper[M >: Null <: Model](implicit classTag: ClassTag[M]) {
       this
     }
 
+    override def count: Future[Long] = {
+      val promise = Promise[Long]()
+      this :+ {(transaction, result) =>
+        val f = count(transaction)
+        promise.completeWith(f)
+        f.map(_ => ())
+      }
+      commit()
+      promise.future
+    }
   }
 
   class ReadWriteQueryBuilder extends ReadOnlyQueryBuilder {

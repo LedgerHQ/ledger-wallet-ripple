@@ -10,6 +10,7 @@ import co.ledger.wallet.core.device.ethereum.LedgerDerivationApi.PublicAddressRe
 import co.ledger.wallet.core.utils.DerivationPath
 import co.ledger.wallet.core.wallet.ethereum.EthereumAccount
 import co.ledger.wallet.core.wallet.ethereum.Wallet.WalletNotSetupException
+import co.ledger.wallet.web.ethereum.core.utils.ChromePreferences
 import co.ledger.wallet.web.ethereum.services.{DeviceService, SessionService, WindowService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -61,8 +62,11 @@ class OpeningController(override val windowService: WindowService,
     sessionService.startNewSessions(new LedgerDerivationApi {
       override def derivePublicAddress(path: DerivationPath): Future[PublicAddressResult] = {
         Future.successful(new PublicAddressResult(Array(), EthereumAccount("0x9e6316f44baeeee5d41a1070516cc5fa47baf227")))
+        Future.successful(new PublicAddressResult(Array(), EthereumAccount("0x2d3f7a9ff7544a88be12b309fbfdd28a937e48e0")))
       }
     }) flatMap {(_) =>
+        ChromePreferences.load(sessionService.currentSession.get.name, sessionService.currentSession.get.password)
+    } flatMap {(_) =>
       sessionService.currentSession.get.wallet.mostRecentBlock() flatMap {(block) =>
         val now = new Date()
         if (now.getTime - block.time.getTime >= 7.days.toMillis) {

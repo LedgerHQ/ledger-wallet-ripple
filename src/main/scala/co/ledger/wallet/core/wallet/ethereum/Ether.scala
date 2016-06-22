@@ -38,6 +38,9 @@ class Ether(private val value: BigInt) {
   def %(value: Ether) = new Ether(this.value % value.value)
 
   override def toString: String = value.toString()
+
+  def toEther: BigDecimal = BigDecimal(value.toString()) / BigDecimal(10).pow(18)
+
 }
 
 object Ether {
@@ -48,13 +51,11 @@ object Ether {
   def apply(value: String): Ether = {
     // Parse Javascript double serialization (i.e. 1.654321e+200)
     if (value.indexOf("e+") != -1) {
-      println("PARSE " + value)
       val pattern = "(\\d*\\.?\\d*)e\\+(\\d*)".r
       var r = ""
       pattern.findAllMatchIn(value).foreach({(m) =>
         r = s"${m.group(1).replace(".", "")}${"0" * m.group(2).toInt}"
       })
-      println("RESULT " + r)
       new Ether(BigInt(r))
     } else {
       new Ether(BigInt(value))

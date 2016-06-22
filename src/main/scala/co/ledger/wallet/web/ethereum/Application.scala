@@ -55,6 +55,8 @@ object Application extends JSApp{
     DeviceService.init(module)
     SessionService.init(module)
 
+    js.Dynamic.global.chrome.storage.local.clear()
+
     module.config(initRoutes _)
     module.config(($compileProvider: js.Dynamic) => {
       $compileProvider.aHrefSanitizationWhitelist(js.RegExp("^\\s*(https?|ftp|mailto|file|chrome-extension):"))

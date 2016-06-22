@@ -120,7 +120,30 @@ trait IndexedDBBackedWalletClient extends DatabaseBackedWalletClient {
     iterate(0)
   }
 
-  override def putOperation(operation: Operation): Future[Unit] = ???
+  override def putOperation(operation: Operation): Future[Unit] = {
+    OperationModel.readwrite().openCursor().exactly(operation.uid).writeCursor flatMap {(cursor) =>
+      if (cursor.value.isEmpty) {
+        OperationModel.readwrite().add(OperationModel(operation)).commit()
+      } else {
+        cursor.update(OperationModel(operation))
+      }
+    } map {(_) =>
+      ()
+    }
+  }
+
+  override def putOperations(operations: Array[Operation]): Future[Unit] = {
+    def iterate(index: Int): Future[Unit] = {
+      if (index >= operations.length) {
+        Future.successful()
+      } else {
+        putOperation(operations(index))  flatMap {(_) =>
+          iterate(index + 1)
+        }
+      }
+    }
+    iterate(0)
+  }
 
   override protected def queryTransaction(hash: String): Future[Array[Transaction]] = ???
   object BlockModel extends QueryHelper[content.BlockModel] with ModelCreator[content.BlockModel] {
@@ -161,6 +184,7 @@ trait IndexedDBBackedWalletClient extends DatabaseBackedWalletClient {
       t.gas.set(transaction.gas.toString)
       t.gasPrice.set(transaction.gasPrice.toString)
       t.cumulativeGasUsed.set(transaction.cumulativeGasUsed.toString)
+      t.receivedAt.set(new js.Date(transaction.receivedAt.getTime))
       t.value.set(transaction.value.toString)
       t
     }
@@ -170,6 +194,16 @@ trait IndexedDBBackedWalletClient extends DatabaseBackedWalletClient {
     override def database: DatabaseDeclaration = DatabaseDeclaration
     override def creator: ModelCreator[OperationModel] = this
     override def newInstance(): OperationModel = new content.OperationModel()
+
+    def apply(operation: Operation): content.OperationModel = {
+      val o = new content.OperationModel
+      o.uid.set(operation.uid)
+      o.accountId.set(operation.account.index)
+      o.operationType.set(operation.`type`)
+      o.transactionHash.set(operation.transaction.hash)
+      o.time.set(new js.Date(operation.transaction.receivedAt.getTime))
+      o
+    }
   }
 
   object DatabaseDeclaration extends content.WalletDatabaseDeclaration(name) {
