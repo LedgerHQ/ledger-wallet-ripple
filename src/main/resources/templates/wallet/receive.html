@@ -5,10 +5,10 @@
             <h1>receive ether</h1>
         </header>
         <div>
-            <qrcodeviewer value="'iban:XE81ETHXREGGAVOFYORK'"></qrcodeviewer>
+            <qrcodeviewer value="ctrl.uri"></qrcodeviewer>
             <div class="small-top-margin regular-grey-text-small">Share this QR code to receive Ethereum payments</div>
-            <div class="medium-top-margin regular-text">0xe8eFBC5fabB15a8Eb93f7043C027B27778227271</div>
-            <div class="small-top-margin regular-text"><b class="uppercase-section-column">IBAN</b> XE81ETHXREGGAVOFYORK</div>
+            <div class="medium-top-margin regular-text">{{ctrl.address}}</div>
+            <div class="small-top-margin regular-text"><b class="uppercase-section-column">IBAN</b> {{ctrl.iban}}</div>
         </div>
         <actionsbottombar>
             <lbutton text="Send by email" type="cancel" disabled="false"></lbutton>

@@ -1,8 +1,9 @@
 package co.ledger.wallet.web.ethereum.controllers.wallet
 
-import biz.enef.angulate.Controller
+import biz.enef.angulate.{Controller, Scope}
 import biz.enef.angulate.Module.RichModule
-import co.ledger.wallet.web.ethereum.services.WindowService
+import co.ledger.wallet.web.ethereum.services.{SessionService, WindowService}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
   *
@@ -34,7 +35,21 @@ import co.ledger.wallet.web.ethereum.services.WindowService
   * SOFTWARE.
   *
   */
-class ReceiveController(override val windowService: WindowService) extends Controller with WalletController{
+class ReceiveController(override val windowService: WindowService,
+                        $scope: Scope,
+                        sessionService: SessionService) extends Controller with WalletController {
+
+  var address = ""
+  var iban = ""
+  var uri = ""
+  sessionService.currentSession.get.wallet.account(0) foreach {(account) =>
+    account.freshEthereumAccount() foreach {(a) =>
+      address = a.toString
+      iban = a.toIban
+      uri = s"iban:$iban"
+      $scope.$digest()
+    }
+  }
 
 }
 

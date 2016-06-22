@@ -45,7 +45,6 @@ abstract class AbstractAsyncCursor[A : ClassTag](executionContext: EC, override 
   protected def performQuery(from: Int, to: Int): Future[Array[A]]
 
   override def loadAllChunks(): Future[Array[A]] = {
-    println(s"CHUNK COUNT $chunkCount $chunkSize $count ${count / chunkSize} ${Math.min(1, count % chunkSize)}")
     Future.sequence((0 until chunkCount) map loadChunk).map(_.flatten.toArray)
   }
 

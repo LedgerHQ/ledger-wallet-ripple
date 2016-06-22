@@ -1,18 +1,17 @@
 package co.ledger.wallet.web.ethereum.controllers.wallet
 
-import biz.enef.angulate.{Controller, Scope}
 import biz.enef.angulate.Module.RichModule
-import biz.enef.angulate.core.{AugmentedJQLite, JQLite}
+import biz.enef.angulate.core.JQLite
+import biz.enef.angulate.{Controller, Scope}
 import co.ledger.wallet.core.wallet.ethereum.Operation
-import co.ledger.wallet.web.ethereum.components.Waypoint.InviewHandler
-import co.ledger.wallet.web.ethereum.components.{SnackBar, Waypoint}
+import co.ledger.wallet.web.ethereum.components.SnackBar
 import co.ledger.wallet.web.ethereum.i18n.DateFormat
 import co.ledger.wallet.web.ethereum.services.{SessionService, WindowService}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
 import scala.scalajs.js.JSON
 import scala.util.{Failure, Success}
-import scala.concurrent.ExecutionContext.Implicits.global
 /**
   *
   * OperationController
@@ -72,7 +71,6 @@ class AccountController(override val windowService: WindowService,
     } foreach {cursor =>
       var isLoading = false
       def loadMore(): Unit = {
-        println("LOAD MORE")
         isLoading = true
         cursor.loadNextChunk() andThen {
           case Success(ops) =>
@@ -83,7 +81,6 @@ class AccountController(override val windowService: WindowService,
                 "isSend" -> (op.`type` == Operation.SendType)
               ))
             }
-            js.Dynamic.global.console.log(operations)
             $scope.$digest()
           case Failure(ex) => ex.printStackTrace()
         } andThen {

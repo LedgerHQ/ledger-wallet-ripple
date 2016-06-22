@@ -80,18 +80,13 @@ trait IndexedDBBackedAccountClient extends DatabaseBackedAccountClient {
 
   private def getOperation(model: OperationModel): Future[Operation] = {
     wallet.TransactionModel.readonly().get(model.transactionHash().get).items map {(txs) =>
-      println("HERE 1")
       txs.head
     } flatMap {(tx) =>
-      println("HERE 2")
       tx.blockHash() map {(blockHash) =>
-        println(s"HERE 3 $blockHash")
         wallet.BlockModel.readonly().get(blockHash).items.map(_.headOption)
       } getOrElse {
-        println("HERE 4")
         Future.successful(None)
       } map {(b) =>
-        println("HERE 5")
         new Transaction {
           override def gas: Ether = Ether(tx.gas().get)
 
@@ -113,7 +108,6 @@ trait IndexedDBBackedAccountClient extends DatabaseBackedAccountClient {
         }
       }
     } map {(tx) =>
-      println("HERE 6")
       new Operation {
         override def `type`: String = model.operationType().get
 
