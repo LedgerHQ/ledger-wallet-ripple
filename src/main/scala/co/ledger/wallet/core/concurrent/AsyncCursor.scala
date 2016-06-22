@@ -38,6 +38,7 @@ trait AsyncCursor[T] {
   def chunkCount: Int
   def loadedChunkCount: Int
 
+  def loadNextChunk(): Future[Array[T]]
   def loadChunk(index: Int): Future[Array[T]]
   def loadAllChunks(): Future[Array[T]]
   def chunk(index: Int): Option[Array[T]]

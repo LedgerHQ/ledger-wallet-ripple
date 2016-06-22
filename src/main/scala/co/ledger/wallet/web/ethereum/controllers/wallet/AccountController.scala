@@ -2,8 +2,10 @@ package co.ledger.wallet.web.ethereum.controllers.wallet
 
 import biz.enef.angulate.{Controller, Scope}
 import biz.enef.angulate.Module.RichModule
+import biz.enef.angulate.core.{AugmentedJQLite, JQLite}
 import co.ledger.wallet.core.wallet.ethereum.Operation
-import co.ledger.wallet.web.ethereum.components.SnackBar
+import co.ledger.wallet.web.ethereum.components.Waypoint.InviewHandler
+import co.ledger.wallet.web.ethereum.components.{SnackBar, Waypoint}
 import co.ledger.wallet.web.ethereum.i18n.DateFormat
 import co.ledger.wallet.web.ethereum.services.{SessionService, WindowService}
 
@@ -44,6 +46,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class AccountController(override val windowService: WindowService,
                         sessionService: SessionService,
                         $scope: Scope,
+                        $element: JQLite,
                        $routeParams: js.Dictionary[String])
   extends Controller with WalletController {
   println(JSON.stringify($routeParams))
@@ -60,17 +63,22 @@ class AccountController(override val windowService: WindowService,
 
   var operations = js.Array[js.Dictionary[js.Any]]()
 
+  private var reloadOperationNonce = 0
   def reloadOperations(): Unit = {
+    reloadOperationNonce += 1
+    val nonce = reloadOperationNonce
     sessionService.currentSession.get.wallet.account(accountId).flatMap {
-      _.operations(6)
-    } onComplete {
-      case Success(cursor) =>
-        cursor.loadAllChunks() onComplete {
+      _.operations(-1, 10)
+    } foreach {cursor =>
+      var isLoading = false
+      def loadMore(): Unit = {
+        println("LOAD MORE")
+        isLoading = true
+        cursor.loadNextChunk() andThen {
           case Success(ops) =>
-            operations = js.Array()
             ops foreach {(op) =>
               operations.push(js.Dictionary[js.Any](
-                "date" -> DateFormat.formatStandard(op.transaction.receivedAt),//"02/16/2016 at 10:25 AM",
+                "date" -> DateFormat.formatStandard(op.transaction.receivedAt),
                 "amount" -> ((if (op.`type` == Operation.SendType) "-" else "+") + op.transaction.value.toEther.toString()),
                 "isSend" -> (op.`type` == Operation.SendType)
               ))
@@ -78,13 +86,35 @@ class AccountController(override val windowService: WindowService,
             js.Dynamic.global.console.log(operations)
             $scope.$digest()
           case Failure(ex) => ex.printStackTrace()
+        } andThen {
+          case all => isLoading = false
         }
-      case Failure(ex) => ex.printStackTrace()
+      }
+
+      def refresh() = {
+        val top = $element.asInstanceOf[js.Dynamic].scrollTop().asInstanceOf[Double]
+        val scrollHeight = $element.asInstanceOf[js.Dynamic].height().asInstanceOf[Double]
+        val height = $element(0).asInstanceOf[js.Dynamic].scrollHeight.asInstanceOf[Double]
+        if (top + scrollHeight >= height * 0.90) {
+          if (!isLoading && reloadOperationNonce == nonce && cursor.loadedChunkCount < cursor.chunkCount) {
+            loadMore()
+          }
+        }
+      }
+
+      $element.asInstanceOf[js.Dynamic].scroll({() =>
+        refresh()
+      })
+
+      js.Dynamic.global.$(js.Dynamic.global.window).resize({() =>
+        refresh()
+      })
+
+      loadMore()
     }
   }
 
  reloadOperations()
-
 }
 
 object AccountController {

@@ -49,6 +49,8 @@ abstract class AbstractAsyncCursor[A : ClassTag](executionContext: EC, override 
     Future.sequence((0 until chunkCount) map loadChunk).map(_.flatten.toArray)
   }
 
+  override def loadNextChunk(): Future[Array[A]] = loadChunk(loadedChunkCount)
+
   override def loadChunk(index: Int): Future[Array[A]] = {
     _chunks.synchronized {
       if (_chunks.contains(index) && (!_chunks(index).isCompleted || _chunks(index).value.get.isSuccess)) {

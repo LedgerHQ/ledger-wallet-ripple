@@ -45,14 +45,15 @@ trait IndexedDBBackedAccountClient extends DatabaseBackedAccountClient {
   def wallet: IndexedDBBackedWalletClient
 
   override def queryOperation(from: Int, to: Int): Future[Array[Operation]] = {
-    wallet.OperationModel.readonly().openCursor("accountId").exactly(index).reverse().cursor flatMap {(cursor) =>
+    wallet.OperationModel.readonly().openCursor("time").reverse().cursor flatMap {(cursor) =>
       val length = to - from
       val result = new ArrayBuffer[OperationModel](length)
       def iterate(): Future[Array[OperationModel]] = {
         if (cursor.value.isEmpty || result.length >= length) {
           Future.successful(result.toArray)
         } else {
-          result += cursor.value.get
+          if (cursor.value.get.accountId().get == index)
+            result += cursor.value.get
           cursor.continue() flatMap {(_) =>
             iterate()
           }
