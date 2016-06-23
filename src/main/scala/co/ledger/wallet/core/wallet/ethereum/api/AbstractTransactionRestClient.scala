@@ -41,7 +41,7 @@ import scala.scalajs.js
   * SOFTWARE.
   *
   */
-abstract class AbstractTransactionRestClient(http: HttpClient, blockRestClient: AbstractBlockRestClient) {
+abstract class AbstractTransactionRestClient(http: HttpClient, val blockRestClient: AbstractBlockRestClient) {
 
   def transactions(syncToken: String, ethereumAccounts: Array[String], blockHash: Option[String]): Future[TransactionsPage] = {
     val request = http.get(s"/addresses/${ethereumAccounts.mkString(",")}/transactions")

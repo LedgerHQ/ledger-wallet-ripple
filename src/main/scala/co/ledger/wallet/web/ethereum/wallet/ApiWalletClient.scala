@@ -4,12 +4,12 @@ import java.util.Date
 
 import co.ledger.wallet.core.concurrent.AsyncCursor
 import co.ledger.wallet.core.device.utils.EventEmitter
-import co.ledger.wallet.core.net.HttpClient
+import co.ledger.wallet.core.net.{HttpClient, WebSocketFactory}
 import co.ledger.wallet.core.wallet.ethereum._
 import co.ledger.wallet.core.wallet.ethereum.api.{AbstractApiAccountClient, AbstractApiWalletClient, AbstractBlockRestClient, AbstractTransactionRestClient}
 import co.ledger.wallet.core.wallet.ethereum.database.AccountRow
 import co.ledger.wallet.web.ethereum.core.event.JsEventEmitter
-import co.ledger.wallet.web.ethereum.core.net.JQHttpClient
+import co.ledger.wallet.web.ethereum.core.net.{JQHttpClient, JsWebSocketFactory}
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.scalajs.js
@@ -68,4 +68,5 @@ class ApiWalletClient(name: String, provider: EthereumAccountProvider) extends A
 
   def stringToDate(string: String): Date = new Date(new js.Date(string).getTime().toLong)
 
+  override def websocketFactory: WebSocketFactory = JsWebSocketFactory.defaultInstance
 }

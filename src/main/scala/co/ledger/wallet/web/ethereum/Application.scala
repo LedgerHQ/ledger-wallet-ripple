@@ -1,5 +1,7 @@
 package co.ledger.wallet.web.ethereum
 
+import java.net.URI
+
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate._
 import biz.enef.angulate.core.HttpService
@@ -9,11 +11,13 @@ import co.ledger.wallet.web.ethereum.components._
 import co.ledger.wallet.web.ethereum.controllers.WindowController
 import co.ledger.wallet.web.ethereum.controllers.onboarding.{LaunchController, OpeningController}
 import co.ledger.wallet.web.ethereum.controllers.wallet.{AccountController, ReceiveController, SendIndexController, SendPerformController}
+import co.ledger.wallet.web.ethereum.core.net.JsWebSocketFactory
 import co.ledger.wallet.web.ethereum.i18n.{I18n, TranslateProvider}
 import co.ledger.wallet.web.ethereum.services.{DeviceService, SessionService, WindowService}
 
 import scala.scalajs.js
 import scala.scalajs.js.JSApp
+import scala.util.{Failure, Success}
 
 /**
   * Created by pollas_p on 28/04/2016.

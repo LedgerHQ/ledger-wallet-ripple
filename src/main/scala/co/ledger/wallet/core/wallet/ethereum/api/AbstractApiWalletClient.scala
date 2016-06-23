@@ -2,6 +2,7 @@ package co.ledger.wallet.core.wallet.ethereum.api
 
 import co.ledger.wallet.core.concurrent.AsyncCursor
 import co.ledger.wallet.core.device.utils.EventEmitter
+import co.ledger.wallet.core.net.WebSocketFactory
 import co.ledger.wallet.core.utils.DerivationPath
 import co.ledger.wallet.core.wallet.ethereum.Wallet.WalletNotSetupException
 import co.ledger.wallet.core.wallet.ethereum.database.{AccountRow, DatabaseBackedWalletClient}
@@ -45,6 +46,7 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
 
   def transactionRestClient: AbstractTransactionRestClient
   def blockRestClient: AbstractBlockRestClient
+  def websocketFactory: WebSocketFactory
 
   override def account(index: Int): Future[Account] = accounts().map(_(index))
   override def mostRecentBlock(): Future[Block] = init() flatMap {(_) =>
@@ -137,6 +139,7 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
         _initPromise.get.completeWith(queryAccounts(0, Int.MaxValue) flatMap {(accounts) =>
           println("Got accounts " + accounts.length)
           _accounts = accounts.map(newAccountClient(_))
+          _webSocketNetworkObserver = Some(new WebSocketNetworkObserver(websocketFactory, eventEmitter, transactionRestClient ,ec))
           if (_accounts.length == 0) {
             createAccount(0).map((_) => ())
           } else {
@@ -152,6 +155,7 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
   private var _initPromise: Option[Promise[Unit]] = None
   private var _stopped = false
   private var _synchronizationFuture: Option[Future[Unit]] = None
+  private var _webSocketNetworkObserver: Option[WebSocketNetworkObserver] = None
   protected def newAccountClient(accountRow: AccountRow): AbstractApiAccountClient
 
 }
