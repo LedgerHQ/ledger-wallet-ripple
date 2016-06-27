@@ -45,7 +45,7 @@ trait IndexedDBBackedWalletClient extends DatabaseBackedWalletClient {
 
   // Constructor
   // TODO: Remove database delete
-  DatabaseDeclaration.delete()
+  // DatabaseDeclaration.delete()
   private val connection = DatabaseDeclaration.obtainConnection()
   // \Constructor
 
@@ -163,6 +163,7 @@ trait IndexedDBBackedWalletClient extends DatabaseBackedWalletClient {
     override def database: DatabaseDeclaration = DatabaseDeclaration
     override def creator: ModelCreator[content.AccountModel] = this
     override def newInstance(): content.AccountModel = new content.AccountModel()
+
     def apply(row: AccountRow): content.AccountModel = {
       val a = new content.AccountModel
       a.index.set(row.index)

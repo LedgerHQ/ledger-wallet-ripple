@@ -1,17 +1,11 @@
-package co.ledger.wallet.core.device.ethereum
-
-import co.ledger.wallet.core.device.ethereum.LedgerDerivationApi.PublicAddressResult
-import co.ledger.wallet.core.utils.{BytesWriter, DerivationPath, HexUtils}
-import co.ledger.wallet.core.wallet.ethereum.EthereumAccount
-
-import scala.concurrent.{Future, Promise}
+package co.ledger.wallet.core.wallet.ethereum.rlp
 
 /**
   *
-  * LedgerDerivationApi
+  * RLP
   * ledger-wallet-ethereum-chrome
   *
-  * Created by Pierre Pollastri on 14/06/2016.
+  * Created by Pierre Pollastri on 27/06/2016.
   *
   * The MIT License (MIT)
   *
@@ -36,24 +30,6 @@ import scala.concurrent.{Future, Promise}
   * SOFTWARE.
   *
   */
-trait LedgerDerivationApi extends LedgerCommonApiInterface {
-
-  def derivePublicAddress(path: DerivationPath, askConfirmation: Boolean = false): Future[PublicAddressResult] = {
-    // E0 02 00|01
-    val apduPath = new BytesWriter().writeDerivationPath(path)
-    sendApdu(0xE0, 0x02, if (askConfirmation) 0x01 else 0x00, 0x00, apduPath.toByteArray, 0x00) map {(result) =>
-      matchErrorsAndThrow(result)
-      val data = result.data
-      val publicKey = data.readNextBytes(data.readNextByte())
-      val address = data.readNextBytes(data.readNextByte())
-      PublicAddressResult(publicKey, EthereumAccount("0x" + new String(address)))
-    }
-  }
-
-}
-
-object LedgerDerivationApi {
-
-  case class PublicAddressResult(publicKey: Array[Byte], account: EthereumAccount)
+object RLP extends RlpEncoder {
 
 }

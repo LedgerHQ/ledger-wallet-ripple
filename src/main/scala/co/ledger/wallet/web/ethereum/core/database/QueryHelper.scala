@@ -88,7 +88,7 @@ abstract class QueryHelper[M >: Null <: Model](implicit classTag: ClassTag[M]) {
     override def openCursor(keys: String*): this.type = {
       this :+ {(transaction, result) =>
         if (result.cursor == null) {
-          indexName = if (keys.length == 0) None else Some(keys.mkString(","))
+          indexName = if (keys.isEmpty) None else Some(keys.mkString(","))
           buildCursor(transaction) map { (c) =>
             result.setCursor(c)
             ()

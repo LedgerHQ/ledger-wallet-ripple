@@ -121,6 +121,7 @@ class Logger {
       case Success(_) =>
       case Failure(ex) => ex.printStackTrace()
     }
+
   }
 
   private def levelToColor(level: String) = level match {

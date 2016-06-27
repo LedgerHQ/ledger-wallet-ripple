@@ -50,6 +50,7 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
 
   override def account(index: Int): Future[Account] = accounts().map(_(index))
   override def mostRecentBlock(): Future[Block] = init() flatMap {(_) =>
+
     queryLastBlock() map {(block) =>
       if (block == null)
         throw WalletNotSetupException()
@@ -122,7 +123,7 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
   override def pushTransaction(transaction: Transaction): Future[Unit] = init()
 
   private def createAccount(index: Int): Future[Account] = {
-    ethereumAccountProvider.getEthereumAccount(DerivationPath(s"44'/60'/$index'/0/0")).map {(ethereumAccount) =>
+    ethereumAccountProvider.getEthereumAccount(DerivationPath(s"44'/60'/$index'/0")).map {(ethereumAccount) =>
       val account = new AccountRow(index, ethereumAccount.toString)
       putAccount(account)
       _accounts = Array(newAccountClient(account))
@@ -137,7 +138,6 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
       _initPromise.getOrElse({
         _initPromise = Some(Promise[Unit]())
         _initPromise.get.completeWith(queryAccounts(0, Int.MaxValue) flatMap {(accounts) =>
-          println("Got accounts " + accounts.length)
           _accounts = accounts.map(newAccountClient(_))
           _webSocketNetworkObserver = Some(new WebSocketNetworkObserver(websocketFactory, eventEmitter, transactionRestClient ,ec))
           if (_accounts.length == 0) {

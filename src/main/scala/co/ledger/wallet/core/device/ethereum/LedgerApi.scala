@@ -4,6 +4,8 @@ import java.util.UUID
 
 import co.ledger.wallet.core.device.Device
 import co.ledger.wallet.core.device.DeviceManager.ConnectivityTypes
+import co.ledger.wallet.core.utils.{DerivationPath, HexUtils}
+import co.ledger.wallet.core.utils.DerivationPath.Root
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -37,14 +39,23 @@ import scala.concurrent.{ExecutionContext, Future}
   * SOFTWARE.
   *
   */
-class LedgerApi(override val device: Device) extends LedgerCommonApiInterface {
-
+class LedgerApi(override val device: Device)
+  extends LedgerCommonApiInterface
+  with LedgerDerivationApi
+  with LedgerBolosApi {
   override implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
-
-  def walletIdentifier(): Future[String] = ???
+  def walletIdentifier(): Future[String] = {
+    derivePublicAddress(DerivationPath("0'/0'")).map {(result) =>
+      result.account.toString
+    }
+  }
+  def walletMetaPassword(): Future[String] = {
+    derivePublicAddress(DerivationPath("14'/5'/16")).map {(result) =>
+      HexUtils.encodeHex(result.publicKey)
+    }
+  }
 
   val uuid = UUID.randomUUID()
-
 }
 
 object LedgerApi {

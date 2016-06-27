@@ -68,7 +68,6 @@ class WebSocketNetworkObserver(factory: WebSocketFactory,
   }
 
   private def onMessage(json: JSONObject): Unit = {
-    println(json.toString(2))
     json.getString("type") match {
       case "new-transaction" =>
         emitter.emit(NewTransaction(new transactionRestClient.JsonTransaction(json.getJSONObject("transaction"))))

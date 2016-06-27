@@ -4,7 +4,9 @@ import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.{JQLite, Location}
 import biz.enef.angulate.{Controller, Scope}
 import co.ledger.wallet.core.device.DeviceFactory.{DeviceDiscovered, DeviceLost, ScanRequest}
+import co.ledger.wallet.core.device.ethereum.LedgerApi
 import co.ledger.wallet.core.device.{Device, DeviceFactory}
+import co.ledger.wallet.core.utils.DerivationPath
 import co.ledger.wallet.web.ethereum.core.utils.JQueryHelper
 import co.ledger.wallet.web.ethereum.services.{DeviceService, WindowService}
 import org.scalajs.jquery.jQuery
@@ -114,14 +116,16 @@ class LaunchController(override val windowService: WindowService,
   def connectDevice(device: Device): Unit = {
     device.connect() flatMap {(_) =>
       deviceService.registerDevice(device)
+    } flatMap {(_) =>
+      LedgerApi(device).derivePublicAddress(DerivationPath("200'/0/0"))
     } onComplete {
-      case Success(uuid) =>
-        $location.url("/onboarding/opening/")
-        $route.reload()
-      case Failure(ex) =>
-        ex.printStackTrace()
-        startDeviceDiscovery()
-    }
+        case Success(uuid) =>
+          $location.url("/onboarding/opening/")
+          $route.reload()
+        case Failure(ex) =>
+          ex.printStackTrace()
+          startDeviceDiscovery()
+      }
   }
 
   private def stopDeviceDiscovery(): Unit = {

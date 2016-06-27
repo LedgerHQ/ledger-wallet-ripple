@@ -5,7 +5,8 @@ import java.util.Date
 import biz.enef.angulate.Controller
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.{JQLite, Location}
-import co.ledger.wallet.core.device.ethereum.LedgerDerivationApi
+import co.ledger.wallet.core.device.Device
+import co.ledger.wallet.core.device.ethereum.{LedgerApi, LedgerBolosApi, LedgerDerivationApi}
 import co.ledger.wallet.core.device.ethereum.LedgerDerivationApi.PublicAddressResult
 import co.ledger.wallet.core.utils.DerivationPath
 import co.ledger.wallet.core.wallet.ethereum.EthereumAccount
@@ -18,6 +19,7 @@ import scala.concurrent.{Future, Promise, duration}
 import scala.scalajs.js
 import scala.util.{Failure, Success}
 import duration._
+import scala.scalajs.js.timers
 
 /**
   *
@@ -57,35 +59,31 @@ class OpeningController(override val windowService: WindowService,
                         $element: JQLite)
   extends Controller with OnBoardingController {
 
-  deviceService.lastConnectedDevice() foreach {(device) =>
-    device.exchange(Array[Byte](0xE0.toByte, 0xC4.toByte, 0x00, 0x00, 0x00))
-    sessionService.startNewSessions(new LedgerDerivationApi {
-      override def derivePublicAddress(path: DerivationPath): Future[PublicAddressResult] = {
-        Future.successful(new PublicAddressResult(Array(), EthereumAccount("0x9e6316f44baeeee5d41a1070516cc5fa47baf227")))
-        Future.successful(new PublicAddressResult(Array(), EthereumAccount("0x2d3f7a9ff7544a88be12b309fbfdd28a937e48e0")))
+  deviceService.lastConnectedDevice() map {(device) =>
+    LedgerApi(device)
+  } flatMap {(api) =>
+    sessionService.startNewSessions(api)
+  } flatMap {(_) =>
+    ChromePreferences.load(sessionService.currentSession.get.name, sessionService.currentSession.get.password)
+  } flatMap { (_) =>
+    sessionService.currentSession.get.wallet.mostRecentBlock() flatMap { (block) =>
+      val now = new Date()
+      if (now.getTime - block.time.getTime >= 7.days.toMillis) {
+        synchronizeWallet()
+      } else {
+        synchronizeWallet()
+        Future.successful()
       }
-    }) flatMap {(_) =>
-        ChromePreferences.load(sessionService.currentSession.get.name, sessionService.currentSession.get.password)
-    } flatMap {(_) =>
-      sessionService.currentSession.get.wallet.mostRecentBlock() flatMap {(block) =>
-        val now = new Date()
-        if (now.getTime - block.time.getTime >= 7.days.toMillis) {
-          synchronizeWallet()
-        } else {
-          synchronizeWallet()
-          Future.successful()
-        }
-      } recoverWith {
-        case walletNotSetup: WalletNotSetupException =>
-          synchronizeWallet()
-        case others => throw others
-      }
-    } onComplete {
-      case Success(_) =>
-        $location.url("/account/0")
-        $route.reload()
-      case Failure(ex) => ex.printStackTrace()
+    } recoverWith {
+      case walletNotSetup: WalletNotSetupException =>
+        synchronizeWallet()
+      case others => throw others
     }
+  } onComplete {
+    case Success(_) =>
+      $location.url("/account/0")
+      $route.reload()
+    case Failure(ex) => ex.printStackTrace()
   }
 
   def synchronizeWallet(): Future[Unit] = {

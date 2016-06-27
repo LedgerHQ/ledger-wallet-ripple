@@ -49,11 +49,15 @@ object IndexedDb {
       val transaction = event.currentTarget.asInstanceOf[js.Dynamic].transaction.asInstanceOf[idb.Transaction]
       upgradeHandler(db, transaction)
     }
+    request.onblocked = {(event: Event) =>
+
+    }
     request.onsuccess = {(event: Event) =>
       val db = event.target.asInstanceOf[js.Dynamic].result.asInstanceOf[idb.Database]
       promise.success(db)
     }
     request.onerror = {(event: ErrorEvent) =>
+      js.Dynamic.global.console.log(event)
       promise.failure(new Exception(event.message))
     }
     promise.future
