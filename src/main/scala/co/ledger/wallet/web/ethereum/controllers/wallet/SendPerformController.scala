@@ -69,7 +69,7 @@ class SendPerformController($scope: Scope,
   } flatMap {(from) =>
     deviceService.lastConnectedDevice() flatMap {(device) =>
       LedgerApi(device).signTransaction(
-        BigInt(0),
+        BigInt(1),
         gasPrice,
         startGas,
         DerivationPath("44'/60'/0'/0"),

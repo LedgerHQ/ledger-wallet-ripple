@@ -2,7 +2,7 @@ package co.ledger.wallet.core.device.ethereum
 
 import co.ledger.wallet.core.device.ethereum.LedgerCommonApiInterface.CommandResult
 import co.ledger.wallet.core.device.ethereum.LedgerSignatureApi.SignatureResult
-import co.ledger.wallet.core.utils.{BytesWriter, DerivationPath}
+import co.ledger.wallet.core.utils.{BytesWriter, DerivationPath, HexUtils}
 import co.ledger.wallet.core.wallet.ethereum.EthereumAccount
 import co.ledger.wallet.core.wallet.ethereum.rlp.RLP
 
@@ -49,6 +49,8 @@ trait LedgerSignatureApi extends LedgerCommonApiInterface {
                       data: Array[Byte]): Future[SignatureResult] = {
     val serializedTx = RLP.encode(List(nonce, gasPrice, startGas, to.toByteArray, value, data))
     val rawDerivationPath = new BytesWriter().writeDerivationPath(from).toByteArray
+    println(HexUtils.bytesToHex(to.toByteArray))
+    println(HexUtils.bytesToHex(serializedTx))
     def sendChunks(i: Int): Future[CommandResult] = {
       val offset = Math.max(i * 255 - rawDerivationPath.length, 0)
       val length = 255 - (if (i == 0) rawDerivationPath.length else 0)
