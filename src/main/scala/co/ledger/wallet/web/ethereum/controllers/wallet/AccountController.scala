@@ -46,7 +46,7 @@ class AccountController(override val windowService: WindowService,
                         sessionService: SessionService,
                         $scope: Scope,
                         $element: JQLite,
-                       $routeParams: js.Dictionary[String])
+                        $routeParams: js.Dictionary[String])
   extends Controller with WalletController {
   println(JSON.stringify($routeParams))
 

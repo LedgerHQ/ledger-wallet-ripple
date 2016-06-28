@@ -50,6 +50,7 @@ class EthereumAccount(value: BigInt) {
   }
 
   override def toString: String = "0x" + value.toString(16)
+  def toByteArray = value.toByteArray
   override def hashCode(): Int = value.hashCode()
   override def equals(obj: scala.Any): Boolean = value.equals(obj)
 }

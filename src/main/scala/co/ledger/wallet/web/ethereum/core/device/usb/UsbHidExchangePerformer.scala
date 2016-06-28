@@ -60,7 +60,6 @@ class UsbHidExchangePerformer(connection: UsbDeviceImpl.Connection,
 
   override def performExchange(cmd: Array[Byte]): Future[Array[Byte]] = {
     var command = cmd
-    Logger.v("=> " + HexUtils.encodeHex(command))
     if (useLedgerTransport) {
       command = LedgerTransportHelper.wrapCommandAPDU(LedgerDefaultChannel, cmd, HidBufferSize)
     }
@@ -96,7 +95,7 @@ class UsbHidExchangePerformer(connection: UsbDeviceImpl.Connection,
     }
     sendBlocks().flatMap((_) => receiveBlocks()) andThen {
       case Success(result) =>
-        Logger.v("<= " + HexUtils.encodeHex(result))
+
       case Failure(ex) =>
         ex.printStackTrace()
     }

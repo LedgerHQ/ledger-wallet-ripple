@@ -48,22 +48,26 @@ trait RlpEncoder {
   private def performEncode(data: Any, output: ByteArrayOutputStream): Unit = {
     data match {
       case string: String => encodeString(toByteArray(string), output)
+      case bigInt: BigInt => encodeString(toByteArray(bigInt), output)
       case long: Long => encodeString(toByteArray(long), output)
       case int: Int => encodeString(toByteArray(int), output)
       case short: Short => encodeString(toByteArray(short), output)
       case byte: Byte => encodeString(toByteArray(byte), output)
-      case list: List[Any] => encoreSeq(list.toArray, output)
-      case list: Seq[Any] => encoreSeq(list.toArray, output)
-      case list: Array[Any] => encoreSeq(list, output)
+      case bytes: Array[Byte] => encodeString(bytes, output)
+      case list: List[Any] => encodeList(list.toArray, output)
       case notFound => throw new Exception(s"Invalid type $notFound $data")
     }
   }
 
-  private def encoreSeq(list: Array[Any], output: ByteArrayOutputStream): Unit = {
-    encodeLength(list.length, 0xC0, output)
+  private def encodeList(list: Array[Any], output: ByteArrayOutputStream): Unit = {
+
+    val childOutput = new ByteArrayOutputStream()
     for (item <- list) {
-      performEncode(item, output)
+      performEncode(item, childOutput)
     }
+    val children = childOutput.toByteArray
+    encodeLength(children.length, 0xC0, output)
+    output.write(children)
   }
 
   private def encodeString(bytes: Array[Byte], output: ByteArrayOutputStream): Unit = {
@@ -93,37 +97,13 @@ trait RlpEncoder {
   }
 
   private def toByteArray(string: String): Array[Byte] = string.getBytes
-  private def toByteArray(int: Int): Array[Byte] = dropNullBytes(Array[Byte](
-    (int >> 24 & 0xFF).toByte,
-    (int >> 16 & 0xFF).toByte,
-    (int >> 8 & 0xFF).toByte,
-    (int & 0xFF).toByte
-  ))
+  private def toByteArray(int: Int): Array[Byte] = toByteArray(BigInt(int))
+  private def toByteArray(short: Short): Array[Byte] = toByteArray(BigInt(short))
+  private def toByteArray(long: Long): Array[Byte] = toByteArray(BigInt(long))
+  private def toByteArray(bigInt: BigInt): Array[Byte] = dropNullBytes(bigInt.toByteArray)
 
-  private def toByteArray(short: Short): Array[Byte] = dropNullBytes(Array[Byte](
-    (short >> 8 & 0xFF).toByte,
-    (short & 0xFF).toByte
-  ))
+  private def dropNullBytes(bytes: Array[Byte]): Array[Byte] = bytes.dropWhile(_ == 0x00)
 
-  private def toByteArray(long: Long): Array[Byte] = dropNullBytes(Array[Byte](
-    (long >> 56 & 0xFF).toByte,
-    (long >> 48 & 0xFF).toByte,
-    (long >> 40 & 0xFF).toByte,
-    (long >> 32 & 0xFF).toByte,
-    (long >> 24 & 0xFF).toByte,
-    (long >> 16 & 0xFF).toByte,
-    (long >> 8 & 0xFF).toByte,
-    (long & 0xFF).toByte
-  ))
-
-  private def dropNullBytes(bytes: Array[Byte]): Array[Byte] = {
-    val result = bytes.dropWhile(_ == 0x00)
-    if (result.isEmpty) {
-      Array(0x00.toByte)
-    } else {
-      result
-    }
-  }
 
   private def toByteArray(byte: Byte): Array[Byte] = Array(byte)
 

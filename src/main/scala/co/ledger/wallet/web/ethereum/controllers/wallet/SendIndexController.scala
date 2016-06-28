@@ -69,16 +69,17 @@ class SendIndexController(override val windowService: WindowService, $location: 
 
   def send() = {
     try {
-      val amount = BigDecimal($element.find("#amount_input").asInstanceOf[JQLite].`val`().toString)
+      val amount = BigDecimal($element.find("#amount_input").asInstanceOf[JQLite].`val`().toString) * BigDecimal(10).pow(18)
       val recipient = $element.find("#receiver_input").asInstanceOf[JQLite].`val`().toString
       val isIban = true
-      val fees = BigDecimal(0)
+      val fees = BigDecimal(90000)
+      val gasPrice = BigDecimal(2100)
       println(s"Amount: $amount")
       println(s"Recipient: $recipient")
       println(s"Is IBAN: $isIban")
       println(s"Fees: $fees")
       val formattedRecipient = recipient
-      $location.path(s"/send/$amount/to/$formattedRecipient/from/0/with/$fees")
+      $location.path(s"/send/$amount/to/$formattedRecipient/from/0/with/$fees/price/$gasPrice")
     } catch {
       case any: Throwable =>
         any.printStackTrace()

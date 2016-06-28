@@ -98,10 +98,10 @@ trait LedgerCommonApiInterface extends Loggable {
 
   protected def sendApdu(command: Array[Byte]): Future[CommandResult] = {
     device.readyForExchange flatMap {(_) =>
-      Logger.d(s"=> ${HexUtils.bytesToHex(command)}")("APDU")
+      Logger.v(s"=> ${HexUtils.bytesToHex(command)}")("APDU")
       device.exchange(command)
     } map {(result) =>
-      Logger.d(s"<= ${HexUtils.bytesToHex(result)}")("APDU")
+      Logger.v(s"<= ${HexUtils.bytesToHex(result)}")("APDU")
       new CommandResult(result)
     }
   }

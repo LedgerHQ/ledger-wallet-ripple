@@ -43,7 +43,7 @@ trait Wallet {
   def synchronize(): Future[Unit]
   def isSynchronizing(): Future[Boolean]
   def mostRecentBlock(): Future[Block]
-  def pushTransaction(transaction: Transaction): Future[Unit]
+  def pushTransaction(transaction: Array[Byte]): Future[Unit]
   def operations(from: Int, batchSize: Int = Wallet.DefaultOperationsBatchSize): Future[AsyncCursor[Operation]]
   def eventEmitter: EventEmitter
   def stop(): Unit

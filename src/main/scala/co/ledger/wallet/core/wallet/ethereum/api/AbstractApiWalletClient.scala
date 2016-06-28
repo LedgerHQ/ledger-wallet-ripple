@@ -3,7 +3,7 @@ package co.ledger.wallet.core.wallet.ethereum.api
 import co.ledger.wallet.core.concurrent.AsyncCursor
 import co.ledger.wallet.core.device.utils.EventEmitter
 import co.ledger.wallet.core.net.WebSocketFactory
-import co.ledger.wallet.core.utils.DerivationPath
+import co.ledger.wallet.core.utils.{DerivationPath, HexUtils}
 import co.ledger.wallet.core.wallet.ethereum.Wallet.WalletNotSetupException
 import co.ledger.wallet.core.wallet.ethereum.database.{AccountRow, DatabaseBackedWalletClient}
 import co.ledger.wallet.core.wallet.ethereum.{Transaction, _}
@@ -120,7 +120,9 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
 
   override def eventEmitter: EventEmitter
 
-  override def pushTransaction(transaction: Transaction): Future[Unit] = init()
+  override def pushTransaction(transaction: Array[Byte]): Future[Unit] = init() map {(_) =>
+    println("PUSH TX " + HexUtils.encodeHex(transaction))
+  }
 
   private def createAccount(index: Int): Future[Account] = {
     ethereumAccountProvider.getEthereumAccount(DerivationPath(s"44'/60'/$index'/0")).map {(ethereumAccount) =>

@@ -2,6 +2,14 @@ package co.ledger.wallet.web.ethereum.controllers.wallet
 
 import biz.enef.angulate.{Controller, Scope}
 import biz.enef.angulate.Module.RichModule
+import co.ledger.wallet.core.device.ethereum.LedgerApi
+import co.ledger.wallet.core.utils.DerivationPath
+import co.ledger.wallet.core.wallet.ethereum.EthereumAccount
+import co.ledger.wallet.web.ethereum.services.{DeviceService, SessionService}
+
+import scala.scalajs.js
+import scala.util.{Failure, Success}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
   *
@@ -33,10 +41,13 @@ import biz.enef.angulate.Module.RichModule
   * SOFTWARE.
   *
   */
-class SendPerformController($scope: Scope) extends Controller {
+class SendPerformController($scope: Scope,
+                            sessionService: SessionService,
+                            deviceService: DeviceService,
+                            $routeParams: js.Dictionary[String]) extends Controller {
   import SendPerformController._
-  import scala.scalajs.js.timers._
 
+  js.Dynamic.global.console.log($routeParams)
   def isInProgressionMode = _currentMode == ProgressionMode
   def isInWaitingMode = _currentMode == WaitingMode
 
@@ -47,7 +58,38 @@ class SendPerformController($scope: Scope) extends Controller {
       _currentMode = ProgressionMode
   }
 
+  private val startGas = BigInt($routeParams("fees"))
+  private val gasPrice = BigInt($routeParams("price"))
+  private val accountId = $routeParams("account_id").toInt
+  private val amount = BigInt($routeParams("amount"))
+  private val to = EthereumAccount($routeParams("recipient"))
+
+  sessionService.currentSession.get.wallet.account(accountId) flatMap {(account) =>
+    account.freshEthereumAccount()
+  } flatMap {(from) =>
+    deviceService.lastConnectedDevice() flatMap {(device) =>
+      LedgerApi(device).signTransaction(
+        BigInt(0),
+        gasPrice,
+        startGas,
+        DerivationPath("44'/60'/0'/0"),
+        to,
+        amount,
+        Array.empty[Byte]
+      )
+    }
+  } flatMap {(signature) =>
+    sessionService.currentSession.get.wallet.pushTransaction(signature.signedTx)
+  } onComplete {
+    case Success(_) =>
+
+    case Failure(ex) =>
+      ex.printStackTrace()
+  }
+
+  /*
   private def iterate(): Unit = {
+  import scala.scalajs.js.timers._
     setTimeout(500) {
       progression = progression + 1
       $scope.$digest()
@@ -55,12 +97,11 @@ class SendPerformController($scope: Scope) extends Controller {
       iterate()
     }
   }
+  */
 
   var progression = 0
-  private var _currentMode = ProgressionMode
+  private var _currentMode = WaitingMode
 
-
-  iterate()
 }
 
 object SendPerformController {
