@@ -183,6 +183,7 @@ trait IndexedDBBackedWalletClient extends DatabaseBackedWalletClient {
       t.to.set(transaction.to)
       t.from.set(transaction.from)
       t.gas.set(transaction.gas.toString)
+      t.gasUsed.set(transaction.gasUsed.toString)
       t.gasPrice.set(transaction.gasPrice.toString)
       t.cumulativeGasUsed.set(transaction.cumulativeGasUsed.toString)
       t.receivedAt.set(new js.Date(transaction.receivedAt.getTime))

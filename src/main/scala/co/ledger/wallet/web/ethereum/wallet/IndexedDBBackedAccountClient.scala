@@ -120,6 +120,8 @@ trait IndexedDBBackedAccountClient extends DatabaseBackedAccountClient {
 
           override def block: Option[Block] = b.map(_.proxy)
 
+          override def gasUsed: Ether = Ether(tx.gasUsed().get)
+
           override def gasPrice: Ether = Ether(tx.gasPrice().get)
 
           override def from: String = tx.from().get

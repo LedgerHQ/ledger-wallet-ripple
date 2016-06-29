@@ -37,6 +37,7 @@ class TransactionModel extends Model("transaction") {
   val receivedAt = date("receivedAt").index()
   val value = string("value")
   val gas = string("gas")
+  val gasUsed = string("gasUsed")
   val gasPrice = string("gasPrice")
   val cumulativeGasUsed = string("cumulativeGasUsed")
   val from = string("from")

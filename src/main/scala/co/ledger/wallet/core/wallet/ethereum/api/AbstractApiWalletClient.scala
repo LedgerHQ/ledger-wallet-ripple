@@ -87,13 +87,11 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
           createAccount(newAccountIndex) flatMap {(_) =>
             synchronizeUntilEmptyAccount(syncToken, newAccountIndex)
           }
-        }
-        else {
+        } else {
           Future.successful()
         }
       }
     }
-
     transactionRestClient.obtainSyncToken() flatMap {(token) =>
       synchronizeUntilEmptyAccount(token, 0)
     } andThen {

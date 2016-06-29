@@ -84,6 +84,7 @@ abstract class AbstractTransactionRestClient(http: HttpClient, val blockRestClie
     override val receivedAt: Date = stringToDate(json.getString("received_at"))
     override val value: Ether = Ether(json.getString("value"))
     override val gas: Ether = Ether(json.getString("gas"))
+    override def gasUsed: Ether = Ether(json.getString("gas_used"))
     override val gasPrice: Ether = Ether(json.getString("gas_price"))
     override val cumulativeGasUsed: Ether = Ether(json.getString("cumulative_gas_used"))
     override val from: String = json.getString("from")

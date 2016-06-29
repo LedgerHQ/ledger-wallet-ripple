@@ -37,6 +37,7 @@ trait Transaction {
   def receivedAt: Date
   def value: Ether
   def gas: Ether
+  def gasUsed: Ether
   def gasPrice: Ether
   def cumulativeGasUsed: Ether
   def from: String
@@ -52,6 +53,7 @@ trait Transaction {
        |  receiveAt: $receivedAt
        |  value: $value
        |  gas: $gas
+       |  gasUsed: $gasUsed
        |  gasPrice: $gasPrice
        |  cumulativeGasUsed: $cumulativeGasUsed
        |  from: $from

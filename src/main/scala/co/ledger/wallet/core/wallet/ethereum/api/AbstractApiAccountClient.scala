@@ -11,6 +11,7 @@ import co.ledger.wallet.core.wallet.ethereum.database.{AccountRow, DatabaseBacke
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 /**
   *
   * AbstractApiAccountClient
@@ -106,6 +107,7 @@ abstract class AbstractApiAccountClient(override val wallet: AbstractApiWalletCl
   private def createOperations(transactions: Array[Transaction]): Array[Operation] = {
     val result = new ArrayBuffer[Operation]()
     transactions foreach {(tx) =>
+      _balanceCache = None
       if (tx.to == accountRow.ethereumAccount) {
         // Receive
         result += new Operation {
@@ -159,7 +161,34 @@ abstract class AbstractApiAccountClient(override val wallet: AbstractApiWalletCl
     }
   }
 
-  override def balance(): Future[Ether] = ???
+  override def balance(): Future[Ether] = _balanceCache.map((b) => Future.successful(b)) getOrElse {
+    operations() flatMap {(cursor) =>
+      var sum = BigInt(0)
+      def consume(index: Int = 0): Future[BigInt] = {
+        cursor.loadChunk(index) flatMap {(chunk) =>
+          chunk.foreach {(op) =>
+            if (op.`type` == Operation.ReceiveType)
+              sum = sum + op.transaction.value.toBigInt
+            else
+              sum = sum - op.transaction.value.toBigInt - (op.transaction.gasUsed.toBigInt * op.transaction.gasPrice.toBigInt)
+          }
+          if (index + 1 < cursor.chunkCount) {
+            consume(index + 1)
+          } else {
+            Future.successful(sum)
+          }
+        }
+      }
+      consume() map {(v) =>
+        new Ether(v)
+      }
+    }
+  } andThen {
+    case Success(balance) =>
+      _balanceCache = Option(balance)
+    case Failure(ex) => // Do nothing
+  }
+  private var _balanceCache: Option[Ether] = None
 
   override def isSynchronizing(): Future[Boolean] = wallet.isSynchronizing()
 

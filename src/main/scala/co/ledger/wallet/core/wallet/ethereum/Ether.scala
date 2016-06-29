@@ -40,7 +40,7 @@ class Ether(private val value: BigInt) {
   override def toString: String = value.toString()
 
   def toEther: BigDecimal = BigDecimal(value.toString()) / BigDecimal(10).pow(18)
-
+  def toBigInt = value
 }
 
 object Ether {

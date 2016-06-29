@@ -111,6 +111,20 @@ class AccountController(override val windowService: WindowService,
     }
   }
 
+  var balance = "-"
+  def reloadBalance(): Unit = {
+    sessionService.currentSession.get.wallet.account(accountId) flatMap {(account) =>
+      account.balance()
+    } onComplete {
+      case Success(b) =>
+        balance = b.toEther.toString()
+        $scope.$digest()
+      case Failure(ex) =>
+        ex.printStackTrace()
+    }
+  }
+
+  reloadBalance()
  reloadOperations()
 }
 
