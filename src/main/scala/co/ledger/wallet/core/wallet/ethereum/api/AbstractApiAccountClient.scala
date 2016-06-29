@@ -3,6 +3,7 @@ package co.ledger.wallet.core.wallet.ethereum.api
 import java.util.Date
 
 import co.ledger.wallet.core.concurrent.{AbstractAsyncCursor, AsyncCursor}
+import co.ledger.wallet.core.utils.DerivationPath
 import co.ledger.wallet.core.utils.logs.Logger
 import co.ledger.wallet.core.wallet.ethereum._
 import co.ledger.wallet.core.wallet.ethereum.api.AbstractApiAccountClient.{AccountSavedState, AccountSavedStateBatch, SynchronizationStatus}
@@ -48,7 +49,8 @@ abstract class AbstractApiAccountClient(override val wallet: AbstractApiWalletCl
   implicit val ec: ExecutionContext = wallet.ec
 
   override def index: Int = accountRow.index
-  override def freshEthereumAccount(): Future[EthereumAccount] = Future.successful(EthereumAccount(accountRow.ethereumAccount))
+  override def ethereumAccount(): Future[EthereumAccount] = Future.successful(EthereumAccount(accountRow.ethereumAccount))
+  override def ethereumAccountDerivationPath(): Future[DerivationPath] = Future.successful(DerivationPath(s"44'/60'/$index'/0"))
 
   override def synchronize(): Future[Unit] = wallet.synchronize()
 

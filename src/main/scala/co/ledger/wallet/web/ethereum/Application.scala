@@ -73,8 +73,6 @@ object Application extends JSApp{
 
     LoggerPrintStream.init()
     LogSourceMapper.init()
-
-    RLPTests.test()
   }
 
   def initApp($http: HttpService, $rootScope: js.Dynamic, $location: js.Dynamic) = {

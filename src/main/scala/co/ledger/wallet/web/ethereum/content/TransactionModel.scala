@@ -42,4 +42,6 @@ class TransactionModel extends Model("transaction") {
   val from = string("from")
   val to = string("to")
   val blockHash = string("blockHash")
+  val nonce = string("nonce").index()
+  val data = string("data")
 }

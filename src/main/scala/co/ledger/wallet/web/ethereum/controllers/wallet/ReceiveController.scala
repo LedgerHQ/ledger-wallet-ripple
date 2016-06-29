@@ -43,7 +43,7 @@ class ReceiveController(override val windowService: WindowService,
   var iban = ""
   var uri = ""
   sessionService.currentSession.get.wallet.account(0) foreach {(account) =>
-    account.freshEthereumAccount() foreach {(a) =>
+    account.ethereumAccount() foreach { (a) =>
       address = a.toString
       iban = a.toIban
       uri = s"iban:$iban"

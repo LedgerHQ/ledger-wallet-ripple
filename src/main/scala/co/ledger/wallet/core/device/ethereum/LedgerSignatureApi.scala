@@ -47,7 +47,8 @@ trait LedgerSignatureApi extends LedgerCommonApiInterface {
                       to: EthereumAccount,
                       value: BigInt,
                       data: Array[Byte]): Future[SignatureResult] = {
-    val serializedTx = RLP.encode(List(nonce, gasPrice, startGas, to.toByteArray, value, data))
+    val unsignedSerialization = List(nonce, gasPrice, startGas, to.toByteArray, value, data)
+    val serializedTx = RLP.encode(unsignedSerialization)
     val rawDerivationPath = new BytesWriter().writeDerivationPath(from).toByteArray
     println(HexUtils.bytesToHex(to.toByteArray))
     println(HexUtils.bytesToHex(serializedTx))
@@ -64,7 +65,7 @@ trait LedgerSignatureApi extends LedgerCommonApiInterface {
       }
     }
     sendChunks(0) map {(result) =>
-      SignatureResult(serializedTx, result.data.readNextByte(), result.data.readNextBytes(32), result.data.readNextBytes(32))
+      SignatureResult(unsignedSerialization, result.data.readNextByte(), result.data.readNextBytes(32), result.data.readNextBytes(32))
     }
   }
 
@@ -83,7 +84,7 @@ trait LedgerSignatureApi extends LedgerCommonApiInterface {
 }
 
 object LedgerSignatureApi {
-  case class SignatureResult(unsignedTx: Array[Byte], v: Byte, r: Array[Byte], s: Array[Byte]) {
-    val signedTx = unsignedTx ++ RLP.encode(v) ++ RLP.encode(r) ++ RLP.encode(s)
+  case class SignatureResult(unsignedTx: List[Any], v: Byte, r: Array[Byte], s: Array[Byte]) {
+    val signedTx = RLP.encode(unsignedTx :+ v :+ r :+ s)
   }
 }

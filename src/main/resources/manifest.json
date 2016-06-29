@@ -21,6 +21,7 @@
     "*://coinkite.com/*",
     "*://node.ledger.fr/*",
     "*://api.chronocoin.fr/*",
+    "*://149.202.89.37/*",
     "storage",
     "unlimitedStorage",
     "usb",

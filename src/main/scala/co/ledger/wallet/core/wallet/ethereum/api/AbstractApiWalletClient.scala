@@ -120,8 +120,9 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
 
   override def eventEmitter: EventEmitter
 
-  override def pushTransaction(transaction: Array[Byte]): Future[Unit] = init() map {(_) =>
+  override def pushTransaction(transaction: Array[Byte]): Future[Unit] = init() flatMap {(_) =>
     println("PUSH TX " + HexUtils.encodeHex(transaction))
+    transactionRestClient.pushTransaction(transaction)
   }
 
   private def createAccount(index: Int): Future[Account] = {

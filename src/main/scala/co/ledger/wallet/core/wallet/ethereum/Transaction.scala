@@ -42,9 +42,12 @@ trait Transaction {
   def from: String
   def to: String
   def block: Option[Block]
+  def nonce: BigInt
+  def data: String
 
   override def toString: String =
     s"""{
+       |  nonce: $nonce
        |  hash: $hash
        |  receiveAt: $receivedAt
        |  value: $value
@@ -54,6 +57,7 @@ trait Transaction {
        |  from: $from
        |  to: $to
        |  block: $block
+       |  data: $data
        |}
        |""".stripMargin
 }

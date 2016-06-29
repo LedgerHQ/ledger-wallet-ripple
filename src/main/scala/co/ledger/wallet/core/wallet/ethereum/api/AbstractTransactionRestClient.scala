@@ -3,6 +3,7 @@ package co.ledger.wallet.core.wallet.ethereum.api
 import java.util.Date
 
 import co.ledger.wallet.core.net.HttpClient
+import co.ledger.wallet.core.utils.HexUtils
 import co.ledger.wallet.core.wallet.ethereum.{Block, Ether, Transaction}
 import org.json.JSONObject
 
@@ -58,6 +59,15 @@ abstract class AbstractTransactionRestClient(http: HttpClient, val blockRestClie
         TransactionsPage(result.toArray, json.getBoolean("truncated"))
     }
   }
+
+  def pushTransaction(signedTransaction: Array[Byte]): Future[Unit] = {
+    http.post("/transactions/send").body(Map(
+      "tx" -> HexUtils.encodeHex(signedTransaction)
+    )).noResponseBody map {(result) =>
+      ()
+    }
+  }
+
   def stringToDate(string: String): Date
   def obtainSyncToken(): Future[String] = http.get("/syncToken").json map(_._1.getString("token"))
   def deleteSyncToken(syncToken: String): Future[Unit] = {
@@ -68,6 +78,8 @@ abstract class AbstractTransactionRestClient(http: HttpClient, val blockRestClie
   }
 
   class JsonTransaction(json: JSONObject) extends Transaction {
+    override def nonce: BigInt = BigInt(json.getString("nonce").substring(2), 16)
+    override def data: String = json.getString("input")
     override val hash: String = json.getString("hash")
     override val receivedAt: Date = stringToDate(json.getString("received_at"))
     override val value: Ether = Ether(json.getString("value"))

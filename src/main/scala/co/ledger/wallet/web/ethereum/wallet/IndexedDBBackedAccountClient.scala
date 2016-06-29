@@ -5,7 +5,8 @@ import java.util.Date
 import co.ledger.wallet.core.utils.logs.Logger
 import co.ledger.wallet.core.wallet.ethereum.database.DatabaseBackedAccountClient
 import co.ledger.wallet.core.wallet.ethereum._
-import co.ledger.wallet.web.ethereum.content.OperationModel
+import co.ledger.wallet.web.ethereum.content.{OperationModel, TransactionModel}
+import org.scalajs.dom.idb.Cursor
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{ExecutionContext, Future}
@@ -43,6 +44,29 @@ import scala.concurrent.{ExecutionContext, Future}
 trait IndexedDBBackedAccountClient extends DatabaseBackedAccountClient {
   implicit val ec: ExecutionContext
   def wallet: IndexedDBBackedWalletClient
+
+  override def transactionNonce(): Future[BigInt] = ethereumAccount() flatMap {(account) =>
+    val address = account.toString
+    wallet.TransactionModel.readonly().openCursor("nonce").reverse().cursor flatMap {(cursor) =>
+      def findLastTransaction(): Future[Option[TransactionModel]] = {
+        cursor.value match {
+          case Some(transaction) =>
+            if (transaction.from().get == address) {
+              Future.successful(Some(transaction))
+            } else {
+              cursor.continue() flatMap {(_) =>
+                findLastTransaction()
+              }
+            }
+          case None =>
+            Future.successful(None)
+        }
+      }
+      findLastTransaction()
+    }
+  } map {(transaction) =>
+    transaction.map((tx) => BigInt(tx.nonce().get, 16) + 1).getOrElse(BigInt(0))
+  }
 
   override def queryOperation(from: Int, to: Int): Future[Array[Operation]] = {
     wallet.OperationModel.readonly().openCursor("time").reverse().cursor flatMap {(cursor) =>
@@ -88,6 +112,10 @@ trait IndexedDBBackedAccountClient extends DatabaseBackedAccountClient {
         Future.successful(None)
       } map {(b) =>
         new Transaction {
+          override def nonce: BigInt = BigInt(tx.nonce().get, 16)
+
+          override def data: String = tx.data().get
+
           override def gas: Ether = Ether(tx.gas().get)
 
           override def block: Option[Block] = b.map(_.proxy)

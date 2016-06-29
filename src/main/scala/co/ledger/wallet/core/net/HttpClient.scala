@@ -1,13 +1,12 @@
 package co.ledger.wallet.core.net
 
-import java.io.{InputStream, StringWriter}
+import java.io.{ByteArrayInputStream, InputStream, StringWriter}
 
 import org.json.{JSONArray, JSONObject}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContext, Future, Promise, duration}
-import scala.util.{Failure, Success}
+import scala.concurrent.{ExecutionContext, Future, Promise}
 
 /**
   *
@@ -142,9 +141,32 @@ trait HttpClient {
       this
     }
 
-    def body(body: InputStream) = {
+    def body(body: InputStream): this.type = {
       _body = body
       this
+    }
+
+    def body(json: JSONObject): this.type = {
+      contentType("application/json")
+      body(json.toString)
+    }
+
+    def body(string: String): this.type  = body(new ByteArrayInputStream(string.getBytes))
+    def body(map: Map[String, Any]): this.type  = {
+      val json = new JSONObject()
+      map foreach {
+        case (key, value) =>
+          value match {
+            case string: String => json.put(key, string)
+            case int: Int => json.put(key, int)
+            case int: Long => json.put(key, int)
+            case int: Byte => json.put(key, int)
+            case int: Short => json.put(key, int)
+            case int: Boolean => json.put(key, int)
+            case other => // Don't put
+          }
+      }
+      body(json)
     }
 
     lazy val response: Future[HttpClient#Response] = {

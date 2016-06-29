@@ -2,10 +2,12 @@ package co.ledger.wallet.web.ethereum.controllers.wallet
 
 import biz.enef.angulate.{Controller, Scope}
 import biz.enef.angulate.Module.RichModule
+import biz.enef.angulate.core.Location
 import co.ledger.wallet.core.device.ethereum.LedgerApi
 import co.ledger.wallet.core.utils.DerivationPath
 import co.ledger.wallet.core.wallet.ethereum.EthereumAccount
-import co.ledger.wallet.web.ethereum.services.{DeviceService, SessionService}
+import co.ledger.wallet.web.ethereum.components.SnackBar
+import co.ledger.wallet.web.ethereum.services.{DeviceService, SessionService, WindowService}
 
 import scala.scalajs.js
 import scala.util.{Failure, Success}
@@ -41,11 +43,16 @@ import scala.concurrent.ExecutionContext.Implicits.global
   * SOFTWARE.
   *
   */
-class SendPerformController($scope: Scope,
+class SendPerformController(windowService: WindowService,
+                            $scope: Scope,
                             sessionService: SessionService,
                             deviceService: DeviceService,
+                            $location: Location,
+                            $route: js.Dynamic,
                             $routeParams: js.Dictionary[String]) extends Controller {
   import SendPerformController._
+
+  implicit val ws: WindowService = windowService
 
   js.Dynamic.global.console.log($routeParams)
   def isInProgressionMode = _currentMode == ProgressionMode
@@ -57,32 +64,35 @@ class SendPerformController($scope: Scope,
     else
       _currentMode = ProgressionMode
   }
-
   private val startGas = BigInt($routeParams("fees"))
   private val gasPrice = BigInt($routeParams("price"))
   private val accountId = $routeParams("account_id").toInt
   private val amount = BigInt($routeParams("amount"))
-  private val to = EthereumAccount($routeParams("recipient"))
-
+  private val to = EthereumAccount($routeParams("recipient").trim)
   sessionService.currentSession.get.wallet.account(accountId) flatMap {(account) =>
-    account.freshEthereumAccount()
-  } flatMap {(from) =>
-    deviceService.lastConnectedDevice() flatMap {(device) =>
-      LedgerApi(device).signTransaction(
-        BigInt(1),
-        gasPrice,
-        startGas,
-        DerivationPath("44'/60'/0'/0"),
-        to,
-        amount,
-        Array.empty[Byte]
-      )
+    account.ethereumAccountDerivationPath() flatMap {(from) =>
+      account.transactionNonce() flatMap {(nonce) =>
+        println(s"Transaction nonce: $nonce")
+        deviceService.lastConnectedDevice() flatMap {(device) =>
+          LedgerApi(device).signTransaction(
+            nonce,
+            gasPrice,
+            startGas,
+            from,
+            to,
+            amount,
+            Array.empty[Byte]
+          )
+        }
+      }
     }
   } flatMap {(signature) =>
     sessionService.currentSession.get.wallet.pushTransaction(signature.signedTx)
   } onComplete {
     case Success(_) =>
-
+      SnackBar.success("Transaction completed", "Successfully broadcasted to network").show()
+      $location.url("/account/0")
+      $route.reload()
     case Failure(ex) =>
       ex.printStackTrace()
   }
