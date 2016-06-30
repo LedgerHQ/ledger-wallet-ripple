@@ -82,11 +82,9 @@ class JSONObject(private[json] val obj: js.Dynamic) {
   def optInt(name: String, fallBack: Int): Int = Option(obj.selectDynamic(name).asInstanceOf[Int]).getOrElse(fallBack)
   def optLong(name: String, fallBack: Long): Long = Option(obj.selectDynamic(name).asInstanceOf[Long]).getOrElse(fallBack)
   def optDouble(name: String, fallBack: Double) = Option(obj.selectDynamic(name).asInstanceOf[Double]).getOrElse(fallBack)
-  def optString(name: String, fallBack: String) = Option(obj.selectDynamic(name).asInstanceOf[String]).getOrElse(fallBack)
-  def optJSONObject(name: String, fallBack: JSONObject = null) =
-    Option(obj.selectDynamic(name)).map(new JSONObject(_)).getOrElse(fallBack)
-  def optJSONArray(name: String, fallBack: JSONArray = null) =
-    Option(obj.selectDynamic(name).asInstanceOf[js.Array[js.Any]]).map(new JSONArray(_)).getOrElse(fallBack)
+  def optString(name: String, fallBack: String) = Option(obj.selectDynamic(name)).map(_.toString).getOrElse(fallBack)
+  def optJSONObject(name: String, fallBack: JSONObject = null) = Option(obj.selectDynamic(name)).map(new JSONObject(_)).getOrElse(fallBack)
+  def optJSONArray(name: String, fallBack: JSONArray = null) = Option(obj.selectDynamic(name).asInstanceOf[js.Array[js.Any]]).map(new JSONArray(_)).getOrElse(fallBack)
 
   @throws(classOf[JSONException])
   def getBoolean(name: String) = Option(obj.selectDynamic(name).asInstanceOf[Boolean]).getOrElse(throw new JSONException("No value for " + name))
@@ -97,13 +95,11 @@ class JSONObject(private[json] val obj: js.Dynamic) {
   @throws(classOf[JSONException])
   def getDouble(name: String) = Option(obj.selectDynamic(name).asInstanceOf[Double]).getOrElse(throw new JSONException("No value for " + name))
   @throws(classOf[JSONException])
-  def getString(name: String) = Option(obj.selectDynamic(name).toString).getOrElse(throw new JSONException("No value for " + name))
+  def getString(name: String) = Option(obj.selectDynamic(name)).map(_.toString).getOrElse(throw new JSONException("No value for " + name))
   @throws(classOf[JSONException])
-  def getJSONObject(name: String) =
-    Option(obj.selectDynamic(name)).map(new JSONObject(_)).getOrElse(throw new JSONException("No value for " + name))
+  def getJSONObject(name: String) = Option(obj.selectDynamic(name)).map(new JSONObject(_)).getOrElse(throw new JSONException("No value for " + name))
   @throws(classOf[JSONException])
-  def getJSONArray(name: String) =
-    Option(obj.selectDynamic(name).asInstanceOf[js.Array[js.Any]]).map(new JSONArray(_)).getOrElse(throw new JSONException("No value for " + name))
+  def getJSONArray(name: String) = Option(obj.selectDynamic(name).asInstanceOf[js.Array[js.Any]]).map(new JSONArray(_)).getOrElse(throw new JSONException("No value for " + name))
 
   def names() = new JSONArray(js.Dynamic.global.Object.keys(obj).asInstanceOf[js.Array[js.Any]])
   def toString(indent: Int) = js.Dynamic.global.JSON.stringify(obj, null, indent).asInstanceOf[String]

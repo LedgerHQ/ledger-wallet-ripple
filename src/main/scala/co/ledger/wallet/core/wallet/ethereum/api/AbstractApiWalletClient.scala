@@ -4,7 +4,7 @@ import co.ledger.wallet.core.concurrent.AsyncCursor
 import co.ledger.wallet.core.device.utils.{EventEmitter, EventReceiver}
 import co.ledger.wallet.core.net.WebSocketFactory
 import co.ledger.wallet.core.utils.{DerivationPath, HexUtils}
-import co.ledger.wallet.core.wallet.ethereum.Wallet.WalletNotSetupException
+import co.ledger.wallet.core.wallet.ethereum.Wallet.{StartSynchronizationEvent, StopSynchronizationEvent, WalletNotSetupException}
 import co.ledger.wallet.core.wallet.ethereum.database.{AccountRow, DatabaseBackedWalletClient}
 import co.ledger.wallet.core.wallet.ethereum.events.{NewBlock, NewTransaction}
 import co.ledger.wallet.core.wallet.ethereum.{Transaction, _}
@@ -72,6 +72,7 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
 
   override def synchronize(): Future[Unit] = {
     _synchronizationFuture.getOrElse({
+      eventEmitter.emit(StartSynchronizationEvent())
       _synchronizationFuture = Some(performSynchronize())
       _synchronizationFuture.get
     })
@@ -99,6 +100,7 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
       synchronizeUntilEmptyAccount(token, 0)
     } andThen {
       case all =>
+        eventEmitter.emit(StopSynchronizationEvent())
         _synchronizationFuture = None
     }
   }

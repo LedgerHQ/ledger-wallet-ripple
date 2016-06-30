@@ -5,6 +5,7 @@ import java.util.Date
 import co.ledger.wallet.core.concurrent.{AbstractAsyncCursor, AsyncCursor}
 import co.ledger.wallet.core.utils.DerivationPath
 import co.ledger.wallet.core.utils.logs.Logger
+import co.ledger.wallet.core.wallet.ethereum.Wallet.NewOperationEvent
 import co.ledger.wallet.core.wallet.ethereum._
 import co.ledger.wallet.core.wallet.ethereum.api.AbstractApiAccountClient.{AccountSavedState, AccountSavedStateBatch, SynchronizationStatus}
 import co.ledger.wallet.core.wallet.ethereum.database.{AccountRow, DatabaseBackedAccountClient}
@@ -77,7 +78,13 @@ abstract class AbstractApiAccountClient(override val wallet: AbstractApiWalletCl
             batch.blockHeight = highestBlock.get.height
           }
           wallet.putTransactions(result.transactions) flatMap { _ =>
-            wallet.putOperations(createOperations(result.transactions))
+            val operations = createOperations(result.transactions)
+            wallet.putOperations(operations) map {(_) =>
+              operations foreach {(op) =>
+                wallet.eventEmitter.emit(NewOperationEvent(this, op))
+              }
+              ()
+            }
           } flatMap {_ =>
             if (result.isTruncated) {
               synchronizeUntilEmpty()
@@ -104,7 +111,15 @@ abstract class AbstractApiAccountClient(override val wallet: AbstractApiWalletCl
     }
   }
 
-  def putTransaction(tx: Transaction): Unit = createOperations(Array(tx))
+  def putTransaction(tx: Transaction): Unit = {
+    createOperations(Array(tx)) foreach {(operation) =>
+      wallet.putTransactions(Array(operation.transaction)) foreach {(_) =>
+        wallet.putOperations(Array(operation)) foreach {(_) =>
+          wallet.eventEmitter.emit(NewOperationEvent(this, operation))
+        }
+      }
+    }
+  }
 
   private def createOperations(transactions: Array[Transaction]): Array[Operation] = {
     val result = new ArrayBuffer[Operation]()

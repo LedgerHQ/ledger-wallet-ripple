@@ -3,14 +3,16 @@ package co.ledger.wallet.web.ethereum.controllers.wallet
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.JQLite
 import biz.enef.angulate.{Controller, Scope}
+import co.ledger.wallet.core.device.utils.EventReceiver
 import co.ledger.wallet.core.wallet.ethereum.Operation
+import co.ledger.wallet.core.wallet.ethereum.Wallet.{NewOperationEvent, StartSynchronizationEvent, StopSynchronizationEvent}
 import co.ledger.wallet.web.ethereum.components.SnackBar
 import co.ledger.wallet.web.ethereum.i18n.DateFormat
 import co.ledger.wallet.web.ethereum.services.{SessionService, WindowService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
-import scala.scalajs.js.JSON
+import scala.scalajs.js.{JSON, timers}
 import scala.util.{Failure, Success}
 /**
   *
@@ -47,13 +49,13 @@ class AccountController(override val windowService: WindowService,
                         $scope: Scope,
                         $element: JQLite,
                         $routeParams: js.Dictionary[String])
-  extends Controller with WalletController {
+  extends Controller with WalletController with EventReceiver {
   println(JSON.stringify($routeParams))
 
   val accountId = $routeParams("id").toInt
 
   def refresh(): Unit = {
-
+    sessionService.currentSession.get.wallet.synchronize()
   }
 
   var isRefreshing = false
@@ -62,6 +64,7 @@ class AccountController(override val windowService: WindowService,
 
   private var reloadOperationNonce = 0
   def reloadOperations(): Unit = {
+    operations = js.Array[js.Dictionary[js.Any]]()
     reloadOperationNonce += 1
     val nonce = reloadOperationNonce
     sessionService.currentSession.get.wallet.account(accountId).flatMap {
@@ -122,9 +125,42 @@ class AccountController(override val windowService: WindowService,
     }
   }
 
+  sessionService.currentSession.get.wallet.eventEmitter.register(this)
+
+  $scope.$on("$destroy", {() =>
+    sessionService.currentSession.foreach(_.wallet.eventEmitter.unregister(this))
+  })
+
   reloadBalance()
   reloadOperations()
-  
+
+  import timers._
+  override def receive: Receive = {
+    case StartSynchronizationEvent() =>
+      isRefreshing = true
+      setTimeout(0) {
+        $scope.$digest()
+      }
+    case StopSynchronizationEvent() =>
+      isRefreshing = false
+      setTimeout(0) {
+        $scope.$digest()
+      }
+    case NewOperationEvent(account, event) =>
+      if (account.index == accountId) {
+        reloadOperations()
+        reloadBalance()
+      }
+    case drop =>
+  }
+
+  sessionService.currentSession.get.wallet.isSynchronizing() foreach {(sync) =>
+    isRefreshing = sync
+    setTimeout(0) {
+      $scope.$digest()
+    }
+  }
+
 }
 
 object AccountController {

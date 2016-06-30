@@ -53,4 +53,8 @@ object Wallet {
   val DefaultOperationsBatchSize = 20
 
   case class WalletNotSetupException() extends Exception("The wallet is currently empty")
+
+  case class NewOperationEvent(account: Account, operation: Operation)
+  case class StartSynchronizationEvent()
+  case class StopSynchronizationEvent()
 }
