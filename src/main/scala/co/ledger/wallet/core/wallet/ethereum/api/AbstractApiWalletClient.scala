@@ -1,11 +1,12 @@
 package co.ledger.wallet.core.wallet.ethereum.api
 
 import co.ledger.wallet.core.concurrent.AsyncCursor
-import co.ledger.wallet.core.device.utils.EventEmitter
+import co.ledger.wallet.core.device.utils.{EventEmitter, EventReceiver}
 import co.ledger.wallet.core.net.WebSocketFactory
 import co.ledger.wallet.core.utils.{DerivationPath, HexUtils}
 import co.ledger.wallet.core.wallet.ethereum.Wallet.WalletNotSetupException
 import co.ledger.wallet.core.wallet.ethereum.database.{AccountRow, DatabaseBackedWalletClient}
+import co.ledger.wallet.core.wallet.ethereum.events.{NewBlock, NewTransaction}
 import co.ledger.wallet.core.wallet.ethereum.{Transaction, _}
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
@@ -62,6 +63,8 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
   override def stop(): Unit = {
     init() foreach {(_) =>
       _stopped = true
+      _webSocketNetworkObserver.get.stop()
+      eventEmitter.unregister(_eventReceiver)
     }
   }
 
@@ -141,14 +144,39 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
         _initPromise.get.completeWith(queryAccounts(0, Int.MaxValue) flatMap {(accounts) =>
           _accounts = accounts.map(newAccountClient(_))
           _webSocketNetworkObserver = Some(new WebSocketNetworkObserver(websocketFactory, eventEmitter, transactionRestClient ,ec))
+          _webSocketNetworkObserver.get.start()
           if (_accounts.length == 0) {
             createAccount(0).map((_) => ())
           } else {
             Future.successful()
           }
         })
+        eventEmitter.register(_eventReceiver)
         _initPromise.get
       }).future
+    }
+  }
+
+  private val _eventReceiver = new EventReceiver {
+    override def receive: Receive = {
+      case NewTransaction(tx) =>
+        accounts() foreach {(acccounts) =>
+          acccounts foreach {(account) =>
+            account.asInstanceOf[AbstractApiAccountClient].putTransaction(tx)
+          }
+        }
+      case NewBlock(block) =>
+        println("New block")
+        block.transactionsHashes foreach {(hashes) =>
+          queryTransactions(hashes) foreach {(txs) =>
+            if (txs.nonEmpty) {
+              synchronize()
+            } else {
+              println("Drop block")
+            }
+          }
+        }
+      case drop =>
     }
   }
 

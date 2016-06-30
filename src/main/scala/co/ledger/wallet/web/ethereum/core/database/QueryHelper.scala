@@ -76,8 +76,10 @@ abstract class QueryHelper[M >: Null <: Model](implicit classTag: ClassTag[M]) {
           promise.failure(new Exception(event.message))
         }
         request.onsuccess = {(event: Event) =>
-          val r = creator(event.asInstanceOf[js.Dynamic].target.result.asInstanceOf[js.Dictionary[js.Any]])
-          result.addItem(r)
+          if (!js.isUndefined(event.asInstanceOf[js.Dynamic].target.result.asInstanceOf[js.Dictionary[js.Any]])) {
+            val r = creator(event.asInstanceOf[js.Dynamic].target.result.asInstanceOf[js.Dictionary[js.Any]])
+            result.addItem(r)
+          }
           promise.success()
         }
         promise.future

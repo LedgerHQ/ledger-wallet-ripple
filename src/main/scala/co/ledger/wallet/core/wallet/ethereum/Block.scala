@@ -36,6 +36,7 @@ trait Block {
   def hash: String
   def height: Long
   def time: Date
+  def transactionsHashes: Option[Array[String]] = None
 
-  override def toString: String = s"{hash: $hash, height: $height, time: $time}"
+  override def toString: String = s"{hash: $hash, height: $height, time: $time, txs: ${transactionsHashes.map(_.length)}"
 }

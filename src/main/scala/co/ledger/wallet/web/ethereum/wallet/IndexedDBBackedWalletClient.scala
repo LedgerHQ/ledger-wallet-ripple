@@ -145,7 +145,16 @@ trait IndexedDBBackedWalletClient extends DatabaseBackedWalletClient {
     iterate(0)
   }
 
-  override protected def queryTransaction(hash: String): Future[Array[Transaction]] = ???
+  override protected def queryTransaction(hash: String): Future[Array[Transaction]] = queryTransactions(Array(hash))
+
+  override protected def queryTransactions(hashes: Array[String]): Future[Array[Transaction]] = {
+    val request = TransactionModel.readonly()
+    for (hash <- hashes) {
+      request.get(hash)
+    }
+    request.items.map(_.map(_.proxy))
+  }
+
   object BlockModel extends QueryHelper[content.BlockModel] with ModelCreator[content.BlockModel] {
     override def database: DatabaseDeclaration = DatabaseDeclaration
     override def creator: ModelCreator[content.BlockModel] = this

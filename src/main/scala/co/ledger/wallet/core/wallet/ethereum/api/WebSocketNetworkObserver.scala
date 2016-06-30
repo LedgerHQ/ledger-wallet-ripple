@@ -68,11 +68,12 @@ class WebSocketNetworkObserver(factory: WebSocketFactory,
   }
 
   private def onMessage(json: JSONObject): Unit = {
-    json.getString("type") match {
+    val message = json.getJSONObject("payload")
+    message.getString("type") match {
       case "new-transaction" =>
-        emitter.emit(NewTransaction(new transactionRestClient.JsonTransaction(json.getJSONObject("transaction"))))
+        emitter.emit(NewTransaction(new transactionRestClient.JsonTransaction(message.getJSONObject("transaction"))))
       case "new-block" =>
-        emitter.emit(NewBlock(new transactionRestClient.blockRestClient.JsonBlock(json.getJSONObject("block"))))
+        emitter.emit(NewBlock(new transactionRestClient.blockRestClient.JsonBlock(message.getJSONObject("block"))))
       case other => Logger.v(s"Receive unhandled notification type '$other'")
     }
   }
@@ -85,14 +86,6 @@ class WebSocketNetworkObserver(factory: WebSocketFactory,
   }
 
   def isRunning = _socket.isDefined
-
-  factory.connect("/ws") onComplete {
-    case Success(ws) =>
-      ws onJsonMessage {(data) =>
-        println(data.toString(2))
-      }
-    case Failure(ex) => ex.printStackTrace()
-  }
 
   private var _socket: Option[Future[WebSocket]] = None
 }

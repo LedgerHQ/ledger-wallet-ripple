@@ -1,5 +1,8 @@
 package co.ledger.wallet.web.ethereum.content
 
+import java.util.Date
+
+import co.ledger.wallet.core.wallet.ethereum.{Block, Ether, Transaction}
 import co.ledger.wallet.web.ethereum.core.database.Model
 
 /**
@@ -45,4 +48,32 @@ class TransactionModel extends Model("transaction") {
   val blockHash = string("blockHash")
   val nonce = string("nonce").index()
   val data = string("data")
+
+  def proxy: Transaction = {
+    new Transaction {
+      override def gas: Ether = Ether(TransactionModel.this.gas().get)
+
+      override def nonce: BigInt = BigInt(TransactionModel.this.nonce().get, 16)
+
+      override def gasPrice: Ether = Ether(TransactionModel.this.gas().get)
+
+      override def block: Option[Block] = None
+
+      override def from: String = TransactionModel.this.from().get
+
+      override def data: String = TransactionModel.this.data().get
+
+      override def hash: String = TransactionModel.this.hash().get
+
+      override def to: String = TransactionModel.this.to().get
+
+      override def value: Ether = Ether(TransactionModel.this.gas().get)
+
+      override def cumulativeGasUsed: Ether = Ether(TransactionModel.this.gas().get)
+
+      override def gasUsed: Ether = Ether(TransactionModel.this.gas().get)
+
+      override def receivedAt: Date = new Date(TransactionModel.this.receivedAt().get.getTime().toLong)
+    }
+  }
 }

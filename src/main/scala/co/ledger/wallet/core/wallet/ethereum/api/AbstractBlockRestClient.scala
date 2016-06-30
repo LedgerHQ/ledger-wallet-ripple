@@ -6,6 +6,7 @@ import co.ledger.wallet.core.net.HttpClient
 import co.ledger.wallet.core.wallet.ethereum.Block
 import org.json.JSONObject
 
+import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -51,5 +52,17 @@ abstract class AbstractBlockRestClient(http: HttpClient) {
     override def hash: String = json.getString("hash")
     override def height: Long = json.getLong("height")
     override def time: Date = stringToDate(json.getString("time"))
+    override def transactionsHashes: Option[Array[String]] = {
+      if (json.has("txs")) {
+        val txs = json.getJSONArray("txs")
+        val result = new Array[String](txs.length())
+        for (i <- 0 until txs.length()) {
+          result(i) = txs.getString(i)
+        }
+        Some(result)
+      } else {
+        None
+      }
+    }
   }
 }

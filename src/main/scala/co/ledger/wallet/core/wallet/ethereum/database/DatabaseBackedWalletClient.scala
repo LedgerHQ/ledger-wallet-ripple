@@ -64,6 +64,7 @@ trait DatabaseBackedWalletClient extends Wallet {
   def commitDatabaseTransaction(): Unit
 
   protected def queryTransaction(hash: String): Future[Array[Transaction]]
+  protected def queryTransactions(hashes: Array[String]): Future[Array[Transaction]]
   protected def queryAccounts(from: Int, to: Int): Future[Array[AccountRow]]
   protected def queryLastBlock(): Future[Block]
 }

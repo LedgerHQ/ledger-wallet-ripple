@@ -53,9 +53,7 @@ class AccountController(override val windowService: WindowService,
   val accountId = $routeParams("id").toInt
 
   def refresh(): Unit = {
-    println("Refresh now!")
-    SnackBar.success("Transaction completed", "Successfully broadcasted to network").show()
-    isRefreshing = !isRefreshing
+
   }
 
   var isRefreshing = false
@@ -125,7 +123,8 @@ class AccountController(override val windowService: WindowService,
   }
 
   reloadBalance()
- reloadOperations()
+  reloadOperations()
+  
 }
 
 object AccountController {

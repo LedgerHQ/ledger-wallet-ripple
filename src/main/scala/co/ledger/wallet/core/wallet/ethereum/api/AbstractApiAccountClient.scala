@@ -104,6 +104,8 @@ abstract class AbstractApiAccountClient(override val wallet: AbstractApiWalletCl
     }
   }
 
+  def putTransaction(tx: Transaction): Unit = createOperations(Array(tx))
+
   private def createOperations(transactions: Array[Transaction]): Array[Operation] = {
     val result = new ArrayBuffer[Operation]()
     transactions foreach {(tx) =>
