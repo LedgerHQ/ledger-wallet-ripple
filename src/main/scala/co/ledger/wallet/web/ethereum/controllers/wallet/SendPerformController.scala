@@ -97,6 +97,7 @@ class SendPerformController(windowService: WindowService,
       $route.reload()
     case Failure(ex: LedgerApiException) =>
       SnackBar.error("Transaction failed", "Transaction cancelled").show()
+      sessionService.currentSession.get.sessionPreferences.remove(SendIndexController.RestoreKey)
       $location.url("/send")
       $route.reload()
     case Failure(ex) =>

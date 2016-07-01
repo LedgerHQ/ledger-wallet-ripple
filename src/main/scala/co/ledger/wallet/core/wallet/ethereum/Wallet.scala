@@ -46,6 +46,7 @@ trait Wallet {
   def pushTransaction(transaction: Array[Byte]): Future[Unit]
   def operations(from: Int, batchSize: Int = Wallet.DefaultOperationsBatchSize): Future[AsyncCursor[Operation]]
   def eventEmitter: EventEmitter
+  def estimatedGasPrice(): Future[Ether]
   def stop(): Unit
 }
 
@@ -57,4 +58,5 @@ object Wallet {
   case class NewOperationEvent(account: Account, operation: Operation)
   case class StartSynchronizationEvent()
   case class StopSynchronizationEvent()
+  case class GasPriceChanged(price: Ether)
 }

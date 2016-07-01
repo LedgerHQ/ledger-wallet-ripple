@@ -68,6 +68,13 @@ abstract class AbstractTransactionRestClient(http: HttpClient, val blockRestClie
     }
   }
 
+  def getEstimatedGasPrice(): Future[Ether] = {
+    http.get("/fees").json map {
+      case (json, _) =>
+        Ether(json.getString("gas_price"))
+    }
+  }
+
   def stringToDate(string: String): Date
   def obtainSyncToken(): Future[String] = http.get("/syncToken").json map(_._1.getString("token"))
   def deleteSyncToken(syncToken: String): Future[Unit] = {

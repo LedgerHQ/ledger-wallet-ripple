@@ -4,12 +4,14 @@ import co.ledger.wallet.core.concurrent.AsyncCursor
 import co.ledger.wallet.core.device.utils.{EventEmitter, EventReceiver}
 import co.ledger.wallet.core.net.WebSocketFactory
 import co.ledger.wallet.core.utils.{DerivationPath, HexUtils}
-import co.ledger.wallet.core.wallet.ethereum.Wallet.{StartSynchronizationEvent, StopSynchronizationEvent, WalletNotSetupException}
+import co.ledger.wallet.core.wallet.ethereum.Wallet.{GasPriceChanged, StartSynchronizationEvent, StopSynchronizationEvent, WalletNotSetupException}
 import co.ledger.wallet.core.wallet.ethereum.database.{AccountRow, DatabaseBackedWalletClient}
 import co.ledger.wallet.core.wallet.ethereum.events.{NewBlock, NewTransaction}
 import co.ledger.wallet.core.wallet.ethereum.{Transaction, _}
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
+import scala.scalajs.js.timers
+import scala.util.{Failure, Success}
 
 /**
   *
@@ -105,6 +107,25 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
     }
   }
 
+  private def fetchGasPrice(): Unit = {
+    import timers._
+    if (!_stopped) {
+      transactionRestClient.getEstimatedGasPrice() onComplete {
+        case Success(price) =>
+          if (price.toBigInt != _gasPrice.toBigInt) {
+            eventEmitter.emit(GasPriceChanged(price))
+          }
+        _gasPrice = price
+        case Failure(ex) =>
+          setTimeout(5 * 60 * 1000) {
+            fetchGasPrice()
+          }
+      }
+    }
+  }
+
+  override def estimatedGasPrice(): Future[Ether] = init().map((_) => _gasPrice)
+
   def ethereumAccountProvider: EthereumAccountProvider
 
   override def accounts(): Future[Array[Account]] = init().map((_) => _accounts.asInstanceOf[Array[Account]])
@@ -147,6 +168,7 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
           _accounts = accounts.map(newAccountClient(_))
           _webSocketNetworkObserver = Some(new WebSocketNetworkObserver(websocketFactory, eventEmitter, transactionRestClient ,ec))
           _webSocketNetworkObserver.get.start()
+          fetchGasPrice()
           if (_accounts.length == 0) {
             createAccount(0).map((_) => ())
           } else {
@@ -187,6 +209,7 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
   private var _stopped = false
   private var _synchronizationFuture: Option[Future[Unit]] = None
   private var _webSocketNetworkObserver: Option[WebSocketNetworkObserver] = None
+  private var _gasPrice = Ether(21000000000L)
   protected def newAccountClient(accountRow: AccountRow): AbstractApiAccountClient
 
 }

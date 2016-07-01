@@ -1,5 +1,7 @@
 package co.ledger.wallet.core.device.ethereum
 
+import java.nio.charset.Charset
+
 import co.ledger.wallet.core.device.ethereum.LedgerDerivationApi.PublicAddressResult
 import co.ledger.wallet.core.utils.{BytesWriter, DerivationPath, HexUtils}
 import co.ledger.wallet.core.wallet.ethereum.EthereumAccount
@@ -46,7 +48,9 @@ trait LedgerDerivationApi extends LedgerCommonApiInterface {
       val data = result.data
       val publicKey = data.readNextBytes(data.readNextByte())
       val address = data.readNextBytes(data.readNextByte())
-      PublicAddressResult(publicKey, EthereumAccount("0x" + new String(address)))
+      println("VALUE " + HexUtils.bytesToHex(address))
+      println("ADDRESS " + new String(address, Charset.forName("US-ASCII")))
+      PublicAddressResult(publicKey, EthereumAccount("0x" + new String(address, Charset.forName("US-ASCII"))))
     }
   }
 

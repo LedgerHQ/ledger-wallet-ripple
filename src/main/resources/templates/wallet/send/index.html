@@ -8,23 +8,27 @@
                 <div>
                     <div>Amount</div>
                     <div>
-                        <input id="amount_input" placeholder="Amount" class="large-text-input" type="text" ng-value="amount"/>
+                        <input id="amount_input" placeholder="Amount" class="large-text-input" type="text" ng-value="amount" ng-model="amount" ng-change="ctrl.computeTotal()" />
                         <label class="large-text-input">Ether</label>
                     </div>
                 </div>
                 <div>
-                    <div>to</div>
+                    <div>recipient address</div>
                     <div>
                         <input id="receiver_input" placeholder="Ethereum account" class="text-input" type="text" ng-value="address"/>
                     </div>
                 </div>
                 <div>
-                    <div>transaction fees</div>
-                    <div><div class="regular-grey-text-small">0.0001 Ether</div></div>
+                    <div class="optional">gas price</div>
+                    <div><div class="regular-grey-text-small">{{ctrl.gasPrice}} Ether</div></div>
+                </div>
+                <div>
+                    <div class="optional">gas limit</div>
+                    <div><div class="regular-grey-text-small">{{ctrl.gasLimit}} Ether</div></div>
                 </div>
                 <div>
                     <div class="optional">total spent</div>
-                    <div><div class="regular-grey-text-small">1.2350 Ether (incl. transaction fees)</div></div>
+                    <div><div class="regular-grey-text-small">{{ctrl.total}} Ether (incl. gas)</div></div>
                 </div>
             </div>
         </section>

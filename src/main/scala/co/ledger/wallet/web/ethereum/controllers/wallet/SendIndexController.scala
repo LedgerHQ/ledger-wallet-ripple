@@ -11,7 +11,7 @@ import org.scalajs.dom
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
-import scala.scalajs.js.Dynamic
+import scala.scalajs.js.{Dynamic, timers}
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -52,6 +52,12 @@ class SendIndexController(override val windowService: WindowService,
 
   var isScanning = false
 
+  var amount = ""
+  var gasLimit = 9000
+  private var _gasPrice = BigInt("21000000000")
+  var gasPrice = new Ether(_gasPrice).toEther.toString()
+  var total = Ether(0).toEther.toString()
+
   sessionService.currentSession.get.sessionPreferences.lift(SendIndexController.RestoreKey) foreach {(state) =>
     val restore = state.asInstanceOf[SendIndexController.RestoreState]
     val dynamicScope = $scope.asInstanceOf[js.Dynamic]
@@ -75,18 +81,39 @@ class SendIndexController(override val windowService: WindowService,
     }
   }
 
+  def computeTotal() = {
+    total = getAmountInput().map((amount) => amount + (_gasPrice * 2100)).map(new Ether(_)).getOrElse(Ether(0)).toEther.toString()
+  }
+
   def cancelScanQrCode() = {
     isScanning = false
     scanner.stop()
   }
 
+  def getAmountInput(): Try[BigInt] = {
+    Try((BigDecimal($element.find("#amount_input").asInstanceOf[JQLite].`val`().toString) * BigDecimal(10).pow(18)).toBigInt())
+  }
+
+  def updateGasPrice(): Unit = {
+    import timers._
+    sessionService.currentSession.get.wallet.estimatedGasPrice() foreach {(price) =>
+      _gasPrice = price.toBigInt
+      gasPrice = price.toEther.toString()
+      computeTotal()
+      setTimeout(0) {
+        $scope.$digest()
+      }
+    }
+  }
+  updateGasPrice()
+
   def send() = {
     try {
-      val amount = (BigDecimal($element.find("#amount_input").asInstanceOf[JQLite].`val`().toString) * BigDecimal(10).pow(18)).toBigInt()
+      val amount = getAmountInput().get
       val recipient = $element.find("#receiver_input").asInstanceOf[JQLite].`val`().toString
       val isIban = true
       val fees = BigDecimal(900000)
-      val gasPrice = BigDecimal(21000000000L)
+      val gasPrice = _gasPrice
       println(s"Amount: $amount")
       println(s"Recipient: $recipient")
       println(s"Is IBAN: $isIban")
