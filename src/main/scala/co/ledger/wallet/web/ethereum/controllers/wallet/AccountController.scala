@@ -77,6 +77,8 @@ class AccountController(override val windowService: WindowService,
           case Success(ops) =>
             ops foreach {(op) =>
               operations.push(js.Dictionary[js.Any](
+                "uid" -> op.uid,
+                "hash" -> op.transaction.hash,
                 "date" -> DateFormat.formatStandard(op.transaction.receivedAt),
                 "amount" -> ((if (op.`type` == Operation.SendType) "-" else "+") + op.transaction.value.toEther.toString()),
                 "isSend" -> (op.`type` == Operation.SendType)
@@ -123,6 +125,11 @@ class AccountController(override val windowService: WindowService,
       case Failure(ex) =>
         ex.printStackTrace()
     }
+  }
+
+  def openTransactionDetails(hash: String): Unit = {
+    println(s"Open $hash")
+    js.Dynamic.global.open(s"http://etherscan.io/tx/$hash")
   }
 
   sessionService.currentSession.get.wallet.eventEmitter.register(this)

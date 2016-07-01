@@ -33,7 +33,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="fit-content" ng-class="{'no-border': $last}" ng-repeat="operation in ctrl.operations">
+            <tr class="fit-content" ng-click="ctrl.openTransactionDetails(operation.hash)" ng-class="{'no-border': $last}" ng-repeat="operation in ctrl.operations">
                 <td class="regular-grey-text">{{operation.date}}</td>
                 <td ng-class="{'regular-valid-text': !operation.isSend, 'regular-invalid-text': operation.isSend}" class="align-right">{{operation.amount}}</td>
             </tr>

@@ -91,7 +91,7 @@ class SendPerformController(windowService: WindowService,
   } onComplete {
     case Success(_) =>
       SnackBar.success("Transaction completed", "Successfully broadcasted to network").show()
-      $location.url("/account/0")
+      $location.url("/send")
       $route.reload()
     case Failure(ex) =>
       ex.printStackTrace()

@@ -316,3 +316,15 @@ a {
     color: darken(@color, @color-extra-strong-darken-value);
   }
 }
+
+*[ng-click] {
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+tr[ng-click] {
+  &:hover {
+    background-color: @color-very-light-grey;
+  }
+}
