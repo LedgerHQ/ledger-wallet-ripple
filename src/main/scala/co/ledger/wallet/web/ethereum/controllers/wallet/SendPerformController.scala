@@ -4,6 +4,7 @@ import biz.enef.angulate.{Controller, Scope}
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.Location
 import co.ledger.wallet.core.device.ethereum.LedgerApi
+import co.ledger.wallet.core.device.ethereum.LedgerCommonApiInterface.LedgerApiException
 import co.ledger.wallet.core.utils.DerivationPath
 import co.ledger.wallet.core.wallet.ethereum.EthereumAccount
 import co.ledger.wallet.web.ethereum.components.SnackBar
@@ -90,11 +91,18 @@ class SendPerformController(windowService: WindowService,
     sessionService.currentSession.get.wallet.pushTransaction(signature.signedTx)
   } onComplete {
     case Success(_) =>
+      sessionService.currentSession.get.sessionPreferences.remove(SendIndexController.RestoreKey)
       SnackBar.success("Transaction completed", "Successfully broadcasted to network").show()
       $location.url("/send")
       $route.reload()
+    case Failure(ex: LedgerApiException) =>
+      SnackBar.error("Transaction failed", "Transaction cancelled").show()
+      $location.url("/send")
+      $route.reload()
     case Failure(ex) =>
-      ex.printStackTrace()
+      SnackBar.error("Transaction failed", "Transaction rejected by the server").show()
+      $location.url("/send")
+      $route.reload()
   }
 
   /*

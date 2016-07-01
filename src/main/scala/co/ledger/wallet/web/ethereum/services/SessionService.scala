@@ -43,9 +43,7 @@ import scala.concurrent.Future
 class SessionService extends Service {
 
   def startNewSessions(api: LedgerApi): Future[Unit] = {
-    import co.ledger.wallet.core.utils.DerivationPath.dsl._
     api.walletIdentifier() flatMap {(walletIdentifier) =>
-      // TODO: Temporary
       api.walletMetaPassword() flatMap {(password) =>
         val provider = new EthereumAccountProvider {
           override def getEthereumAccount(path: DerivationPath): Future[EthereumAccount] = {
@@ -73,6 +71,8 @@ class SessionService extends Service {
 
   class Session(val name: String, val password: String, provider: EthereumAccountProvider) {
     val wallet: Wallet = new ApiWalletClient(name, provider)
+
+    val sessionPreferences = scala.collection.mutable.Map[String, Any]()
   }
 
   SessionService.setInstance(this)

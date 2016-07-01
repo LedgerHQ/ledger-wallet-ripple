@@ -113,11 +113,11 @@ object SnackBar {
   }
 
   def error(title: String, subtitle: String)(implicit ws: WindowService) = {
-    ws.configureSnackBar(SuccessMode, title, subtitle)
+    ws.configureSnackBar(ErrorMode, title, subtitle)
   }
 
   def neutral(title: String, subtitle: String)(implicit ws: WindowService) = {
-    ws.configureSnackBar(SuccessMode, title, subtitle)
+    ws.configureSnackBar(NeutralMode, title, subtitle)
   }
 
   class SnackBarInstance(val snackBar: SnackBar) {

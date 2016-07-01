@@ -3,15 +3,16 @@ package co.ledger.wallet.web.ethereum.controllers.wallet
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.JQLite
 import biz.enef.angulate.{Controller, Scope}
+import co.ledger.wallet.core.wallet.ethereum.{Ether, EthereumAccount}
 import co.ledger.wallet.web.ethereum.components.QrCodeScanner
 import co.ledger.wallet.web.ethereum.core.utils.PermissionsHelper
-import co.ledger.wallet.web.ethereum.services.WindowService
+import co.ledger.wallet.web.ethereum.services.{SessionService, WindowService}
 import org.scalajs.dom
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
 import scala.scalajs.js.Dynamic
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 /**
   *
@@ -43,9 +44,21 @@ import scala.util.{Failure, Success}
   * SOFTWARE.
   *
   */
-class SendIndexController(override val windowService: WindowService, $location: js.Dynamic, $element: JQLite, $scope: Scope) extends Controller with WalletController{
+class SendIndexController(override val windowService: WindowService,
+                          $location: js.Dynamic,
+                          sessionService: SessionService,
+                          $element: JQLite,
+                          $scope: Scope) extends Controller with WalletController{
 
   var isScanning = false
+
+  sessionService.currentSession.get.sessionPreferences.lift(SendIndexController.RestoreKey) foreach {(state) =>
+    val restore = state.asInstanceOf[SendIndexController.RestoreState]
+    val dynamicScope = $scope.asInstanceOf[js.Dynamic]
+    dynamicScope.address = restore.to
+    if (restore.amount.isSuccess)
+      dynamicScope.amount = restore.amount.get.toEther.toString()
+  }
 
   def scanQrCode() = {
     PermissionsHelper.requestIfNecessary("videoCapture") map {(hasPermission) =>
@@ -97,8 +110,17 @@ class SendIndexController(override val windowService: WindowService, $location: 
     Dynamic.global.console.log(value)
     addressInput.value = value
   })
+
+  $scope.$on("$destroy", {() =>
+    val amount = Try((BigDecimal($element.find("#amount_input").asInstanceOf[JQLite].`val`().toString) * BigDecimal(10).pow(18)).toBigInt())
+    val recipient = $element.find("#receiver_input").asInstanceOf[JQLite].`val`().toString
+    sessionService.currentSession.get.sessionPreferences(SendIndexController.RestoreKey) =  SendIndexController.RestoreState(amount.map(new Ether(_)), recipient)
+  })
 }
 
 object SendIndexController {
   def init(module: RichModule) = module.controllerOf[SendIndexController]("SendIndexController")
+
+  val RestoreKey = "SendIndexController#Restore"
+  case class RestoreState(amount: Try[Ether], to: String)
 }

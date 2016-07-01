@@ -3,7 +3,9 @@ package co.ledger.wallet.web.ethereum.controllers.wallet
 import biz.enef.angulate.{Controller, Scope}
 import biz.enef.angulate.Module.RichModule
 import co.ledger.wallet.web.ethereum.services.{SessionService, WindowService}
+
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.scalajs.js
 
 /**
   *
@@ -49,6 +51,14 @@ class ReceiveController(override val windowService: WindowService,
       uri = s"iban:$iban"
       $scope.$digest()
     }
+  }
+
+  def print(address: String): Unit = {
+    js.Dynamic.global.print()
+  }
+
+  def sendEmail(address: String): Unit = {
+    js.Dynamic.global.open(s"mailto:?body=$address")
   }
 
 }
