@@ -46,6 +46,7 @@ import scala.util.{Failure, Success, Try}
   */
 class SendIndexController(override val windowService: WindowService,
                           $location: js.Dynamic,
+                          $route: js.Dynamic,
                           sessionService: SessionService,
                           $element: JQLite,
                           $scope: Scope) extends Controller with WalletController{
@@ -81,8 +82,10 @@ class SendIndexController(override val windowService: WindowService,
     }
   }
 
-  def computeTotal() = {
-    total = getAmountInput().map((amount) => amount + (_gasPrice * 2100)).map(new Ether(_)).getOrElse(Ether(0)).toEther.toString()
+  def computeTotal(): Ether = {
+    val t = getAmountInput().map((amount) => amount + (_gasPrice * 2100)).map(new Ether(_)).getOrElse(Ether(0))
+    total = t.toEther.toString()
+    t
   }
 
   def cancelScanQrCode() = {
@@ -127,7 +130,14 @@ class SendIndexController(override val windowService: WindowService,
         println(s"Recipient: $address")
         println(s"Is IBAN: $isIban")
         println(s"Fees: $fees")
-        $location.path(s"/send/${value.get.toString()}/to/$address/from/0/with/$fees/price/$gasPrice")
+        sessionService.currentSession.get.wallet.balance() foreach {(balance) =>
+          if (computeTotal() > balance) {
+            SnackBar.error("Error", "Insufficient funds").show()
+          } else {
+            $location.path(s"/send/${value.get.toString()}/to/$address/from/0/with/$fees/price/$gasPrice")
+            $scope.$apply()
+          }
+        }
       }
     } catch {
       case any: Throwable =>

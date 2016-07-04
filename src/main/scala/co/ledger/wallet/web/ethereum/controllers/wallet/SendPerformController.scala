@@ -1,18 +1,17 @@
 package co.ledger.wallet.web.ethereum.controllers.wallet
 
-import biz.enef.angulate.{Controller, Scope}
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.Location
+import biz.enef.angulate.{Controller, Scope}
 import co.ledger.wallet.core.device.ethereum.LedgerApi
 import co.ledger.wallet.core.device.ethereum.LedgerCommonApiInterface.LedgerApiException
-import co.ledger.wallet.core.utils.DerivationPath
 import co.ledger.wallet.core.wallet.ethereum.EthereumAccount
 import co.ledger.wallet.web.ethereum.components.SnackBar
 import co.ledger.wallet.web.ethereum.services.{DeviceService, SessionService, WindowService}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
 import scala.util.{Failure, Success}
-import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
   *
@@ -51,20 +50,9 @@ class SendPerformController(windowService: WindowService,
                             $location: Location,
                             $route: js.Dynamic,
                             $routeParams: js.Dictionary[String]) extends Controller {
-  import SendPerformController._
 
   implicit val ws: WindowService = windowService
-
-  js.Dynamic.global.console.log($routeParams)
-  def isInProgressionMode = _currentMode == ProgressionMode
-  def isInWaitingMode = _currentMode == WaitingMode
-
-  def switchMode() = {
-    if (isInProgressionMode)
-      _currentMode = WaitingMode
-    else
-      _currentMode = ProgressionMode
-  }
+  println("ROUTE HERE")
   private val startGas = BigInt($routeParams("fees"))
   private val gasPrice = BigInt($routeParams("price"))
   private val accountId = $routeParams("account_id").toInt
@@ -106,28 +94,8 @@ class SendPerformController(windowService: WindowService,
       $route.reload()
   }
 
-  /*
-  private def iterate(): Unit = {
-  import scala.scalajs.js.timers._
-    setTimeout(500) {
-      progression = progression + 1
-      $scope.$digest()
-      println(s"Progression $progression")
-      iterate()
-    }
-  }
-  */
-
-  var progression = 0
-  private var _currentMode = WaitingMode
-
 }
 
 object SendPerformController {
-
-  val ProgressionMode = 0
-  val WaitingMode = 1
-
   def init(module: RichModule) = module.controllerOf[SendPerformController]("SendPerformController")
-
 }

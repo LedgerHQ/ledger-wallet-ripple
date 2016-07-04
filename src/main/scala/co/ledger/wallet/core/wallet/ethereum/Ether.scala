@@ -36,6 +36,10 @@ class Ether(private val value: BigInt) {
   def /(value: Ether) = new Ether(this.value / value.value)
   def *(value: Ether) = new Ether(this.value * value.value)
   def %(value: Ether) = new Ether(this.value % value.value)
+  def >(value: Ether) = this.value > value.value
+  def >=(value: Ether) = this.value >= value.value
+  def <(value: Ether) = this.value < value.value
+  def <=(value: Ether) = this.value <= value.value
 
   override def toString: String = value.toString()
 
