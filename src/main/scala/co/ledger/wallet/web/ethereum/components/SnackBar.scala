@@ -77,9 +77,11 @@ class SnackBar extends Directive {
         element.css("bottom", -element.outerHeight(false))
         JQueryHelper.injectCustomEasings()
         element.animate(js.Dictionary("bottom" -> 0), 400, "default", () => {
-          setTimeout(currentInstance.delay.toMillis){
-            if (currentInstance != null)
-              currentInstance.dismissHandler()
+          if (currentInstance != null) {
+            setTimeout(currentInstance.delay.toMillis) {
+              if (currentInstance != null)
+                currentInstance.dismissHandler()
+            }
           }
         })
       }
