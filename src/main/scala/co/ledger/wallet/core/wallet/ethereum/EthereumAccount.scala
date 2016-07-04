@@ -83,6 +83,8 @@ object EthereumAccount {
   }
 
   def fromHex(hex: String): EthereumAccount = {
+    if (hex.length != 40 && hex.length != 42)
+      throw new Exception(s"[$hex] is not a valid hex ethereum account address")
     if (hex.startsWith("0x"))
       new EthereumAccount(BigInt(hex.substring(2), 16))
     else

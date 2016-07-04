@@ -8,14 +8,24 @@
                 <div>
                     <div>Amount</div>
                     <div>
-                        <input id="amount_input" placeholder="Amount" class="large-text-input" type="text" ng-value="amount" ng-model="amount" ng-change="ctrl.computeTotal()" />
+                        <input id="amount_input"
+                               type="text"
+                               placeholder="Amount"
+                               class="large-text-input"
+                               ng-pattern="/^[0-9]+[\.,]?[0-9]*$/"
+                               ng-model="ctrl.amount"
+                               ng-change="ctrl.computeTotal()" />
                         <label class="large-text-input">Ether</label>
                     </div>
                 </div>
                 <div>
                     <div>recipient address</div>
                     <div>
-                        <input id="receiver_input" placeholder="Ethereum account" class="text-input" type="text" ng-value="address"/>
+                        <input id="receiver_input"
+                               placeholder="Ethereum account"
+                               class="text-input"
+                               type="text"
+                               ng-model="ctrl.address"/>
                     </div>
                 </div>
                 <div>

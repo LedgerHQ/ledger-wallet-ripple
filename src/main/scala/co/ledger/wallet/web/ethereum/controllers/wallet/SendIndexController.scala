@@ -4,7 +4,7 @@ import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.JQLite
 import biz.enef.angulate.{Controller, Scope}
 import co.ledger.wallet.core.wallet.ethereum.{Ether, EthereumAccount}
-import co.ledger.wallet.web.ethereum.components.QrCodeScanner
+import co.ledger.wallet.web.ethereum.components.{QrCodeScanner, SnackBar}
 import co.ledger.wallet.web.ethereum.core.utils.PermissionsHelper
 import co.ledger.wallet.web.ethereum.services.{SessionService, WindowService}
 import org.scalajs.dom
@@ -52,6 +52,7 @@ class SendIndexController(override val windowService: WindowService,
 
   var isScanning = false
 
+  var address = ""
   var amount = ""
   var gasLimit = 9000
   private var _gasPrice = BigInt("21000000000")
@@ -60,10 +61,9 @@ class SendIndexController(override val windowService: WindowService,
 
   sessionService.currentSession.get.sessionPreferences.lift(SendIndexController.RestoreKey) foreach {(state) =>
     val restore = state.asInstanceOf[SendIndexController.RestoreState]
-    val dynamicScope = $scope.asInstanceOf[js.Dynamic]
-    dynamicScope.address = restore.to
+    address = restore.to
     if (restore.amount.isSuccess)
-      dynamicScope.amount = restore.amount.get.toEther.toString()
+      amount = restore.amount.get.toEther.toString()
   }
 
   def scanQrCode() = {
@@ -91,7 +91,11 @@ class SendIndexController(override val windowService: WindowService,
   }
 
   def getAmountInput(): Try[BigInt] = {
-    Try((BigDecimal($element.find("#amount_input").asInstanceOf[JQLite].`val`().toString) * BigDecimal(10).pow(18)).toBigInt())
+    Try((BigDecimal(amount) * BigDecimal(10).pow(18)).toBigInt())
+  }
+
+  def getAddressInput(): Try[EthereumAccount] = {
+    Try(EthereumAccount(address))
   }
 
   def updateGasPrice(): Unit = {
@@ -109,17 +113,22 @@ class SendIndexController(override val windowService: WindowService,
 
   def send() = {
     try {
-      val amount = getAmountInput().get
-      val recipient = $element.find("#receiver_input").asInstanceOf[JQLite].`val`().toString
-      val isIban = true
-      val fees = BigDecimal(900000)
-      val gasPrice = _gasPrice
-      println(s"Amount: $amount")
-      println(s"Recipient: $recipient")
-      println(s"Is IBAN: $isIban")
-      println(s"Fees: $fees")
-      val formattedRecipient = recipient
-      $location.path(s"/send/$amount/to/$formattedRecipient/from/0/with/$fees/price/$gasPrice")
+      val value = getAmountInput()
+      val recipient = getAddressInput()
+      if (value.isFailure) {
+        SnackBar.error("Error", "Bad amount").show()
+      } else if (recipient.isFailure) {
+        SnackBar.error("Error", "Bad address").show()
+      } else {
+        val isIban = true
+        val fees = BigDecimal(900000)
+        val gasPrice = _gasPrice
+        println(s"Amount: $amount")
+        println(s"Recipient: $address")
+        println(s"Is IBAN: $isIban")
+        println(s"Fees: $fees")
+        $location.path(s"/send/${value.get.toString()}/to/$address/from/0/with/$fees/price/$gasPrice")
+      }
     } catch {
       case any: Throwable =>
         any.printStackTrace()
