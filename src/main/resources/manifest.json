@@ -38,6 +38,12 @@
         }
       ]
     }
-
-  ]
+  ],
+  "icons": {
+    "16": "images/app_icon/ic_app_16.png",
+    "32": "images/app_icon/ic_app_32.png",
+    "48": "images/app_icon/ic_app_48.png",
+    "64": "images/app_icon/ic_app_64.png",
+    "128": "images/app_icon/ic_app_128.png"
+  }
 }
