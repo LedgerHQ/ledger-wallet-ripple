@@ -67,7 +67,16 @@ class EthereumAccount(value: BigInt) {
     out.toString
   }
   override def toString: String = "0x" + HexUtils.bytesToHex(toByteArray).toLowerCase
-  def toByteArray = value.toByteArray.drop(Math.min(0, value.toByteArray.length - 20)).reverse.padTo(20, 0.toByte).reverse
+  def toByteArray = {
+    var bytes = value.toByteArray
+    if (bytes.length > 20) {
+      bytes = bytes.slice(1, bytes.length)
+    }
+    if (bytes.length < 20) {
+      bytes = bytes.reverse.padTo(20, 0.toByte).reverse
+    }
+    bytes
+  }
   override def hashCode(): Int = value.hashCode()
   override def equals(obj: scala.Any): Boolean = value.equals(obj)
 }

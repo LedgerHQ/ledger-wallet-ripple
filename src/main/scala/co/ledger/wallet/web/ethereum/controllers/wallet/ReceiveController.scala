@@ -46,7 +46,7 @@ class ReceiveController(override val windowService: WindowService,
   var uri = ""
   sessionService.currentSession.get.wallet.account(0) foreach {(account) =>
     account.ethereumAccount() foreach { (a) =>
-      address = a.toString
+      address = a.toChecksumString
       iban = a.toIban
       uri = s"iban:$iban"
       $scope.$digest()
