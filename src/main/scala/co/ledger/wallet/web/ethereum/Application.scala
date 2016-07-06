@@ -6,8 +6,10 @@ import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate._
 import biz.enef.angulate.core.HttpService
 import biz.enef.angulate.ext.RouteProvider
+import co.ledger.wallet.core.crypto.Keccak
 import co.ledger.wallet.core.utils.HexUtils
 import co.ledger.wallet.core.utils.logs._
+import co.ledger.wallet.core.wallet.ethereum.EthereumAccount
 import co.ledger.wallet.core.wallet.ethereum.rlp.{RLP, RLPTests}
 import co.ledger.wallet.web.ethereum.components._
 import co.ledger.wallet.web.ethereum.controllers.WindowController

@@ -148,13 +148,11 @@ class SendIndexController(override val windowService: WindowService,
   }
 
   private val scanner = $element.find("qrcodescanner").scope().asInstanceOf[QrCodeScanner.Controller]
-  private val addressInput = $element.find("#receiver_input").asInstanceOf[JQLite](0).asInstanceOf[dom.html.Input]
 
   scanner.$on("qr-code", { (event: js.Any, value: String) =>
     cancelScanQrCode()
-    $scope.$digest()
-    Dynamic.global.console.log(value)
-    addressInput.value = value
+    address = value.replace("iban:", "")
+    $scope.$apply()
   })
 
   $scope.$on("$destroy", {() =>

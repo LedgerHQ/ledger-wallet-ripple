@@ -2,12 +2,12 @@ package co.ledger.wallet.core.wallet.ethereum.api
 
 import co.ledger.wallet.core.concurrent.AsyncCursor
 import co.ledger.wallet.core.device.utils.{EventEmitter, EventReceiver}
-import co.ledger.wallet.core.net.WebSocketFactory
+import co.ledger.wallet.core.net.{HttpException, WebSocketFactory}
 import co.ledger.wallet.core.utils.{DerivationPath, HexUtils}
 import co.ledger.wallet.core.wallet.ethereum.Wallet.{GasPriceChanged, StartSynchronizationEvent, StopSynchronizationEvent, WalletNotSetupException}
+import co.ledger.wallet.core.wallet.ethereum._
 import co.ledger.wallet.core.wallet.ethereum.database.{AccountRow, DatabaseBackedWalletClient}
 import co.ledger.wallet.core.wallet.ethereum.events.{NewBlock, NewTransaction}
-import co.ledger.wallet.core.wallet.ethereum.{Transaction, _}
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.scalajs.js.timers
@@ -96,6 +96,17 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
         } else {
           Future.successful()
         }
+      } recoverWith {
+        case HttpException(_, response, _) =>
+          if (response.statusCode == 404) {
+            handleReorg() flatMap {(_) =>
+              performSynchronize()
+            }
+          }
+          else {
+            Future.failed(new Exception("API error"))
+          }
+        case other => Future.failed(other)
       }
     }
     transactionRestClient.obtainSyncToken() flatMap {(token) =>
@@ -105,6 +116,10 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
         eventEmitter.emit(StopSynchronizationEvent())
         _synchronizationFuture = None
     }
+  }
+
+  private def handleReorg(): Future[Unit] = {
+    null
   }
 
   private def fetchGasPrice(): Unit = {

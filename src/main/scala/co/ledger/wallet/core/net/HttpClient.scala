@@ -327,7 +327,5 @@ trait HttpClient {
 
   }
 
-  case class HttpException(request: HttpClient#Request, response:  HttpClient#Response, cause: Throwable) extends Exception
-
-
 }
+case class HttpException(request: HttpClient#Request, response:  HttpClient#Response, cause: Throwable) extends Exception

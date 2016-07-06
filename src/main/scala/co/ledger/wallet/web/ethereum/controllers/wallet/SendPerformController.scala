@@ -52,7 +52,6 @@ class SendPerformController(windowService: WindowService,
                             $routeParams: js.Dictionary[String]) extends Controller {
 
   implicit val ws: WindowService = windowService
-  println("ROUTE HERE")
   private val startGas = BigInt($routeParams("fees"))
   private val gasPrice = BigInt($routeParams("price"))
   private val accountId = $routeParams("account_id").toInt

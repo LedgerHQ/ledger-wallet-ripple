@@ -111,6 +111,12 @@ abstract class AbstractApiAccountClient(override val wallet: AbstractApiWalletCl
     }
   }
 
+  def synchronizationBlockHash(): Future[Option[String]] = {
+    load() map {(state) =>
+      state.batches.lastOption.map(_.blockHash)
+    }
+  }
+
   def putTransaction(tx: Transaction): Unit = {
     createOperations(Array(tx)) foreach {(operation) =>
       wallet.putTransactions(Array(operation.transaction)) foreach {(_) =>

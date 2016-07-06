@@ -1,5 +1,8 @@
 package co.ledger.wallet.core.wallet.ethereum
 
+import java.io.StringWriter
+
+import co.ledger.wallet.core.crypto.Keccak
 import co.ledger.wallet.core.utils.HexUtils
 
 /**
@@ -49,8 +52,22 @@ class EthereumAccount(value: BigInt) {
     s"XE$checksum$bban"
   }
 
-  override def toString: String = "0x" + value.toString(16)
-  def toByteArray = value.toByteArray.slice(1, 21)
+  def toChecksumString: String = {
+    val out = new StringWriter()
+    out.append("0x")
+    val address = toString.substring(2)
+    val checksum = HexUtils.encodeHex(Keccak.hash256(address.getBytes))
+    for (index <- address.indices) {
+      if (Integer.parseInt(checksum(index).toString, 16) >= 8) {
+        out.append(address(index).toUpper)
+      } else {
+        out.append(address(index).toLower)
+      }
+    }
+    out.toString
+  }
+  override def toString: String = "0x" + HexUtils.bytesToHex(toByteArray).toLowerCase
+  def toByteArray = value.toByteArray.drop(Math.min(0, value.toByteArray.length - 20)).reverse.padTo(20, 0.toByte).reverse
   override def hashCode(): Int = value.hashCode()
   override def equals(obj: scala.Any): Boolean = value.equals(obj)
 }

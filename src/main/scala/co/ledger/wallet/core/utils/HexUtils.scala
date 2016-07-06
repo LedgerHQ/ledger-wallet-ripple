@@ -34,6 +34,8 @@ import java.util.{Arrays}
 
 trait HexUtils {
 
+  val LowerCaseHexDigits = "0123456789abcdef".toCharArray
+
   private val hexArray = "0123456789ABCDEF".toCharArray
   private val AID_PREFIX = "A00000061700"
   private val AID_SUFFIX = "0101"
