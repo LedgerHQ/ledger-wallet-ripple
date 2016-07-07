@@ -7,7 +7,7 @@ import co.ledger.wallet.core.wallet.ethereum.events._
 import org.json.JSONObject
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 /**
   *
@@ -71,7 +71,13 @@ class WebSocketNetworkObserver(factory: WebSocketFactory,
     val message = json.getJSONObject("payload")
     message.getString("type") match {
       case "new-transaction" =>
-        emitter.emit(NewTransaction(new transactionRestClient.JsonTransaction(message.getJSONObject("transaction"))))
+        val transaction = Try(new transactionRestClient.JsonTransaction(message.getJSONObject("transaction")))
+        if (transaction.isSuccess)
+          emitter.emit(NewTransaction(transaction.get))
+        else {
+          Logger.e(json.toString(2))
+          transaction.failed.get.printStackTrace()
+        }
       case "new-block" =>
         emitter.emit(NewBlock(new transactionRestClient.blockRestClient.JsonBlock(message.getJSONObject("block"))))
       case other => Logger.v(s"Receive unhandled notification type '$other'")

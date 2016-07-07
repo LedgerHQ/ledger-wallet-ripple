@@ -119,6 +119,37 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
   }
 
   private def handleReorg(): Future[Unit] = {
+    // Get the synchronization hashes
+    // Get the corresponding blocks
+    // Get all block above or equal to the highest block
+    // Fetch all transactions in the highest blocks
+    // Open a cursor on the operations corresponding to the previous transactions
+    // Delete operations
+    // Open a cursor on the previous transactions
+    // Delete transactions
+    // Open a cursor on the previous blocks
+    // Delete blocks
+    // End
+    Future.sequence(_accounts.map(_.synchronizationBlockHash()).toSeq) flatMap {(hashes) =>
+      queryBlocks(hashes.filter(_.isDefined).map(_.get).toArray)
+    } flatMap {(blocks) =>
+      if (blocks.isEmpty) {
+        Future.successful()
+      } else {
+        queryTransactions(blocks.maxBy(_.height).height) flatMap {(transactions) =>
+          val hashes = transactions.map(_.hash)
+          deleteOperations(hashes) flatMap {(_) => deleteTransactions(hashes)}
+        } flatMap {(_) =>
+          deleteBlocks(blocks.map(_.hash))
+        } flatMap {(_) =>
+          queryLastBlock()
+        } flatMap {(block) =>
+          Future.sequence(_accounts.map(_.setSynchronizationBlock(block)).toSeq)
+        } map {(_) =>
+          ()
+        }
+      }
+    }
     null
   }
 

@@ -117,10 +117,23 @@ abstract class AbstractApiAccountClient(override val wallet: AbstractApiWalletCl
     }
   }
 
+  def setSynchronizationBlock(block: Block): Future[Unit] = {
+    load() flatMap {(state) =>
+      for (batch <- state.batches) {
+        batch.blockHash = block.hash
+        batch.blockHeight = block.height
+      }
+      save(state)
+    }
+  }
+
   def putTransaction(tx: Transaction): Unit = {
     createOperations(Array(tx)) foreach {(operation) =>
-      wallet.putTransactions(Array(operation.transaction)) foreach {(_) =>
-        wallet.putOperations(Array(operation)) foreach {(_) =>
+      println("COMPUTED OP " + operation.uid)
+      wallet.putTransactions(Array(operation.transaction)) onComplete {case all =>
+        println("PUT FOR OP " + operation.uid)
+        wallet.putOperations(Array(operation)) onComplete {case all =>
+          println("ADD OP " + operation.uid)
           wallet.eventEmitter.emit(NewOperationEvent(this, operation))
         }
       }

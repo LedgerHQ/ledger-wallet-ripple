@@ -46,6 +46,7 @@ class TransactionModel extends Model("transaction") {
   val from = string("from").encrypted()
   val to = string("to").encrypted()
   val blockHash = string("blockHash").encrypted()
+  val blockHeight = long("blockHeight").encrypted()
   val nonce = string("nonce").index()
   val data = string("data")
 

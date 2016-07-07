@@ -135,6 +135,24 @@ class WriteCursor[M >: Null <: Model](request: idb.Request, creator: ModelCreato
     promise.future
   }
 
+  def deleteAll(predicate: (M) => Boolean): Future[Int] = {
+    var count = 0
+    def iterate(): Future[Unit] = {
+      if (value.isEmpty) {
+        Future.successful()
+      } else {
+        if (predicate(value.get)) {
+          count += 1
+          delete()
+        }
+        continue() flatMap {(_) => iterate()}
+      }
+    }
+    iterate() map {(_) =>
+      count
+    }
+  }
+
 }
 
 trait CursorBuilder[M >: Null <: Model] {

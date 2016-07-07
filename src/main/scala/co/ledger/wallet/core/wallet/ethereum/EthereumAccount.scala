@@ -111,10 +111,22 @@ object EthereumAccount {
   def fromHex(hex: String): EthereumAccount = {
     if (hex.length != 40 && hex.length != 42)
       throw new Exception(s"[$hex] is not a valid hex ethereum account address")
+    if (hex.exists((c) => !c.isDigit && c.isUpper) &&
+        hex.exists((c) => !c.isDigit && c.isLower && c != 'x') &&
+        !isValidHexAddress(hex)) {
+      throw new Exception(s"[$hex] has an invalid checksum")
+    }
     if (hex.startsWith("0x"))
       new EthereumAccount(BigInt(hex.substring(2), 16))
     else
       new EthereumAccount(BigInt(hex, 16))
+  }
+
+  def isValidHexAddress(address: String): Boolean = {
+    if (address.startsWith("0x"))
+      new EthereumAccount(BigInt(address.substring(2), 16)).toChecksumString == address.toString
+    else
+      new EthereumAccount(BigInt(address, 16)).toChecksumString == ("0x" + address.toString)
   }
 
   private def mod9710(value: String) = value.foldLeft(0)((r, c) => (r * 10 + (c - '0')) % 97)

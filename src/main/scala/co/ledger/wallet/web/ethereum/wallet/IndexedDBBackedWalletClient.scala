@@ -84,6 +84,24 @@ trait IndexedDBBackedWalletClient extends DatabaseBackedWalletClient {
     }
   }
 
+  override protected def deleteBlocks(hashes: Array[String]): Future[Unit] = {
+    BlockModel.readwrite().deleteAll(hashes contains _.hash().get).map({(_) => ()})
+  }
+
+  override protected def deleteTransactions(hashes: Array[String]): Future[Unit] =
+    TransactionModel.readwrite().deleteAll(hashes contains _.hash().get).map({_ => ()})
+
+  override protected def deleteOperations(transactionsHashes: Array[String]): Future[Unit] =
+    OperationModel.readwrite().deleteAll(transactionsHashes contains _.transactionHash().get).map({_ => ()})
+
+  override protected def queryTransactions(minBlockHeight: Long): Future[Array[Transaction]] = {
+    TransactionModel.readonly().openCursor("blockHeight").gte(minBlockHeight).cursor flatMap {(c) =>
+      c.toArray.map(_.map(_.proxy))
+    }
+  }
+
+  override protected def queryBlocks(hashes: Array[String]): Future[Array[Block]] = ???
+
   /**
     * Insert or update a transaction in the database
     *
@@ -189,6 +207,8 @@ trait IndexedDBBackedWalletClient extends DatabaseBackedWalletClient {
       val t = new content.TransactionModel
       t.hash.set(transaction.hash)
       t.blockHash.set(transaction.block.map(_.hash).orNull)
+      if (transaction.block.isDefined)
+        t.blockHeight.set(transaction.block.get.height)
       t.to.set(transaction.to)
       t.from.set(transaction.from)
       t.gas.set(transaction.gas.toString)

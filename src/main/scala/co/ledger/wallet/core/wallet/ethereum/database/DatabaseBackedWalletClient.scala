@@ -67,4 +67,11 @@ trait DatabaseBackedWalletClient extends Wallet {
   protected def queryTransactions(hashes: Array[String]): Future[Array[Transaction]]
   protected def queryAccounts(from: Int, to: Int): Future[Array[AccountRow]]
   protected def queryLastBlock(): Future[Block]
+  protected def queryBlocks(hashes: Array[String]): Future[Array[Block]]
+  protected def queryTransactions(minBlockHeight: Long): Future[Array[Transaction]]
+
+  protected def deleteOperations(transactionsHashes: Array[String]): Future[Unit]
+  protected def deleteTransactions(hashes: Array[String]): Future[Unit]
+  protected def deleteBlocks(hashes: Array[String]): Future[Unit]
+
 }

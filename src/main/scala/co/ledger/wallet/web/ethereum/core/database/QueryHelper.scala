@@ -112,6 +112,13 @@ abstract class QueryHelper[M >: Null <: Model](implicit classTag: ClassTag[M]) {
       commit()
       promise.future
     }
+
+    def toArray: Future[Array[M]] = {
+      cursor flatMap {(c) =>
+        c.toArray
+      }
+    }
+
   }
 
   class ReadWriteQueryBuilder extends ReadOnlyQueryBuilder {
@@ -140,6 +147,12 @@ abstract class QueryHelper[M >: Null <: Model](implicit classTag: ClassTag[M]) {
       for (item <- items)
         add(item)
       this
+    }
+
+    def deleteAll(predicate: (M) => Boolean): Future[Int] = {
+      writeCursor flatMap {(cursor) =>
+        cursor.deleteAll(predicate)
+      }
     }
 
     useWriteCursor()
