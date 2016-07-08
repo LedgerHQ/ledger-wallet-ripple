@@ -2,7 +2,7 @@ package co.ledger.wallet.web.ethereum.components
 
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.{Attributes, JQLite}
-import biz.enef.angulate.{Component, ComponentDef, Directive}
+import biz.enef.angulate.{Component, ComponentDef, Directive, Scope}
 
 import scala.scalajs.js
 import scala.scalajs.js.{Dictionary, Dynamic}
@@ -52,17 +52,15 @@ class NavigationBar extends Directive {
     scope.items = items
     scope.rightItems = rightItems
     scope.synchronize = synchronize
-    scope.isRefreshing = true
-    scope.openHelpCenter = openHelpCenter _
+    scope.isRefreshing = false
+    scope.refresh = {() =>
+     scope.$eval(attrs.asInstanceOf[js.Dynamic].onClickRefresh)
+    }
     scope.isSelected = isSelected _
   }
 
   def isSelected(itemPath: String, currentPath: String) = {
     currentPath.startsWith(itemPath)
-  }
-
-  def openHelpCenter(): Unit = {
-    println("Opening")
   }
 
   val items = js.Array(
@@ -104,5 +102,10 @@ object NavigationBar {
 
   def init(module: RichModule) = {
     module.directiveOf[NavigationBar]("navigationBar")
+  }
+
+  @js.native
+  trait NavigationBarScope extends Scope {
+    var isRefreshing: Boolean
   }
 }

@@ -45,8 +45,8 @@ import scala.util.{Failure, Success}
   *
   */
 class AccountController(override val windowService: WindowService,
-                        sessionService: SessionService,
-                        $scope: Scope,
+                        override val sessionService: SessionService,
+                        override val $scope: Scope,
                         $element: JQLite,
                         $routeParams: js.Dictionary[String])
   extends Controller with WalletController with EventReceiver {

@@ -38,8 +38,8 @@ import scala.scalajs.js
   *
   */
 class ReceiveController(override val windowService: WindowService,
-                        $scope: Scope,
-                        sessionService: SessionService) extends Controller with WalletController {
+                        override val $scope: Scope,
+                        override val sessionService: SessionService) extends Controller with WalletController {
 
   var address = ""
   var iban = ""

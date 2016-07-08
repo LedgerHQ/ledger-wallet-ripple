@@ -44,8 +44,8 @@ import scala.util.{Failure, Success}
   *
   */
 class HelpController(override val windowService: WindowService,
-                    $scope: Scope,
-                     sessionService: SessionService
+                     override val $scope: Scope,
+                     override val sessionService: SessionService
                     ) extends Controller with WalletController {
 
 

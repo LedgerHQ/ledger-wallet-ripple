@@ -47,9 +47,9 @@ import scala.util.{Failure, Success, Try}
 class SendIndexController(override val windowService: WindowService,
                           $location: js.Dynamic,
                           $route: js.Dynamic,
-                          sessionService: SessionService,
+                          override val sessionService: SessionService,
                           $element: JQLite,
-                          $scope: Scope) extends Controller with WalletController{
+                          override val $scope: Scope) extends Controller with WalletController{
 
   var isScanning = false
 

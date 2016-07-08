@@ -43,15 +43,13 @@ import scala.util.{Failure, Success}
   * SOFTWARE.
   *
   */
-class SendPerformController(windowService: WindowService,
-                            $scope: Scope,
-                            sessionService: SessionService,
+class SendPerformController(override val windowService: WindowService,
+                            override val $scope: Scope,
+                            override val sessionService: SessionService,
                             deviceService: DeviceService,
                             $location: Location,
                             $route: js.Dynamic,
-                            $routeParams: js.Dictionary[String]) extends Controller {
-
-  implicit val ws: WindowService = windowService
+                            $routeParams: js.Dictionary[String]) extends Controller with WalletController {
   private val startGas = BigInt($routeParams("fees"))
   private val gasPrice = BigInt($routeParams("price"))
   private val accountId = $routeParams("account_id").toInt

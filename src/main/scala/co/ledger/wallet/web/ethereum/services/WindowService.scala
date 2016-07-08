@@ -3,6 +3,11 @@ package co.ledger.wallet.web.ethereum.services
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.Service
 import co.ledger.wallet.web.ethereum.components.SnackBar.SnackBarInstance
+import co.ledger.wallet.web.ethereum.controllers.WindowController
+import co.ledger.wallet.web.ethereum.core.event.JsEventEmitter
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 /**
   *
@@ -58,11 +63,43 @@ class WindowService extends Service {
     _navigationBarVisibilityListener = Option(handler)
   }
 
+  def notifyRefresh(): Unit = {
+    if (_refreshHandler.isDefined && !isRefreshing) {
+      _refreshing = true
+      eventEmitter.emit(StartRefresh())
+      _refreshHandler.get() onComplete {
+        case all =>
+          _refreshing = false
+          eventEmitter.emit(StopRefresh())
+      }
+    }
+  }
+
+  def isRefreshing = _refreshing
+  private var _refreshing = false
+
+  def bind(windowController: WindowController): Unit = {
+    _windowController = windowController
+  }
+
+  def onRefreshClicked(handler: () => Future[Unit]): Unit = {
+    _refreshHandler = Option(handler)
+  }
+
   private var _navigationBarVisibilityListener: Option[(Boolean) => Unit] = None
   private var _navigationIsVisible = false
 
+  private var _refreshHandler: Option[() => Future[Unit]] = None
+
+  private var _windowController: WindowController = null
+
   // SnackBar features
   var configureSnackBar: (Int, String, String) => SnackBarInstance = (_, _, _) => null
+
+  val eventEmitter = new JsEventEmitter
+
+  case class StartRefresh()
+  case class StopRefresh()
 }
 
 object WindowService {
