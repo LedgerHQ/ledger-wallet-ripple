@@ -43,10 +43,10 @@
             </div>
         </section>
         <div class="spacer"></div>
-        <actionsbottombar>
+        <actions-bottom-bar>
             <lbutton text="scan qr code" type="cancel" disabled="false" ng-click="ctrl.scanQrCode()"></lbutton>
             <lbutton text="send" type="validate" disabled="false" ng-click="ctrl.send()"></lbutton>
-        </actionsbottombar>
+        </actions-bottom-bar>
     </div>
     <div class="wallet-view" ng-hide="!ctrl.isScanning">
         <section class="fullsize centered-content no-top-margin" ng-hide="ctrl.isInProgressionMode">
@@ -60,8 +60,8 @@
                 </div>
             </div>
         </section>
-        <actionsbottombar>
+        <actions-bottom-bar>
             <lbutton text="cancel" type="cancel" disabled="false" ng-click="ctrl.cancelScanQrCode()"></lbutton>
-        </actionsbottombar>
+        </actions-bottom-bar>
     </div>
 </div>

@@ -14,7 +14,7 @@ import co.ledger.wallet.core.wallet.ethereum.rlp.{RLP, RLPTests}
 import co.ledger.wallet.web.ethereum.components._
 import co.ledger.wallet.web.ethereum.controllers.WindowController
 import co.ledger.wallet.web.ethereum.controllers.onboarding.{LaunchController, OpeningController}
-import co.ledger.wallet.web.ethereum.controllers.wallet.{AccountController, ReceiveController, SendIndexController, SendPerformController}
+import co.ledger.wallet.web.ethereum.controllers.wallet._
 import co.ledger.wallet.web.ethereum.core.net.JsWebSocketFactory
 import co.ledger.wallet.web.ethereum.i18n.{I18n, TranslateProvider}
 import co.ledger.wallet.web.ethereum.services.{DeviceService, SessionService, WindowService}
@@ -57,6 +57,7 @@ object Application extends JSApp{
     SendIndexController.init(module)
     SendPerformController.init(module)
     ReceiveController.init(module)
+    HelpController.init(module)
 
     // Services
     WindowService.init(module)

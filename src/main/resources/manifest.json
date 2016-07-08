@@ -11,7 +11,11 @@
     }
   },
   "optional_permissions": [
-    "videoCapture"
+    "videoCapture",
+    "fileSystem",
+    {
+      "fileSystem": ["write"]
+    }
   ],
   "permissions": [
     "*://ledgerwallet.com/*",

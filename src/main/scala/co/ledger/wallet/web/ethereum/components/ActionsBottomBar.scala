@@ -46,5 +46,5 @@ class ActionsBottomBar extends Directive {
 
 object ActionsBottomBar {
   def init(module: RichModule) =
-    module.directiveOf[ActionsBottomBar]("actionsbottombar")
+    module.directiveOf[ActionsBottomBar]("actionsBottomBar")
 }

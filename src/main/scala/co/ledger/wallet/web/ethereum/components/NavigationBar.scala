@@ -50,7 +50,8 @@ class NavigationBar extends Directive {
 
   override def controller(ctrl: ControllerType, scope: Dynamic, elem: JQLite, attrs: Attributes): Unit = {
     scope.items = items
-    scope.help = help
+    scope.rightItems = rightItems
+    scope.synchronize = synchronize
     scope.openHelpCenter = openHelpCenter _
     scope.isSelected = isSelected _
   }
@@ -78,20 +79,29 @@ class NavigationBar extends Directive {
     )
   )
 
-  val help = js.Dictionary(
-    "img" -> "images/navigation_bar/ic_help.png"
+  val rightItems = js.Array(
+    js.Dictionary(
+      "img" -> "images/navigation_bar/ic_help.png",
+      "url" -> "#help"
+    )
+  )
+
+  val synchronize = js.Dictionary(
+    "img" -> "images/refresh_button/ic_white_refresh.png"
   )
 
   for (item <- items) {
     item("path") = "/" + item("url").substring(1)
   }
 
+  for (item <- rightItems) {
+    item("path") = "/" + item("url").substring(1)
+  }
 }
 
 object NavigationBar {
 
   def init(module: RichModule) = {
-    //module.componentOf[NavigationBar]
-    module.directiveOf[NavigationBar]("navigationbar")
+    module.directiveOf[NavigationBar]("navigationBar")
   }
 }

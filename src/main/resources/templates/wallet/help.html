@@ -1,0 +1,49 @@
+<div class="wallet-view" ng-controller="HelpController as ctrl">
+    <section class="help-section">
+        <header>
+            <h1>help</h1>
+        </header>
+        <table>
+            <thead>
+            <tr>
+                <td class="stretch-content">get assistance</td>
+            </tr>
+            </thead>
+            <tbody>
+                <tr class="no-border">
+                    <td>
+                        <div class="sections-container">
+                            <a class="panel" ng-click="ctrl.browseKnowledgeBase()">
+                                <div class="icon"><i class="fa fa-support"></i></div>
+                                <div class="content">
+                                    <div class="uppercase-action">BROWSE KNOWLEDGE BASE</div>
+                                    <div class="regular-soft-grey-text-small">For immediate self-help</div>
+                                </div>
+                                <div class="arrow"><i class="fa fa-angle-right"></i></div>
+                            </a>
+                            <a class="panel" ng-click="ctrl.contactSupport()">
+                                <div class="icon"><i class="fa fa-comments"></i></div>
+                                <div class="content">
+                                    <div class="uppercase-action">CONTACT SUPPORT TEAM</div>
+                                    <div class="regular-soft-grey-text-small">For a fast-and-furious assistance</div>
+                                </div>
+                                <div class="arrow"><i class="fa fa-angle-right"></i></div>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+            <tr>
+                <td class="stretch-content">diagnostic</td>
+                <td class="fit-content regular-grey-text-small"><a ng-click="ctrl.exportLogs()" ><i class="fa fa-external-link-square" aria-hidden="true"></i><span>&nbsp;&nbsp;</span>Export logs</a></td>
+            </tr>
+            </thead>
+        </table>
+        <div>
+            Logs contain anonymous events that are recorded and encrypted locally on your computer. These data are not sent to our servers and may only be exported manually when requested by the Ledger support team.
+        </div>
+    </section>
+</div>

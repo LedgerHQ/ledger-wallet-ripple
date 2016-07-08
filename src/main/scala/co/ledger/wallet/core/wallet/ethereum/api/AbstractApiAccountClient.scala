@@ -129,11 +129,8 @@ abstract class AbstractApiAccountClient(override val wallet: AbstractApiWalletCl
 
   def putTransaction(tx: Transaction): Unit = {
     createOperations(Array(tx)) foreach {(operation) =>
-      println("COMPUTED OP " + operation.uid)
       wallet.putTransactions(Array(operation.transaction)) onComplete {case all =>
-        println("PUT FOR OP " + operation.uid)
         wallet.putOperations(Array(operation)) onComplete {case all =>
-          println("ADD OP " + operation.uid)
           wallet.eventEmitter.emit(NewOperationEvent(this, operation))
         }
       }

@@ -10,9 +10,9 @@
             <div class="medium-top-margin regular-text selectable">{{ctrl.address}}</div>
             <div class="small-top-margin regular-text"><b class="uppercase-section-column">IBAN</b> <span class="selectable">{{ctrl.iban}}</span></div>
         </div>
-        <actionsbottombar class="no-print">
+        <actions-bottom-bar class="no-print">
             <lbutton text="Send by email" ng-click="ctrl.sendEmail(ctrl.address)" type="cancel" disabled="false"></lbutton>
             <lbutton text="print" ng-click="ctrl.print(ctrl.address)" type="validate" disabled="false"></lbutton>
-        </actionsbottombar>
+        </actions-bottom-bar>
     </section>
 </div>

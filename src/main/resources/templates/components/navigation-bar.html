@@ -7,10 +7,17 @@
         <div class="selector"></div>
     </div>
     <div class="spacer"></div>
+    <div class="item" ng-repeat="item in rightItems" ng-class="{selected: isSelected(item.path, location.path())}">
+        <a ng-href="{{item.url}}">
+            <img ng-src="{{item.img}}">
+        </a>
+        <div class="spacer"></div>
+        <div class="selector"></div>
+    </div>
     <div class="right">
         <div class="item">
             <a ng-click="openHelpCenter()">
-                <img ng-src="{{help.img}}">
+                <img ng-src="{{synchronize.img}}">
             </a>
             <div class="spacer"></div>
             <div class="selector"></div>
