@@ -52,6 +52,7 @@ class NavigationBar extends Directive {
     scope.items = items
     scope.rightItems = rightItems
     scope.synchronize = synchronize
+    scope.isRefreshing = true
     scope.openHelpCenter = openHelpCenter _
     scope.isSelected = isSelected _
   }

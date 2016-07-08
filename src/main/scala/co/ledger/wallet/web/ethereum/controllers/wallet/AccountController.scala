@@ -87,7 +87,9 @@ class AccountController(override val windowService: WindowService,
             $scope.$digest()
           case Failure(ex) => ex.printStackTrace()
         } andThen {
-          case all => isLoading = false
+          case all =>
+            isLoading = false
+            refresh()
         }
       }
 
@@ -109,7 +111,6 @@ class AccountController(override val windowService: WindowService,
       js.Dynamic.global.$(js.Dynamic.global.window).resize({() =>
         refresh()
       })
-
       loadMore()
     }
   }

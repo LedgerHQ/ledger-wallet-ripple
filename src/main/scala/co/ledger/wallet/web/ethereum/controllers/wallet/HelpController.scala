@@ -68,7 +68,6 @@ class HelpController(override val windowService: WindowService,
     }
   }
 
-
 }
 
 object HelpController {
