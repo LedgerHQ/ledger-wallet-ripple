@@ -2,7 +2,12 @@ package co.ledger.wallet.web.ethereum.core.database
 
 import java.rmi.activation.ActivationGroup_Stub
 
+import co.ledger.wallet.core.utils.HexUtils
+import co.ledger.wallet.web.ethereum.core.webcrypto.WebCryptoCipher
+import org.scalajs.dom.crypto.GlobalCrypto
+
 import scala.collection.mutable.ArrayBuffer
+import scala.concurrent.Future
 import scala.scalajs.js
 
 /**
@@ -62,6 +67,91 @@ class Model(val entityName: String) {
     dictionary
   }
 
+  def encrypt(creator: ModelCreator[this.type], password: String): Future[Model] = {
+    val encryptedModel = creator.newInstance()
+    val cipher = WebCryptoCipher.AESCBC256(password)
+    def iterate(it: Iterator[(String, Value[_])] = structure.iterator): Future[Model] = {
+      if (!it.hasNext) {
+        Future.successful(encryptedModel)
+      } else {
+        it.next() match {
+          case (key, value: StringValue) =>
+            if (value().isDefined) {
+              cipher.encrypt(value().get.getBytes).flatMap {(data) =>
+                encryptedModel.structure(key).asInstanceOf[StringValue].set(s"encrypted:${HexUtils.encodeHex(data)}")
+                iterate(it)
+              }
+            } else {
+              iterate(it)
+            }
+          case (key, value: IntValue) =>
+            encryptedModel.structure(key).asInstanceOf[IntValue].setWith(value())
+            iterate(it)
+          case (key, value: DoubleValue) =>
+            encryptedModel.structure(key).asInstanceOf[DoubleValue].setWith(value())
+            iterate(it)
+          case (key, value: BooleanValue) =>
+            encryptedModel.structure(key).asInstanceOf[BooleanValue].setWith(value())
+            iterate(it)
+          case (key, value: DateValue) =>
+            encryptedModel.structure(key).asInstanceOf[DateValue].setWith(value())
+            iterate(it)
+          case (key, value: LongValue) =>
+            encryptedModel.structure(key).asInstanceOf[LongValue].setWith(value())
+            iterate(it)
+        }
+      }
+    }
+    iterate()
+  }
+
+  def decrypt(creator: ModelCreator[this.type], password: String): Future[Model] = {
+    val decryptedModel = creator.newInstance()
+    val cipher = WebCryptoCipher.AESCBC256(password)
+    def iterate(it: Iterator[(String, Value[_])] = structure.iterator): Future[Model] = {
+      if (!it.hasNext) {
+        Future.successful(decryptedModel)
+      } else {
+        it.next() match {
+          case (key, value: StringValue) =>
+            if (value().isDefined && value().get.startsWith("encrypted:")) {
+              cipher.encrypt(value().get.substring(10).getBytes).flatMap {(data) =>
+                decryptedModel.structure(key).asInstanceOf[StringValue].set(new String(data))
+                iterate(it)
+              }
+            } else {
+              iterate(it)
+            }
+          case (key, value: IntValue) =>
+            decryptedModel.structure(key).asInstanceOf[IntValue].setWith(value())
+            iterate(it)
+          case (key, value: DoubleValue) =>
+            decryptedModel.structure(key).asInstanceOf[DoubleValue].setWith(value())
+            iterate(it)
+          case (key, value: BooleanValue) =>
+            decryptedModel.structure(key).asInstanceOf[BooleanValue].setWith(value())
+            iterate(it)
+          case (key, value: DateValue) =>
+            decryptedModel.structure(key).asInstanceOf[DateValue].setWith(value())
+            iterate(it)
+          case (key, value: LongValue) =>
+            decryptedModel.structure(key).asInstanceOf[LongValue].setWith(value())
+            iterate(it)
+        }
+      }
+    }
+    iterate()
+  }
+
+  def isEncrypted: Boolean = {
+    structure exists {
+      case (key, value: StringValue) =>
+        value().isDefined && value().get.startsWith("encrypted:")
+      case others =>
+        false
+    }
+  }
+
   private val _indexes = ArrayBuffer[Index]()
 
   case class Index(name: String, keys: Seq[String])
@@ -70,6 +160,11 @@ class Model(val entityName: String) {
     _structure(key) = this
     def set(v: A) = {
       _value = Option(v)
+      Model.this
+    }
+
+    def setWith(v: Option[A]) = {
+      _value = v
       Model.this
     }
 

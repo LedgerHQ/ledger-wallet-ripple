@@ -11,7 +11,7 @@ import scala.scalajs.js
 import scala.scalajs.js.JSON
 import scala.util.{Failure, Success}
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.{Future, Promise, duration}
 import scala.scalajs.js.annotation.JSName
 /**
   *
@@ -121,7 +121,11 @@ class Logger {
       case Success(_) =>
       case Failure(ex) => ex.printStackTrace()
     }
-
+    import duration._
+    val deprecatedLogDate = new Date(new Date().getTime - 2.days.toMillis)
+    LogEntry.readwrite().openCursor("createdAt").lt(new js.Date(deprecatedLogDate.getTime)).writeCursor foreach {(cursor) =>
+      cursor.deleteAll(_ => true)
+    }
   }
 
   private def levelToColor(level: String) = level match {
