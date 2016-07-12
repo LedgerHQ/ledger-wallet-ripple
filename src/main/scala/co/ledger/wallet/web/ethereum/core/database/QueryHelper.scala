@@ -1,5 +1,7 @@
 package co.ledger.wallet.web.ethereum.core.database
 
+import co.ledger.wallet.web.ethereum.core.sjcl.SjclAesCipher
+import co.ledger.wallet.web.ethereum.services.SessionService
 import org.scalajs.dom.{ErrorEvent, Event, idb}
 
 import scala.collection.mutable.ArrayBuffer
@@ -44,14 +46,15 @@ abstract class QueryHelper[M >: Null <: Model](implicit classTag: ClassTag[M]) {
   def creator: ModelCreator[M]
   def newInstance(): M
 
-  def readonly(): ReadOnlyQueryBuilder = new ReadOnlyQueryBuilder
-  def readwrite(): ReadWriteQueryBuilder = new ReadWriteQueryBuilder
+  def readonly(password: Option[String]): ReadOnlyQueryBuilder = new ReadOnlyQueryBuilder(password)
+  def readwrite(password: Option[String]): ReadWriteQueryBuilder = new ReadWriteQueryBuilder(password)
 
   trait QueryBuilder {
     protected def mode: String
     def commit(): Future[QueryResult] = {
       _steps.commit(mode)
     }
+    protected val password: Option[String]
     def cursor: Future[Cursor[M]] = openCursor().commit().map(_.cursor)
     def items: Future[Array[M]] = commit().map(_.items)
     def openCursor(keys: String*): this.type
@@ -60,24 +63,31 @@ abstract class QueryHelper[M >: Null <: Model](implicit classTag: ClassTag[M]) {
     private var _steps: QueryStep = new QueryStep(null, (_, _) => Future.successful())
   }
 
-  class ReadOnlyQueryBuilder extends QueryBuilder with CursorBuilder[M] {
+  class ReadOnlyQueryBuilder(protected override val password: Option[String]) extends QueryBuilder with CursorBuilder[M] {
     override protected implicit val modelClassTag: ClassTag[M] = classTag
     override protected val modelDeclaration: M = QueryHelper.this.modelDeclaration
     override protected def mode: String = "readonly"
-
+    private lazy val cipher = new SjclAesCipher(password.get)
     override protected val creator: ModelCreator[M] = QueryHelper.this.creator
 
     def get(primaryKey: js.Any): this.type = {
       this :+ {(transaction, result) =>
         val promise = Promise[Unit]()
         val objectStore = transaction.objectStore(modelDeclaration.entityName)
-        val request = objectStore.get(primaryKey)
+        val k: js.Any = {
+          if (modelDeclaration.structure.find(_._2.isUnique).get._2.isEncrypted) {
+            s"encrypted:${cipher.encrypt(primaryKey.asInstanceOf[String])}"
+          } else {
+            primaryKey
+          }
+        }
+        val request = objectStore.get(k)
         request.onerror = {(event: ErrorEvent) =>
           promise.failure(new Exception(event.message))
         }
         request.onsuccess = {(event: Event) =>
           if (!js.isUndefined(event.asInstanceOf[js.Dynamic].target.result.asInstanceOf[js.Dictionary[js.Any]])) {
-            val r = creator(event.asInstanceOf[js.Dynamic].target.result.asInstanceOf[js.Dictionary[js.Any]])
+            val r = creator(event.asInstanceOf[js.Dynamic].target.result.asInstanceOf[js.Dictionary[js.Any]], password)
             result.addItem(r)
           }
           promise.success()
@@ -121,13 +131,13 @@ abstract class QueryHelper[M >: Null <: Model](implicit classTag: ClassTag[M]) {
 
   }
 
-  class ReadWriteQueryBuilder extends ReadOnlyQueryBuilder {
+  class ReadWriteQueryBuilder(pwd: Option[String]) extends ReadOnlyQueryBuilder(pwd) {
     override protected def mode: String = "readwrite"
     def add(item: M): this.type = {
       this :+ {(transaction, result) =>
         val promise = Promise[Unit]()
         try {
-          val request = transaction.objectStore(modelDeclaration.entityName).add(item.toDictionary)
+          val request = transaction.objectStore(modelDeclaration.entityName).add(item.toDictionary(password))
           request.onerror = { (event: ErrorEvent) =>
             promise.failure(new Exception(event.asInstanceOf[js.Dynamic].target.error.message.asInstanceOf[String]))
           }

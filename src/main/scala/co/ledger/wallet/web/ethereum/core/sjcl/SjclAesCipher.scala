@@ -1,13 +1,13 @@
-package co.ledger.wallet.core.utils.logs
+package co.ledger.wallet.web.ethereum.core.sjcl
 
-import co.ledger.wallet.web.ethereum.core.database.{DatabaseDeclaration, Model, ModelCreator, QueryHelper}
+import scala.scalajs.js
 
 /**
   *
-  * LogEntry
+  * SjclAesCipher
   * ledger-wallet-ethereum-chrome
   *
-  * Created by Pierre Pollastri on 10/06/2016.
+  * Created by Pierre Pollastri on 11/07/2016.
   *
   * The MIT License (MIT)
   *
@@ -32,19 +32,29 @@ import co.ledger.wallet.web.ethereum.core.database.{DatabaseDeclaration, Model, 
   * SOFTWARE.
   *
   */
-class LogEntry extends Model("log_entry") {
+class SjclAesCipher(key: String, iv: String = "554f0cafd67ddcaa", salt: String = "846cea3ae6a33474d6ae2221d8563eaaba73ef9ea20e1803") {
+  private val sjcl = js.Dynamic.global.sjcl
 
-  val id = int("id").autoincrement()
-  val level = string("level")
-  val tag = string("tag")
-  val entry = string("entry").encrypted()
-  val createdAt = date("createdAt").index()
-  val owner = string("owner")
+  def encrypt(data: String): String = {
+    val encryption = sjcl.json._encrypt(key, data, params)
+    sjcl.codec.base64.fromBits(encryption.ct, 0).asInstanceOf[String]
+  }
 
-}
+  def decrypt(data: String): String = {
+    val p = params
+    p.ct = sjcl.codec.base64.toBits(data)
+    sjcl.json._decrypt(key, p).asInstanceOf[String]
+  }
 
-object LogEntry extends QueryHelper[LogEntry] with ModelCreator[LogEntry] {
-  override def database: DatabaseDeclaration = LogsDatabaseDeclaration
-  override def creator: ModelCreator[LogEntry] = this
-  override def newInstance(): LogEntry = new LogEntry
+  private def params = js.Dynamic.literal(
+    v = 1,
+    iter = 1000,
+    ks = 256,
+    ts = 128,
+    mode = "ccm",
+    adata = "",
+    cipher = "aes",
+    iv = sjcl.codec.base64.toBits(iv),
+    salt = sjcl.codec.base64.toBits(salt)
+  )
 }

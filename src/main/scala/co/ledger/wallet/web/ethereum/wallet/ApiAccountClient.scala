@@ -41,10 +41,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
   * SOFTWARE.
   *
   */
-class ApiAccountClient(override val wallet: ApiWalletClient, accountRow: AccountRow)
+class ApiAccountClient(override val wallet: ApiWalletClient, override protected val password: Option[String], accountRow: AccountRow)
   extends AbstractApiAccountClient(wallet, accountRow) with IndexedDBBackedAccountClient {
-
-
 
   override protected def load(): Future[AccountSavedState] = {
     Future.successful({

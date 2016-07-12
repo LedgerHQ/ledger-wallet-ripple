@@ -44,12 +44,12 @@ import scala.scalajs.js
   * SOFTWARE.
   *
   */
-class ApiWalletClient(name: String, provider: EthereumAccountProvider) extends AbstractApiWalletClient(name) with IndexedDBBackedWalletClient {
+class ApiWalletClient(name: String, override protected val password: Option[String], provider: EthereumAccountProvider) extends AbstractApiWalletClient(name) with IndexedDBBackedWalletClient {
 
   override implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
   override protected def newAccountClient(accountRow: AccountRow): AbstractApiAccountClient = {
-    new ApiAccountClient(this, accountRow)
+    new ApiAccountClient(this, password, accountRow)
   }
 
   override def ethereumAccountProvider: EthereumAccountProvider = provider

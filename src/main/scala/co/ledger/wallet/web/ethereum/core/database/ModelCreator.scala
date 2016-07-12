@@ -1,5 +1,6 @@
 package co.ledger.wallet.web.ethereum.core.database
 
+import co.ledger.wallet.web.ethereum.core.sjcl.SjclAesCipher
 import org.scalajs.dom.idb
 
 import scala.scalajs.js
@@ -63,14 +64,20 @@ trait ModelCreator[M <: Model] {
     }
   }
 
-  def apply(map: js.Dictionary[js.Any]): M = {
+  def apply(map: js.Dictionary[js.Any], password: Option[String]): M = {
     val result = newInstance()
+    val cipher = password.map(new SjclAesCipher(_))
     for (field <- result.structure.toSeq.map(_._2) if map.contains(field.key)) {
       field match {
         case f: result.IntValue =>
           f.set(map(f.key).asInstanceOf[Int])
         case f: result.StringValue =>
-          f.set(map(f.key).asInstanceOf[String])
+          val value = map(f.key).asInstanceOf[String]
+          if (cipher.isDefined && value.startsWith("encrypted:")) {
+            f.set(cipher.get.decrypt(value.substring(10)))
+          } else {
+            f.set(value)
+          }
         case f: result.DoubleValue =>
           f.set(map(f.key).asInstanceOf[Double])
         case f: result.BooleanValue =>

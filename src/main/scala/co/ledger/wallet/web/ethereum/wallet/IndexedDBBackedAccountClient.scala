@@ -6,10 +6,12 @@ import co.ledger.wallet.core.utils.logs.Logger
 import co.ledger.wallet.core.wallet.ethereum.database.DatabaseBackedAccountClient
 import co.ledger.wallet.core.wallet.ethereum._
 import co.ledger.wallet.web.ethereum.content.{OperationModel, TransactionModel}
+import co.ledger.wallet.web.ethereum.services.SessionService
 import org.scalajs.dom.idb.Cursor
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{ExecutionContext, Future}
+import scala.scalajs.js
 
 /**
   *
@@ -43,11 +45,14 @@ import scala.concurrent.{ExecutionContext, Future}
   */
 trait IndexedDBBackedAccountClient extends DatabaseBackedAccountClient {
   implicit val ec: ExecutionContext
+
+  protected val password: Option[String]
+
   def wallet: IndexedDBBackedWalletClient
 
   override def transactionNonce(): Future[BigInt] = ethereumAccount() flatMap {(account) =>
     val address = account.toString
-    wallet.TransactionModel.readonly().openCursor("nonce").reverse().cursor flatMap {(cursor) =>
+    wallet.TransactionModel.readonly(password).openCursor("nonce").reverse().cursor flatMap {(cursor) =>
       def findLastTransaction(): Future[Option[TransactionModel]] = {
         cursor.value match {
           case Some(transaction) =>
@@ -69,7 +74,7 @@ trait IndexedDBBackedAccountClient extends DatabaseBackedAccountClient {
   }
 
   override def queryOperation(from: Int, to: Int): Future[Array[Operation]] = {
-    wallet.OperationModel.readonly().openCursor("time").reverse().cursor flatMap {(cursor) =>
+    wallet.OperationModel.readonly(password).openCursor("time").reverse().cursor flatMap {(cursor) =>
       val length = to - from
       val result = new ArrayBuffer[OperationModel](length)
       def iterate(): Future[Array[OperationModel]] = {
@@ -103,11 +108,11 @@ trait IndexedDBBackedAccountClient extends DatabaseBackedAccountClient {
   }
 
   private def getOperation(model: OperationModel): Future[Operation] = {
-    wallet.TransactionModel.readonly().get(model.transactionHash().get).items map {(txs) =>
+    wallet.TransactionModel.readonly(password).get(model.transactionHash().get).items map {(txs) =>
       txs.head
     } flatMap {(tx) =>
       tx.blockHash() map {(blockHash) =>
-        wallet.BlockModel.readonly().get(blockHash).items.map(_.headOption)
+        wallet.BlockModel.readonly(password).get(blockHash).items.map(_.headOption)
       } getOrElse {
         Future.successful(None)
       } map {(b) =>
@@ -149,6 +154,6 @@ trait IndexedDBBackedAccountClient extends DatabaseBackedAccountClient {
   }
 
   override def countOperations(): Future[Long] = {
-    wallet.OperationModel.readonly().exactly(index).openCursor("accountId").count
+    wallet.OperationModel.readonly(password).exactly(index).openCursor("accountId").count
   }
 }

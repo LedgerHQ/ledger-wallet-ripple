@@ -16,11 +16,12 @@ import co.ledger.wallet.web.ethereum.controllers.WindowController
 import co.ledger.wallet.web.ethereum.controllers.onboarding.{LaunchController, OpeningController}
 import co.ledger.wallet.web.ethereum.controllers.wallet._
 import co.ledger.wallet.web.ethereum.core.net.JsWebSocketFactory
+import co.ledger.wallet.web.ethereum.core.sjcl.SjclAesCipher
 import co.ledger.wallet.web.ethereum.core.webcrypto.WebCryptoCipher
 import co.ledger.wallet.web.ethereum.i18n.{I18n, TranslateProvider}
 import co.ledger.wallet.web.ethereum.services.{DeviceService, SessionService, WindowService}
-import scala.concurrent.ExecutionContext.Implicits.global
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
 import scala.scalajs.js.JSApp
 import scala.util.{Failure, Success}
@@ -76,8 +77,6 @@ object Application extends JSApp{
 
     LoggerPrintStream.init()
     LogSourceMapper.init()
-
-    val cipher = WebCryptoCipher.AESCBC256("toto")
   }
 
   def initApp($http: HttpService, $rootScope: js.Dynamic, $location: js.Dynamic) = {

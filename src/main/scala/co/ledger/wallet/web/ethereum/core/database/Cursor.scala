@@ -1,5 +1,6 @@
 package co.ledger.wallet.web.ethereum.core.database
 
+import co.ledger.wallet.web.ethereum.core.sjcl.SjclAesCipher
 import org.scalajs.dom.{ErrorEvent, Event, idb}
 
 import scala.collection.mutable.ArrayBuffer
@@ -38,7 +39,7 @@ import scala.scalajs.js
   * SOFTWARE.
   *
   */
-class Cursor[M >: Null <: Model](request: idb.Request, creator: ModelCreator[M])(implicit classTag: ClassTag[M]) {
+class Cursor[M >: Null <: Model](request: idb.Request, creator: ModelCreator[M], password: Option[String])(implicit classTag: ClassTag[M]) {
 
   def foreach(f: (Option[M]) => Unit): Unit = foreach(-1)(f)
   def foreach(limit: Int)(f: (Option[M]) => Unit): Unit = foreach(0, limit)(f)
@@ -108,7 +109,7 @@ class Cursor[M >: Null <: Model](request: idb.Request, creator: ModelCreator[M])
   request.onsuccess = {(event: Event) =>
     _cursor = event.target.asInstanceOf[js.Dynamic].result.asInstanceOf[idb.Cursor]
     if (_cursor != null)
-      _valuePromise.success(creator(_cursor.asInstanceOf[js.Dynamic].value.asInstanceOf[js.Dictionary[js.Any]]))
+      _valuePromise.success(creator(_cursor.asInstanceOf[js.Dynamic].value.asInstanceOf[js.Dictionary[js.Any]], password))
     else
       _valuePromise.success(null)
   }
@@ -117,14 +118,14 @@ class Cursor[M >: Null <: Model](request: idb.Request, creator: ModelCreator[M])
   }
 }
 
-class WriteCursor[M >: Null <: Model](request: idb.Request, creator: ModelCreator[M])(implicit classTag: ClassTag[M]) extends Cursor[M](request, creator) {
+class WriteCursor[M >: Null <: Model](request: idb.Request, creator: ModelCreator[M], password: Option[String])(implicit classTag: ClassTag[M]) extends Cursor[M](request, creator, password) {
 
   def delete(): Unit = {
     _cursor.delete()
   }
 
   def update(newData: M): Future[Unit] = {
-    val request = _cursor.update(newData.toDictionary)
+    val request = _cursor.update(newData.toDictionary(password))
     val promise = Promise[Unit]()
     request.onsuccess = {(_: js.Any) =>
       promise.success()
@@ -159,6 +160,9 @@ trait CursorBuilder[M >: Null <: Model] {
   protected implicit val modelClassTag: ClassTag[M]
   protected val modelDeclaration: M
   protected val creator: ModelCreator[M]
+  protected val password: Option[String]
+  private lazy val modelStructure = creator.newInstance().structure
+  private lazy val cipher = new SjclAesCipher(password.get)
   protected def useWriteCursor() = _writable = true
   protected def buildCursor(transaction: idb.Transaction): Future[Cursor[M]] = {
     val store = transaction.objectStore(modelDeclaration.entityName)
@@ -181,9 +185,9 @@ trait CursorBuilder[M >: Null <: Model] {
     }
     val cursor = {
       if (_writable)
-        new WriteCursor[M](request, creator)
+        new WriteCursor[M](request, creator, password)
       else
-        new Cursor[M](request, creator)
+        new Cursor[M](request, creator, password)
     }
     cursor.futureValue.map((_) => cursor)
   }
@@ -243,36 +247,60 @@ trait CursorBuilder[M >: Null <: Model] {
     promise.future
   }
 
+  private def encryptSingleRangeItem(data: js.Any, fieldName: String, throwIfEncrypted: Boolean): js.Any = {
+    val field = modelStructure(fieldName)
+    if (field.isEncrypted && throwIfEncrypted) {
+      throw new Exception("Encrypted field can only be used in equality ranges")
+    } else if (field.isEncrypted) {
+      s"encrypted:${cipher.encrypt(data.toString)}"
+    } else {
+      data
+    }
+  }
+
+  private def encryptRange(data: ArrayBuffer[js.Any], throwIfEncrypted: Boolean): js.Array[js.Any] = {
+    var index = -1
+    val indexes = indexName.get.split(",")
+    js.Array(data.map({(item) =>
+      index += 1
+      encryptSingleRangeItem(item, indexes(index), throwIfEncrypted)
+    }):_*)
+  }
+
+  private def encryptRange(data: js.Any, throwIfEncrypted: Boolean): js.Any = {
+    encryptSingleRangeItem(data, modelStructure.find(_._2.isUnique).get._1, throwIfEncrypted)
+  }
+
   private def createRange(): idb.KeyRange = {
     if (_eq.isEmpty && _gt.isEmpty && _lt.isEmpty && _lte.isEmpty && _gte.isEmpty) {
       null
     } else if (_eq.nonEmpty && _gt.isEmpty && _lt.isEmpty && _lte.isEmpty && _gte.isEmpty) {
       // ==
       if (indexName.nonEmpty)
-        idb.KeyRange.only(js.Array(_eq:_*))
+        idb.KeyRange.only(encryptRange(_eq, false))
       else
-        idb.KeyRange.only(_eq.head)
+        idb.KeyRange.only(encryptRange(_eq.head, false))
     } else if (_eq.isEmpty && _gt.nonEmpty && _lt.isEmpty && _lte.isEmpty && _gte.isEmpty) {
       // <
       if (indexName.nonEmpty)
-        idb.KeyRange.lowerBound(js.Array(_lt:_*), true)
+        idb.KeyRange.lowerBound(encryptRange(_lt, true), true)
       else
-        idb.KeyRange.lowerBound(_lt.head, true)
+        idb.KeyRange.lowerBound(encryptRange(_lt.head, true), true)
     } else if (_eq.isEmpty && _gt.isEmpty && _lt.nonEmpty && _lte.isEmpty && _gte.isEmpty) {
       // >
-      idb.KeyRange.upperBound(js.Array(_gt:_*), true)
+      idb.KeyRange.upperBound(encryptRange(_gt, true), true)
     } else if (_eq.isEmpty && _gt.nonEmpty && _lt.nonEmpty && _lte.isEmpty && _gte.isEmpty) {
       // > <
-      idb.KeyRange.bound(js.Array(_lt:_*), js.Array(_gt:_*), true, true)
+      idb.KeyRange.bound(encryptRange(_lt, true), encryptRange(_gt, true), true, true)
     } else if (_eq.isEmpty && _gt.isEmpty && _lt.isEmpty && _lte.nonEmpty && _gte.nonEmpty) {
       // >= <=
-      idb.KeyRange.bound(js.Array(_lte:_*), js.Array(_gte:_*), false, false)
+      idb.KeyRange.bound(encryptRange(_lte, true), encryptRange(_gte, true), false, false)
     } else if (_eq.isEmpty && _gt.nonEmpty && _lt.isEmpty && _lte.nonEmpty && _gte.isEmpty) {
       // > <=
-      idb.KeyRange.bound(js.Array(_lte:_*), js.Array(_gt:_*), true, false)
+      idb.KeyRange.bound(encryptRange(_lte, true), encryptRange(_gt, true), true, false)
     } else if (_eq.isEmpty && _gt.isEmpty && _lt.nonEmpty && _lte.isEmpty && _gte.nonEmpty) {
       // >= <
-      idb.KeyRange.bound(js.Array(_lte:_*), js.Array(_gt:_*), false, true)
+      idb.KeyRange.bound(encryptRange(_lte, true), encryptRange(_gt, true), false, true)
     } else {
       throw new Exception("Invalid range")
     }

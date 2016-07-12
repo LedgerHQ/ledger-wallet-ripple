@@ -3,6 +3,7 @@ package co.ledger.wallet.web.ethereum.core.database
 import java.rmi.activation.ActivationGroup_Stub
 
 import co.ledger.wallet.core.utils.HexUtils
+import co.ledger.wallet.web.ethereum.core.sjcl.SjclAesCipher
 import co.ledger.wallet.web.ethereum.core.webcrypto.WebCryptoCipher
 import org.scalajs.dom.crypto.GlobalCrypto
 
@@ -52,12 +53,18 @@ class Model(val entityName: String) {
   protected def index(keys: String*): Unit = _indexes.append(Index(keys.mkString(", "), keys))
   def indexes = _indexes.toArray
 
-  def toDictionary: js.Dictionary[js.Any] = {
+  def toDictionary(password: Option[String] = None): js.Dictionary[js.Any] = {
     val dictionary = js.Dictionary[js.Any]()
+    val cipher = password.map(new SjclAesCipher(_))
     for (field <- structure.toSeq.map(_._2) if field().isDefined) {
       dictionary(field.key) = field match {
         case f: IntValue => f().get
-        case f: StringValue => f().get
+        case f: StringValue =>
+          if (f.isEncrypted && cipher.isDefined) {
+            s"encrypted:${cipher.get.encrypt(f().get)}"
+          } else {
+            f().get
+          }
         case f: DoubleValue => f().get
         case f: BooleanValue => f().get
         case f: DateValue => f().get
@@ -65,82 +72,6 @@ class Model(val entityName: String) {
       }
     }
     dictionary
-  }
-
-  def encrypt(creator: ModelCreator[this.type], password: String): Future[Model] = {
-    val encryptedModel = creator.newInstance()
-    val cipher = WebCryptoCipher.AESCBC256(password)
-    def iterate(it: Iterator[(String, Value[_])] = structure.iterator): Future[Model] = {
-      if (!it.hasNext) {
-        Future.successful(encryptedModel)
-      } else {
-        it.next() match {
-          case (key, value: StringValue) =>
-            if (value().isDefined) {
-              cipher.encrypt(value().get.getBytes).flatMap {(data) =>
-                encryptedModel.structure(key).asInstanceOf[StringValue].set(s"encrypted:${HexUtils.encodeHex(data)}")
-                iterate(it)
-              }
-            } else {
-              iterate(it)
-            }
-          case (key, value: IntValue) =>
-            encryptedModel.structure(key).asInstanceOf[IntValue].setWith(value())
-            iterate(it)
-          case (key, value: DoubleValue) =>
-            encryptedModel.structure(key).asInstanceOf[DoubleValue].setWith(value())
-            iterate(it)
-          case (key, value: BooleanValue) =>
-            encryptedModel.structure(key).asInstanceOf[BooleanValue].setWith(value())
-            iterate(it)
-          case (key, value: DateValue) =>
-            encryptedModel.structure(key).asInstanceOf[DateValue].setWith(value())
-            iterate(it)
-          case (key, value: LongValue) =>
-            encryptedModel.structure(key).asInstanceOf[LongValue].setWith(value())
-            iterate(it)
-        }
-      }
-    }
-    iterate()
-  }
-
-  def decrypt(creator: ModelCreator[this.type], password: String): Future[Model] = {
-    val decryptedModel = creator.newInstance()
-    val cipher = WebCryptoCipher.AESCBC256(password)
-    def iterate(it: Iterator[(String, Value[_])] = structure.iterator): Future[Model] = {
-      if (!it.hasNext) {
-        Future.successful(decryptedModel)
-      } else {
-        it.next() match {
-          case (key, value: StringValue) =>
-            if (value().isDefined && value().get.startsWith("encrypted:")) {
-              cipher.encrypt(value().get.substring(10).getBytes).flatMap {(data) =>
-                decryptedModel.structure(key).asInstanceOf[StringValue].set(new String(data))
-                iterate(it)
-              }
-            } else {
-              iterate(it)
-            }
-          case (key, value: IntValue) =>
-            decryptedModel.structure(key).asInstanceOf[IntValue].setWith(value())
-            iterate(it)
-          case (key, value: DoubleValue) =>
-            decryptedModel.structure(key).asInstanceOf[DoubleValue].setWith(value())
-            iterate(it)
-          case (key, value: BooleanValue) =>
-            decryptedModel.structure(key).asInstanceOf[BooleanValue].setWith(value())
-            iterate(it)
-          case (key, value: DateValue) =>
-            decryptedModel.structure(key).asInstanceOf[DateValue].setWith(value())
-            iterate(it)
-          case (key, value: LongValue) =>
-            decryptedModel.structure(key).asInstanceOf[LongValue].setWith(value())
-            iterate(it)
-        }
-      }
-    }
-    iterate()
   }
 
   def isEncrypted: Boolean = {

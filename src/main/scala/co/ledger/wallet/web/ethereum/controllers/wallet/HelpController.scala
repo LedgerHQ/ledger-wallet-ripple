@@ -59,12 +59,17 @@ class HelpController(override val windowService: WindowService,
 
   def exportLogs(): Unit = {
     println("Exporting")
-    PermissionsHelper.requestIfNecessary("fileSystem.write") flatMap {_ =>
+    PermissionsHelper.requestIfNecessary("fileSystem") flatMap { _ =>
+      PermissionsHelper.requestIfNecessary("fileSystem.write")
+    } flatMap {_ =>
       ChromeFileSystem.chooseFileEntry(s"ledger-ethereum-chrome-logs-${new Date().getTime}.logs")
     } flatMap {(entry) =>
       LogExporter.toBlob flatMap {(content) =>
         entry.write(content)
       }
+    } onComplete {
+      case Success(_) =>
+      case Failure(ex) => ex.printStackTrace()
     }
   }
 

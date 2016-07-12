@@ -5,6 +5,7 @@ import java.util.Date
 
 import co.ledger.wallet.web.ethereum.core.utils.JQueryHelper
 import co.ledger.wallet.web.ethereum.core.utils.JQueryHelper._
+import co.ledger.wallet.web.ethereum.services.SessionService
 import org.scalajs.dom.raw.{Blob, URL}
 
 import scala.scalajs.js
@@ -117,13 +118,13 @@ class Logger {
     entry.entry.set(v)
     entry.createdAt.set(date)
 
-    LogEntry.readwrite().add(entry).commit().onComplete {
+    LogEntry.readwrite(SessionService.instance.currentSession.map(_.password)).add(entry).commit().onComplete {
       case Success(_) =>
       case Failure(ex) => ex.printStackTrace()
     }
     import duration._
     val deprecatedLogDate = new Date(new Date().getTime - 2.days.toMillis)
-    LogEntry.readwrite().openCursor("createdAt").lt(new js.Date(deprecatedLogDate.getTime)).writeCursor foreach {(cursor) =>
+    LogEntry.readwrite(SessionService.instance.currentSession.map(_.password)).openCursor("createdAt").lt(new js.Date(deprecatedLogDate.getTime)).writeCursor foreach {(cursor) =>
       cursor.deleteAll(_ => true)
     }
   }
@@ -178,7 +179,7 @@ object LogExporter {
   def toBlob: Future[Blob] = {
     val promise = Promise[Blob]()
     val writer = new StringWriter()
-    LogEntry.readonly().cursor flatMap {(cursor) =>
+    LogEntry.readonly(SessionService.instance.currentSession.map(_.password)).cursor flatMap {(cursor) =>
       cursor foreach {(item) =>
         item match {
           case Some(entry) =>

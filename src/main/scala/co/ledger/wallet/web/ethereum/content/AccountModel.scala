@@ -35,7 +35,7 @@ import co.ledger.wallet.web.ethereum.core.database.Model
   */
 class AccountModel extends Model("accounts") {
   val index = int("index").unique()
-  val ethereumAccount = string("ethereumAccount")
+  val ethereumAccount = string("ethereumAccount").encrypted()
 
   def proxy = new AccountRow(index().get, ethereumAccount().get)
 }

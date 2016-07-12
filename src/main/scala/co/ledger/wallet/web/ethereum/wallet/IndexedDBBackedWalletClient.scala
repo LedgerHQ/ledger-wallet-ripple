@@ -5,6 +5,7 @@ import co.ledger.wallet.core.wallet.ethereum.database.{AccountRow, DatabaseBacke
 import co.ledger.wallet.web.ethereum.content
 import co.ledger.wallet.web.ethereum.content.{AccountModel, OperationModel, TransactionModel}
 import co.ledger.wallet.web.ethereum.core.database.{DatabaseDeclaration, ModelCreator, QueryHelper}
+import co.ledger.wallet.web.ethereum.services.SessionService
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
@@ -43,6 +44,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
   */
 trait IndexedDBBackedWalletClient extends DatabaseBackedWalletClient {
 
+  protected val password: Option[String]
+
   // Constructor
   // TODO: Remove database delete
   // DatabaseDeclaration.delete()
@@ -50,11 +53,11 @@ trait IndexedDBBackedWalletClient extends DatabaseBackedWalletClient {
   // \Constructor
 
   override def putBlock(block: Block): Future[Unit] = {
-    BlockModel.readwrite().add(BlockModel(block)).commit().map((_) => ()).recover({case all => ()})
+    BlockModel.readwrite(password).add(BlockModel(block)).commit().map((_) => ()).recover({case all => ()})
   }
 
   override protected def putAccount(accountRow: AccountRow): Future[Unit] = {
-    AccountModel.readwrite().add(AccountModel(accountRow)).commit().map((_) => ())
+    AccountModel.readwrite(password).add(AccountModel(accountRow)).commit().map((_) => ())
   }
 
   override def startDatabaseTransaction(): Unit = () // Noop
@@ -63,7 +66,7 @@ trait IndexedDBBackedWalletClient extends DatabaseBackedWalletClient {
 
   override protected def queryAccounts(from: Int, to: Int): Future[Array[AccountRow]] = {
     val result = new ArrayBuffer[AccountRow]()
-    AccountModel.readonly().cursor flatMap {(cursor) =>
+    AccountModel.readonly(password).cursor flatMap {(cursor) =>
       cursor.advance(from) flatMap {(_) =>
         def iterate(): Future[Array[AccountRow]] = {
           if (cursor.value.isEmpty || result.length >= to - from)
@@ -79,23 +82,23 @@ trait IndexedDBBackedWalletClient extends DatabaseBackedWalletClient {
   }
 
   override protected def queryLastBlock(): Future[Block] = {
-    BlockModel.readonly().reverse().cursor map {(cursor) =>
+    BlockModel.readonly(password).reverse().cursor map {(cursor) =>
       cursor.value.map(_.proxy).orNull
     }
   }
 
   override protected def deleteBlocks(hashes: Array[String]): Future[Unit] = {
-    BlockModel.readwrite().deleteAll(hashes contains _.hash().get).map({(_) => ()})
+    BlockModel.readwrite(password).deleteAll(hashes contains _.hash().get).map({(_) => ()})
   }
 
   override protected def deleteTransactions(hashes: Array[String]): Future[Unit] =
-    TransactionModel.readwrite().deleteAll(hashes contains _.hash().get).map({_ => ()})
+    TransactionModel.readwrite(password).deleteAll(hashes contains _.hash().get).map({_ => ()})
 
   override protected def deleteOperations(transactionsHashes: Array[String]): Future[Unit] =
-    OperationModel.readwrite().deleteAll(transactionsHashes contains _.transactionHash().get).map({_ => ()})
+    OperationModel.readwrite(password).deleteAll(transactionsHashes contains _.transactionHash().get).map({_ => ()})
 
   override protected def queryTransactions(minBlockHeight: Long): Future[Array[Transaction]] = {
-    TransactionModel.readonly().openCursor("blockHeight").gte(minBlockHeight).cursor flatMap {(c) =>
+    TransactionModel.readonly(password).openCursor("blockHeight").gte(minBlockHeight).cursor flatMap {(c) =>
       c.toArray.map(_.map(_.proxy))
     }
   }
@@ -109,9 +112,9 @@ trait IndexedDBBackedWalletClient extends DatabaseBackedWalletClient {
     * @return
     */
   override def putTransaction(transaction: Transaction): Future[Unit] = {
-    TransactionModel.readwrite().openCursor().exactly(transaction.hash).writeCursor flatMap {(cursor) =>
+    TransactionModel.readwrite(password).openCursor().exactly(transaction.hash).writeCursor flatMap {(cursor) =>
       if (cursor.value.isEmpty) {
-        TransactionModel.readwrite().add(TransactionModel(transaction)).commit()
+        TransactionModel.readwrite(password).add(TransactionModel(transaction)).commit()
       } else {
         cursor.update(TransactionModel(transaction))
       }
@@ -139,9 +142,9 @@ trait IndexedDBBackedWalletClient extends DatabaseBackedWalletClient {
   }
 
   override def putOperation(operation: Operation): Future[Unit] = {
-    OperationModel.readwrite().openCursor().exactly(operation.uid).writeCursor flatMap {(cursor) =>
+    OperationModel.readwrite(password).openCursor().exactly(operation.uid).writeCursor flatMap {(cursor) =>
       if (cursor.value.isEmpty) {
-        OperationModel.readwrite().add(OperationModel(operation)).commit()
+        OperationModel.readwrite(password).add(OperationModel(operation)).commit()
       } else {
         cursor.update(OperationModel(operation))
       }
@@ -166,7 +169,7 @@ trait IndexedDBBackedWalletClient extends DatabaseBackedWalletClient {
   override protected def queryTransaction(hash: String): Future[Array[Transaction]] = queryTransactions(Array(hash))
 
   override protected def queryTransactions(hashes: Array[String]): Future[Array[Transaction]] = {
-    val request = TransactionModel.readonly()
+    val request = TransactionModel.readonly(password)
     for (hash <- hashes) {
       request.get(hash)
     }

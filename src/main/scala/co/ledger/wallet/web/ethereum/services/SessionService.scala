@@ -70,7 +70,7 @@ class SessionService extends Service {
   private var _currentSession: Option[Session] = None
 
   class Session(val name: String, val password: String, provider: EthereumAccountProvider) {
-    val wallet: Wallet = new ApiWalletClient(name, provider)
+    val wallet: Wallet = new ApiWalletClient(name, Option(password), provider)
 
     val sessionPreferences = scala.collection.mutable.Map[String, Any]()
   }
