@@ -50,7 +50,6 @@ class AccountController(override val windowService: WindowService,
                         $element: JQLite,
                         $routeParams: js.Dictionary[String])
   extends Controller with WalletController with EventReceiver {
-  println(JSON.stringify($routeParams))
 
   val accountId = $routeParams("id").toInt
 
@@ -79,7 +78,7 @@ class AccountController(override val windowService: WindowService,
               operations.push(js.Dictionary[js.Any](
                 "uid" -> op.uid,
                 "hash" -> op.transaction.hash,
-                "date" -> DateFormat.formatStandard(op.transaction.receivedAt),
+                "date" -> new js.Date(op.transaction.receivedAt.getTime),
                 "amount" -> ((if (op.`type` == Operation.SendType) "-" else "+") + op.transaction.value.toEther.toString()),
                 "isSend" -> (op.`type` == Operation.SendType)
               ))

@@ -238,7 +238,6 @@ trait CursorBuilder[M >: Null <: Model] {
     }
     val promise = Promise[Long]()
     request.onsuccess = {(event: Event) =>
-      js.Dynamic.global.console.log(indexName.toString, request, event)
       promise.success(request.result.asInstanceOf[Double].toLong)
     }
     request.onerror = {(event: ErrorEvent) =>

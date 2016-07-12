@@ -1,18 +1,19 @@
-package co.ledger.wallet.web.ethereum.i18n
+package co.ledger.wallet.web.ethereum.filters
 
-import org.scalajs.jquery.{JQueryAjaxSettings, JQueryXHR, _}
+import biz.enef.angulate.Module.RichModule
+import biz.enef.angulate.core.QService
+import org.widok.moment.Moment
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Future, Promise}
+import scala.scalajs.js.Thenable.Implicits._
 import scala.scalajs.js
-import scala.util.{Failure, Success}
+import scala.scalajs.js.timers
 
 /**
   *
-  * I18n
+  * DateFormat
   * ledger-wallet-ethereum-chrome
   *
-  * Created by Pierre Pollastri on 02/06/2016.
+  * Created by Pierre Pollastri on 12/07/2016.
   *
   * The MIT License (MIT)
   *
@@ -37,25 +38,16 @@ import scala.util.{Failure, Success}
   * SOFTWARE.
   *
   */
-object I18n {
+object DateFormatFilter {
 
-  def init(provider: TranslateProvider): Unit = {
-    val allKeys = js.Array[String]()
-    val aliases = js.Dictionary[String]()
-    for (language <- I18nLanguagesManifest.languages) {
-      allKeys.push(language.code)
-      aliases(language.keys) = language.code
-    }
-    provider
-      .useStaticFilesLoader(js.Dictionary(
-        "prefix" -> "_locales/",
-        "suffix" -> ".json"
-      ))
-      .useSanitizeValueStrategy("escape")
-      .fallbackLanguage("en")
-      .registerAvailableLanguageKeys(allKeys, aliases)
-      .determinePreferredLanguage()
+  def init(module: RichModule) = {
+    module.filter("date", {($translate: js.Dynamic, $q: QService) =>
+      ({(date: js.Date, format: String) =>
+        val i18nKey = s"dates.$format"
+        val i18nFormat = $translate.instant(i18nKey).asInstanceOf[String]
+        Moment(date.getTime).format(if (i18nKey == i18nFormat) format else i18nFormat)
+      }):js.Function
+    })
   }
-
 
 }

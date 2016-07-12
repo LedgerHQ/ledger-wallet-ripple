@@ -15,6 +15,12 @@ application:
     update_firmware: Update the chip firmware
     export_logs: Export the global logs
 
+# Dates formatting
+
+dates:
+  standard: YYYY/MM/DD [at] HH:mm
+
 # Opening screen
+
 opening:
   title: Opening your wallet...
