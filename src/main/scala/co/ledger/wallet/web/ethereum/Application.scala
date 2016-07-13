@@ -52,6 +52,7 @@ object Application extends JSApp{
     ProgressBar.init(module)
     Spinner.init(module)
     SnackBar.init(module)
+    AmountLabel.init(module)
 
     // Controllers
     LaunchController.init(module)

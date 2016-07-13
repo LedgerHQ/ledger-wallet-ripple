@@ -1,0 +1,11 @@
+<div ng-style="style" ng-switch on="type">
+    <span ng-switch-when="balance">
+        <span class="bold-ultra-large-text">{{value}}</span> <span class="light-ultra-large-text">{{unit}}</span>
+    </span>
+    <div ng-switch-when="operation">
+        <span ng-class="{'regular-valid-text': !isNegative, 'regular-invalid-text': isNegative}" class="regular-grey-text-small">{{value}}</span> <span ng-class="{'regular-valid-text': !isNegative, 'regular-invalid-text': isNegative}" class="regular-grey-text-small">{{unit}}</span>
+    </div>
+    <div ng-switch-default>
+        <span class="regular-grey-text-small">{{value}}</span> <span class="regular-grey-text-small">{{unit}}</span>
+    </div>
+</div>

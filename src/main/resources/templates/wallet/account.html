@@ -12,7 +12,7 @@
             </thead>
             <tbody>
             <tr class="no-border">
-                <td id="balanceRow"><span class="bold-ultra-large-text">{{ctrl.balance}}</span> <span class="light-ultra-large-text">Ether</span></td>
+                <td id="balanceRow"><amount value="ctrl.balance" type="balance"></amount></td>
             </tr>
             </tbody>
         </table>
@@ -33,7 +33,7 @@
             <tbody>
             <tr class="fit-content" ng-click="ctrl.openTransactionDetails(operation.hash)" ng-class="{'no-border': $last}" ng-repeat="operation in ctrl.operations">
                 <td class="regular-grey-text">{{operation.date | date: 'standard'}}</td>
-                <td ng-class="{'regular-valid-text': !operation.isSend, 'regular-invalid-text': operation.isSend}" class="align-right">{{operation.amount}}</td>
+                <td class="align-right"><amount value="operation.amount" type="operation"></amount></td>
             </tr>
             </tbody>
         </table>

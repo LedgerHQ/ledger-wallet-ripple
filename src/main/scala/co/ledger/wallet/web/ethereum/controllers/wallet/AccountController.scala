@@ -79,7 +79,7 @@ class AccountController(override val windowService: WindowService,
                 "uid" -> op.uid,
                 "hash" -> op.transaction.hash,
                 "date" -> new js.Date(op.transaction.receivedAt.getTime),
-                "amount" -> ((if (op.`type` == Operation.SendType) "-" else "+") + op.transaction.value.toEther.toString()),
+                "amount" -> ((if (op.`type` == Operation.SendType) -1 else 1) * op.transaction.value.toBigInt).toString(),
                 "isSend" -> (op.`type` == Operation.SendType)
               ))
             }
@@ -114,13 +114,13 @@ class AccountController(override val windowService: WindowService,
     }
   }
 
-  var balance = "-"
+  var balance = ""
   def reloadBalance(): Unit = {
     sessionService.currentSession.get.wallet.account(accountId) flatMap {(account) =>
       account.balance()
     } onComplete {
       case Success(b) =>
-        balance = b.toEther.toString()
+        balance = b.toBigInt.toString()
         $scope.$digest()
       case Failure(ex) =>
         ex.printStackTrace()
