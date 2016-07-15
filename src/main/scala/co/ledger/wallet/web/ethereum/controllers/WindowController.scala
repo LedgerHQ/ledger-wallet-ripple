@@ -56,7 +56,6 @@ class WindowController(windowService: WindowService, $scope: Scope, $element: JQ
     showNavigationBar = isVisible
   }
 
-
   windowService.configureSnackBar = {(mode: Int, title: String, subtitle: String) =>
     _snackBarScope.create().mode(mode).title(title).subtitle(subtitle)
   }

@@ -58,7 +58,14 @@ object EtherFormatter {
 
   def unitToDimension(unit: String) = Units.lift(unit).getOrElse(Units("ether"))
 
-  def currencyDirection = "ltr"
+  def currencyDirection(locale: String) = {
+    val f = js.JSNumberOps.enableJSNumberExtOps(10).self.toLocaleString(locale, js.Dictionary("style" -> "currency", "currency" -> "USD")).asInstanceOf[String]
+    if (f.startsWith("$")) {
+      "rtl"
+    } else {
+      "ltr"
+    }
+  }
 
   val Units = Map(
     "tether" -> 30,

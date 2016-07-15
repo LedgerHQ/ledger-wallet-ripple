@@ -1,5 +1,7 @@
 package co.ledger.wallet.web.ethereum.services
 
+import java.util.Date
+
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.Service
 import co.ledger.wallet.web.ethereum.components.SnackBar.SnackBarInstance
@@ -8,6 +10,7 @@ import co.ledger.wallet.web.ethereum.core.event.JsEventEmitter
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.scalajs.js.timers
 
 /**
   *
@@ -65,12 +68,17 @@ class WindowService extends Service {
 
   def notifyRefresh(): Unit = {
     if (_refreshHandler.isDefined && !isRefreshing) {
+      val start = new Date().getTime
       _refreshing = true
       eventEmitter.emit(StartRefresh())
       _refreshHandler.get() onComplete {
         case all =>
-          _refreshing = false
-          eventEmitter.emit(StopRefresh())
+          import timers._
+          val now = new Date().getTime
+          setTimeout((now - start) % 1000L + 1000L) {
+            _refreshing = false
+            eventEmitter.emit(StopRefresh())
+          }
       }
     }
   }

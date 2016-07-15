@@ -43,6 +43,16 @@
       background-color: transparent;
       width: 100%;
     }
+
+    &.spinning {
+      cursor: default;
+      pointer-events: none;
+      opacity: 0.7;
+      -webkit-animation:spin 1s linear infinite;
+    }
+
+    @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+
   }
 
   .spacer {

@@ -114,12 +114,13 @@ class AccountController(override val windowService: WindowService,
     }
   }
 
-  var balance = ""
+  var balance = sessionService.currentSession.get.sessionPreferences.lift("balance_cache").getOrElse("").toString
   def reloadBalance(): Unit = {
     sessionService.currentSession.get.wallet.account(accountId) flatMap {(account) =>
       account.balance()
     } onComplete {
       case Success(b) =>
+        sessionService.currentSession.get.sessionPreferences("balance_cache") = b.toBigInt.toString()
         balance = b.toBigInt.toString()
         $scope.$digest()
       case Failure(ex) =>

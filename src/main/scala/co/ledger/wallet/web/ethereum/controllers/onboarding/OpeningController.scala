@@ -66,6 +66,10 @@ class OpeningController(override val windowService: WindowService,
   } flatMap {(_) =>
     ChromePreferences.load(sessionService.currentSession.get.name, sessionService.currentSession.get.password)
   } flatMap { (_) =>
+      sessionService.currentSession.get.wallet.balance().map({(balance) =>
+        sessionService.currentSession.get.sessionPreferences("balance_cache") = balance.toBigInt.toString()
+      })
+  } flatMap { (_) =>
     sessionService.currentSession.get.wallet.mostRecentBlock() flatMap { (block) =>
       val now = new Date()
       if (now.getTime - block.time.getTime >= 7.days.toMillis) {

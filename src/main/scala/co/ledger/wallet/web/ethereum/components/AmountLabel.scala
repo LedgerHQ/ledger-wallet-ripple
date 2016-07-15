@@ -55,7 +55,9 @@ class AmountLabel($locale: js.Dynamic, $translate: js.Dynamic) extends Directive
       scope.`type` = `type`(attrs)
       if (scope.`type` == "operation" && !scope.isNegative)
         scope.value = "+" + scope.value
-      val direction = EtherFormatter.currencyDirection
+      val direction = EtherFormatter.currencyDirection("en-US")
+      if (direction == "rtl" && scope.`type` == "operation")
+        scope.value = scope.value.substring(1) + scope.value.substring(0, 1)
       scope.style = js.Dictionary[String](
         "display" -> "inline-block",
         "direction" -> direction,
