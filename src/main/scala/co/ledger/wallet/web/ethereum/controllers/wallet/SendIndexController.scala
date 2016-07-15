@@ -57,8 +57,8 @@ class SendIndexController(override val windowService: WindowService,
   var amount = ""
   var gasLimit = 9000
   private var _gasPrice = BigInt("21000000000")
-  var gasPrice = new Ether(_gasPrice).toEther.toString()
-  var total = Ether(0).toEther.toString()
+  var gasPrice = _gasPrice.toString()
+  var total = Ether(0).toBigInt.toString()
 
   sessionService.currentSession.get.sessionPreferences.lift(SendIndexController.RestoreKey) foreach {(state) =>
     val restore = state.asInstanceOf[SendIndexController.RestoreState]
@@ -84,7 +84,9 @@ class SendIndexController(override val windowService: WindowService,
 
   def computeTotal(): Ether = {
     val t = getAmountInput().map((amount) => amount + (_gasPrice * 2100)).map(new Ether(_)).getOrElse(Ether(0))
-    total = t.toEther.toString()
+    total = t.toBigInt.toString()
+    println(total)
+    println(gasPrice)
     t
   }
 
@@ -105,7 +107,7 @@ class SendIndexController(override val windowService: WindowService,
     import timers._
     sessionService.currentSession.get.wallet.estimatedGasPrice() foreach {(price) =>
       _gasPrice = price.toBigInt
-      gasPrice = price.toEther.toString()
+      gasPrice = price.toBigInt.toString()
       computeTotal()
       setTimeout(0) {
         $scope.$digest()

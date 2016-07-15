@@ -30,15 +30,15 @@
                 </div>
                 <div>
                     <div class="optional">gas price</div>
-                    <div><div class="regular-grey-text-small">{{ctrl.gasPrice}} Ether</div></div>
+                    <div><amount value="ctrl.gasPrice"></amount></div>
                 </div>
                 <div>
                     <div class="optional">gas limit</div>
-                    <div><div class="regular-grey-text-small">{{ctrl.gasLimit}} Ether</div></div>
+                    <div><div class="regular-grey-text-small">{{ctrl.gasLimit}}</div></div>
                 </div>
                 <div>
                     <div class="optional">total spent</div>
-                    <div><div class="regular-grey-text-small">{{ctrl.total}} Ether (incl. gas)</div></div>
+                    <div><div class="regular-grey-text-small"><amount value="ctrl.total"></amount> (incl. gas)</div></div>
                 </div>
             </div>
         </section>

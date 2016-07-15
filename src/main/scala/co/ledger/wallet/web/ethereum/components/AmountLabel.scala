@@ -8,6 +8,7 @@ import co.ledger.wallet.web.ethereum.components.AmountLabel.AmountLabelScope
 import co.ledger.wallet.web.ethereum.core.utils.EtherFormatter
 
 import scala.scalajs.js
+import scala.scalajs.js.Dictionary
 
 /**
   *
@@ -45,8 +46,10 @@ class AmountLabel($locale: js.Dynamic, $translate: js.Dynamic) extends Directive
   override type ScopeType = AmountLabelScope
 
   override def postLink(scope: AmountLabelScope, element: JQLite, attrs: Attributes): Unit = {
-    scope.$watch(attrs("value"), {(value: String) =>
-      scope.value = EtherFormatter.format(Ether(if (value.isEmpty) "1000000000000000000" else value), unit(attrs), "en-US")
+    scope.$watch("rawValue", {(value: js.Any) =>
+      if (scope.rawValue == null)
+        scope.rawValue = ""
+      scope.value = EtherFormatter.format(Ether(if (scope.rawValue.isEmpty) "1000000000000000000" else scope.rawValue), unit(attrs), "en-US")
       scope.isNegative = scope.value.startsWith("-")
       scope.unit = unit(attrs)
       scope.`type` = `type`(attrs)
@@ -56,10 +59,16 @@ class AmountLabel($locale: js.Dynamic, $translate: js.Dynamic) extends Directive
       scope.style = js.Dictionary[String](
         "display" -> "inline-block",
         "direction" -> direction,
-        "opacity" -> (if (value.isEmpty) "0" else "1")
+        "opacity" -> (if (scope.rawValue.isEmpty) "0" else "1")
       )
     })
   }
+
+  override def isolateScope: Dictionary[String] = js.Dictionary(
+    "rawValue" -> "=value"
+  )
+
+  override val restrict: String = "E"
 
   private def unit(attrs: Attributes): String = {
     "ETH"
@@ -78,6 +87,7 @@ object AmountLabel {
 
   @js.native
   trait AmountLabelScope extends Scope {
+    var rawValue: String = js.native
     var value: String = js.native
     var `type`: String = js.native
     var unit: String = js.native
