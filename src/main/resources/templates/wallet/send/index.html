@@ -5,9 +5,9 @@
                 <h1>send ether</h1>
             </header>
             <div class="form">
-                <div>
+                <div id="amount_line">
                     <div>Amount</div>
-                    <div>
+                    <div id="amount_field">
                         <input id="amount_input"
                                type="text"
                                placeholder="Amount"
@@ -16,13 +16,14 @@
                                ng-model="ctrl.amount"
                                ng-change="ctrl.computeTotal()" />
                         <label class="large-text-input">ETH</label>
+                        <lbutton text="max" type="cancel" disabled="false" ng-click="ctrl.max()" small="true"></lbutton>
                     </div>
                 </div>
                 <div>
                     <div>recipient address</div>
                     <div>
                         <input id="receiver_input"
-                               placeholder="Ethereum account"
+                               placeholder="Ethereum IBAN or account"
                                class="text-input"
                                type="text"
                                ng-model="ctrl.address"/>

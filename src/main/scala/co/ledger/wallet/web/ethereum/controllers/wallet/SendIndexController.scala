@@ -82,6 +82,13 @@ class SendIndexController(override val windowService: WindowService,
     }
   }
 
+  def max(): Unit = {
+    sessionService.currentSession.get.wallet.balance() foreach {(b) =>
+      amount = new Ether(b.toBigInt - (_gasPrice * gasLimit)).toEther.toString()
+      $scope.$apply()
+    }
+  }
+
   def computeTotal(): Ether = {
     val t = getAmountInput().map((amount) => amount + (_gasPrice * 2100)).map(new Ether(_)).getOrElse(Ether(0))
     total = t.toBigInt.toString()
@@ -96,7 +103,7 @@ class SendIndexController(override val windowService: WindowService,
   }
 
   def getAmountInput(): Try[BigInt] = {
-    Try((BigDecimal(amount) * BigDecimal(10).pow(18)).toBigInt())
+    Try((BigDecimal(amount.replace(',', '.').replace(" ", "")) * BigDecimal(10).pow(18)).toBigInt())
   }
 
   def getAddressInput(): Try[EthereumAccount] = {
@@ -126,7 +133,7 @@ class SendIndexController(override val windowService: WindowService,
         SnackBar.error("Error", "Bad address").show()
       } else {
         val isIban = true
-        val fees = BigDecimal(900000)
+        val fees = BigInt(gasLimit)
         val gasPrice = _gasPrice
         println(s"Amount: $amount")
         println(s"Recipient: $address")
