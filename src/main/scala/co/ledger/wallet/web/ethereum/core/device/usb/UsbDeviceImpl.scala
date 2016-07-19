@@ -121,7 +121,6 @@ object UsbDeviceImpl {
 
   trait UsbExchangePerformer {
 
-
     def close(): Unit
     def onDisconnect(callback: () => Unit)(implicit ec: ExecutionContext) = {
       _disconnectCallback = Option(callback)

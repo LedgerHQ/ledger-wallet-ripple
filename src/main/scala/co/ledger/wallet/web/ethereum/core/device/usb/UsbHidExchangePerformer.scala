@@ -49,7 +49,7 @@ class UsbHidExchangePerformer(connection: UsbDeviceImpl.Connection,
 
   override implicit val LogTag: String = "APDU"
   val HidBufferSize = 64
-  val LedgerDefaultChannel = 1
+  val LedgerDefaultChannel = 2
   val Sw1DataAvailable = 0x61
 
   private val chrome = js.Dynamic.global.chrome
