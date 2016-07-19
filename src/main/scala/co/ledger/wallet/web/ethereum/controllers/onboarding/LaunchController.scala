@@ -117,7 +117,7 @@ class LaunchController(override val windowService: WindowService,
     device.connect() flatMap {(_) =>
       deviceService.registerDevice(device)
     } flatMap {(_) =>
-      LedgerApi(device).derivePublicAddress(DerivationPath("200'/0/0"))
+      LedgerApi(device).derivePublicAddress(DerivationPath("44'/60'/0"))
     } onComplete {
         case Success(uuid) =>
           $location.url("/onboarding/opening/")

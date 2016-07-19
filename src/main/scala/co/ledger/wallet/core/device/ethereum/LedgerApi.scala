@@ -46,12 +46,12 @@ class LedgerApi(override val device: Device)
   with LedgerSignatureApi {
   override implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
   def walletIdentifier(): Future[String] = {
-    derivePublicAddress(DerivationPath("0'/0'")).map {(result) =>
+    derivePublicAddress(DerivationPath("44'/60'/0'/0'")).map {(result) =>
       result.account.toString
     }
   }
   def walletMetaPassword(): Future[String] = {
-    derivePublicAddress(DerivationPath("14'/5'/16")).map {(result) =>
+    derivePublicAddress(DerivationPath("44'/60'/14'/5'/16")).map {(result) =>
       HexUtils.encodeHex(result.publicKey)
     }
   }

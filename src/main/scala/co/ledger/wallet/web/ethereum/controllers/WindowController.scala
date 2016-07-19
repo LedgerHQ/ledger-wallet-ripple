@@ -44,9 +44,16 @@ import scala.scalajs.js.timers._
   * SOFTWARE.
   *
   */
-class WindowController(windowService: WindowService, $scope: Scope, $element: JQLite) extends Controller with EventReceiver {
+class WindowController(windowService: WindowService, $scope: Scope, $element: JQLite, $document: JQLite) extends Controller with EventReceiver {
   import timers._
   var showNavigationBar = false
+
+  // Disable backspace
+  $document.on("keydown", {(e: js.Dynamic) =>
+    if (e.which.asInstanceOf[Double] == 8 && ( e.target.nodeName.asInstanceOf[String] != "INPUT" && e.target.nodeName.asInstanceOf[String] != "SELECT" ) ){
+      e.preventDefault()
+    }
+  })
 
   def refresh(): Unit = {
     windowService.notifyRefresh()
