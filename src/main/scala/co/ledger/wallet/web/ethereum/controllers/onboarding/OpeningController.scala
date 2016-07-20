@@ -2,7 +2,7 @@ package co.ledger.wallet.web.ethereum.controllers.onboarding
 
 import java.util.Date
 
-import biz.enef.angulate.Controller
+import biz.enef.angulate.{Controller, Scope}
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.{JQLite, Location}
 import co.ledger.wallet.core.device.Device
@@ -56,8 +56,11 @@ class OpeningController(override val windowService: WindowService,
                         $location: Location,
                         $route: js.Dynamic,
                         sessionService: SessionService,
+                        $scope: Scope,
                         $element: JQLite)
   extends Controller with OnBoardingController {
+
+  var isInErrorMode = false
 
   deviceService.lastConnectedDevice() map {(device) =>
     LedgerApi(device)
@@ -87,11 +90,17 @@ class OpeningController(override val windowService: WindowService,
     case Success(_) =>
       $location.url("/account/0")
       $route.reload()
-    case Failure(ex) => ex.printStackTrace()
+    case Failure(ex) =>
+      isInErrorMode = true
+      $scope.$apply()
   }
 
   def synchronizeWallet(): Future[Unit] = {
     sessionService.currentSession.get.wallet.synchronize()
+  }
+
+  def openHelpCenter(): Unit = {
+    js.Dynamic.global.open("http://support.ledgerwallet.com/help_center")
   }
 
 }

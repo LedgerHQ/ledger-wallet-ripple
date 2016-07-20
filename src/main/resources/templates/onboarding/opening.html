@@ -2,12 +2,18 @@
     <header>
         <img src="images/onboarding/ic_logo.png" />
     </header>
-    <section>
+    <section ng-hide="ctrl.isInErrorMode">
         <spinner></spinner>
         <div class="light-large-text almost-medium-top-margin" translate>opening.title</div>
-        <div class="regular-soft-grey-text-small almost-small-top-margin">Please wait, this operation may take a few moments.</div>
+        <div class="regular-soft-grey-text-small almost-small-top-margin">Please wait, this may take a few moments.</div>
+    </section>
+    <section ng-hide="!ctrl.isInErrorMode">
+        <img src="images/common/ic_error_big_red.png" />
+        <div class="light-large-text almost-medium-top-margin" translate>Unable to synchronize your wallet.</div>
+        <div class="regular-soft-grey-text-small almost-small-top-margin">Quit and re-open the Ethereum app on your device.</div>
+        <div class="regular-soft-grey-text-small almost-small-top-margin">If the problem persists, please contact our help center.</div>
     </section>
     <div class="footers-container">
-        <footer>Version 1.0.0 - Contact support team</footer>
+        <footer id="plugFooter" ng-click="ctrl.openHelpCenter()"><a>Need assistance ? Contact Ledger support team.</a></footer>
     </div>
 </div>

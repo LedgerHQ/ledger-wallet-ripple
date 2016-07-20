@@ -59,10 +59,6 @@ class LaunchController(override val windowService: WindowService,
   import timers._
   private var _scanRequest: ScanRequest = null
 
-  val test = toto
-  toto += 1
-  println(s"Create $test")
-
   private def animate() = {
     // Initialize default state
     JQueryHelper.injectCustomEasings()
@@ -95,19 +91,16 @@ class LaunchController(override val windowService: WindowService,
   }
 
   private def startDeviceDiscovery(): Unit = {
-    println(s"START DISCOVERY $test")
     _scanRequest = deviceService.requestScan()
     println(_scanRequest)
     _scanRequest.onScanUpdate {
       case DeviceDiscovered(device) =>
-        println(s"Discovered $test " + device)
         if (_scanRequest != null) {
           connectDevice(device)
           _scanRequest.stop()
           _scanRequest = null
         }
       case DeviceLost(device) =>
-        println(s"Lost $test " + device)
     }
     _scanRequest.duration = DeviceFactory.InfiniteScanDuration
     _scanRequest.start()
@@ -128,8 +121,11 @@ class LaunchController(override val windowService: WindowService,
       }
   }
 
+  def openHelpCenter(): Unit = {
+    js.Dynamic.global.open("http://support.ledgerwallet.com/help_center")
+  }
+
   private def stopDeviceDiscovery(): Unit = {
-    println(s"STOP DISCOVERY $test")
     println(_scanRequest)
     Option(_scanRequest) foreach {(request) =>
       println("SCAN STOP")
@@ -154,6 +150,5 @@ class LaunchController(override val windowService: WindowService,
 
 object LaunchController {
   val OpeningAnimationDelay = 1500
-  var toto = 0
   def init(module: RichModule) = module.controllerOf[LaunchController]("LaunchController")
 }

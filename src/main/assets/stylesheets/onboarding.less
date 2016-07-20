@@ -22,8 +22,6 @@
     align-items: center;
     justify-content: center;
     background-color: @color-extra-light-grey;
-    border-top: solid @color-very-light-grey 1px;
-    border-bottom: solid @color-very-light-grey 1px;
     margin-top: 55px;
     margin-bottom: @metrics-extra-large-padding;
   }
@@ -31,7 +29,13 @@
   > footer {
     width: 100%;
     text-align: center;
-    .regular-soft-grey-text-small;
+    > a {
+      .regular-soft-grey-text-small;
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
 
     &.large {
       .very-light-grey-text-very-large;
