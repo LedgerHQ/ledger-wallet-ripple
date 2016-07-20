@@ -67,6 +67,7 @@ class SnackBar extends Directive {
     }
     show = (a: Any) => {
       currentInstance = a.asInstanceOf[SnackBarInstance]
+      var timeout: js.Any = null
       currentInstance.dismissHandler = () => {
         println("Dismiss delay")
         if (currentInstance == a)
@@ -78,7 +79,7 @@ class SnackBar extends Directive {
         JQueryHelper.injectCustomEasings()
         element.animate(js.Dictionary("bottom" -> 0), 400, "default", () => {
           if (currentInstance != null) {
-            setTimeout(currentInstance.delay.toMillis) {
+            timeout = setTimeout(currentInstance.delay.toMillis) {
               if (currentInstance != null)
                 currentInstance.dismissHandler()
             }

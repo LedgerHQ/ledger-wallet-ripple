@@ -14,6 +14,8 @@ application:
     reload_application: Reload the application
     update_firmware: Update the chip firmware
     export_logs: Export the global logs
+  singleton_alert:
+    message: The {APPLICATION_NAME} application is already running. Please close it first and try again.
 
 # Dates formatting
 
