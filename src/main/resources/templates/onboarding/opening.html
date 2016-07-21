@@ -5,15 +5,15 @@
     <section ng-hide="ctrl.isInErrorMode">
         <spinner></spinner>
         <div class="light-large-text almost-medium-top-margin" translate>opening.title</div>
-        <div class="regular-soft-grey-text-small almost-small-top-margin">Please wait, this may take a few moments.</div>
+        <div class="regular-soft-grey-text-small almost-small-top-margin" translate>common.please_wait</div>
     </section>
     <section ng-hide="!ctrl.isInErrorMode">
         <img src="images/common/ic_error_big_red.png" />
-        <div class="light-large-text almost-medium-top-margin" translate>Unable to synchronize your wallet.</div>
-        <div class="regular-soft-grey-text-small almost-small-top-margin">Quit and re-open the Ethereum app on your device.</div>
-        <div class="regular-soft-grey-text-small almost-small-top-margin">If the problem persists, please contact our help center.</div>
+        <div class="light-large-text almost-medium-top-margin" translate>opening.sync_error.title</div>
+        <div class="regular-soft-grey-text-small almost-small-top-margin" translate>opening.sync_error.detail_1</div>
+        <div class="regular-soft-grey-text-small almost-small-top-margin" translate>opening.sync_error.detail_2</div>
     </section>
     <div class="footers-container">
-        <footer id="plugFooter" ng-click="ctrl.openHelpCenter()"><a>Need assistance ? Contact Ledger support team.</a></footer>
+        <footer id="plugFooter" ng-click="ctrl.openHelpCenter()"><a translate>onboarding.help_center</a></footer>
     </div>
 </div>

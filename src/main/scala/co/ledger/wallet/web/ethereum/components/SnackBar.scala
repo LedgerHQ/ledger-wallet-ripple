@@ -97,7 +97,7 @@ class SnackBar extends Directive {
   var show: js.Function1[Any, Unit] = null
   private val Icons = js.Array(
     "images/snackbar/ic_success.png",
-    "images/snackbar/ic_success.png",
+    "images/snackbar/ic_failure.png",
     "images/snackbar/ic_success.png"
   )
 }

@@ -22,7 +22,25 @@ application:
 dates:
   standard: YYYY/MM/DD [at] HH:mm
 
+# Common
+common:
+  please_wait: Please wait, this may take a few moments.
+
+# Onboarding common
+onboarding:
+  help_center: Need assistance ? Contact Ledger support team.
+
+# Launch Screen
+
+launch:
+  to_begin: To begin, plug your Ledger device.
+  unlock_and_open_app: If asked, enter your PIN code. Then, open the Ethereum app.
+
 # Opening screen
 
 opening:
   title: Opening your wallet...
+  sync_error:
+    title: Unable to synchronize your wallet.
+    detail_1: Quit and re-open the Ethereum app on your device.
+    detail_2: If the problem persists, please contact our help center.
