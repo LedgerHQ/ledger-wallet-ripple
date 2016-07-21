@@ -99,3 +99,10 @@ send:
   scan_qr_code: scan qr code
   send: send
   place_qr_code: Place the QR code in the center of the image
+
+# Send perform screen
+send_perform:
+  page_title: send ether
+  confirm_transaction: Confirm transaction
+  review_1: Review displayed information on your Ledger device
+  review_2: and confirm the transaction to continue.
