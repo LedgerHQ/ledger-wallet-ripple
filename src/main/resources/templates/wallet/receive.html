@@ -2,17 +2,17 @@
     <!-- Balance section -->
     <section class="fullsize centered-content">
         <header>
-            <h1>receive ether</h1>
+            <h1 translate>receive.page_title</h1>
         </header>
         <div>
             <qrcodeviewer value="ctrl.uri"></qrcodeviewer>
-            <div class="small-top-margin regular-grey-text-small">Share this QR code to receive Ethereum payments</div>
+            <div class="small-top-margin regular-grey-text-small" translate>receive.share_qr_code</div>
             <div class="medium-top-margin regular-text selectable">{{ctrl.address}}</div>
             <div class="small-top-margin regular-text"><b class="uppercase-section-column">IBAN</b> <span class="selectable">{{ctrl.iban}}</span></div>
         </div>
         <actions-bottom-bar class="no-print">
-            <lbutton text="Send by email" ng-click="ctrl.sendEmail(ctrl.address)" type="cancel" disabled="false"></lbutton>
-            <lbutton text="print" ng-click="ctrl.print(ctrl.address)" type="validate" disabled="false"></lbutton>
+            <lbutton text="{{ 'receive.send_by_email' | translate}}" ng-click="ctrl.sendEmail(ctrl.address)" type="cancel" disabled="false"></lbutton>
+            <lbutton text="{{ 'receive.print' | translate}}" ng-click="ctrl.print(ctrl.address)" type="validate" disabled="false"></lbutton>
         </actions-bottom-bar>
     </section>
 </div>

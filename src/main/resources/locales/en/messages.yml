@@ -71,3 +71,9 @@ help:
   diagnostic: diagnostic
   export_logs: Export logs
   logs_disclaimer: Logs contain anonymous events that are recorded and encrypted locally on your computer. These data are not sent to our servers and may only be exported manually when requested by the Ledger support team.
+
+receive:
+  page_title: receive ether
+  share_qr_code: Share this QR code to receive Ethereum payments
+  send_by_email: Send by email
+  print: print
