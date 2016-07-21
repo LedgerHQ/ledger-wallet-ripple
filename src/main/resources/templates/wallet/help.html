@@ -1,12 +1,12 @@
 <div class="wallet-view" ng-controller="HelpController as ctrl">
     <section class="help-section">
         <header>
-            <h1>help</h1>
+            <h1 translate>help.page_title</h1>
         </header>
         <table>
             <thead>
             <tr>
-                <td class="stretch-content">get assistance</td>
+                <td class="stretch-content" translate>help.get_assistance</td>
             </tr>
             </thead>
             <tbody>
@@ -16,16 +16,16 @@
                             <a class="panel" ng-click="ctrl.browseKnowledgeBase()">
                                 <div class="icon"><i class="fa fa-support"></i></div>
                                 <div class="content">
-                                    <div class="uppercase-action">BROWSE KNOWLEDGE BASE</div>
-                                    <div class="regular-soft-grey-text-small">For immediate self-help</div>
+                                    <div class="uppercase-action" translate>help.browse_knowledge_base</div>
+                                    <div class="regular-soft-grey-text-small" translate>help.for_immediate_self_help</div>
                                 </div>
                                 <div class="arrow"><i class="fa fa-angle-right"></i></div>
                             </a>
                             <a class="panel" ng-click="ctrl.contactSupport()">
                                 <div class="icon"><i class="fa fa-comments"></i></div>
                                 <div class="content">
-                                    <div class="uppercase-action">CONTACT SUPPORT TEAM</div>
-                                    <div class="regular-soft-grey-text-small">For a fast-and-furious assistance</div>
+                                    <div class="uppercase-action" translate>help.contact_support_team</div>
+                                    <div class="regular-soft-grey-text-small" translate>help.fast_and_furious</div>
                                 </div>
                                 <div class="arrow"><i class="fa fa-angle-right"></i></div>
                             </a>
@@ -38,12 +38,12 @@
             <thead>
             <tr>
                 <td class="stretch-content">diagnostic</td>
-                <td class="fit-content regular-grey-text-small"><a ng-click="ctrl.exportLogs()" ><i class="fa fa-external-link-square" aria-hidden="true"></i><span>&nbsp;&nbsp;</span>Export logs</a></td>
+                <td class="fit-content regular-grey-text-small"><a ng-click="ctrl.exportLogs()" translate><i class="fa fa-external-link-square" aria-hidden="true"></i><span>&nbsp;&nbsp;</span>help.export_logs</a></td>
             </tr>
             </thead>
         </table>
-        <div class="centered-text regular-soft-grey-text-small regular-line-height small-top-margin">
-            Logs contain anonymous events that are recorded and encrypted locally on your computer. These data are not sent to our servers and may only be exported manually when requested by the Ledger support team.
+        <div class="centered-text regular-soft-grey-text-small regular-line-height small-top-margin" translate>
+            help.logs_disclaimer
         </div>
     </section>
 </div>

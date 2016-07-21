@@ -30,7 +30,7 @@ common:
 onboarding:
   help_center: Need assistance ? Contact Ledger support team.
 
-# Launch Screen
+# Launch screen
 
 launch:
   to_begin: To begin, plug your Ledger device.
@@ -58,3 +58,16 @@ wallet:
 account:
   default_name: my account
 
+
+# Help screen
+
+help:
+  page_title: help
+  get_assistance: get assistance
+  browse_knowledge_base: browse knowledge base
+  for_immediate_self_help: for immediate self-help
+  contact_support_team: contact support team
+  fast_and_furious: For a fast-and-furious assistance
+  diagnostic: diagnostic
+  export_logs: Export logs
+  logs_disclaimer: Logs contain anonymous events that are recorded and encrypted locally on your computer. These data are not sent to our servers and may only be exported manually when requested by the Ledger support team.
