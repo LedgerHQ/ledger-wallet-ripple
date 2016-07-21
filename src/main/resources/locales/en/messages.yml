@@ -24,7 +24,11 @@ dates:
 
 # Common
 common:
+  eth: ETH
   please_wait: Please wait, this may take a few moments.
+  confirm: confirm
+  cancel: cancel
+  validate: validate
 
 # Onboarding common
 onboarding:
@@ -72,8 +76,26 @@ help:
   export_logs: Export logs
   logs_disclaimer: Logs contain anonymous events that are recorded and encrypted locally on your computer. These data are not sent to our servers and may only be exported manually when requested by the Ledger support team.
 
+# Receive screen
+
 receive:
   page_title: receive ether
   share_qr_code: Share this QR code to receive Ethereum payments
   send_by_email: Send by email
   print: print
+
+# Send screen
+
+send:
+  page_title: send ether
+  amount_placeholder: Amount
+  max: max
+  recipient: recipient address
+  recipient_placeholder: Ethereum IBAN or account
+  gas_price: gas price
+  gas_limit: gas limit
+  total_spent: total spent
+  including_gas: (incl. gas)
+  scan_qr_code: scan qr code
+  send: send
+  place_qr_code: Place the QR code in the center of the image

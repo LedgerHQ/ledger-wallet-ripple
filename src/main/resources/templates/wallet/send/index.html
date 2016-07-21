@@ -2,67 +2,67 @@
     <div class="wallet-view" ng-hide="ctrl.isScanning">
         <section>
             <header>
-                <h1>send ether</h1>
+                <h1 translate>send.page_title</h1>
             </header>
             <div class="form">
                 <div id="amount_line">
-                    <div>Amount</div>
+                    <div translate>wallet.amount</div>
                     <div id="amount_field">
                         <input id="amount_input"
                                type="text"
-                               placeholder="Amount"
+                               placeholder="{{'send.amount_placeholder' | translate}}"
                                class="large-text-input"
                                ng-pattern="/^[0-9]+[\.,]?[0-9]*$/"
                                ng-model="ctrl.amount"
                                ng-change="ctrl.computeTotal()" />
-                        <label class="large-text-input">ETH</label>
-                        <lbutton text="max" type="cancel" disabled="false" ng-click="ctrl.max()" small="true"></lbutton>
+                        <label class="large-text-input" translate>common.eth</label>
+                        <lbutton text="{{'send.max' | translate}}" type="cancel" disabled="false" ng-click="ctrl.max()" small="true"></lbutton>
                     </div>
                 </div>
                 <div>
-                    <div>recipient address</div>
+                    <div translate>send.recipient</div>
                     <div>
                         <input id="receiver_input"
-                               placeholder="Ethereum IBAN or account"
+                               placeholder="{{'send.recipient_placeholder' | translate}}"
                                class="text-input"
                                type="text"
                                ng-model="ctrl.address"/>
                     </div>
                 </div>
                 <div>
-                    <div class="optional">gas price</div>
+                    <div class="optional" translate>send.gas_price</div>
                     <div><amount value="ctrl.gasPrice"></amount></div>
                 </div>
                 <div>
-                    <div class="optional">gas limit</div>
+                    <div class="optional" translate>send.gas_limit</div>
                     <div><div class="regular-grey-text-small">{{ctrl.gasLimit}}</div></div>
                 </div>
                 <div>
-                    <div class="optional">total spent</div>
-                    <div><div class="regular-grey-text-small"><amount value="ctrl.total"></amount> (incl. gas)</div></div>
+                    <div class="optional" translate>send.total_spent</div>
+                    <div><div class="regular-grey-text-small" translate><amount value="ctrl.total"></amount> send.including_gas</div></div>
                 </div>
             </div>
         </section>
         <div class="spacer"></div>
         <actions-bottom-bar>
-            <lbutton text="scan qr code" type="cancel" disabled="false" ng-click="ctrl.scanQrCode()"></lbutton>
-            <lbutton text="send" type="validate" disabled="false" ng-click="ctrl.send()"></lbutton>
+            <lbutton text="{{'send.scan_qr_code' | translate}}" type="cancel" disabled="false" ng-click="ctrl.scanQrCode()"></lbutton>
+            <lbutton text="{{'send.send' | translate}}" type="validate" disabled="false" ng-click="ctrl.send()"></lbutton>
         </actions-bottom-bar>
     </div>
     <div class="wallet-view" ng-hide="!ctrl.isScanning">
         <section class="fullsize centered-content no-top-margin" ng-hide="ctrl.isInProgressionMode">
             <header>
-                <h1>scan qr code</h1>
+                <h1 translate>send.scan_qr_code</h1>
             </header>
             <div>
                 <qrcodescanner></qrcodescanner>
-                <div class="small-top-margin regular-grey-text-small centered-text regular-line-height">
-                    Place the QR code in the center of the image
+                <div class="small-top-margin regular-grey-text-small centered-text regular-line-height" translate>
+                    send.place_qr_code
                 </div>
             </div>
         </section>
         <actions-bottom-bar>
-            <lbutton text="cancel" type="cancel" disabled="false" ng-click="ctrl.cancelScanQrCode()"></lbutton>
+            <lbutton text="{{'common.cancel' | translate}}" type="cancel" disabled="false" ng-click="ctrl.cancelScanQrCode()"></lbutton>
         </actions-bottom-bar>
     </div>
 </div>
