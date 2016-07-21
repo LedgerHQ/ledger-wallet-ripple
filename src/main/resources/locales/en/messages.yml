@@ -99,6 +99,10 @@ send:
   scan_qr_code: scan qr code
   send: send
   place_qr_code: Place the QR code in the center of the image
+  error: Error
+  insufficient_funds: Insufficient funds
+  bad_amount: bad amount
+  bad_address: bad address
 
 # Send perform screen
 send_perform:
@@ -106,3 +110,9 @@ send_perform:
   confirm_transaction: Confirm transaction
   review_1: Review displayed information on your Ledger device
   review_2: and confirm the transaction to continue.
+  completed_title: Transaction completed
+  completed_message: Successfully broadcasted to network
+  cancelled_title: Transaction failed
+  cancelled_message: Transaction cancelled
+  failed_title: Transaction failed
+  failed_message: Transaction rejected by the server

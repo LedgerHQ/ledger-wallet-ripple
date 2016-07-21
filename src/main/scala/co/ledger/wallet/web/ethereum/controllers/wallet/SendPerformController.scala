@@ -77,16 +77,16 @@ class SendPerformController(override val windowService: WindowService,
   } onComplete {
     case Success(_) =>
       sessionService.currentSession.get.sessionPreferences.remove(SendIndexController.RestoreKey)
-      SnackBar.success("Transaction completed", "Successfully broadcasted to network").show()
+      SnackBar.success("send_perform.completed_title", "send_perform.completed_message").show()
       $location.url("/send")
       $route.reload()
     case Failure(ex: LedgerApiException) =>
-      SnackBar.error("Transaction failed", "Transaction cancelled").show()
+      SnackBar.error("send_perform.cancelled_title", "send_perform.cancelled_message").show()
       sessionService.currentSession.get.sessionPreferences.remove(SendIndexController.RestoreKey)
       $location.url("/send")
       $route.reload()
     case Failure(ex) =>
-      SnackBar.error("Transaction failed", "Transaction rejected by the server").show()
+      SnackBar.error("send_perform.failed_title", "send_perform.failed_message").show()
       $location.url("/send")
       $route.reload()
   }

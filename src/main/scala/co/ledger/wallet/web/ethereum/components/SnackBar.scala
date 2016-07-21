@@ -42,11 +42,13 @@ import scala.scalajs.js.annotation.ScalaJSDefined
   * SOFTWARE.
   *
   */
-class SnackBar extends Directive {
+class SnackBar($translate: js.Dynamic) extends Directive {
   import SnackBar._
   import scala.scalajs.js.timers._
   override def templateUrl: String = "templates/components/snackbar.html"
   override type ScopeType = SnackBarScope
+
+  private def tr(str: String): String = $translate.instant(str).asInstanceOf[String]
 
   override def controller(ctrl: ControllerType, scope: ScopeType, elem: JQLite, attrs: Attributes): Unit = {
     scope.create = createInstance _
@@ -55,8 +57,8 @@ class SnackBar extends Directive {
     scope.isSuccess = () => Option(currentInstance).exists(_.mode == SuccessMode)
     scope.isError = () => Option(currentInstance).exists(_.mode == ErrorMode)
     scope.isNeutral = () => Option(currentInstance).exists(_.mode == NeutralMode)
-    scope.title = () => Option(currentInstance).map(_.title).getOrElse("")
-    scope.subtitle = () => Option(currentInstance).map(_.subtitle).getOrElse("")
+    scope.title = () => tr(Option(currentInstance).map(_.title).getOrElse(""))
+    scope.subtitle = () => tr(Option(currentInstance).map(_.subtitle).getOrElse(""))
     scope.icon = () => Icons(Option(currentInstance).map(_.mode).getOrElse(0))
     scope.dismiss = {() =>
       println("Dismiss")
