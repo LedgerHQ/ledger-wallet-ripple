@@ -49,13 +49,13 @@ class AmountLabel($locale: js.Dynamic, $translate: js.Dynamic) extends Directive
     scope.$watch("rawValue", {(value: js.Any) =>
       if (scope.rawValue == null)
         scope.rawValue = ""
-      scope.value = EtherFormatter.format(Ether(if (scope.rawValue.isEmpty) "1000000000000000000" else scope.rawValue), unit(attrs), "en-US")
+      scope.value = EtherFormatter.format(Ether(if (scope.rawValue.isEmpty) "1000000000000000000" else scope.rawValue), unit(attrs), js.Dynamic.global.navigator.language.asInstanceOf[String])
       scope.isNegative = scope.value.startsWith("-")
       scope.unit = unit(attrs)
       scope.`type` = `type`(attrs)
       if (scope.`type` == "operation" && !scope.isNegative)
         scope.value = "+" + scope.value
-      val direction = EtherFormatter.currencyDirection("en-US")
+      val direction = EtherFormatter.currencyDirection(js.Dynamic.global.navigator.language.asInstanceOf[String])
       if (direction == "rtl" && scope.`type` == "operation")
         scope.value = scope.value.substring(1) + scope.value.substring(0, 1)
       scope.style = js.Dictionary[String](
