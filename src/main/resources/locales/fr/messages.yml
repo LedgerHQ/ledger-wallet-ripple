@@ -1,0 +1,20 @@
+---
+language:
+  name: Anglais
+application:
+  name: Ledger Wallet Ethereum
+  small_description: Ledger Wallet gère vos comptes Ethereum de façon efficace et sécurisée.
+  support_url: 'http\://support.ledgerwallet.com/'
+  support_key_not_recognized_url: 'https\://ledger.groovehq.com/knowledge_base/categories/troubleshooting-20'
+  support_coinkite_url: 'https\://ledger.groovehq.com/knowledge_base/topics/how-to-use-the-coinkite-app'
+  commands:
+    reload_page: Recharger la page courante
+    reload_application: "Recharger l'application"
+    update_firmware: Mettre à jour le firmware
+    export_logs: Exporter les logs globaux
+  singleton_alert:
+    message: 'L’application {APPLICATION_NAME} est déjà en cours d’exécution. Merci de la fermer puis de réessayer.'
+dates:
+  standard: 'DD/MM/YYYY [à] HH:mm'
+opening:
+  title: Ouverture de votre portefeuille...

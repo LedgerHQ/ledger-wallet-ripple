@@ -78,7 +78,7 @@ class BuildI18nFiles {
           }
         }
         val entry = I18nLanguageEntry(
-          language,
+          language.replace('-', '_'),
           root("language", "name").flatMap(_.value).getOrElse("").toString,
           filter
         )

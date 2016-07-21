@@ -84,7 +84,10 @@ class SendIndexController(override val windowService: WindowService,
 
   def max(): Unit = {
     sessionService.currentSession.get.wallet.balance() foreach {(b) =>
-      amount = new Ether(b.toBigInt - (_gasPrice * gasLimit)).toEther.toString()
+      var a = new Ether(b.toBigInt - (_gasPrice * gasLimit))
+      if (a.toBigInt < 0)
+        a = Ether(0)
+      amount = a.toEther.toString()
       $scope.$apply()
     }
   }
