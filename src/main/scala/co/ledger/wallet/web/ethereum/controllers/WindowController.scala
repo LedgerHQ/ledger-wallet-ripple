@@ -67,6 +67,15 @@ class WindowController(windowService: WindowService, $scope: Scope, $element: JQ
     _snackBarScope.create().mode(mode).title(title).subtitle(subtitle)
   }
 
+  var isUiEnabled = true
+
+  windowService.onUserInterfaceEnableChanged {(enable) =>
+    isUiEnabled = enable
+    setTimeout(0) {
+      $scope.$apply()
+    }
+  }
+
   override def receive: Receive = {
     case windowService.StartRefresh() =>
       _navigationBarScope.isRefreshing = true

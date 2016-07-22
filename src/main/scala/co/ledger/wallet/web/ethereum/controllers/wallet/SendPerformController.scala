@@ -55,6 +55,9 @@ class SendPerformController(override val windowService: WindowService,
   private val accountId = $routeParams("account_id").toInt
   private val amount = BigInt($routeParams("amount"))
   private val to = EthereumAccount($routeParams("recipient").trim)
+
+  windowService.disableUserInterface()
+
   sessionService.currentSession.get.wallet.account(accountId) flatMap {(account) =>
     account.ethereumAccountDerivationPath() flatMap {(from) =>
       account.transactionNonce() flatMap {(nonce) =>
@@ -90,6 +93,10 @@ class SendPerformController(override val windowService: WindowService,
       $location.url("/send")
       $route.reload()
   }
+
+  $scope.$on("$destroy", {() =>
+    windowService.enableUserInterface()
+  })
 
 }
 

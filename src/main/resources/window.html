@@ -20,7 +20,7 @@
     <link rel="stylesheet" type="text/css" href="font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="common.css">
 </head>
-<body ng-csp="" ng-controller="WindowController as ctrl">
+<body ng-csp="" ng-controller="WindowController as ctrl" ng-class="{'disable-pointer-events': !ctrl.isUiEnabled}">
     <navigation-bar  class="no-print" ng-hide="!ctrl.showNavigationBar" on-click-refresh="ctrl.refresh()"></navigation-bar>
     <div ng-view></div>
     <snackbar class="no-print"></snackbar>

@@ -47,6 +47,15 @@ import scala.scalajs.js.timers
   */
 class WindowService extends Service {
 
+  def enableUserInterface(): Unit = _userInterfaceEnableListener.foreach(_(true))
+  def disableUserInterface(): Unit = _userInterfaceEnableListener.foreach(_(false))
+
+  def onUserInterfaceEnableChanged(handler: (Boolean) => Unit): Unit = {
+    _userInterfaceEnableListener = Option(handler)
+  }
+
+  private var _userInterfaceEnableListener: Option[(Boolean) => Unit] = None
+
   // Navigation bar features
   def showNavigationBar(): Unit = {
     if (!_navigationIsVisible) {
