@@ -29,6 +29,7 @@ common:
   confirm: confirm
   cancel: cancel
   validate: validate
+  common: help
 
 # Onboarding common
 onboarding:
@@ -39,6 +40,14 @@ onboarding:
 launch:
   to_begin: To begin, plug your Ledger device.
   unlock_and_open_app: If asked, enter your PIN code. Then, open the Ethereum app.
+
+# Linux launch screen
+
+linux:
+  title: Allow access to your device on Linux.
+  subtitle_1: The Ledger Wallet Ethereum app requires the creation of
+  subtitle_2: a set of udev rules to allow access to the device on Linux.
+  configure: configure
 
 # Opening screen
 

@@ -85,7 +85,6 @@ class LaunchController(override val windowService: WindowService,
 
       introFooter.fadeOut(duration * 0.60)
       plugFooter.fadeIn(duration * 0.60)
-
       startDeviceDiscovery()
     }
   }
@@ -125,6 +124,10 @@ class LaunchController(override val windowService: WindowService,
     js.Dynamic.global.open("http://support.ledgerwallet.com/help_center")
   }
 
+  def openLinuxInstruction(): Unit = {
+    js.Dynamic.global.open("http://support.ledgerwallet.com/knowledge_base/topics/ledger-wallet-is-not-recognized-on-linux")
+  }
+
   private def stopDeviceDiscovery(): Unit = {
     println(_scanRequest)
     Option(_scanRequest) foreach {(request) =>
@@ -146,6 +149,11 @@ class LaunchController(override val windowService: WindowService,
     js.Dynamic.global.console.log(obj, ob)
     stopDeviceDiscovery()
   })
+
+  if (true && $element.attr("controller-mode") != "linux") {
+    $location.path("/onboarding/linux" + (if ($routeParams.contains("animated")) "/animated" else ""))
+    $route.reload()
+  }
 }
 
 object LaunchController {
