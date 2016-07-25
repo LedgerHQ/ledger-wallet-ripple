@@ -1,19 +1,21 @@
-<div class="onboarding-view" ng-controller="OpeningController as ctrl">
-    <header>
-        <img src="images/onboarding/ic_logo.png" />
-    </header>
-    <section ng-hide="ctrl.isInErrorMode">
-        <spinner></spinner>
-        <div class="light-large-text almost-medium-top-margin" translate>opening.title</div>
-        <div class="regular-soft-grey-text-small almost-small-top-margin" translate>common.please_wait</div>
-    </section>
-    <section ng-hide="!ctrl.isInErrorMode">
-        <img src="images/common/ic_error_big_red.png" />
-        <div class="light-large-text almost-medium-top-margin" translate>opening.sync_error.title</div>
-        <div class="regular-soft-grey-text-small almost-small-top-margin" translate>opening.sync_error.detail_1</div>
-        <div class="regular-soft-grey-text-small almost-small-top-margin" translate>opening.sync_error.detail_2</div>
-    </section>
-    <div class="footers-container">
-        <footer id="plugFooter" ng-click="ctrl.openHelpCenter()"><a translate>onboarding.help_center</a></footer>
+<div class="onboarding-view">
+    <div class="onboarding-container" ng-controller="OpeningController as ctrl">
+        <header>
+            <img src="images/onboarding/ic_logo.png" />
+        </header>
+        <section ng-hide="ctrl.isInErrorMode">
+            <spinner></spinner>
+            <div class="light-very-large-text almost-medium-top-margin" translate>opening.title</div>
+            <div class="regular-soft-grey-text-small almost-small-top-margin" translate>common.please_wait</div>
+        </section>
+        <section ng-hide="!ctrl.isInErrorMode">
+            <img src="images/common/ic_error_big_red.png" />
+            <div class="light-very-large-text almost-medium-top-margin" translate>opening.sync_error.title</div>
+            <div class="regular-soft-grey-text-small almost-small-top-margin" translate>opening.sync_error.detail_1</div>
+            <div class="regular-soft-grey-text-small very-small-top-margin" translate>opening.sync_error.detail_2</div>
+        </section>
+        <div class="footers-container">
+            <footer id="plugFooter" ng-click="ctrl.openHelpCenter()"><a translate>onboarding.help_center</a></footer>
+        </div>
     </div>
 </div>

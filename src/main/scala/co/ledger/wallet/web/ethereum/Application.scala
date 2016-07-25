@@ -17,6 +17,7 @@ import co.ledger.wallet.web.ethereum.controllers.onboarding.{LaunchController, O
 import co.ledger.wallet.web.ethereum.controllers.wallet._
 import co.ledger.wallet.web.ethereum.core.net.JsWebSocketFactory
 import co.ledger.wallet.web.ethereum.core.sjcl.SjclAesCipher
+import co.ledger.wallet.web.ethereum.core.utils.ChromePreferences
 import co.ledger.wallet.web.ethereum.core.webcrypto.WebCryptoCipher
 import co.ledger.wallet.web.ethereum.filters.DateFormatFilter
 import co.ledger.wallet.web.ethereum.i18n.{I18n, TranslateProvider}
@@ -72,6 +73,8 @@ object Application extends JSApp{
     // Filters
     DateFormatFilter.init(module)
 
+
+    ChromePreferences.init()
     module.config(initRoutes _)
     module.config(($compileProvider: js.Dynamic) => {
       $compileProvider.aHrefSanitizationWhitelist(js.RegExp("^\\s*(https?|ftp|mailto|file|chrome-extension):"))

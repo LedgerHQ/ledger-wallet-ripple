@@ -2,7 +2,7 @@
 @import (reference) "global";
 
 .wallet-view {
-  padding: @metrics-medium-padding;
+  padding: @metrics-large-padding @metrics-medium-padding;
   height: 100%;
   display: flex;
   flex-grow: 1;
@@ -21,7 +21,7 @@
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
-    margin-top: @metrics-large-padding - 5px;
+    margin-top: @metrics-almost-very-large-padding;
 
     &.fullsize {
       flex-grow: 1;
@@ -73,7 +73,6 @@
         vertical-align: middle;
         padding-right: @metrics-large-padding;
         border-bottom: 1px solid @color-very-light-grey;
-        font-size: @font-size-medium;
 
         &.row-title {
           .uppercase-section-column;
@@ -94,9 +93,14 @@
         }
       }
 
-      tbody tr[data-href] {
+      tbody tr #balanceRow {
+        padding-top: 0px;
+        padding-bottom: 0px;
+      }
+
+      tbody tr[ng-click] {
         &:hover {
-          background-color: #f4f4f4;
+          background-color: @color-extra-light-grey;
         }
       }
 

@@ -1,17 +1,19 @@
-<div class="onboarding-view" ng-controller="LaunchController as ctrl" controller-mode="linux">
-    <header>
-        <img src="images/onboarding/ic_logo.png" />
-    </header>
-    <section>
-        <img src="images/common/ic_usb.png" />
-        <div class="light-large-text almost-medium-top-margin" translate>linux.title</div>
-        <div class="regular-soft-grey-text-small almost-small-top-margin" translate>linux.subtitle_1</div>
-        <div class="regular-soft-grey-text-small almost-small-top-margin" translate>linux.subtitle_2</div>
-    </section>
-    <div class="footers-container">
-        <footer id="introFooter" class="large"></footer>
-        <footer id="plugFooter" style="margin-top: -10px">
-            <lbutton text="{{'linux.configure' | translate}}" ng-click="ctrl.openLinuxInstruction()"></lbutton>
-        </footer>
+<div class="onboarding-view">
+    <div class="onboarding-container" ng-controller="LaunchController as ctrl" controller-mode="linux">
+        <header>
+            <img src="images/onboarding/ic_logo.png" />
+        </header>
+        <section>
+            <img src="images/common/ic_usb.png" />
+            <div class="light-very-large-text almost-medium-top-margin" translate>linux.title</div>
+            <div class="light-grey-text-almost-small almost-small-top-margin" translate>linux.subtitle_1</div>
+            <div class="light-grey-text-almost-small very-small-top-margin" translate>linux.subtitle_2</div>
+        </section>
+        <div class="footers-container">
+            <footer id="introFooter" class="large"></footer>
+            <footer id="plugFooter" style="margin-top: -20px">
+                <lbutton text="{{'linux.configure' | translate}}" ng-click="ctrl.openLinuxInstruction()"></lbutton>
+            </footer>
+        </div>
     </div>
 </div>

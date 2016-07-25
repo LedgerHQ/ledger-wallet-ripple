@@ -27,12 +27,16 @@ div[ng-view] {
 .light-large-text {
   .text(@color-black, @font-size-large, @font-weight-light);
 }
+.light-very-large-text {
+  .text(@color-black, @font-size-very-large, @font-weight-light);
+  letter-spacing: -0.2px;
+}
 .bold-regular-text {
   .text(@color-black, @font-size-medium, @font-weight-semibold);
   letter-spacing: -0.5px;
 }
 .bold-ultra-large-text {
-  .text(@color-black, @font-size-ultra-large, @font-weight-semibold);
+  .text(@color-black, @font-size-ultra-large, @font-weight-regular);
   letter-spacing: -0.8px;
 }
 .light-ultra-large-text {
@@ -40,22 +44,26 @@ div[ng-view] {
   letter-spacing: -0.8px;
 }
 .regular-grey-text {
-  .text(@color-dark-grey);
+  .text(@color-dark-grey, @font-size-large, @font-weight-light);
 }
 .regular-grey-text-small {
   .text(@color-dark-grey, @font-size-very-small);
 }
+.light-grey-text-almost-small {
+  .text(@color-dark-grey, @font-size-small, @font-weight-light);
+}
+
 .regular-soft-grey-text {
-  .text(@color-soft-grey);
+  .text(@color-soft-grey, @font-size-large, @font-weight-light);
 }
 .regular-soft-grey-text-small {
   .text(@color-soft-grey, @font-size-very-small);
 }
 .regular-valid-text {
-  .text(@color-valid-green);
+  .text(@color-valid-green, @font-size-large, @font-weight-regular);
 }
 .regular-invalid-text {
-  .text(@color-invalid-red);
+  .text(@color-invalid-red, @font-size-large, @font-weight-regular);
 }
 .bold-invalid-text {
   .text(@color-invalid-red, @font-size-medium, @font-weight-semibold);
@@ -267,10 +275,9 @@ div[ng-view] {
   }
 }
 .uppercase-section-title {
-  letter-spacing: -0.6px;
   font-size: @font-size-large;
-  font-weight: @font-weight-semibold;
-  color: @color-night-blue;
+  font-weight: @font-weight-regular;
+  color: @color-black;
   text-transform: uppercase;
   text-decoration: none;
 }
@@ -280,9 +287,8 @@ a {
   }
 }
 .uppercase-section-column {
-  font-weight: @font-weight-semibold;
+  font-weight: @font-weight-regular;
   font-size: @font-size-very-small;
-  letter-spacing: -0.2px;
   color: @color-black;
   text-transform: uppercase;
   text-decoration: none;
@@ -296,6 +302,10 @@ a {
 .scrollable {
   overflow-y: auto;
   overflow-x: hidden;
+}
+
+.iflt (@a, @b, @property, @value) when (@a < @b) {
+    @{property}: @value;
 }
 
 .text(@color, @size: @font-size-medium, @weight: @font-weight-regular) {

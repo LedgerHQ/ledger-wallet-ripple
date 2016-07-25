@@ -1,14 +1,16 @@
-<div class="onboarding-view" ng-controller="LaunchController as ctrl" controller-mode="default">
-    <header>
-        <img src="images/onboarding/ic_logo.png" />
-    </header>
-    <section>
-        <img src="images/opening/ic_computer.png" />
-        <div class="light-large-text almost-medium-top-margin" translate>launch.to_begin</div>
-        <div class="regular-soft-grey-text-small almost-small-top-margin" translate>launch.unlock_and_open_app</div>
-    </section>
-    <div class="footers-container">
-        <footer id="introFooter" class="large"></footer>
-        <footer id="plugFooter" ng-click="ctrl.openHelpCenter()"><a translate>onboarding.help_center</a></footer>
+<div class="onboarding-view">
+    <div class="onboarding-container" ng-controller="LaunchController as ctrl" controller-mode="default">
+        <header>
+            <img src="images/onboarding/ic_logo.png" />
+        </header>
+        <section>
+            <img src="images/opening/ic_computer.png" />
+            <div class="light-very-large-text almost-medium-top-margin" translate>launch.to_begin</div>
+            <div class="light-grey-text-almost-small almost-small-top-margin" translate>launch.unlock_and_open_app</div>
+        </section>
+        <div class="footers-container">
+            <footer id="introFooter" class="large"></footer>
+            <footer id="plugFooter" ng-click="ctrl.openHelpCenter()"><a translate>onboarding.help_center</a></footer>
+        </div>
     </div>
 </div>

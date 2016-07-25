@@ -7,8 +7,6 @@ application:
   name: Ledger Wallet Ethereum
   small_description: Ledger Wallet Ethereum manages your accounts efficiently and securely.
   support_url: http\://support.ledgerwallet.com/
-  support_key_not_recognized_url: https\://ledger.groovehq.com/knowledge_base/categories/troubleshooting-20
-  support_coinkite_url: https\://ledger.groovehq.com/knowledge_base/topics/how-to-use-the-coinkite-app
   commands:
     reload_page: Reload the current page
     reload_application: Reload the application

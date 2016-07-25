@@ -1,17 +1,13 @@
-package co.ledger.wallet.web.ethereum.components
-
-import biz.enef.angulate.Directive
-import biz.enef.angulate.Module.RichModule
-import biz.enef.angulate.core.{Attributes, JQLite}
+package co.ledger.wallet.web.ethereum.core.utils
 
 import scala.scalajs.js
 
 /**
   *
-  * Spinner
+  * OsHelper
   * ledger-wallet-ethereum-chrome
   *
-  * Created by Pierre Pollastri on 12/05/2016.
+  * Created by Pierre Pollastri on 25/07/2016.
   *
   * The MIT License (MIT)
   *
@@ -36,45 +32,28 @@ import scala.scalajs.js
   * SOFTWARE.
   *
   */
-class Spinner extends Directive {
-  import js.Dynamic.{ global => g, newInstance => jsnew }
-  override def template: String =
-    """
-      |<div style="width: 50px; height: 50px">
-      |
-      |</div>
-    """.stripMargin
+object OsHelper {
 
-
-  override def postLink(scope: ScopeType, element: JQLite, attrs: Attributes): Unit = {
-    _spinner = jsnew(g.Spinner)(_defaultOptions)
-    _spinner.spin(element.find("div").asInstanceOf[JQLite](0))
+  val OsDescription = {
+    val appVersion = js.Dynamic.global.navigator.appVersion.asInstanceOf[String]
+    if (appVersion.indexOf("Win") != -1)
+      Windows()
+    else if (appVersion.indexOf("Mac") != -1)
+      MacOS()
+    else if (appVersion.indexOf("X11")!= -1)
+      UNIX()
+    else if (appVersion.indexOf("Linux")!= -1)
+      Linux()
+    else
+      UnknownOS()
   }
 
-  private val _defaultOptions = js.Dictionary(
-    "lines" -> 10,
-    "length" -> 0,
-    "width" -> 3,
-    "radius" -> 21,
-    "corners" -> 0,
-    "rotate" -> 0,
-    "direction" -> 1,
-    "color" -> "#000",
-    "speed" -> 0.6,
-    "trail" -> 20,
-    "shadow" -> false,
-    "hwaccel" -> true,
-    "className" -> "spinner",
-    "zIndex" -> 0,
-    "position" -> "relative"
-  )
+  def requiresUdevRules = OsDescription == UNIX || OsDescription == Linux
 
-  private val _tinyOptions = js.Dictionary()
-  private var _spinner: js.Dynamic = null
-}
-
-object Spinner {
-
-  def init(module: RichModule) = module.directiveOf[Spinner]("spinner")
-
+  sealed abstract class OperatingSystemDescription(val name: String)
+  case class Windows() extends OperatingSystemDescription("Windows")
+  case class MacOS() extends OperatingSystemDescription("MacOS")
+  case class UNIX() extends OperatingSystemDescription("Unix")
+  case class Linux() extends OperatingSystemDescription("Linux")
+  case class UnknownOS() extends OperatingSystemDescription("UnknownOS")
 }

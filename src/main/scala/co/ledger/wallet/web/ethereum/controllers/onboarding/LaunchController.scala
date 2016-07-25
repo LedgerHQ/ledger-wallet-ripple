@@ -7,7 +7,7 @@ import co.ledger.wallet.core.device.DeviceFactory.{DeviceDiscovered, DeviceLost,
 import co.ledger.wallet.core.device.ethereum.LedgerApi
 import co.ledger.wallet.core.device.{Device, DeviceFactory}
 import co.ledger.wallet.core.utils.DerivationPath
-import co.ledger.wallet.web.ethereum.core.utils.JQueryHelper
+import co.ledger.wallet.web.ethereum.core.utils.{ChromeGlobalPreferences, ChromePreferences, JQueryHelper, OsHelper}
 import co.ledger.wallet.web.ethereum.services.{DeviceService, WindowService}
 import org.scalajs.jquery.jQuery
 
@@ -59,7 +59,11 @@ class LaunchController(override val windowService: WindowService,
   import timers._
   private var _scanRequest: ScanRequest = null
 
-  private def animate() = {
+  private def initAnimation() = {
+
+  }
+
+  private def animate(discover: Boolean) = {
     // Initialize default state
     JQueryHelper.injectCustomEasings()
     val header = jQuery($element.find("> header").asInstanceOf[JQLite](0))
@@ -85,7 +89,8 @@ class LaunchController(override val windowService: WindowService,
 
       introFooter.fadeOut(duration * 0.60)
       plugFooter.fadeIn(duration * 0.60)
-      startDeviceDiscovery()
+      if (discover)
+        startDeviceDiscovery()
     }
   }
 
@@ -112,6 +117,7 @@ class LaunchController(override val windowService: WindowService,
       LedgerApi(device).derivePublicAddress(DerivationPath("44'/60'/0"))
     } onComplete {
         case Success(uuid) =>
+          incrementNumberOfConnection()
           $location.url("/onboarding/opening/")
           $route.reload()
         case Failure(ex) =>
@@ -128,6 +134,9 @@ class LaunchController(override val windowService: WindowService,
     js.Dynamic.global.open("http://support.ledgerwallet.com/knowledge_base/topics/ledger-wallet-is-not-recognized-on-linux")
   }
 
+  def numberOfConnection = new ChromeGlobalPreferences("launches").int("count").getOrElse(0)
+  def incrementNumberOfConnection() = new ChromeGlobalPreferences("launches").edit().putInt("count", numberOfConnection + 1).commit()
+
   private def stopDeviceDiscovery(): Unit = {
     println(_scanRequest)
     Option(_scanRequest) foreach {(request) =>
@@ -138,21 +147,24 @@ class LaunchController(override val windowService: WindowService,
 
   jQuery($element.find("#introFooter")).height(11)
 
-  if ($routeParams.contains("animated")) {
-    animate()
-  } else {
-    jQuery($element.find("#introFooter")).fadeOut(0)
-    startDeviceDiscovery()
-  }
-
   $scope.$on("$destroy", {(obj: js.Any, ob: js.Any) =>
     js.Dynamic.global.console.log(obj, ob)
     stopDeviceDiscovery()
   })
 
-  if (true && $element.attr("controller-mode") != "linux") {
+  if (numberOfConnection == 0 && OsHelper.requiresUdevRules && $element.attr("controller-mode") != "linux") {
+    if ($routeParams.contains("animated")) {
+      animate(false)
+    }
     $location.path("/onboarding/linux" + (if ($routeParams.contains("animated")) "/animated" else ""))
     $route.reload()
+  } else {
+    if ($routeParams.contains("animated")) {
+      animate(true)
+    } else {
+      jQuery($element.find("#introFooter")).fadeOut(0)
+      startDeviceDiscovery()
+    }
   }
 }
 
