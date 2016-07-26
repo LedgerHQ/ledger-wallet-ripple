@@ -58,6 +58,7 @@ class AccountController(override val windowService: WindowService,
   }
 
   var isRefreshing = false
+  var hideLoader = true
 
   var operations = js.Array[js.Dictionary[js.Any]]()
 
@@ -65,6 +66,7 @@ class AccountController(override val windowService: WindowService,
   def reloadOperations(): Unit = {
     operations = js.Array[js.Dictionary[js.Any]]()
     reloadOperationNonce += 1
+    hideLoader = true
     val nonce = reloadOperationNonce
     sessionService.currentSession.get.wallet.account(accountId).flatMap {
       _.operations(-1, 10)
@@ -91,6 +93,7 @@ class AccountController(override val windowService: WindowService,
           case Failure(ex) => ex.printStackTrace()
         } andThen {
           case all =>
+            hideLoader = cursor.loadedChunkCount == cursor.chunkCount
             isLoading = false
             refresh()
         }

@@ -236,13 +236,10 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
           }
         }
       case NewBlock(block) =>
-        println("New block")
         block.transactionsHashes foreach {(hashes) =>
           queryTransactions(hashes) foreach {(txs) =>
             if (txs.nonEmpty) {
               synchronize()
-            } else {
-              println("Drop block")
             }
           }
         }

@@ -68,7 +68,7 @@ wallet:
 
 account:
   default_name: my account
-
+  load_more: Loading next operations...
 
 # Help screen
 
