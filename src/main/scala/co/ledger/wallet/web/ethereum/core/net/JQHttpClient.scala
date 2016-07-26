@@ -78,6 +78,7 @@ class JQHttpClient(override val baseUrl: String) extends HttpClient {
 
 object JQHttpClient {
 
-  val defaultInstance = new JQHttpClient("https://api.chronocoin.fr/blockchain/v2/eth")
+  // val defaultInstance = new JQHttpClient("https://api.chronocoin.fr/blockchain/v2/eth")
+  val defaultInstance = new JQHttpClient("https://api.ledgerwallet.com/blockchain/v2/eth")
 
 }
