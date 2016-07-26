@@ -1,58 +1,66 @@
 @import (reference) "../constants";
 
-.lbutton {
+lbutton {
   display: inline-block;
-  padding-left: @metrics-small-padding;
-  padding-right: @metrics-small-padding;
-  border-radius: 16px;
-  letter-spacing: -0.5px;
-  padding-top: 9px;
-  padding-bottom: 9px;
+  .lbutton {
+    display: inline-block;
+    padding-left: @metrics-small-padding;
+    padding-right: @metrics-small-padding;
+    border-radius: 16px;
+    letter-spacing: -0.5px;
+    padding-top: 9px;
+    padding-bottom: 9px;
 
-  &.green {
-    background-color: @color-action-green;
+    &.green {
+      background-color: @color-action-green;
+
+      &:hover {
+        background-color: darken(@color-action-green, @color-default-darken-value);
+      }
+    }
+
+    &.grey {
+      background-color: @color-light-grey;
+
+      &:hover {
+        background-color: darken(@color-light-grey, @color-default-darken-value);
+      }
+    }
 
     &:hover {
-      background-color: darken(@color-action-green, @color-default-darken-value);
+      cursor: pointer;
     }
-  }
 
-  &.grey {
-    background-color: @color-light-grey;
-
-    &:hover {
-      background-color: darken(@color-light-grey, @color-default-darken-value);
+    i {
+      color: @color-white;
+      font-size: @font-size-large;
     }
-  }
-
-  &:hover {
-    cursor: pointer;
-  }
-
-  span {
-    color: @color-white;
-    text-transform: uppercase;
-    font-size: @font-size-large;
-    font-weight: 400;
-    letter-spacing: -0.2px;
-  }
-
-  &.small {
-    border-radius: 10px;
-    letter-spacing: -0.3px;
-    padding-top: 3px;
-    padding-bottom: 4px;
-    padding-left: 8px;
-    padding-right: 8px;
 
     span {
-      font-size: @font-size-tiny;
+      color: @color-white;
+      text-transform: uppercase;
+      font-size: @font-size-large;
+      font-weight: 400;
+      letter-spacing: -0.2px;
     }
-  }
 
-  &.disabled {
-    opacity: 0.5;
-    pointer-events: none;
-  }
+    &.small {
+      border-radius: 10px;
+      letter-spacing: -0.3px;
+      padding-top: 3px;
+      padding-bottom: 4px;
+      padding-left: 8px;
+      padding-right: 8px;
 
+      span {
+        font-size: @font-size-tiny;
+      }
+    }
+
+    &.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+  }
 }

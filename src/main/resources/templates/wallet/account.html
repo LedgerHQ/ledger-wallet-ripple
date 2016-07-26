@@ -32,7 +32,7 @@
             </thead>
             <tbody>
             <tr class="fit-content" ng-click="ctrl.openTransactionDetails(operation.hash)" ng-class="{'no-border': $last}" ng-repeat="operation in ctrl.operations">
-                <td class="regular-grey-text">{{operation.date | date: 'standard'}}</td>
+                <td class="regular-grey-text" style="padding-right: 0px">{{operation.date | date: 'standard'}}</td>
                 <td class="align-right"><amount value="operation.amount" type="operation"></amount></td>
             </tr>
             </tbody>

@@ -100,7 +100,7 @@ class AccountController(override val windowService: WindowService,
         val top = $element.asInstanceOf[js.Dynamic].scrollTop().asInstanceOf[Double]
         val scrollHeight = $element.asInstanceOf[js.Dynamic].height().asInstanceOf[Double]
         val height = $element(0).asInstanceOf[js.Dynamic].scrollHeight.asInstanceOf[Double]
-        if (top + scrollHeight >= height * 0.90) {
+        if (top + scrollHeight >= height * 0.60) {
           if (!isLoading && reloadOperationNonce == nonce && cursor.loadedChunkCount < cursor.chunkCount) {
             loadMore()
           }
