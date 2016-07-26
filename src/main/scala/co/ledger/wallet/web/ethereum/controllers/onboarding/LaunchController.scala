@@ -67,7 +67,7 @@ class LaunchController(override val windowService: WindowService,
     // Initialize default state
     JQueryHelper.injectCustomEasings()
     val header = jQuery($element.find("> header").asInstanceOf[JQLite](0))
-    header.height(100)
+    header.height(105)
     val section = jQuery($element.find("> section").asInstanceOf[JQLite](0))
     val document = jQuery("body")
     val introFooter = jQuery($element.find("#introFooter"))
