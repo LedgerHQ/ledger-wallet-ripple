@@ -19,7 +19,7 @@ div[ng-view] {
 }
 
 .regular-text {
-  .text(@color-black);
+  .text(@color-black, @font-size-large, @font-weight-light);
 }
 .regular-text-small {
   .text(@color-black, @font-size-very-small);
@@ -194,7 +194,8 @@ div[ng-view] {
   background-color: transparent;
   outline: none;
   text-align: right;
-  font-size: @font-size-medium;
+  font-size: @font-size-small;
+  font-weight: @font-weight-light;
 
   &::-webkit-input-placeholder {
     color: @color-soft-grey;
@@ -262,6 +263,7 @@ div[ng-view] {
 // texts
 .uppercase-action {
   font-size: @font-size-very-small;
+  font-weight: @font-weight-regular;
   color: @color-dark-grey;
   text-transform: uppercase;
 
@@ -350,7 +352,7 @@ tr[ng-click] {
 
 .panel {
   padding: @metrics-small-padding;
-  border-radius: @border-radius-default-value;
+  border-radius: @border-radius-very-large-value;
   background-color: @color-extra-light-grey;
   border: 1px solid @color-very-light-grey;
   display: block;

@@ -82,7 +82,7 @@ class AccountController(override val windowService: WindowService,
                 "amount" -> (
                   (if (op.`type` == Operation.SendType) -1 else 1) *
                     op.transaction.value.toBigInt -
-                    (if (op.`type` == Operation.SendType) op.transaction.gasPrice.toBigInt * op.transaction.gasUsed.toBigInt else 0)
+                    (if (op.`type` == Operation.SendType) op.transaction.gasPrice.toBigInt * 21000 else 0)
                   ).toString(),
                 "isSend" -> (op.`type` == Operation.SendType)
               ))

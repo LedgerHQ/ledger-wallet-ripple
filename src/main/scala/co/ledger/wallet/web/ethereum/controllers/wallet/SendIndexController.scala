@@ -88,6 +88,7 @@ class SendIndexController(override val windowService: WindowService,
       if (a.toBigInt < 0)
         a = Ether(0)
       amount = a.toEther.toString()
+      computeTotal()
       $scope.$apply()
     }
   }
@@ -131,9 +132,9 @@ class SendIndexController(override val windowService: WindowService,
       val value = getAmountInput()
       val recipient = getAddressInput()
       if (value.isFailure) {
-        SnackBar.error("send.error", "send.bad_amount").show()
+        SnackBar.error("send.bad_amount_title", "send.bad_amount_message").show()
       } else if (recipient.isFailure) {
-        SnackBar.error("send.error", "send.bad_address").show()
+        SnackBar.error("send.bad_address_title", "send.bad_address_message").show()
       } else {
         val isIban = true
         val fees = BigInt(gasLimit)
@@ -144,7 +145,7 @@ class SendIndexController(override val windowService: WindowService,
         println(s"Fees: $fees")
         sessionService.currentSession.get.wallet.balance() foreach {(balance) =>
           if (computeTotal() > balance) {
-            SnackBar.error("send.error", "send.insufficient_funds").show()
+            SnackBar.error("send.insufficient_funds_title", "send.insufficient_funds_message").show()
           } else {
             $location.path(s"/send/${value.get.toString()}/to/$address/from/0/with/$fees/price/$gasPrice")
             $scope.$apply()
