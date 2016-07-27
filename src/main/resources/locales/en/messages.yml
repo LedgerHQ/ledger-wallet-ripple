@@ -69,6 +69,7 @@ wallet:
 account:
   default_name: my account
   load_more: Loading next operations...
+  no_operation: No operations for this account.
 
 # Help screen
 
@@ -117,8 +118,8 @@ send:
 send_perform:
   page_title: send ether
   confirm_transaction: Confirm transaction
-  review_1: Review displayed information on your Ledger device
-  review_2: and confirm the transaction to continue.
+  review_1: Check the transaction displayed on your device
+  review_2: and confirm (or reject) it to continue.
   completed_title: Transaction completed
   completed_message: Successfully broadcasted to network
   cancelled_title: Transaction failed

@@ -91,7 +91,7 @@ class ApiAccountClient(override val wallet: ApiWalletClient, override protected 
   }
 
   private def prefs = {
-    val prefName = s"api_client_$index"
+    val prefName = s"${wallet.name}_api_client_$index"
     new ChromePreferences(prefName)
   }
 

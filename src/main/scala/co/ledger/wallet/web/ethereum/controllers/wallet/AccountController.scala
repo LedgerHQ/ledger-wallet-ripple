@@ -93,7 +93,7 @@ class AccountController(override val windowService: WindowService,
           case Failure(ex) => ex.printStackTrace()
         } andThen {
           case all =>
-            hideLoader = cursor.loadedChunkCount == cursor.chunkCount
+            hideLoader = cursor.loadedChunkCount >= cursor.chunkCount
             isLoading = false
             refresh()
         }

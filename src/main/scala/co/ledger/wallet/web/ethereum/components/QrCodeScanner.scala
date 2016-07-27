@@ -6,6 +6,7 @@ import biz.enef.angulate.core.{Attributes, JQLite}
 import org.scalajs.dom
 import org.scalajs.dom.CanvasRenderingContext2D
 import org.scalajs.dom.ext.Color
+import org.scalajs.dom.raw.Event
 
 import scala.scalajs.js
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -67,12 +68,13 @@ class QrCodeScanner extends Directive {
     if (!_running) {
       _running = true
       js.Dynamic.global.navigator.webkitGetUserMedia(js.Dictionary("video" -> true), (stream: js.Dynamic) => {
-        js.Dynamic.global.console.log(stream)
-        println("Got a " + stream)
          _stream = stream
         _video.src = js.Dynamic.global.URL.createObjectURL(stream).toString
         _video.play()
-        scheduleQrCodeDecoder()
+        _video.onplaying = {(event: Event) =>
+          _video.onplaying = null
+          scheduleQrCodeDecoder()
+        }
         draw(_overlay.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D])
         if (!_running)
           performStop()
@@ -89,11 +91,19 @@ class QrCodeScanner extends Directive {
     }
   }
 
+  private def clearRenderingBuffer(): Unit = {
+    val ctx = _buffer.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
+    ctx.clearRect(0, 0, width, height)
+  }
+
   private def performStop(): Unit = {
     if (_stream != null) {
       _stream.getTracks().asInstanceOf[js.Array[js.Dynamic]](0).stop()
       _stream = null
       _video.pause()
+      _video.src = ""
+      _video.load()
+      clearRenderingBuffer()
     }
   }
 
@@ -107,8 +117,6 @@ class QrCodeScanner extends Directive {
     val frameY = (h - frameHeight) / 2
     val borderSize = 5
     val borderLength = 30
-
-    println(s"GOT $w $h $frameX $frameY")
 
     // Draw the black overlay
     ctx.save()
