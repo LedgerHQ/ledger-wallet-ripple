@@ -196,7 +196,6 @@ object ChromePreferences {
     val promise = scala.concurrent.Promise[Unit]()
     val chrome = global.chrome
     chrome.storage.local.get(name, {(result: Dictionary[String]) =>
-      global.console.log("Result is ", result)
       val json = if (result.contains(name)) result(name) else "{}"
       read[Map[String, String]](json) foreach {
         case (key, value) =>

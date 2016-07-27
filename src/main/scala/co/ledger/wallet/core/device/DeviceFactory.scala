@@ -89,14 +89,11 @@ object DeviceFactory {
     def onStop(): Unit
 
     def stop(): Unit = {
-      println("Stop:begin")
       if (!_promise.isCompleted) {
-        println("Stop:nullify 1")
         notifyEnd()
         onStop()
         _callback = None
         _ec = None
-        println("Stop:nullify 2")
       }
 
     }

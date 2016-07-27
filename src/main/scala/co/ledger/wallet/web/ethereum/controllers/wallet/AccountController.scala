@@ -136,7 +136,6 @@ class AccountController(override val windowService: WindowService,
   }
 
   def openTransactionDetails(hash: String): Unit = {
-    println(s"Open $hash")
     js.Dynamic.global.open(s"http://etherscan.io/tx/$hash")
   }
 

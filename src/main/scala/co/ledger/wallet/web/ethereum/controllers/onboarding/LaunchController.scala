@@ -75,7 +75,6 @@ class LaunchController(override val windowService: WindowService,
     plugFooter.fadeOut(0)
     section.css("opacity", 0)
     val offset = header.offset().asInstanceOf[js.Dictionary[Double]]
-    js.Dynamic.global.console.log(offset)
     val translate = (document.outerHeight(true) / 2 - header.outerHeight(true) / 2) - offset("top").toInt
       + (section.css("margin-top").replace("px", "").toInt / 2)
     header.css("top", translate + "px")
@@ -96,7 +95,6 @@ class LaunchController(override val windowService: WindowService,
 
   private def startDeviceDiscovery(): Unit = {
     _scanRequest = deviceService.requestScan()
-    println(_scanRequest)
     _scanRequest.onScanUpdate {
       case DeviceDiscovered(device) =>
         if (_scanRequest != null) {
@@ -138,9 +136,7 @@ class LaunchController(override val windowService: WindowService,
   def incrementNumberOfConnection() = new ChromeGlobalPreferences("launches").edit().putInt("count", numberOfConnection + 1).commit()
 
   private def stopDeviceDiscovery(): Unit = {
-    println(_scanRequest)
     Option(_scanRequest) foreach {(request) =>
-      println("SCAN STOP")
       request.stop()
     }
   }
@@ -148,7 +144,6 @@ class LaunchController(override val windowService: WindowService,
   jQuery($element.find("#introFooter")).height(11)
 
   $scope.$on("$destroy", {(obj: js.Any, ob: js.Any) =>
-    js.Dynamic.global.console.log(obj, ob)
     stopDeviceDiscovery()
   })
 

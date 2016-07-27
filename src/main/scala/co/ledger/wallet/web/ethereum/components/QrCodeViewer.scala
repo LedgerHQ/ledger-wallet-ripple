@@ -70,7 +70,6 @@ class QrCodeViewer extends Directive {
 
   override def postLink(scope: Scope, element: JQLite, attrs: Attributes, controller: Dynamic): Unit = {
    scope.$watch(attrs("value"), {(newValue: UndefOr[String]) =>
-     println("Changed!")
      controller.qrCode.makeCode(newValue.getOrElse("").toString)
    })
   }

@@ -50,8 +50,6 @@ trait LedgerSignatureApi extends LedgerCommonApiInterface {
     val unsignedSerialization = List(nonce, gasPrice, startGas, to.toByteArray, value, data)
     val serializedTx = RLP.encode(unsignedSerialization)
     val rawDerivationPath = new BytesWriter().writeDerivationPath(from).toByteArray
-    println(HexUtils.bytesToHex(to.toByteArray))
-    println(HexUtils.bytesToHex(serializedTx))
     def sendChunks(i: Int): Future[CommandResult] = {
       val offset = Math.max(i * 255 - rawDerivationPath.length, 0)
       val length = 255 - (if (i == 0) rawDerivationPath.length else 0)

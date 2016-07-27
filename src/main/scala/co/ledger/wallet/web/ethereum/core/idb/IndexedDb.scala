@@ -57,7 +57,6 @@ object IndexedDb {
       promise.success(db)
     }
     request.onerror = {(event: ErrorEvent) =>
-      js.Dynamic.global.console.log(event)
       promise.failure(new Exception(event.message))
     }
     promise.future

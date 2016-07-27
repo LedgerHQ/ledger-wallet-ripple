@@ -48,8 +48,6 @@ trait LedgerDerivationApi extends LedgerCommonApiInterface {
       val data = result.data
       val publicKey = data.readNextBytes(data.readNextByte())
       val address = data.readNextBytes(data.readNextByte())
-      println("VALUE " + HexUtils.bytesToHex(address))
-      println("ADDRESS " + new String(address, Charset.forName("US-ASCII")))
       PublicAddressResult(publicKey, EthereumAccount("0x" + new String(address, Charset.forName("US-ASCII"))))
     }
   }

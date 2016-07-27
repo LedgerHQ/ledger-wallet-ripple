@@ -71,7 +71,6 @@ class UsbDeviceFactory extends DeviceFactory {
     val chrome = js.Dynamic.global.chrome
 
     override def onStart(): Unit = {
-      println("ON START")
       _running = true
       def tick(): Unit = {
         chrome.hid.getDevices(js.Dictionary(), {(devices: js.Array[HidDeviceInfo]) =>
@@ -101,7 +100,6 @@ class UsbDeviceFactory extends DeviceFactory {
     }
 
     override def onStop(): Unit = {
-      println("ON STOP")
       _running = false
       _devices.clear()
     }

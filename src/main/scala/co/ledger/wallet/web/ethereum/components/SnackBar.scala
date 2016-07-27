@@ -61,7 +61,6 @@ class SnackBar($translate: js.Dynamic) extends Directive {
     scope.subtitle = () => tr(Option(currentInstance).map(_.subtitle).getOrElse(""))
     scope.icon = () => Icons(Option(currentInstance).map(_.mode).getOrElse(0))
     scope.dismiss = {() =>
-      println("Dismiss")
       element.animate(js.Dictionary("bottom" -> -element.outerHeight(false)), 400, "default", () => {
         currentInstance = null
       })
@@ -71,7 +70,6 @@ class SnackBar($translate: js.Dynamic) extends Directive {
       currentInstance = a.asInstanceOf[SnackBarInstance]
       var timeout: js.Any = null
       currentInstance.dismissHandler = () => {
-        println("Dismiss delay")
         if (currentInstance == a)
           scope.dismiss()
       }

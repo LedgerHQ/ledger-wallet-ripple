@@ -48,7 +48,6 @@ class RefreshButton {
 
   def running: Boolean = _running
   def running_=(v: String) = {
-    println("Set is running " + v)
     _running = v.toBoolean
   }
 
