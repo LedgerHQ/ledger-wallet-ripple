@@ -78,16 +78,14 @@ class LaunchController(override val windowService: WindowService,
     // Initialize default state
     JQueryHelper.injectCustomEasings()
     val header = jQuery($element.find("> header").asInstanceOf[JQLite](0))
-    header.height(105)
+    header.height(98)
     val section = jQuery($element.find("> section").asInstanceOf[JQLite](0))
-    val document = jQuery("body")
-    val introFooter = jQuery($element.find("#introFooter"))
+    val document = jQuery(".onboarding-container")
     val plugFooter = jQuery($element.find("#plugFooter"))
     plugFooter.fadeOut(0)
     section.css("opacity", 0)
     val offset = header.offset().asInstanceOf[js.Dictionary[Double]]
-    val translate = (document.outerHeight(true) / 2 - header.outerHeight(true) / 2) - offset("top").toInt
-      + (section.css("margin-top").replace("px", "").toInt / 2)
+    val translate = (document.outerHeight(true) / 2 - header.outerHeight(true) / 2) - document.css("padding-top").replace("px", "").toInt
     header.css("top", translate + "px")
 
     val duration = 750
@@ -97,7 +95,6 @@ class LaunchController(override val windowService: WindowService,
       header.animate(js.Dictionary("top" -> 0), duration, easing)
       section.animate(js.Dictionary("opacity" -> 1), duration, easing)
 
-      introFooter.fadeOut(duration * 0.60)
       plugFooter.fadeIn(duration * 0.60)
       if (discover)
         startDeviceDiscovery()
