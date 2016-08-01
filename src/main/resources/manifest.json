@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "__MSG_application_name__",
   "description": "__MSG_application_small_description__",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "default_locale": "en",
   "minimum_chrome_version": "50",
   "app": {
@@ -49,5 +49,15 @@
     "48": "images/app_icon/ic_app_48.png",
     "64": "images/app_icon/ic_app_64.png",
     "128": "images/app_icon/ic_app_128.png"
+  },
+  "externally_connectable": {
+    "ids": [
+      "*"
+    ],
+    "matches": [
+      "*://*.ledgerwallet.com/*",
+      "*://ledgerwallet.com/*",
+      "http://dev.ledgerwallet.com:3000/api"
+    ]
   }
 }

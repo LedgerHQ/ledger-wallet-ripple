@@ -58,15 +58,18 @@ function displayCantLaunchNotification(app) {
     })
 }
 
-chrome.app.runtime.onLaunched.addListener(function () {
+function tryStartApp() {
     ensureIsSingleton(function (isSingleton, app) {
-        console.log(arguments);
         if (isSingleton) {
             startApp();
         } else {
             displayCantLaunchNotification(app)
         }
     })
+}
+
+chrome.app.runtime.onLaunched.addListener(function () {
+    tryStartApp();
 });
 
 chrome.runtime.onMessageExternal.addListener(
@@ -77,6 +80,9 @@ chrome.runtime.onMessageExternal.addListener(
         }
 
         switch (command.command) {
+            case "launch":
+                tryStartApp();
+                sendResponse({command: "launch", result: true});
             case "ping":
                 sendResponse({command: "ping", result: true});
                 break;
