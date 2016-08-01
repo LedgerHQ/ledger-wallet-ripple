@@ -54,6 +54,7 @@ object Application extends JSApp{
     Spinner.init(module)
     SnackBar.init(module)
     AmountLabel.init(module)
+    Selector.init(module)
 
     // Controllers
     LaunchController.init(module)

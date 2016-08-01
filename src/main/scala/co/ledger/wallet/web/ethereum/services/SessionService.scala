@@ -42,7 +42,7 @@ import scala.concurrent.Future
   */
 class SessionService extends Service {
 
-  def startNewSessions(api: LedgerApi): Future[Unit] = {
+  def startNewSessions(api: LedgerApi, chain: SessionService.EthereumChainIdentifier): Future[Unit] = {
     api.walletIdentifier() flatMap {(walletIdentifier) =>
       api.walletMetaPassword() flatMap {(password) =>
         val provider = new EthereumAccountProvider {
@@ -50,7 +50,7 @@ class SessionService extends Service {
             api.derivePublicAddress(path).map(_.account)
           }
         }
-        val session = new Session(walletIdentifier, password, provider)
+        val session = new Session(walletIdentifier, password, provider, chain)
         _currentSession = Some(session)
         Future.successful()
       }
@@ -69,8 +69,11 @@ class SessionService extends Service {
   def currentSession = _currentSession
   private var _currentSession: Option[Session] = None
 
-  class Session(val name: String, val password: String, provider: EthereumAccountProvider) {
-    val wallet: Wallet = new ApiWalletClient(name, Option(password), provider)
+  class Session(val name: String,
+                val password: String,
+                provider: EthereumAccountProvider,
+                chain: SessionService.EthereumChainIdentifier) {
+    val wallet: Wallet = new ApiWalletClient(name, Option(password), provider, chain)
 
     val sessionPreferences = scala.collection.mutable.Map[String, Any]()
   }
@@ -84,5 +87,9 @@ object SessionService {
   private def setInstance(service: SessionService) = _instance = service
   private var _instance: SessionService = null
   def init(module: RichModule) = module.serviceOf[SessionService]("sessionService")
+
+  sealed abstract class EthereumChainIdentifier(val id: String)
+  case class EthereumClassicChain() extends EthereumChainIdentifier("ethc")
+  case class EthereumChain() extends EthereumChainIdentifier("eth")
 
 }

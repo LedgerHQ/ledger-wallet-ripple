@@ -1,0 +1,11 @@
+<div>
+    <div ng-class="{'light-grey': !isSelected(key), grey: isSelected(key), 'extra-small-left-margin': !$first}"
+         class="lbutton medium"
+         ng-repeat="(key, value) in values"
+         ng-click="select(key)"
+    >
+        <span id="{{key}}" translate>
+            {{value}}
+        </span>
+    </div>
+</div>

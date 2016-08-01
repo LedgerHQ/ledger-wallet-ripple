@@ -10,7 +10,14 @@
         </section>
         <div class="footers-container">
             <footer id="introFooter" class="large"></footer>
-            <footer id="plugFooter" ng-click="ctrl.openHelpCenter()"><a translate>onboarding.help_center</a></footer>
+            <footer id="plugFooter">
+                <a ng-click="ctrl.openHelpCenter()" translate>onboarding.help_center</a>
+                <div id="chain_selector_area">
+                    <span translate>launch.ethereum_chain</span>
+                    <selector values="{{ctrl.chains}}" selected="{{ctrl.currentChain}}" changed="ctrl.onChainChanged(value)" ></selector>
+                </div>
+            </footer>
+
         </div>
     </div>
 </div>

@@ -58,6 +58,17 @@ class LaunchController(override val windowService: WindowService,
 
   import timers._
   private var _scanRequest: ScanRequest = null
+  private val preferences = new ChromeGlobalPreferences("launch_screen")
+  val chains = js.Dictionary(
+    "ETH" -> "launch.eth",
+    "ETC" -> "launch.etc"
+  )
+  var currentChain = preferences.string("chain").getOrElse("ETH")
+
+  val onChainChanged: js.Function1[String, Unit] = {(chain: String) =>
+    currentChain = chain
+    preferences.edit().putString("chain", chain).commit()
+  }
 
   private def initAnimation() = {
 
@@ -116,7 +127,7 @@ class LaunchController(override val windowService: WindowService,
     } onComplete {
         case Success(uuid) =>
           incrementNumberOfConnection()
-          $location.url("/onboarding/opening/")
+          $location.url(s"/onboarding/opening/${currentChain}/")
           $route.reload()
         case Failure(ex) =>
           ex.printStackTrace()

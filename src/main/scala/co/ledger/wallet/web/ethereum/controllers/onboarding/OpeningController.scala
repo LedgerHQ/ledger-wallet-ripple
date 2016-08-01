@@ -57,7 +57,8 @@ class OpeningController(override val windowService: WindowService,
                         $route: js.Dynamic,
                         sessionService: SessionService,
                         $scope: Scope,
-                        $element: JQLite)
+                        $element: JQLite,
+                        $routeParams: js.Dictionary[String])
   extends Controller with OnBoardingController {
 
   var isInErrorMode = false
@@ -65,7 +66,13 @@ class OpeningController(override val windowService: WindowService,
   deviceService.lastConnectedDevice() map {(device) =>
     LedgerApi(device)
   } flatMap {(api) =>
-    sessionService.startNewSessions(api)
+    val chain = $routeParams("chain") match {
+      case "ETH" =>
+        SessionService.EthereumChain()
+      case "ETC" =>
+        SessionService.EthereumClassicChain()
+    }
+    sessionService.startNewSessions(api, chain)
   } flatMap {(_) =>
     ChromePreferences.load(sessionService.currentSession.get.name, sessionService.currentSession.get.password)
   } flatMap { (_) =>
@@ -91,6 +98,7 @@ class OpeningController(override val windowService: WindowService,
       $location.url("/account/0")
       $route.reload()
     case Failure(ex) =>
+      ex.printStackTrace()
       isInErrorMode = true
       $scope.$apply()
   }

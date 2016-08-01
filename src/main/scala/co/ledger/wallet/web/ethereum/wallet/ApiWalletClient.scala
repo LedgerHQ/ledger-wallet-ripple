@@ -10,6 +10,7 @@ import co.ledger.wallet.core.wallet.ethereum.api.{AbstractApiAccountClient, Abst
 import co.ledger.wallet.core.wallet.ethereum.database.AccountRow
 import co.ledger.wallet.web.ethereum.core.event.JsEventEmitter
 import co.ledger.wallet.web.ethereum.core.net.{JQHttpClient, JsWebSocketFactory}
+import co.ledger.wallet.web.ethereum.services.SessionService
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.scalajs.js
@@ -44,7 +45,7 @@ import scala.scalajs.js
   * SOFTWARE.
   *
   */
-class ApiWalletClient(name: String, override protected val password: Option[String], provider: EthereumAccountProvider) extends AbstractApiWalletClient(name) with IndexedDBBackedWalletClient {
+class ApiWalletClient(name: String, override protected val password: Option[String], provider: EthereumAccountProvider, chain: SessionService.EthereumChainIdentifier) extends AbstractApiWalletClient(s"${chain.id}_$name") with IndexedDBBackedWalletClient {
 
   override implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
@@ -54,7 +55,12 @@ class ApiWalletClient(name: String, override protected val password: Option[Stri
 
   override def ethereumAccountProvider: EthereumAccountProvider = provider
 
-  protected def http: HttpClient = JQHttpClient.defaultInstance
+  protected def http: HttpClient = chain match {
+    case SessionService.EthereumClassicChain() =>
+      JQHttpClient.etcInstance
+    case SessionService.EthereumChain() =>
+      JQHttpClient.ethInstance
+  }
 
   override val blockRestClient = new AbstractBlockRestClient(http) {
     override def stringToDate(string: String): Date = ApiWalletClient.this.stringToDate(string)

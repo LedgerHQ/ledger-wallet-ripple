@@ -48,13 +48,16 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
   implicit val ec: ExecutionContext
 
   def transactionRestClient: AbstractTransactionRestClient
+
   def blockRestClient: AbstractBlockRestClient
+
   def websocketFactory: WebSocketFactory
 
-  override def account(index: Int): Future[Account] = accounts().map(_(index))
-  override def mostRecentBlock(): Future[Block] = init() flatMap {(_) =>
+  override def account(index: Int): Future[Account] = accounts().map(_ (index))
 
-    queryLastBlock() map {(block) =>
+  override def mostRecentBlock(): Future[Block] = init() flatMap { (_) =>
+
+    queryLastBlock() map { (block) =>
       if (block == null)
         throw WalletNotSetupException()
       else
@@ -63,7 +66,7 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
   }
 
   override def stop(): Unit = {
-    init() foreach {(_) =>
+    init() foreach { (_) =>
       _stopped = true
       _webSocketNetworkObserver.get.stop()
       eventEmitter.unregister(_eventReceiver)
@@ -83,14 +86,14 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
   def performSynchronize(): Future[Unit] = {
 
     def synchronizeUntilEmptyAccount(syncToken: String, from: Int): Future[Unit] = {
-      init().flatMap {(_) =>
+      init().flatMap { (_) =>
         val accounts = _accounts.slice(from, _accounts.length)
         Future.sequence(accounts.map(_.synchronize(syncToken)).toSeq)
-      } flatMap {(_) =>
+      } flatMap { (_) =>
         if (_accounts.last.keyChain.issuedKeys != 0) {
           // Create an new account
           val newAccountIndex = _accounts.length
-          createAccount(newAccountIndex) flatMap {(_) =>
+          createAccount(newAccountIndex) flatMap { (_) =>
             synchronizeUntilEmptyAccount(syncToken, newAccountIndex)
           }
         } else {
@@ -99,7 +102,7 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
       } recoverWith {
         case HttpException(_, response, _) =>
           if (response.statusCode == 404) {
-            handleReorg() flatMap {(_) =>
+            handleReorg() flatMap { (_) =>
               performSynchronize()
             }
           }
@@ -109,7 +112,7 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
         case other => Future.failed(other)
       }
     }
-    transactionRestClient.obtainSyncToken() flatMap {(token) =>
+    transactionRestClient.obtainSyncToken() flatMap { (token) =>
       synchronizeUntilEmptyAccount(token, 0)
     } andThen {
       case all =>
@@ -130,22 +133,22 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
     // Open a cursor on the previous blocks
     // Delete blocks
     // End
-    Future.sequence(_accounts.map(_.synchronizationBlockHash()).toSeq) flatMap {(hashes) =>
+    Future.sequence(_accounts.map(_.synchronizationBlockHash()).toSeq) flatMap { (hashes) =>
       queryBlocks(hashes.filter(_.isDefined).map(_.get).toArray)
-    } flatMap {(blocks) =>
+    } flatMap { (blocks) =>
       if (blocks.isEmpty) {
         Future.successful()
       } else {
-        queryTransactions(blocks.maxBy(_.height).height) flatMap {(transactions) =>
+        queryTransactions(blocks.maxBy(_.height).height) flatMap { (transactions) =>
           val hashes = transactions.map(_.hash)
-          deleteOperations(hashes) flatMap {(_) => deleteTransactions(hashes)}
-        } flatMap {(_) =>
+          deleteOperations(hashes) flatMap { (_) => deleteTransactions(hashes) }
+        } flatMap { (_) =>
           deleteBlocks(blocks.map(_.hash))
-        } flatMap {(_) =>
+        } flatMap { (_) =>
           queryLastBlock()
-        } flatMap {(block) =>
+        } flatMap { (block) =>
           Future.sequence(_accounts.map(_.setSynchronizationBlock(block)).toSeq)
-        } map {(_) =>
+        } map { (_) =>
           ()
         }
       }
@@ -161,7 +164,7 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
           if (price.toBigInt != _gasPrice.toBigInt) {
             eventEmitter.emit(GasPriceChanged(price))
           }
-        _gasPrice = price
+          _gasPrice = price
         case Failure(ex) =>
           setTimeout(5 * 60 * 1000) {
             fetchGasPrice()
@@ -178,9 +181,9 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
 
   override def isSynchronizing(): Future[Boolean] = init().map((_) => _synchronizationFuture.isDefined)
 
-  override def balance(): Future[Ether] = accounts().flatMap {(accounts) =>
+  override def balance(): Future[Ether] = accounts().flatMap { (accounts) =>
     Future.sequence(accounts.map(_.balance()).toSeq)
-  } map {(balances) =>
+  } map { (balances) =>
     var result = Ether.Zero
     for (balance <- balances) {
       result = result + balance
@@ -190,13 +193,13 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
 
   override def eventEmitter: EventEmitter
 
-  override def pushTransaction(transaction: Array[Byte]): Future[Unit] = init() flatMap {(_) =>
+  override def pushTransaction(transaction: Array[Byte]): Future[Unit] = init() flatMap { (_) =>
     println("PUSH TX " + HexUtils.encodeHex(transaction))
     transactionRestClient.pushTransaction(transaction)
   }
 
   private def createAccount(index: Int): Future[Account] = {
-    ethereumAccountProvider.getEthereumAccount(DerivationPath(s"44'/60'/$index'/0")).map {(ethereumAccount) =>
+    ethereumAccountProvider.getEthereumAccount(DerivationPath(s"44'/60'/$index'/0")).map { (ethereumAccount) =>
       val account = new AccountRow(index, ethereumAccount.toString)
       putAccount(account)
       _accounts = Array(newAccountClient(account))
@@ -210,9 +213,9 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
     else {
       _initPromise.getOrElse({
         _initPromise = Some(Promise[Unit]())
-        _initPromise.get.completeWith(queryAccounts(0, Int.MaxValue) flatMap {(accounts) =>
+        _initPromise.get.completeWith(queryAccounts(0, Int.MaxValue) flatMap { (accounts) =>
           _accounts = accounts.map(newAccountClient(_))
-          _webSocketNetworkObserver = Some(new WebSocketNetworkObserver(websocketFactory, eventEmitter, transactionRestClient ,ec))
+          _webSocketNetworkObserver = Some(new WebSocketNetworkObserver(websocketFactory, eventEmitter, transactionRestClient, ec))
           _webSocketNetworkObserver.get.start()
           fetchGasPrice()
           if (_accounts.length == 0) {
@@ -230,14 +233,14 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
   private val _eventReceiver = new EventReceiver {
     override def receive: Receive = {
       case NewTransaction(tx) =>
-        accounts() foreach {(acccounts) =>
-          acccounts foreach {(account) =>
+        accounts() foreach { (acccounts) =>
+          acccounts foreach { (account) =>
             account.asInstanceOf[AbstractApiAccountClient].putTransaction(tx)
           }
         }
       case NewBlock(block) =>
-        block.transactionsHashes foreach {(hashes) =>
-          queryTransactions(hashes) foreach {(txs) =>
+        block.transactionsHashes foreach { (hashes) =>
+          queryTransactions(hashes) foreach { (txs) =>
             if (txs.nonEmpty) {
               synchronize()
             }
@@ -253,6 +256,6 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
   private var _synchronizationFuture: Option[Future[Unit]] = None
   private var _webSocketNetworkObserver: Option[WebSocketNetworkObserver] = None
   private var _gasPrice = Ether(21000000000L)
-  protected def newAccountClient(accountRow: AccountRow): AbstractApiAccountClient
 
+  protected def newAccountClient(accountRow: AccountRow): AbstractApiAccountClient
 }
