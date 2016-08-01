@@ -36,8 +36,9 @@ onboarding:
 # Launch screen
 
 launch:
-  to_begin: To begin, plug your Ledger device.
-  unlock_and_open_app: If asked, enter your PIN code. Then, open the Ethereum app.
+  to_begin_1: To begin, plug your Ledger Wallet
+  to_begin_2: and open the Ethereum app on your device.
+  unlock_and_open_app: If asked, enter your PIN code to unlock your device.
   ethereum_chain: Ethereum chain
   etc: ETC
   eth: ETH
