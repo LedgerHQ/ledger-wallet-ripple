@@ -96,8 +96,6 @@ class SendIndexController(override val windowService: WindowService,
   def computeTotal(): Ether = {
     val t = getAmountInput().map((amount) => amount + (_gasPrice * 21000)).map(new Ether(_)).getOrElse(Ether(0))
     total = t.toBigInt.toString()
-    println(total)
-    println(gasPrice)
     t
   }
 
@@ -125,6 +123,7 @@ class SendIndexController(override val windowService: WindowService,
       }
     }
   }
+
   updateGasPrice()
 
   def send() = {
