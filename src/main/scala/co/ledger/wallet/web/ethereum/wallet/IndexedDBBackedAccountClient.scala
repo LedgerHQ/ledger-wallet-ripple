@@ -156,4 +156,21 @@ trait IndexedDBBackedAccountClient extends DatabaseBackedAccountClient {
   override def countOperations(): Future[Long] = {
     wallet.OperationModel.readonly(password).exactly(index).openCursor("accountId").count
   }
+
+  override def updateAccountBalance(balance: Ether): Future[Unit] = {
+    wallet.AccountModel.readonly(password).get(index).items flatMap {(accounts) =>
+      val account = accounts.head
+      account.balance.set(balance.toBigInt.toString())
+      wallet.AccountModel.readwrite(password).openCursor().exactly(index).writeCursor flatMap {(cursor) =>
+        cursor.update(account)
+      }
+    }
+  }
+
+  override def queryAccountBalance(): Future[Ether] = {
+    wallet.AccountModel.readonly(password).get(index).items map {(accounts) =>
+      val account = accounts.head
+      account.balance().map(Ether(_)).getOrElse(Ether.Zero)
+    }
+  }
 }

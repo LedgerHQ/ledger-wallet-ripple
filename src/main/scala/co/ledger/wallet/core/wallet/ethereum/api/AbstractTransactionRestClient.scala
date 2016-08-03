@@ -75,6 +75,13 @@ abstract class AbstractTransactionRestClient(http: HttpClient, val blockRestClie
     }
   }
 
+  def getAccountBalance(ethereumAccount: String): Future[Ether] = {
+    http.get(s"/addresses/$ethereumAccount/balance").jsonArray map {
+      case (json, _) =>
+        Ether(json.getJSONObject(0).getString("balance"))
+    }
+  }
+
   def stringToDate(string: String): Date
   def obtainSyncToken(): Future[String] = http.get("/syncToken").json map(_._1.getString("token"))
   def deleteSyncToken(syncToken: String): Future[Unit] = {

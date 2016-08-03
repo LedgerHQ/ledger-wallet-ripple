@@ -61,6 +61,9 @@ class WindowController(windowService: WindowService, $scope: Scope, $element: JQ
 
   windowService onNavigationBarVisibilityChanged {(isVisible) =>
     showNavigationBar = isVisible
+    setTimeout(0) {
+      _navigationBarScope.$apply()
+    }
   }
 
   windowService.configureSnackBar = {(mode: Int, title: String, subtitle: String) =>
@@ -72,7 +75,7 @@ class WindowController(windowService: WindowService, $scope: Scope, $element: JQ
   windowService.onUserInterfaceEnableChanged {(enable) =>
     isUiEnabled = enable
     setTimeout(0) {
-      $scope.$apply()
+      $scope.$parent.$apply()
     }
   }
 

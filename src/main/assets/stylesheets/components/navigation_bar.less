@@ -1,4 +1,5 @@
 @import (reference) "../constants";
+@import (reference) "../global";
 
 .navigationbar {
   display: flex;
@@ -66,9 +67,22 @@
     display: flex;
     background-color: @color-dark-grey-blue;
     height: 100%;
-    width: 84px;
     justify-content: center;
-    padding-right: 0px;
+    padding-right: 23px;
+    padding-left: 30px;
+
+    .chain {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 3px;
+
+      span {
+        .light-very-large-text;
+        color: @color-white;
+        text-transform: uppercase;
+      }
+    }
 
     .item {
       margin-right: 0px;

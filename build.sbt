@@ -28,9 +28,7 @@ resolvers += Resolver.sonatypeRepo("snapshots")
 resolvers += Resolver.sonatypeRepo("releases")
 
 lazy val root = (project in file(".")).enablePlugins(SbtWeb)
-includeFilter in (Assets, LessKeys.less) := "*.less"
-
-excludeFilter in (Assets, LessKeys.less) := "_*.less"
+includeFilter in (Assets, LessKeys.less) := "common.less"
 
 sourceGenerators in Compile <+= sourceManaged in Compile map { dir =>
   val file = dir / "co" / "ledger" / "wallet" / "web" / "ethereum" / "i18n" / "I18nLanguagesManifest.scala"

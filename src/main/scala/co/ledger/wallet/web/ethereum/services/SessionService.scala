@@ -72,7 +72,7 @@ class SessionService extends Service {
   class Session(val name: String,
                 val password: String,
                 provider: EthereumAccountProvider,
-                chain: SessionService.EthereumChainIdentifier) {
+                val chain: SessionService.EthereumChainIdentifier) {
     val wallet: Wallet = new ApiWalletClient(name, Option(password), provider, chain)
 
     val sessionPreferences = scala.collection.mutable.Map[String, Any]()

@@ -3,6 +3,7 @@ package co.ledger.wallet.web.ethereum.components
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.{Attributes, JQLite}
 import biz.enef.angulate.{Component, ComponentDef, Directive, Scope}
+import co.ledger.wallet.web.ethereum.services.SessionService
 
 import scala.scalajs.js
 import scala.scalajs.js.{Dictionary, Dynamic}
@@ -43,9 +44,12 @@ import scala.scalajs.js.{Dictionary, Dynamic}
   templateUrl = "/templates/components/navigation-bar.html"
 ))
 */
-class NavigationBar extends Directive {
+class NavigationBar(sessionService: SessionService) extends Directive {
   override type ScopeType = js.Dynamic
-
+  val chains = js.Dictionary(
+    "eth" -> "launch.eth",
+    "ethc" -> "launch.etc"
+  )
   override def templateUrl: String = "/templates/components/navigation-bar.html"
 
   override def controller(ctrl: ControllerType, scope: Dynamic, elem: JQLite, attrs: Attributes): Unit = {
@@ -55,6 +59,9 @@ class NavigationBar extends Directive {
     scope.isRefreshing = false
     scope.refresh = {() =>
      scope.$eval(attrs.asInstanceOf[js.Dynamic].onClickRefresh)
+    }
+    scope.chain = {() =>
+      sessionService.currentSession.map(_.chain.id).map(chains(_)).getOrElse("")
     }
     scope.isSelected = isSelected _
   }

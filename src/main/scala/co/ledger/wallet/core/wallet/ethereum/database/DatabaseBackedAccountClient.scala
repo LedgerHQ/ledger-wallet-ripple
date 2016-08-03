@@ -1,6 +1,6 @@
 package co.ledger.wallet.core.wallet.ethereum.database
 
-import co.ledger.wallet.core.wallet.ethereum.{Account, Operation}
+import co.ledger.wallet.core.wallet.ethereum.{Account, Ether, Operation}
 
 import scala.concurrent.Future
 
@@ -38,4 +38,6 @@ trait DatabaseBackedAccountClient extends Account {
 
   def queryOperation(from: Int, to: Int): Future[Array[Operation]]
   def countOperations(): Future[Long]
+  def updateAccountBalance(balance: Ether): Future[Unit]
+  def queryAccountBalance(): Future[Ether]
 }

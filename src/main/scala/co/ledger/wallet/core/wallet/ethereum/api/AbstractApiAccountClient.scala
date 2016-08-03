@@ -95,6 +95,11 @@ abstract class AbstractApiAccountClient(override val wallet: AbstractApiWalletCl
         }
       }
       synchronizeUntilEmpty().flatMap({(_) =>
+        wallet.transactionRestClient.getAccountBalance(accountRow.ethereumAccount).flatMap {(ethers) =>
+          _balanceCache = Option(ethers)
+          updateAccountBalance(ethers)
+        }
+      }).flatMap({(_) =>
         val endDate = new Date()
         Logger.i(s"Account #$index synchronization end in ${(endDate.getTime - startDate.getTime) / 1000}s")
         state.lastSynchronizationDate = endDate.getTime
@@ -195,27 +200,7 @@ abstract class AbstractApiAccountClient(override val wallet: AbstractApiWalletCl
   }
 
   override def balance(): Future[Ether] = _balanceCache.map((b) => Future.successful(b)) getOrElse {
-    operations() flatMap {(cursor) =>
-      var sum = BigInt(0)
-      def consume(index: Int = 0): Future[BigInt] = {
-        cursor.loadChunk(index) flatMap {(chunk) =>
-          chunk.foreach {(op) =>
-            if (op.`type` == Operation.ReceiveType)
-              sum = sum + op.transaction.value.toBigInt
-            else
-              sum = sum - op.transaction.value.toBigInt - (op.transaction.gasUsed.toBigInt * op.transaction.gasPrice.toBigInt)
-          }
-          if (index + 1 < cursor.chunkCount) {
-            consume(index + 1)
-          } else {
-            Future.successful(sum)
-          }
-        }
-      }
-      consume() map {(v) =>
-        new Ether(v)
-      }
-    }
+    queryAccountBalance()
   } andThen {
     case Success(balance) =>
       _balanceCache = Option(balance)

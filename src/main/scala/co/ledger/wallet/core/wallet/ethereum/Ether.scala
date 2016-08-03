@@ -61,7 +61,7 @@ object Ether {
       var r = ""
       pattern.findAllMatchIn(value).foreach({(m) =>
         val double = m.group(1)
-        val n = m.group(2).toInt - (double.length - (double.indexOf(".") + 1))
+        val n = m.group(2).toInt - (if (double.indexOf(".") != -1) (double.length - (double.indexOf(".") + 1)) else 0)
         r = s"${double.replace(".", "")}${"0" * n}"
       })
       new Ether(BigInt(r))
