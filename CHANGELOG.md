@@ -1,4 +1,10 @@
 # Changelog
+1.0.5 (2016-08-04)
+==================
+
+- Use a different derivation path for ETC
+- Use https://gastracker.io/ as ETC blockchain explorer
+
 1.0.4 (2016-08-03)
 ==================
 
