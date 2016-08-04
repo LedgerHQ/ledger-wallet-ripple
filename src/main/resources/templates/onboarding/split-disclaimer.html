@@ -1,0 +1,18 @@
+<div class="onboarding-view">
+    <div class="onboarding-container" ng-controller="SplitDisclaimerController as ctrl">
+        <header>
+            <img src="images/onboarding/ic_logo.png" />
+        </header>
+        <section>
+            <amount value="ctrl.balance" type="balance"></amount>
+            <div class="light-very-large-text almost-medium-top-margin" translate>split_disclaimer.title</div>
+            <div class="light-grey-text-almost-small almost-small-top-margin" style="line-height: 25px;text-align: center;margin-top: 6px" translate>split_disclaimer.message</div>
+        </section>
+        <div class="footers-container">
+            <footer id="plugFooter">
+                <lbutton text="{{'common.help_center' | translate}}" type="cancel" ng-click="ctrl.openHelpCenter()"></lbutton>
+                <lbutton style="margin-left: 7px;" text="{{'common.continue' | translate}}" ng-click="ctrl.continue()"></lbutton>
+            </footer>
+        </div>
+    </div>
+</div>

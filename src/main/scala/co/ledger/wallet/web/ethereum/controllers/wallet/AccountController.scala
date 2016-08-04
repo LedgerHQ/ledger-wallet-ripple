@@ -136,7 +136,7 @@ class AccountController(override val windowService: WindowService,
   }
 
   def openTransactionDetails(hash: String): Unit = {
-    js.Dynamic.global.open(s"http://etherscan.io/tx/$hash")
+    js.Dynamic.global.open(s"${sessionService.currentSession.get.chain.explorerBaseUrl}/tx/$hash")
   }
 
   sessionService.currentSession.get.wallet.eventEmitter.register(this)

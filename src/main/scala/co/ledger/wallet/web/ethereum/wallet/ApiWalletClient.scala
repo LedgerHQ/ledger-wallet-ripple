@@ -45,7 +45,7 @@ import scala.scalajs.js
   * SOFTWARE.
   *
   */
-class ApiWalletClient(name: String, override protected val password: Option[String], provider: EthereumAccountProvider, chain: SessionService.EthereumChainIdentifier) extends AbstractApiWalletClient(s"${chain.id}_$name") with IndexedDBBackedWalletClient {
+class ApiWalletClient(name: String, override protected val password: Option[String], provider: EthereumAccountProvider, chain: SessionService.EthereumChainIdentifier) extends AbstractApiWalletClient(s"${chain.id}_${name}_${chain.coinType}_${chain.pathPrefix}", chain.coinType, chain.pathPrefix) with IndexedDBBackedWalletClient {
 
   override implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 

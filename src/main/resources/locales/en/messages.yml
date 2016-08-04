@@ -27,7 +27,9 @@ common:
   confirm: confirm
   cancel: cancel
   validate: validate
-  common: help
+  help: help
+  continue: continue
+  help_center: help center
 
 # Onboarding common
 onboarding:
@@ -59,6 +61,12 @@ opening:
     title: Unable to synchronize your wallet.
     detail_1: Quit and re-open the Ethereum app on your device.
     detail_2: If the problem persists, please contact our help center.
+
+# Split disclaimer
+
+split_disclaimer:
+  title: You have ETC ethers available on a legacy address.
+  message: The Ledger Wallet Ethereum app has been updated with a new account address to manage your ETC ethers. Please visit our help center to get information about how to recover your funds.
 
 # Wallet common
 

@@ -9,8 +9,9 @@ import co.ledger.wallet.core.device.Device
 import co.ledger.wallet.core.device.ethereum.{LedgerApi, LedgerBolosApi, LedgerDerivationApi}
 import co.ledger.wallet.core.device.ethereum.LedgerDerivationApi.PublicAddressResult
 import co.ledger.wallet.core.utils.DerivationPath
-import co.ledger.wallet.core.wallet.ethereum.EthereumAccount
+import co.ledger.wallet.core.wallet.ethereum.{Ether, EthereumAccount}
 import co.ledger.wallet.core.wallet.ethereum.Wallet.WalletNotSetupException
+import co.ledger.wallet.core.wallet.ethereum.api.{AbstractApiWalletClient, AbstractTransactionRestClient}
 import co.ledger.wallet.web.ethereum.core.utils.ChromePreferences
 import co.ledger.wallet.web.ethereum.services.{DeviceService, SessionService, WindowService}
 
@@ -93,9 +94,31 @@ class OpeningController(override val windowService: WindowService,
         synchronizeWallet()
       case others => throw others
     }
+  } flatMap {(_) =>
+    if ($routeParams("chain") == "ETH") {
+      Future.successful(None)
+    } else {
+      deviceService.lastConnectedDevice() flatMap {(device) =>
+        val api = LedgerApi(device)
+        api.derivePublicAddress(DerivationPath("44'/60'/0'/0"), false) flatMap {(result) =>
+          val txApi = sessionService.currentSession.get.wallet.asInstanceOf[AbstractApiWalletClient].transactionRestClient
+          txApi.getAccountBalance(result.account.toString) map {(balance) =>
+            if (balance.toBigInt > 0) {
+              Some(balance)
+            } else {
+              None
+            }
+          }
+        }
+      }
+    }
   } onComplete {
-    case Success(_) =>
-      $location.url("/account/0")
+    case Success(balance) =>
+      if (balance.isDefined) {
+        $location.url(s"/onboarding/split-disclaimer/${balance.get.toBigInt.toString()}")
+      } else {
+        $location.url("/account/0")
+      }
       $route.reload()
     case Failure(ex) =>
       ex.printStackTrace()

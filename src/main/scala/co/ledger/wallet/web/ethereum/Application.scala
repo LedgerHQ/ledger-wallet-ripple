@@ -13,7 +13,7 @@ import co.ledger.wallet.core.wallet.ethereum.{Ether, EthereumAccount}
 import co.ledger.wallet.core.wallet.ethereum.rlp.{RLP, RLPTests}
 import co.ledger.wallet.web.ethereum.components._
 import co.ledger.wallet.web.ethereum.controllers.WindowController
-import co.ledger.wallet.web.ethereum.controllers.onboarding.{LaunchController, OpeningController}
+import co.ledger.wallet.web.ethereum.controllers.onboarding.{LaunchController, OpeningController, SplitDisclaimerController}
 import co.ledger.wallet.web.ethereum.controllers.wallet._
 import co.ledger.wallet.web.ethereum.core.net.JsWebSocketFactory
 import co.ledger.wallet.web.ethereum.core.sjcl.SjclAesCipher
@@ -65,6 +65,7 @@ object Application extends JSApp{
     SendPerformController.init(module)
     ReceiveController.init(module)
     HelpController.init(module)
+    SplitDisclaimerController.init(module)
 
     // Services
     WindowService.init(module)

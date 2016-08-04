@@ -52,7 +52,7 @@ abstract class AbstractApiAccountClient(override val wallet: AbstractApiWalletCl
 
   override def index: Int = accountRow.index
   override def ethereumAccount(): Future[EthereumAccount] = Future.successful(EthereumAccount(accountRow.ethereumAccount))
-  override def ethereumAccountDerivationPath(): Future[DerivationPath] = Future.successful(DerivationPath(s"44'/60'/$index'/0"))
+  override def ethereumAccountDerivationPath(): Future[DerivationPath] = Future.successful(DerivationPath(s"44'/${wallet.bip44CoinType}'${wallet.coinPathPrefix}/$index'/0"))
 
   override def synchronize(): Future[Unit] = wallet.synchronize()
 

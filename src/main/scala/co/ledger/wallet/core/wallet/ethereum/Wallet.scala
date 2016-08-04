@@ -37,6 +37,8 @@ import scala.concurrent.Future
   */
 trait Wallet {
   def name: String
+  def bip44CoinType: String
+  def coinPathPrefix: String
   def account(index: Int): Future[Account]
   def accounts(): Future[Array[Account]]
   def balance(): Future[Ether]

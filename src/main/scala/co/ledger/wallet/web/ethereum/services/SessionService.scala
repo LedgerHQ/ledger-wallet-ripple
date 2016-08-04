@@ -88,8 +88,21 @@ object SessionService {
   private var _instance: SessionService = null
   def init(module: RichModule) = module.serviceOf[SessionService]("sessionService")
 
-  sealed abstract class EthereumChainIdentifier(val id: String)
-  case class EthereumClassicChain() extends EthereumChainIdentifier("ethc")
-  case class EthereumChain() extends EthereumChainIdentifier("eth")
+  sealed abstract class EthereumChainIdentifier(val id: String,
+                                                val coinType: String,
+                                                val pathPrefix: String,
+                                                val explorerBaseUrl: String)
+  case class EthereumClassicChain() extends EthereumChainIdentifier(
+    "ethc",
+    "60",
+    "/160720'",
+    "https://gastracker.io/"
+  )
+  case class EthereumChain() extends EthereumChainIdentifier(
+    "eth",
+    "60",
+    "",
+    "http://etherscan.io/"
+  )
 
 }

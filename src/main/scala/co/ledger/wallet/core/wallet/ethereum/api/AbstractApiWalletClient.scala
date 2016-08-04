@@ -43,7 +43,9 @@ import scala.util.{Failure, Success}
   * SOFTWARE.
   *
   */
-abstract class AbstractApiWalletClient(override val name: String) extends Wallet with DatabaseBackedWalletClient {
+abstract class AbstractApiWalletClient(override val name: String,
+                                       override val bip44CoinType: String,
+                                       override val coinPathPrefix: String) extends Wallet with DatabaseBackedWalletClient {
 
   implicit val ec: ExecutionContext
 
@@ -199,7 +201,7 @@ abstract class AbstractApiWalletClient(override val name: String) extends Wallet
   }
 
   private def createAccount(index: Int): Future[Account] = {
-    ethereumAccountProvider.getEthereumAccount(DerivationPath(s"44'/60'/$index'/0")).map { (ethereumAccount) =>
+    ethereumAccountProvider.getEthereumAccount(DerivationPath(s"44'/$bip44CoinType'${coinPathPrefix}/$index'/0")).map { (ethereumAccount) =>
       val account = new AccountRow(index, ethereumAccount.toString)
       putAccount(account)
       _accounts = Array(newAccountClient(account))
