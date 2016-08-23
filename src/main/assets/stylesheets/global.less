@@ -19,7 +19,7 @@ div[ng-view] {
 }
 
 .regular-text {
-  .text(@color-black, @font-size-large, @font-weight-light);
+  .text(@color-black, @font-size-medium, @font-weight-regular);
 }
 .regular-text-small {
   .text(@color-black, @font-size-very-small);
@@ -44,7 +44,7 @@ div[ng-view] {
   letter-spacing: -0.8px;
 }
 .regular-grey-text {
-  .text(@color-dark-grey, @font-size-large, @font-weight-light);
+  .text(@color-dark-grey, @font-size-medium, @font-weight-regular);
 }
 .regular-grey-text-small {
   .text(@color-dark-grey, @font-size-very-small);
@@ -54,16 +54,16 @@ div[ng-view] {
 }
 
 .regular-soft-grey-text {
-  .text(@color-soft-grey, @font-size-large, @font-weight-light);
+  .text(@color-soft-grey, @font-size-medium, @font-weight-regular);
 }
 .regular-soft-grey-text-small {
   .text(@color-soft-grey, @font-size-very-small);
 }
 .regular-valid-text {
-  .text(@color-valid-green, @font-size-large, @font-weight-regular);
+  .text(@color-valid-green, @font-size-medium, @font-weight-regular);
 }
 .regular-invalid-text {
-  .text(@color-invalid-red, @font-size-large, @font-weight-regular);
+  .text(@color-invalid-red, @font-size-medium, @font-weight-regular);
 }
 .bold-invalid-text {
   .text(@color-invalid-red, @font-size-medium, @font-weight-semibold);
@@ -196,52 +196,6 @@ div[ng-view] {
   padding: @metrics-almost-small-padding @metrics-small-padding;
 }
 
-// inputs
-.text-input {
-  border: 0;
-  background-color: transparent;
-  outline: none;
-  text-align: right;
-  font-size: @font-size-small;
-  font-weight: @font-weight-light;
-
-  &::-webkit-input-placeholder {
-    color: @color-soft-grey;
-  }
-
-  &.optional {
-    color: @color-dark-grey;
-  }
-}
-.large-text-input {
-  .text-input;
-  font-size: @font-size-extra-large;
-  font-weight: @font-weight-light;
-  letter-spacing: -0.8px;
-}
-.small-text-input {
-  .text-input;
-  font-size: @font-size-very-small;
-}
-.textarea-input {
-  border: 0;
-  background-color: transparent;
-  outline: none;
-  text-align: left;
-  font-size: @font-size-medium;
-  resize: none;
-}
-.rounded-text-area {
-  border: 1px solid @color-very-light-grey;
-  border-radius: @border-radius-default-value;
-  background-color: @color-white;
-  outline: none;
-  font-family: @font-family-name;
-  font-size: @font-size-small;
-  resize: none;
-  padding: @metrics-almost-small-padding @metrics-small-padding;
-}
-
 // Margins
 
 .extra-small-top-margin {
@@ -290,10 +244,11 @@ div[ng-view] {
 }
 .uppercase-section-title {
   font-size: @font-size-large;
-  font-weight: @font-weight-regular;
+  font-weight: @font-weight-semibold;
   color: @color-black;
   text-transform: uppercase;
   text-decoration: none;
+  letter-spacing: -0.2px;
 }
 a {
   .uppercase-section-title {
@@ -301,11 +256,12 @@ a {
   }
 }
 .uppercase-section-column {
-  font-weight: @font-weight-regular;
+  font-weight: @font-weight-semibold;
   font-size: @font-size-very-small;
   color: @color-black;
   text-transform: uppercase;
   text-decoration: none;
+  letter-spacing: -0.2px;
 }
 a {
   .uppercase-section-column {

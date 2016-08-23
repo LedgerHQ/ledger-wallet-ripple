@@ -8,7 +8,7 @@
             <qrcodeviewer value="ctrl.uri"></qrcodeviewer>
             <div class="almost-medium-top-margin regular-text"><b class="uppercase-section-column">IBAN</b> &nbsp;&nbsp;<span class="selectable">{{ctrl.iban}}</span></div>
             <div class="almost-small-top-margin regular-text selectable">{{ctrl.address}}</div>
-            <div class="almost-small-top-margin light-grey-text-almost-small" translate>receive.share_qr_code</div>
+            <div class="almost-small-top-margin regular-grey-text-small" translate>receive.share_qr_code</div>
         </div>
         <actions-bottom-bar class="no-print">
             <lbutton text="{{ 'receive.send_by_email' | translate}}" ng-click="ctrl.sendEmail(ctrl.address)" type="cancel" disabled="false"></lbutton>
