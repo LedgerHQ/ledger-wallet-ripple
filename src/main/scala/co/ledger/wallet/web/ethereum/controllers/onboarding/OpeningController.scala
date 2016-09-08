@@ -63,7 +63,6 @@ class OpeningController(override val windowService: WindowService,
   extends Controller with OnBoardingController {
 
   var isInErrorMode = false
-
   deviceService.lastConnectedDevice() map {(device) =>
     LedgerApi(device)
   } flatMap {(api) =>

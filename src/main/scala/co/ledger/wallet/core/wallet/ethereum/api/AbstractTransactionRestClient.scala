@@ -60,6 +60,13 @@ abstract class AbstractTransactionRestClient(http: HttpClient, val blockRestClie
     }
   }
 
+  def getAccountNonce(ethereumAccount: String): Future[BigInt] = {
+    http.get(s"/addresses/$ethereumAccount/nonce").jsonArray map {
+      case (json, _) =>
+        BigInt(json.getJSONObject(0).getLong("nonce"))
+    }
+  }
+
   def pushTransaction(signedTransaction: Array[Byte]): Future[Unit] = {
     http.post("/transactions/send").body(Map(
       "tx" -> HexUtils.encodeHex(signedTransaction)

@@ -1,8 +1,8 @@
 package co.ledger.wallet.web.ethereum.wallet
 
+import java.net.URI
 import java.util.Date
 
-import co.ledger.wallet.core.concurrent.AsyncCursor
 import co.ledger.wallet.core.device.utils.EventEmitter
 import co.ledger.wallet.core.net.{HttpClient, WebSocketFactory}
 import co.ledger.wallet.core.wallet.ethereum._
@@ -12,7 +12,7 @@ import co.ledger.wallet.web.ethereum.core.event.JsEventEmitter
 import co.ledger.wallet.web.ethereum.core.net.{JQHttpClient, JsWebSocketFactory}
 import co.ledger.wallet.web.ethereum.services.SessionService
 
-import scala.concurrent.{ExecutionContext, Future, Promise}
+import scala.concurrent.ExecutionContext
 import scala.scalajs.js
 
 /**
@@ -74,5 +74,5 @@ class ApiWalletClient(name: String, override protected val password: Option[Stri
 
   def stringToDate(string: String): Date = new Date(new js.Date(string).getTime().toLong)
 
-  override def websocketFactory: WebSocketFactory = JsWebSocketFactory.defaultInstance
+  override def websocketFactory: WebSocketFactory = new JsWebSocketFactory(new URI(s"wss://api.ledgerwallet.com/blockchain/v2/${chain.id}"))
 }

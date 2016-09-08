@@ -208,6 +208,8 @@ abstract class AbstractApiAccountClient(override val wallet: AbstractApiWalletCl
   }
   private var _balanceCache: Option[Ether] = None
 
+  def transactionNonce(): Future[BigInt] = wallet.transactionRestClient.getAccountNonce(accountRow.ethereumAccount)
+
   override def isSynchronizing(): Future[Boolean] = wallet.isSynchronizing()
 
   val keyChain = new KeyChain

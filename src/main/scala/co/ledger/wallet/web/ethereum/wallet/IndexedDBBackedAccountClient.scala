@@ -50,28 +50,28 @@ trait IndexedDBBackedAccountClient extends DatabaseBackedAccountClient {
 
   def wallet: IndexedDBBackedWalletClient
 
-  override def transactionNonce(): Future[BigInt] = ethereumAccount() flatMap {(account) =>
-    val address = account.toString
-    wallet.TransactionModel.readonly(password).openCursor("nonce").reverse().cursor flatMap {(cursor) =>
-      def findLastTransaction(): Future[Option[TransactionModel]] = {
-        cursor.value match {
-          case Some(transaction) =>
-            if (transaction.from().get == address) {
-              Future.successful(Some(transaction))
-            } else {
-              cursor.continue() flatMap {(_) =>
-                findLastTransaction()
-              }
-            }
-          case None =>
-            Future.successful(None)
-        }
-      }
-      findLastTransaction()
-    }
-  } map {(transaction) =>
-    transaction.map((tx) => BigInt(tx.nonce().get, 16) + 1).getOrElse(BigInt(0))
-  }
+//  override def transactionNonce(): Future[BigInt] = ethereumAccount() flatMap {(account) =>
+//    val address = account.toString
+//    wallet.TransactionModel.readonly(password).openCursor("nonce").reverse().cursor flatMap {(cursor) =>
+//      def findLastTransaction(): Future[Option[TransactionModel]] = {
+//        cursor.value match {
+//          case Some(transaction) =>
+//            if (transaction.from().get == address) {
+//              Future.successful(Some(transaction))
+//            } else {
+//              cursor.continue() flatMap {(_) =>
+//                findLastTransaction()
+//              }
+//            }
+//          case None =>
+//            Future.successful(None)
+//        }
+//      }
+//      findLastTransaction()
+//    }
+//  } map {(transaction) =>
+//    transaction.map((tx) => BigInt(tx.nonce().get, 16) + 1).getOrElse(BigInt(0))
+//  }
 
   override def queryOperation(from: Int, to: Int): Future[Array[Operation]] = {
     wallet.OperationModel.readonly(password).openCursor("time").reverse().cursor flatMap {(cursor) =>

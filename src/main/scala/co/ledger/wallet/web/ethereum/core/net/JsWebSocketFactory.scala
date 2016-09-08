@@ -86,6 +86,4 @@ class JsWebSocketFactory(override val baseUrl: URI) extends WebSocketFactory {
 
 object JsWebSocketFactory {
 
-  val defaultInstance = new JsWebSocketFactory(new URI("wss://api.chronocoin.fr/blockchain/v2/eth"))
-
 }
