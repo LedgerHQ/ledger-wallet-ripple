@@ -6,6 +6,7 @@ import biz.enef.angulate.core.{Attributes, JQLite}
 import co.ledger.wallet.core.wallet.ethereum.Ether
 import co.ledger.wallet.web.ethereum.components.AmountLabel.AmountLabelScope
 import co.ledger.wallet.web.ethereum.core.utils.EtherFormatter
+import co.ledger.wallet.web.ethereum.services.SessionService
 
 import scala.scalajs.js
 import scala.scalajs.js.Dictionary
@@ -40,7 +41,7 @@ import scala.scalajs.js.Dictionary
   * SOFTWARE.
   *
   */
-class AmountLabel($locale: js.Dynamic, $translate: js.Dynamic) extends Directive {
+class AmountLabel($locale: js.Dynamic, $translate: js.Dynamic, sessionService: SessionService) extends Directive {
   override def templateUrl: String = "templates/components/amount.html"
 
   override type ScopeType = AmountLabelScope
@@ -74,7 +75,7 @@ class AmountLabel($locale: js.Dynamic, $translate: js.Dynamic) extends Directive
   override val restrict: String = "E"
 
   private def unit(attrs: Attributes): String = {
-    "ETH"
+    sessionService.currentSession.get.chain.symbol
   }
 
   private def `type`(attributes: Attributes): String = {

@@ -59,6 +59,7 @@ class SendIndexController(override val windowService: WindowService,
   private var _gasPrice = BigInt("21000000000")
   var gasPrice = _gasPrice.toString()
   var total = Ether(0).toBigInt.toString()
+  val unit = sessionService.currentSession.get.chain.symbol
 
   sessionService.currentSession.get.sessionPreferences.lift(SendIndexController.RestoreKey) foreach {(state) =>
     val restore = state.asInstanceOf[SendIndexController.RestoreState]

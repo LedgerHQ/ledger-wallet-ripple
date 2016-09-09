@@ -91,18 +91,21 @@ object SessionService {
   sealed abstract class EthereumChainIdentifier(val id: String,
                                                 val coinType: String,
                                                 val pathPrefix: String,
-                                                val explorerBaseUrl: String)
+                                                val explorerBaseUrl: String,
+                                                val symbol: String)
   case class EthereumClassicChain() extends EthereumChainIdentifier(
     "ethc",
     "60",
     "/160720'",
-    "https://gastracker.io/"
+    "https://gastracker.io/",
+    "ETC"
   )
   case class EthereumChain() extends EthereumChainIdentifier(
     "eth",
     "60",
     "",
-    "http://etherscan.io/"
+    "http://etherscan.io/",
+    "ETH"
   )
 
 }
