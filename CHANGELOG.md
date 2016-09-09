@@ -1,4 +1,12 @@
 # Changelog
+1.0.6 (2016-09-09)
+==================
+
+- Fix nonce computation issue
+- Fix websockets for ethereum classic
+- Use ETC as currency symbol for ethereum classic
+- Small UI changes
+
 1.0.5 (2016-08-04)
 ==================
 
