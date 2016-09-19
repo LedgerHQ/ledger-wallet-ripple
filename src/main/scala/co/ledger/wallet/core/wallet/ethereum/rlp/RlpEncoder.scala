@@ -71,7 +71,7 @@ trait RlpEncoder {
   }
 
   private def encodeString(bytes: Array[Byte], output: ByteArrayOutputStream): Unit = {
-    if (bytes.length == 1 && bytes(0) < 0x7F) {
+    if (bytes.length == 1 && bytes(0) <= 0x7F) {
       output.write(bytes(0))
     } else {
       encodeLength(bytes.length, 0x80, output)
