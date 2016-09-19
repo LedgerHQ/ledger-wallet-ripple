@@ -1,32 +1,21 @@
 package co.ledger.wallet.web.ethereum
 
-import java.net.URI
-
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate._
 import biz.enef.angulate.core.HttpService
 import biz.enef.angulate.ext.RouteProvider
-import co.ledger.wallet.core.crypto.Keccak
-import co.ledger.wallet.core.utils.HexUtils
 import co.ledger.wallet.core.utils.logs._
-import co.ledger.wallet.core.wallet.ethereum.{Ether, EthereumAccount}
-import co.ledger.wallet.core.wallet.ethereum.rlp.{RLP, RLPTests}
 import co.ledger.wallet.web.ethereum.components._
 import co.ledger.wallet.web.ethereum.controllers.WindowController
 import co.ledger.wallet.web.ethereum.controllers.onboarding.{LaunchController, OpeningController, SplitDisclaimerController}
 import co.ledger.wallet.web.ethereum.controllers.wallet._
-import co.ledger.wallet.web.ethereum.core.net.JsWebSocketFactory
-import co.ledger.wallet.web.ethereum.core.sjcl.SjclAesCipher
 import co.ledger.wallet.web.ethereum.core.utils.ChromePreferences
-import co.ledger.wallet.web.ethereum.core.webcrypto.WebCryptoCipher
 import co.ledger.wallet.web.ethereum.filters.DateFormatFilter
 import co.ledger.wallet.web.ethereum.i18n.{I18n, TranslateProvider}
 import co.ledger.wallet.web.ethereum.services.{DeviceService, SessionService, WindowService}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
 import scala.scalajs.js.JSApp
-import scala.util.{Failure, Success}
 
 /**
   * Created by pollas_p on 28/04/2016.
@@ -87,7 +76,6 @@ object Application extends JSApp{
     LoggerPrintStream.init()
     LogSourceMapper.init()
 
-    js.Dynamic.global.console.log(HexUtils.encodeHex(RLP.encode(128)))
   }
 
   def initApp($http: HttpService, $rootScope: js.Dynamic, $location: js.Dynamic) = {
