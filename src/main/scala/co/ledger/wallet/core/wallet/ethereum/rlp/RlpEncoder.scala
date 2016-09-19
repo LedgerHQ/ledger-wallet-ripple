@@ -2,10 +2,11 @@ package co.ledger.wallet.core.wallet.ethereum.rlp
 
 import java.io.ByteArrayOutputStream
 
-import co.ledger.wallet.core.utils.BytesWriter
+import co.ledger.wallet.core.utils.{BytesWriter, HexUtils}
 import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream
 
 import scala.annotation.tailrec
+import scala.scalajs.js
 
 /**
   *
@@ -71,7 +72,8 @@ trait RlpEncoder {
   }
 
   private def encodeString(bytes: Array[Byte], output: ByteArrayOutputStream): Unit = {
-    if (bytes.length == 1 && bytes(0) <= 0x7F) {
+    js.Dynamic.global.console.log("Encode string", HexUtils.encodeHex(bytes), bytes(0))
+    if (bytes.length == 1 && (bytes(0) & 0xFF) <= 0x7F) {
       output.write(bytes(0))
     } else {
       encodeLength(bytes.length, 0x80, output)
@@ -80,6 +82,7 @@ trait RlpEncoder {
   }
 
   private def encodeLength(length: Int, offset: Int, outputStream: ByteArrayOutputStream): Unit = {
+    js.Dynamic.global.console.log("Encode length", length)
     if (length < 56) {
       outputStream.write(length + offset)
     } else  {

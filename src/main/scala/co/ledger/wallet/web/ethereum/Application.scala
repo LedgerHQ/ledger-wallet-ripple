@@ -87,6 +87,7 @@ object Application extends JSApp{
     LoggerPrintStream.init()
     LogSourceMapper.init()
 
+    js.Dynamic.global.console.log(HexUtils.encodeHex(RLP.encode(128)))
   }
 
   def initApp($http: HttpService, $rootScope: js.Dynamic, $location: js.Dynamic) = {
