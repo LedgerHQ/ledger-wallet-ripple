@@ -55,7 +55,7 @@ class SendIndexController(override val windowService: WindowService,
 
   var address = ""
   var amount = ""
-  var gasLimit = 21000
+  var gasLimit = 200000
   private var _gasPrice = BigInt("21000000000")
   var gasPrice = _gasPrice.toString()
   var total = Ether(0).toBigInt.toString()

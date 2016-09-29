@@ -1,4 +1,9 @@
 # Changelog
+1.0.9 (2016-09-29)
+=======================
+
+- Use huge gas limit to handle most contracts requiring no additional data
+
 1.0.7/1.0.8 (2016-09-19)
 =======================
 
