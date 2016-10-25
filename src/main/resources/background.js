@@ -2,6 +2,10 @@ var apps = [
     {
         name: "Ledger Wallet Bitcoin",
         id: "kkdpmhnladdopljabkgpacgpliggeeaf"
+    },
+    {
+        name: "Ledger Manager",
+        id: "beimhnaefocolcplfimocfiaiefpkgbf"
     }
 ];
 
