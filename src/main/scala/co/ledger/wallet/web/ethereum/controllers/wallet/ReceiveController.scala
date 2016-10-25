@@ -43,14 +43,30 @@ class ReceiveController(override val windowService: WindowService,
 
   var address = ""
   var iban = ""
-  var uri = ""
+  def uri = {
+    if (showIban)
+      s"iban:$iban"
+    else
+      address
+  }
+
+  def showIban = currentFormat == "IBAN"
+  def showHex = currentFormat == "HEX"
+
+  var formats = js.Dictionary("HEX" -> "HEX", "IBAN" -> "IBAN")
+  var currentFormat = sessionService.currentSession.get.sessionPreferences.lift("address_format").getOrElse("HEX")
+
   sessionService.currentSession.get.wallet.account(0) foreach {(account) =>
     account.ethereumAccount() foreach { (a) =>
       address = a.toChecksumString
       iban = a.toIban
-      uri = s"iban:$iban"
       $scope.$digest()
     }
+  }
+
+  def onFormatChanged(format: String): Unit = {
+    currentFormat = format
+    sessionService.currentSession.get.sessionPreferences("address_format") = format
   }
 
   def print(address: String): Unit = {

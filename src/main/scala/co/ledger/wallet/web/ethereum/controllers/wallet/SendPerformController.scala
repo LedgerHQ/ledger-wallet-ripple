@@ -5,6 +5,7 @@ import biz.enef.angulate.core.Location
 import biz.enef.angulate.{Controller, Scope}
 import co.ledger.wallet.core.device.ethereum.LedgerApi
 import co.ledger.wallet.core.device.ethereum.LedgerCommonApiInterface.LedgerApiException
+import co.ledger.wallet.core.utils.HexUtils
 import co.ledger.wallet.core.wallet.ethereum.EthereumAccount
 import co.ledger.wallet.web.ethereum.components.SnackBar
 import co.ledger.wallet.web.ethereum.services.{DeviceService, SessionService, WindowService}
@@ -55,6 +56,7 @@ class SendPerformController(override val windowService: WindowService,
   private val accountId = $routeParams("account_id").toInt
   private val amount = BigInt($routeParams("amount"))
   private val to = EthereumAccount($routeParams("recipient").trim)
+  private val data = $routeParams("data").replace("0x", "")
 
   windowService.disableUserInterface()
 
@@ -70,7 +72,7 @@ class SendPerformController(override val windowService: WindowService,
             from,
             to,
             amount,
-            Array.empty[Byte]
+            HexUtils.decodeHex(data)
           )
         }
       }

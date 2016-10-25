@@ -117,17 +117,26 @@ send:
   recipient_placeholder: Ethereum IBAN or account
   gas_price: gas price
   gas_limit: gas limit
-  total_spent: total spent
+  total_spent: max total spent
   including_gas: (incl. gas)
   scan_qr_code: scan qr code
   send: send
   place_qr_code: Place the QR code in the center of the image
   insufficient_funds_title: Insufficient funds
   insufficient_funds_message: Your account doesn't have enough funds
+  enable_data_title: ENABLE DATA
+  enable_data_message: ENABLE DATA MESSAGE
   bad_amount_title: Empty amount
   bad_amount_message: An amount is required to send ethers
+  bad_limit_title: Empty gas limit
+  bad_limit_message: A gas limit is required to send ethers
   bad_address_title: Invalid recipient account
   bad_address_message: A valid IBAN or account is required to send ethers
+  advanced_mode: advanced mode
+  standard_mode: standard mode
+  contract_data: contract data
+  contract_data_hex: Contract data hex
+  gas: gas
 
 # Send perform screen
 send_perform:

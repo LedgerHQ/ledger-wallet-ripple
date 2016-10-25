@@ -29,13 +29,38 @@
                                ng-model="ctrl.address"/>
                     </div>
                 </div>
+                <div ng-show="ctrl.isInAdvancedMode" >
+                    <div translate>send.gas_limit</div>
+                    <div>
+                        <input
+                               style="text-transform: capitalize"
+                               placeholder="{{'send.gas_limit' | translate}}"
+                               class="small-text-input"
+                               type="text"
+                               ng-pattern="/^[0-9]+$/"
+                               ng-change="ctrl.computeTotal()"
+                               ng-model="ctrl.customGasLimit"/>
+                        <label class="small-text-input" translate>send.gas</label>
+                    </div>
+                </div>
+                <div ng-show="ctrl.isInAdvancedMode" >
+                    <div translate>send.contract_data</div>
+                    <div>
+                        <input
+                               placeholder="{{'send.contract_data_hex' | translate}}"
+                               class="small-text-input"
+                               type="text"
+                               ng-pattern="/^[0-9A-Fa-fx]+$/"
+                               ng-model="ctrl.data"/>
+                    </div>
+                </div>
+                <div ng-show="!ctrl.isInAdvancedMode" >
+                    <div class="optional" translate>send.gas_limit</div>
+                    <div><div class="regular-grey-text-small">{{ctrl.gasLimit.toString()}} gas</div></div>
+                </div>
                 <div>
                     <div class="optional" translate>send.gas_price</div>
                     <div><amount value="ctrl.gasPrice"></amount></div>
-                </div>
-                <div>
-                    <div class="optional" translate>send.gas_limit</div>
-                    <div><div class="regular-grey-text-small">{{ctrl.gasLimit}} gas</div></div>
                 </div>
                 <div>
                     <div class="optional" translate>send.total_spent</div>
@@ -44,7 +69,10 @@
             </div>
         </section>
         <div class="spacer"></div>
-        <actions-bottom-bar>
+        <actions-bottom-bar style="padding-left: 0; padding-right: 0;">
+            <a class="uppercase-action" ng-click="ctrl.isInAdvancedMode = true" ng-show="!ctrl.isInAdvancedMode && ctrl.supportAdvancedMode" translate>send.advanced_mode</a>
+            <a class="uppercase-action" style="margin-left: 0;" ng-click="ctrl.isInAdvancedMode = false" ng-show="ctrl.isInAdvancedMode && ctrl.supportAdvancedMode" translate>send.standard_mode</a>
+            <div class="spacer" ng-show="ctrl.supportAdvancedMode"></div>
             <lbutton icon="camera" type="cancel" disabled="false" ng-click="ctrl.scanQrCode()"></lbutton>
             <lbutton text="{{'send.send' | translate}}" type="validate" disabled="false" ng-click="ctrl.send()"></lbutton>
         </actions-bottom-bar>

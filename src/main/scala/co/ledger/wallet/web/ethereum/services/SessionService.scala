@@ -2,7 +2,7 @@ package co.ledger.wallet.web.ethereum.services
 
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.Service
-import co.ledger.wallet.core.device.ethereum.{LedgerApi, LedgerDerivationApi}
+import co.ledger.wallet.core.device.ethereum.{LedgerApi, LedgerDerivationApi, LedgerEthereumAppApi}
 import co.ledger.wallet.core.utils.DerivationPath
 import co.ledger.wallet.core.wallet.ethereum.{EthereumAccount, EthereumAccountProvider, Wallet}
 import co.ledger.wallet.web.ethereum.wallet.ApiWalletClient
@@ -45,14 +45,16 @@ class SessionService extends Service {
   def startNewSessions(api: LedgerApi, chain: SessionService.EthereumChainIdentifier): Future[Unit] = {
     api.walletIdentifier() flatMap {(walletIdentifier) =>
       api.walletMetaPassword() flatMap {(password) =>
-        val provider = new EthereumAccountProvider {
-          override def getEthereumAccount(path: DerivationPath): Future[EthereumAccount] = {
-            api.derivePublicAddress(path).map(_.account)
+        api.getAppConfiguration() flatMap {(appConfiguration) =>
+          val provider = new EthereumAccountProvider {
+            override def getEthereumAccount(path: DerivationPath): Future[EthereumAccount] = {
+              api.derivePublicAddress(path).map(_.account)
+            }
           }
+          val session = new Session(walletIdentifier, password, provider, chain, appConfiguration)
+          _currentSession = Some(session)
+          Future.successful()
         }
-        val session = new Session(walletIdentifier, password, provider, chain)
-        _currentSession = Some(session)
-        Future.successful()
       }
     }
   }
@@ -72,7 +74,8 @@ class SessionService extends Service {
   class Session(val name: String,
                 val password: String,
                 provider: EthereumAccountProvider,
-                val chain: SessionService.EthereumChainIdentifier) {
+                val chain: SessionService.EthereumChainIdentifier,
+                val dongleAppVersion: LedgerEthereumAppApi.AppConfiguration) {
     val wallet: Wallet = new ApiWalletClient(name, Option(password), provider, chain)
 
     val sessionPreferences = scala.collection.mutable.Map[String, Any]()

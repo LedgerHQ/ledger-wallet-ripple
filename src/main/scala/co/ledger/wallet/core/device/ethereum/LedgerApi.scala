@@ -43,7 +43,8 @@ class LedgerApi(override val device: Device)
   extends LedgerCommonApiInterface
   with LedgerDerivationApi
   with LedgerBolosApi
-  with LedgerSignatureApi {
+  with LedgerSignatureApi
+  with LedgerEthereumAppApi {
   override implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
   def walletIdentifier(): Future[String] = {
     derivePublicAddress(DerivationPath("44'/60'/0'/0'")).map {(result) =>

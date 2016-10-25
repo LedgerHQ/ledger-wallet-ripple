@@ -6,8 +6,9 @@
         </header>
         <div>
             <qrcodeviewer value="ctrl.uri"></qrcodeviewer>
-            <div class="almost-medium-top-margin regular-text"><b class="uppercase-section-column">IBAN</b> &nbsp;&nbsp;<span class="selectable">{{ctrl.iban}}</span></div>
-            <div class="almost-small-top-margin regular-text selectable">{{ctrl.address}}</div>
+            <selector class="medium-top-margin" values="{{ctrl.formats}}" selected="{{ctrl.currentFormat}}" changed="ctrl.onFormatChanged(value)" ></selector>
+            <div ng-show="ctrl.showIban" class="small-top-margin regular-text"><b class="uppercase-section-column">IBAN</b> &nbsp;&nbsp;<span class="selectable">{{ctrl.iban}}</span></div>
+            <div ng-show="ctrl.showHex" class="small-top-margin regular-text selectable">{{ctrl.address}}</div>
             <div class="almost-small-top-margin regular-grey-text-small" translate>receive.share_qr_code</div>
         </div>
         <actions-bottom-bar class="no-print">
