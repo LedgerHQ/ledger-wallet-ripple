@@ -1,0 +1,111 @@
+@import (reference) "../../constants";
+
+.select-view {
+
+  section {
+
+   .big-buttons-area {
+     display: flex;
+
+     > div {
+       width: 140px;
+       height: 75px;
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       flex-direction: column;
+       border-radius: 12px;
+       cursor: pointer;
+       margin-left: 10px;
+
+       &:first-of-type {
+         margin-left: 0;
+       }
+
+       > h1 {
+         color: @color-white;
+         font-size: @font-size-extra-extra-large;
+       }
+
+       > p {
+         color: @color-white;
+         font-size: @font-size-medium;
+       }
+
+       &.green {
+         background-color: @color-action-green;
+
+         &:hover {
+           background-color: darken(@color-action-green, @color-default-darken-value);
+         }
+       }
+
+       &.grey {
+         background-color: @color-light-grey;
+
+         &:hover {
+           background-color: darken(@color-light-grey, @color-default-darken-value);
+         }
+       }
+
+     }
+   }
+
+   .checkbox-line {
+
+     [type="checkbox"]:not(:checked),
+     [type="checkbox"]:checked {
+       position: absolute;
+       left: -9999px;
+     }
+
+     [type="checkbox"]:not(:checked) + label,
+     [type="checkbox"]:checked + label {
+       position: relative;
+       padding-left: 21px;
+       font-size: @font-size-very-small;
+       color: @color-dark-grey;
+       cursor: pointer;
+     }
+
+     /* Aspect des checkboxes */
+     /* :before sert à créer la case à cocher */
+     [type="checkbox"]:not(:checked) + label:before,
+     [type="checkbox"]:checked + label:before {
+       content: '';
+       position: absolute;
+       left:0; top: 2px;
+       width: 12px; height: 12px; /* dim. de la case */
+       background: @color-almost-light-grey;
+       border-radius: 50%; /* angles arrondis */
+     }
+
+     /* Aspect général de la coche */
+     [type="checkbox"]:not(:checked) + label:after,
+     [type="checkbox"]:checked + label:after {
+       content: " ";
+       box-sizing: border-box;
+       position: absolute;
+       background-color: @color-action-green;
+       width: 12px;
+       height: 12px;
+       border-radius: 50%;
+       border: 3px solid @color-almost-light-grey;
+       top: 2px; left: 0;
+       color: #09ad7e;
+     }
+     /* Aspect si "pas cochée" */
+     [type="checkbox"]:not(:checked) + label:after {
+       opacity: 0; /* coche invisible */
+       transform: scale(0); /* mise à l'échelle à 0 */
+     }
+     /* Aspect si "cochée" */
+     [type="checkbox"]:checked + label:after {
+       opacity: 1; /* coche opaque */
+       transform: scale(1); /* mise à l'échelle 1:1 */
+     }
+
+   }
+
+  }
+}

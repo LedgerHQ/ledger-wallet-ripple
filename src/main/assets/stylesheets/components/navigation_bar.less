@@ -73,15 +73,28 @@
 
     .chain {
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
-      margin-right: 3px;
+      margin-right: 18px;
+      color: @color-white;
+      cursor: pointer;
+
+      &:hover {
+        color: darken(@color-white, @color-strong-darken-value);
+      }
 
       span {
         .light-very-large-text;
-        color: @color-white;
         text-transform: uppercase;
+        color: inherit;
       }
+
+      span:nth-child(2) {
+        font-size: @font-size-very-very-small;
+        margin-top: 4px;
+      }
+
     }
 
     .item {

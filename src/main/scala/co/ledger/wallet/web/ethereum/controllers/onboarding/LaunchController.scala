@@ -120,12 +120,19 @@ class LaunchController(override val windowService: WindowService,
     device.connect() flatMap {(_) =>
       deviceService.registerDevice(device)
     } flatMap {(_) =>
-      LedgerApi(device).derivePublicAddress(DerivationPath("44'/60'/0"))
+      LedgerApi(device).walletIdentifier()
+    } flatMap {(_) =>
+      SelectChainController.getRememberedChain(deviceService)
     } onComplete {
-        case Success(uuid) =>
+        case Success(chain) =>
           incrementNumberOfConnection()
-          $location.url(s"/onboarding/opening/${currentChain}/")
-          $route.reload()
+          if (chain.isDefined) {
+            $location.url(s"/onboarding/opening/${chain.get}/")
+            $route.reload()
+          } else {
+            $location.url("/onboarding/chain/select")
+            $route.reload()
+          }
         case Failure(ex) =>
           ex.printStackTrace()
           startDeviceDiscovery()

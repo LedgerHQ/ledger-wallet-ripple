@@ -35,12 +35,15 @@ common:
 onboarding:
   help_center: Need assistance ? Contact Ledger support team.
 
+# Navigation bar
+navigation_bar:
+  switch_chain: switch
+
 # Launch screen
 
 launch:
-  to_begin_1: To begin, plug your Ledger Wallet
-  to_begin_2: and open the Ethereum app on your device.
-  unlock_and_open_app: If asked, enter your PIN code to unlock your device.
+  to_begin_1: To begin, connect and unlock your Ledger Wallet.
+  unlock_and_open_app: Then, open the Ethereum app on your device.
   ethereum_chain: Ethereum chain
   etc: ETC
   eth: ETH

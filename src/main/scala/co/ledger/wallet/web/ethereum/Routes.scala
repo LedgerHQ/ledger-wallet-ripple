@@ -38,6 +38,7 @@ object Routes {
     $routeProvider
       .when("/onboarding/launch/:animated?", Route(templateUrl = "/templates/onboarding/launch.html"))
       .when("/onboarding/linux/:animated?", Route(templateUrl = "/templates/onboarding/linux.html"))
+      .when("/onboarding/chain/select", Route(templateUrl = "/templates/onboarding/select.html"))
       .when("/onboarding/opening/:chain", Route(templateUrl = "/templates/onboarding/opening.html"))
       .when("/onboarding/split-disclaimer/:balance", Route(templateUrl = "/templates/onboarding/split-disclaimer.html"))
       .when("/account/:id", Route(templateUrl = "/templates/wallet/account.html"))
@@ -45,7 +46,7 @@ object Routes {
       .when("/send/:amount/to/:recipient/from/:account_id/with/:fees/price/:price", Route(templateUrl = "/templates/wallet/send/perform.html"))
       .when("/receive", Route(templateUrl = "/templates/wallet/receive.html"))
       .when("/help", Route(templateUrl = "/templates/wallet/help.html"))
-      .otherwise( Route( redirectTo = "/onboarding/launch/animated"))
+      .otherwise(Route(redirectTo = "/onboarding/launch/animated"))
   }
 
 }

@@ -15,8 +15,9 @@
         <div class="selector"></div>
     </div>
     <div class="right">
-        <div class="chain">
-           <span translate>{{chain()}}</span>
+        <div class="chain" ng-click="switchChain()">
+            <span translate>{{chain()}}</span>
+            <span translate>navigation_bar.switch_chain</span>
         </div>
         <div class="item" ng-class="{spinning: isRefreshing}">
             <a ng-click="refresh()">

@@ -87,9 +87,14 @@ class DeviceService($location: Location,  $route: js.Dynamic, sessionService: Se
         $route.reload()
     }
   }
+
+  DeviceService.setInstance(this)
 }
 
 object DeviceService {
+  def instance = _instance
+  private def setInstance(service: DeviceService) = _instance = service
+  private var _instance: DeviceService = null
 
   def init(module: RichModule) = {
     module.serviceOf[DeviceService]("deviceService")

@@ -6,17 +6,10 @@
         <section>
             <img src="images/opening/ic_computer.png" />
             <div class="light-very-large-text almost-medium-top-margin" translate>launch.to_begin_1</div>
-            <div class="light-very-large-text almost-small-top-margin" translate>launch.to_begin_2</div>
             <div class="light-grey-text-almost-small almost-small-top-margin" translate>launch.unlock_and_open_app</div>
         </section>
         <div class="footers-container">
-            <footer id="plugFooter">
-                <div id="chain_selector_area">
-                    <span translate>launch.ethereum_chain</span>
-                    <selector values="{{ctrl.chains}}" selected="{{ctrl.currentChain}}" changed="ctrl.onChainChanged(value)" ></selector>
-                </div>
-            </footer>
-
+            <footer id="plugFooter" ng-click="ctrl.openHelpCenter()"><a translate>onboarding.help_center</a></footer>
         </div>
     </div>
 </div>

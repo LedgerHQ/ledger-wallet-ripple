@@ -1,9 +1,10 @@
 package co.ledger.wallet.web.ethereum.components
 
 import biz.enef.angulate.Module.RichModule
-import biz.enef.angulate.core.{Attributes, JQLite}
+import biz.enef.angulate.core.{Attributes, JQLite, Location}
 import biz.enef.angulate.{Component, ComponentDef, Directive, Scope}
-import co.ledger.wallet.web.ethereum.services.SessionService
+import co.ledger.wallet.web.ethereum.controllers.onboarding.SelectChainController
+import co.ledger.wallet.web.ethereum.services.{DeviceService, SessionService}
 
 import scala.scalajs.js
 import scala.scalajs.js.{Dictionary, Dynamic}
@@ -44,7 +45,10 @@ import scala.scalajs.js.{Dictionary, Dynamic}
   templateUrl = "/templates/components/navigation-bar.html"
 ))
 */
-class NavigationBar(sessionService: SessionService) extends Directive {
+class NavigationBar(sessionService: SessionService,
+                    deviceService: DeviceService,
+                    $location: Location,
+                    $route: js.Dynamic) extends Directive {
   override type ScopeType = js.Dynamic
   val chains = js.Dictionary(
     "eth" -> "launch.eth",
@@ -62,6 +66,12 @@ class NavigationBar(sessionService: SessionService) extends Directive {
     }
     scope.chain = {() =>
       sessionService.currentSession.map(_.chain.id).map(chains(_)).getOrElse("")
+    }
+    scope.switchChain = {() =>
+      SelectChainController.resetRemember(deviceService)
+      sessionService.stopCurrentSessions()
+      $location.url("/onboarding/chain/select")
+      $route.reload()
     }
     scope.isSelected = isSelected _
   }

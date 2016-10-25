@@ -1,0 +1,31 @@
+<div class="onboarding-view select-view">
+    <div class="onboarding-container" ng-controller="SelectChainController as ctrl" controller-mode="default">
+        <header>
+            <img src="images/onboarding/ic_logo.png" />
+        </header>
+        <section>
+            <div class="light-very-large-text" translate>Select the Ethereum chain to use</div>
+            <div class="light-grey-text-almost-small almost-small-top-margin" translate>New with Ethereum? Use the default ETH chain.</div>
+            <div class="big-buttons-area almost-medium-top-margin">
+                <div class="grey" ng-click="ctrl.select('ETC')">
+                    <h1 translate>launch.etc</h1>
+                    <p>Ethereum classic</p>
+                </div>
+                <div class="green" ng-click="ctrl.select('ETH')">
+                    <h1 translate>launch.eth</h1>
+                    <p>Ethereum</p>
+                </div>
+            </div>
+            <div class="checkbox-line almost-medium-top-margin">
+                <input id="remember" type="checkbox">
+                <label for="remember">Remember my choice</label>
+            </div>
+        </section>
+        <div class="footers-container">
+            <footer id="plugFooter">
+
+            </footer>
+
+        </div>
+    </div>
+</div>
