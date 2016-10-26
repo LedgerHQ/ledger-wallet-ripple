@@ -52,15 +52,18 @@ lbutton {
   }
 
   &.medium {
+    display: inline-flex;
+    flex-direction: row;
+    height: 20px;
+    justify-content: center;
+    align-items: center;
     border-radius: 10px;
-    letter-spacing: -0.3px;
-    padding-top: 4px;
-    padding-bottom: 5px;
-    padding-left: 8px;
-    padding-right: 8px;
+    padding-left: 10px;
+    padding-right: 10px;
 
     span {
       font-size: @font-size-very-small;
+      font-weight: @font-weight-regular;
     }
   }
 

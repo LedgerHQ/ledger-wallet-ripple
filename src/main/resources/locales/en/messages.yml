@@ -33,7 +33,7 @@ common:
 
 # Onboarding common
 onboarding:
-  help_center: Need assistance ? Contact Ledger support team.
+  help_center: Need assistance?
 
 # Navigation bar
 navigation_bar:
@@ -124,8 +124,8 @@ send:
   place_qr_code: Place the QR code in the center of the image
   insufficient_funds_title: Insufficient funds
   insufficient_funds_message: Your account doesn't have enough funds
-  enable_data_title: ENABLE DATA
-  enable_data_message: ENABLE DATA MESSAGE
+  enable_data_title: Cannot add contract data
+  enable_data_message: Data are not allowed in your device Ethereum app
   bad_amount_title: Empty amount
   bad_amount_message: An amount is required to send ethers
   bad_limit_title: Empty gas limit

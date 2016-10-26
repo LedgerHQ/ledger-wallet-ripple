@@ -72,6 +72,9 @@ class SendIndexController(override val windowService: WindowService,
   sessionService.currentSession.get.sessionPreferences.lift(SendIndexController.RestoreKey) foreach {(state) =>
     val restore = state.asInstanceOf[SendIndexController.RestoreState]
     address = restore.to
+    customGasLimit = restore.customGasLimit
+    isInAdvancedMode = restore.advancedMode
+    data = restore.data
     if (restore.amount.isSuccess)
       amount = restore.amount.get.toEther.toString()
   }
@@ -162,6 +165,7 @@ class SendIndexController(override val windowService: WindowService,
               if (data.nonEmpty && !conf.isArbitraryDataSignatureEnabled) {
                 SnackBar.error("send.enable_data_title", "send.enable_data_message").show()
               } else {
+                println(s"/send/${value.get.toString()}/to/$address/from/0/with/$fees/price/$gasPrice/data/$data")
                 $location.path(s"/send/${value.get.toString()}/to/$address/from/0/with/$fees/price/$gasPrice/data/$data")
                 $scope.$apply()
               }
@@ -188,7 +192,13 @@ class SendIndexController(override val windowService: WindowService,
   $scope.$on("$destroy", {() =>
     val amount = Try((BigDecimal($element.find("#amount_input").asInstanceOf[JQLite].`val`().toString) * BigDecimal(10).pow(18)).toBigInt())
     val recipient = $element.find("#receiver_input").asInstanceOf[JQLite].`val`().toString
-    sessionService.currentSession.get.sessionPreferences(SendIndexController.RestoreKey) =  SendIndexController.RestoreState(amount.map(new Ether(_)), recipient)
+    sessionService.currentSession.get.sessionPreferences(SendIndexController.RestoreKey) =  SendIndexController.RestoreState(
+      amount.map(new Ether(_)),
+      recipient,
+      customGasLimit,
+      data,
+      isInAdvancedMode
+    )
   })
 }
 
@@ -196,5 +206,5 @@ object SendIndexController {
   def init(module: RichModule) = module.controllerOf[SendIndexController]("SendIndexController")
 
   val RestoreKey = "SendIndexController#Restore"
-  case class RestoreState(amount: Try[Ether], to: String)
+  case class RestoreState(amount: Try[Ether], to: String, customGasLimit: String, data: String, advancedMode: Boolean)
 }

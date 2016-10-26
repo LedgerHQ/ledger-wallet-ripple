@@ -56,7 +56,7 @@ class SendPerformController(override val windowService: WindowService,
   private val accountId = $routeParams("account_id").toInt
   private val amount = BigInt($routeParams("amount"))
   private val to = EthereumAccount($routeParams("recipient").trim)
-  private val data = $routeParams("data").replace("0x", "")
+  private val data = $routeParams.lift("data").map(_.replace("0x", "")).map(HexUtils.decodeHex)
 
   windowService.disableUserInterface()
 
@@ -72,7 +72,7 @@ class SendPerformController(override val windowService: WindowService,
             from,
             to,
             amount,
-            HexUtils.decodeHex(data)
+            data.getOrElse(Array.emptyByteArray)
           )
         }
       }
