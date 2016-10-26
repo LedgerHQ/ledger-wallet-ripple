@@ -1,6 +1,13 @@
 # Changelog
+1.1.0 (2016-10-26)
+==================
+
+- Better UI for chain selection (you can now switch between ETH and ETH without exiting the app)
+- Add contract data signature and custom gas limit with the new Nano S Ethereum app (available with the firmware 1.2)
+- Small bug fixes
+
 1.0.9 (2016-09-29)
-=======================
+==================
 
 - Use huge gas limit to handle most contracts requiring no additional data
 
