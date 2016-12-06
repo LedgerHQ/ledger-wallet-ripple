@@ -1,0 +1,153 @@
+# i18n
+language:
+  name: Italian
+
+# Application
+application:
+  name: Ledger Wallet Ethereum
+  small_description: Ledger Wallet Ethereum gestisce i tuoi conti in modo efficiente e sicuro.
+  support_url: http\://support.ledgerwallet.com/
+  commands:
+    reload_page: Ricarica la pagina corrente
+    reload_application: Ricarica l'applicazione
+    update_firmware: Aggiorna il firmware del chip
+    export_logs: Esporta i log globali
+  singleton_alert:
+    message: L'applicazione {APPLICATION_NAME} è già in esecuzione. Ti preghiamo di chiuderla e riprovare.
+
+# Dates formatting
+
+dates:
+  standard: DD/MM/YYYY [alle] HH:mm
+
+# Common
+common:
+  eth: ETH
+  please_wait: Ti preghiamo di attendere, potrebbe volerci un momento.
+  confirm: conferma
+  cancel: annulla
+  validate: convalida
+  help: aiuto
+  continue: continua
+  help_center: centro assistenza
+
+# Onboarding common
+onboarding:
+  help_center: Hai bisogno di assistenza?
+
+# Navigation bar
+navigation_bar:
+  switch_chain: cambia
+
+# Launch screen
+
+launch:
+  to_begin_1: Per cominciare, collega e sblocca il tuo Ledger Wallet.
+  unlock_and_open_app: Poi, apri l'app Ethereum sul tuo dispositivo.
+  ethereum_chain: Catena Ethereum
+  etc: ETC
+  eth: ETH
+
+# Linux launch screen
+
+linux:
+  title: Permetti l'accesso al tuo dispositivo su Linux.
+  subtitle_1: L'app Ledger Wallet Ethereum richiede la creazione di un insieme
+  subtitle_2: di regole udev per permettere l'accesso al dispositivo su Linux.
+  configure: configura
+
+# Opening screen
+
+opening:
+  title: Apertura del portafoglio...
+  sync_error:
+    title: Impossibile sincronizzare il portafoglio.
+    detail_1: Chiudi e riapri l'app Ethereum sul dispositivo.
+    detail_2: Se il problema persiste, contatta il nostro centro assistenza.
+
+# Split disclaimer
+
+split_disclaimer:
+  title: Ci sono degli ether ETC su un vecchio indirizzo.
+  message: L'app Ledger Wallet Ethereum è stata aggiornata con l'indirizzo di un nuovo conto per gestire i tuoi ether ETC. Ti preghiamo di visitare il nostro centro assistenza per scoprire come recuperare i tuoi fondi.
+
+# Wallet common
+
+wallet:
+  balance: saldo
+  last_operations: ultime operazioni
+  date_and_time: data & ora
+  amount: importo
+
+# Account screen
+
+account:
+  default_name: il mio conto
+  load_more: Caricamento delle operazioni successive...
+  no_operation: Nessuna operazione per questo conto.
+
+# Help screen
+
+help:
+  page_title: aiuto
+  get_assistance: ottieni assistenza
+  browse_knowledge_base: consulta la knowledge base
+  for_immediate_self_help: Per risolvere immediatamente da solo
+  contact_support_team: contatta il team di supporto
+  fast_and_furious: Per un'assistenza fast-and-furious
+  diagnostic: diagnostica
+  export_logs: Esporta log
+  logs_disclaimer: I log contengono eventi anonimi che sono registrati e crittografati in locale sul tuo computer. Questi dati non vengono inviati ai nostri server e possono solamente essere esportati manualmente quando richiesti dal team di supporto Ledger.
+
+# Receive screen
+
+receive:
+  page_title: ricevi ether
+  share_qr_code: Condividi questo QR code per ricevere pagamenti Ethereum
+  send_by_email: Invia per mail
+  print: stampa
+
+# Send screen
+
+send:
+  page_title: invia ether
+  amount_placeholder: Importo
+  max: max
+  recipient: conto destinatario
+  recipient_placeholder: IBAN o conto Ethereum
+  gas_price: prezzo gas
+  gas_limit: limite gas
+  total_spent: totale massimo speso
+  including_gas: (gas incl.)
+  scan_qr_code: acquisisci qr code
+  send: invia
+  place_qr_code: Posiziona il QR code al centro dell'immagine
+  insufficient_funds_title: Fondi insufficienti
+  insufficient_funds_message: Il tuo conto non ha abbastanza fondi
+  enable_data_title: Impossibile aggiungere i dati del contratto
+  enable_data_message: I dati non sono abilitati nell'app Ethereum del tuo dispositivo
+  bad_amount_title: Importo mancante
+  bad_amount_message: È richiesto un importo per inviare ether
+  bad_limit_title: Limite gas mancante
+  bad_limit_message: È richiesto un limite gas per inviare ether
+  bad_address_title: Conto destinatario non valido
+  bad_address_message: È richiesto un IBAN o un conto valido per inviare ether
+  advanced_mode: modalità avanzata
+  standard_mode: modalità standard
+  contract_data: dati contratto
+  contract_data_hex: dati contratto (hex)
+  gas: gas
+
+# Send perform screen
+send_perform:
+  page_title: invia ether
+  confirm_transaction: Conferma transazione
+  review_1: Controlla la transazione visualizzata sul dispositivo
+  review_2: e confermala (o rifiutala) per continuare.
+  completed_title: Transazione completata
+  completed_message: Trasmessa in rete con successo
+  cancelled_title: Transazione fallita
+  cancelled_message: Transazione annullata
+  failed_title: Transazione fallita
+  failed_message: Transazione rifiutata dal server
+  bottom_text: Se non compare nulla sul dispositivo, contatta il centro assistenza.
