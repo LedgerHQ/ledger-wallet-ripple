@@ -1,4 +1,4 @@
-package co.ledger.wallet.web.ethereum.core.utils
+package co.ledger.wallet.web.ripple.core.utils
 
 import co.ledger.wallet.core.utils.Preferences
 import upickle.Js
@@ -10,7 +10,7 @@ import scala.scalajs.js
 /**
   *
   * ChromePreferences
-  * ledger-wallet-ethereum-chrome
+  * ledger-wallet-ripple-chrome
   *
   * Created by Pierre Pollastri on 25/05/2016.
   *
