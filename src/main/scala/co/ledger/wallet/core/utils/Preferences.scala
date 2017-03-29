@@ -3,7 +3,7 @@ package co.ledger.wallet.core.utils
 /**
   *
   * Preferences
-  * ledger-wallet-ethereum-chrome
+  * ledger-wallet-ripple-chrome
   *
   * Created by Pierre Pollastri on 25/05/2016.
   *

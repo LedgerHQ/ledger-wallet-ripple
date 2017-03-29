@@ -3,7 +3,7 @@ package co.ledger.wallet.core.device.utils
 /**
   *
   * EventEmitter
-  * ledger-wallet-ethereum-chrome
+  * ledger-wallet-ripple-chrome
   *
   * Created by Pierre Pollastri on 06/05/2016.
   *

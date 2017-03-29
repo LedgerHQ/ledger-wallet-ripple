@@ -5,7 +5,7 @@ import org.json.{JSONArray, JSONObject}
 /**
   *
   * WebSocket
-  * ledger-wallet-ethereum-chrome
+  * ledger-wallet-ripple-chrome
   *
   * Created by Pierre Pollastri on 23/06/2016.
   *

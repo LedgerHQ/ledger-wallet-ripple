@@ -10,6 +10,8 @@
       "scripts": ["background.js"]
     }
   },
+  "content_security_policy": "default-src 'unsafe-eval'",
+
   "optional_permissions": [
     "videoCapture",
     "fileSystem",
@@ -59,5 +61,8 @@
       "*://ledgerwallet.com/*",
       "http://dev.ledgerwallet.com:3000/api"
     ]
+  },
+  " sandbox":{
+    " pages": ["ripple-api.html"]
   }
 }

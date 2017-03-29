@@ -90,7 +90,7 @@ class BuildI18nFiles {
 
   private def writeManifest(file: File, manifest: I18nManifest): Unit = {
     val out = new BufferedWriter(new FileWriter(file))
-    out << "package co.ledger.wallet.web.ethereum.i18n"
+    out << "package co.ledger.wallet.web.ripple.i18n"
     out << "object I18nLanguagesManifest {"
     for (language <- manifest.languages) {
       out << s" val ${language.code} = new I18nLanguageEntry(${language.code.quote}, ${language.name.quote}, ${language.keys.quote})"

@@ -5,7 +5,7 @@ import scala.concurrent.Future
 /**
   *
   * AsyncCursor
-  * ledger-wallet-ethereum-chrome
+  * ledger-wallet-ripple-chrome
   *
   * Created by Pierre Pollastri on 14/06/2016.
   *

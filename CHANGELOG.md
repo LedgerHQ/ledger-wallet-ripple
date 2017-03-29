@@ -2,8 +2,8 @@
 1.1.0 (2016-10-26)
 ==================
 
-- Better UI for chain selection (you can now switch between ETH and ETH without exiting the app)
-- Add contract data signature and custom gas limit with the new Nano S Ethereum app (available with the firmware 1.2)
+- Better UI for chain selection (you can now switch between XRP and XRP without exiting the app)
+- Add contract data signature and custom gas limit with the new Nano S Ripple app (available with the firmware 1.2)
 - Small bug fixes
 
 1.0.9 (2016-09-29)
@@ -20,8 +20,8 @@
 ==================
 
 - Fix nonce computation issue
-- Fix websockets for ethereum classic
-- Use ETC as currency symbol for ethereum classic
+- Fix websockets for ripple classic
+- Use ETC as currency symbol for ripple classic
 - Small UI changes
 
 1.0.5 (2016-08-04)
@@ -46,4 +46,4 @@
 1.0.0 (2016-07-27)
 ==================
 
-- First release of Ledger Wallet Ethereum Chrome app
+- First release of Ledger Wallet Ripple Chrome app

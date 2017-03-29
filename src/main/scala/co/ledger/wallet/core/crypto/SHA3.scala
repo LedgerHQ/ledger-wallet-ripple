@@ -3,7 +3,7 @@ package co.ledger.wallet.core.crypto
 /**
   *
   * SHA3
-  * ledger-wallet-ethereum-chrome
+  * ledger-wallet-ripple-chrome
   *
   * Created by Pierre Pollastri on 05/07/2016.
   *

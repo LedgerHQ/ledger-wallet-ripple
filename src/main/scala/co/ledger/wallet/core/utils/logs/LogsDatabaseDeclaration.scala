@@ -1,11 +1,11 @@
 package co.ledger.wallet.core.utils.logs
 
-import co.ledger.wallet.web.ethereum.core.database.{DatabaseDeclaration, QueryHelper}
+import co.ledger.wallet.web.ripple.core.database.{DatabaseDeclaration, QueryHelper}
 
 /**
   *
   * LogsDabase
-  * ledger-wallet-ethereum-chrome
+  * ledger-wallet-ripple-chrome
   *
   * Created by Pierre Pollastri on 10/06/2016.
   *

@@ -7,7 +7,7 @@ import js.Dynamic.global
 /**
   *
   * LoggerPrintStream
-  * ledger-wallet-ethereum-chrome
+  * ledger-wallet-ripple-chrome
   *
   * Created by Pierre Pollastri on 10/06/2016.
   *

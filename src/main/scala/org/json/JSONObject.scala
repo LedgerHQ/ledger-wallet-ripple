@@ -6,7 +6,7 @@ import scala.scalajs.js.JSON
 /**
   *
   * JSONObject
-  * ledger-wallet-ethereum-chrome
+  * ledger-wallet-ripple-chrome
   *
   * Created by Pierre Pollastri on 16/06/2016.
   *

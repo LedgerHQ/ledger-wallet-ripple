@@ -3,9 +3,9 @@ package co.ledger.wallet.core.utils.logs
 import java.io.{PrintStream, StringWriter}
 import java.util.Date
 
-import co.ledger.wallet.web.ethereum.core.utils.JQueryHelper
-import co.ledger.wallet.web.ethereum.core.utils.JQueryHelper._
-import co.ledger.wallet.web.ethereum.services.SessionService
+import co.ledger.wallet.web.ripple.core.utils.JQueryHelper
+import co.ledger.wallet.web.ripple.core.utils.JQueryHelper._
+import co.ledger.wallet.web.ripple.services.SessionService
 import org.scalajs.dom.raw.{Blob, URL}
 
 import scala.scalajs.js
@@ -17,7 +17,7 @@ import scala.scalajs.js.annotation.JSName
 /**
   *
   * Logger
-  * ledger-wallet-ethereum-chrome
+  * ledger-wallet-ripple-chrome
   *
   * Created by Pierre Pollastri on 13/05/2016.
   *
@@ -91,7 +91,7 @@ class Logger {
 
   private def computeOriginalSource(line: String): String = {
     if (LogSourceMapper.mapping.isDefined) {
-      val pattern = "\\((chrome-extension://.*/ledger-wallet-ethereum-chrome-fastopt.js:(\\d*):(\\d*))\\)".r
+      val pattern = "\\((chrome-extension://.*/ledger-wallet-ripple-chrome-fastopt.js:(\\d*):(\\d*))\\)".r
       var out = line
       pattern.findAllMatchIn(line).foreach({ (m) =>
         val l = m.group(2).toInt
@@ -147,7 +147,7 @@ object LogSourceMapper {
 
   def init() = {
     import JQueryHelper._
-    $.getJSON("ledger-wallet-ethereum-chrome-fastopt.js.map", { (rawSourceMap: js.Object) =>
+    $.getJSON("ledger-wallet-ripple-chrome-fastopt.js.map", { (rawSourceMap: js.Object) =>
       _mapper = new SourceMapConsumer(rawSourceMap)
       _mapping = Some(rawSourceMap)
     })
@@ -205,7 +205,7 @@ object LogExporter {
   def download(): Future[Unit] = {
     toUri.map {(url: URL) =>
       val link = js.Dynamic.global.document.createElement("a");
-      link.download = s"ledger_wallet_ethereum_${new Date().getTime}.logs"
+      link.download = s"ledger_wallet_ripple_${new Date().getTime}.logs"
       link.href = url
       link.click()
       ()

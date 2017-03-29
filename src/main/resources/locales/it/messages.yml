@@ -4,8 +4,8 @@ language:
 
 # Application
 application:
-  name: Ledger Wallet Ethereum
-  small_description: Ledger Wallet Ethereum gestisce i tuoi conti in modo efficiente e sicuro.
+  name: Ledger Wallet Ripple
+  small_description: Ledger Wallet Ripple gestisce i tuoi conti in modo efficiente e sicuro.
   support_url: http\://support.ledgerwallet.com/
   commands:
     reload_page: Ricarica la pagina corrente
@@ -43,8 +43,8 @@ navigation_bar:
 
 launch:
   to_begin_1: Per cominciare, collega e sblocca il tuo Ledger Wallet.
-  unlock_and_open_app: Poi, apri l'app Ethereum sul tuo dispositivo.
-  ethereum_chain: Catena Ethereum
+  unlock_and_open_app: Poi, apri l'app Ripple sul tuo dispositivo.
+  ripple_chain: Catena Ripple
   etc: ETC
   eth: ETH
 
@@ -52,7 +52,7 @@ launch:
 
 linux:
   title: Permetti l'accesso al tuo dispositivo su Linux.
-  subtitle_1: L'app Ledger Wallet Ethereum richiede la creazione di un insieme
+  subtitle_1: L'app Ledger Wallet Ripple richiede la creazione di un insieme
   subtitle_2: di regole udev per permettere l'accesso al dispositivo su Linux.
   configure: configura
 
@@ -62,14 +62,14 @@ opening:
   title: Apertura del portafoglio...
   sync_error:
     title: Impossibile sincronizzare il portafoglio.
-    detail_1: Chiudi e riapri l'app Ethereum sul dispositivo.
+    detail_1: Chiudi e riapri l'app Ripple sul dispositivo.
     detail_2: Se il problema persiste, contatta il nostro centro assistenza.
 
 # Split disclaimer
 
 split_disclaimer:
-  title: Ci sono degli ether ETC su un vecchio indirizzo.
-  message: L'app Ledger Wallet Ethereum è stata aggiornata con l'indirizzo di un nuovo conto per gestire i tuoi ether ETC. Ti preghiamo di visitare il nostro centro assistenza per scoprire come recuperare i tuoi fondi.
+  title: Ci sono degli XRP ETC su un vecchio indirizzo.
+  message: L'app Ledger Wallet Ripple è stata aggiornata con l'indirizzo di un nuovo conto per gestire i tuoi XRP ETC. Ti preghiamo di visitare il nostro centro assistenza per scoprire come recuperare i tuoi fondi.
 
 # Wallet common
 
@@ -102,19 +102,19 @@ help:
 # Receive screen
 
 receive:
-  page_title: ricevi ether
-  share_qr_code: Condividi questo QR code per ricevere pagamenti Ethereum
+  page_title: ricevi XRP
+  share_qr_code: Condividi questo QR code per ricevere pagamenti Ripple
   send_by_email: Invia per mail
   print: stampa
 
 # Send screen
 
 send:
-  page_title: invia ether
+  page_title: invia XRP
   amount_placeholder: Importo
   max: max
   recipient: conto destinatario
-  recipient_placeholder: IBAN o conto Ethereum
+  recipient_placeholder: IBAN o conto Ripple
   gas_price: prezzo gas
   gas_limit: limite gas
   total_spent: totale massimo speso
@@ -125,13 +125,13 @@ send:
   insufficient_funds_title: Fondi insufficienti
   insufficient_funds_message: Il tuo conto non ha abbastanza fondi
   enable_data_title: Impossibile aggiungere i dati del contratto
-  enable_data_message: I dati non sono abilitati nell'app Ethereum del tuo dispositivo
+  enable_data_message: I dati non sono abilitati nell'app Ripple del tuo dispositivo
   bad_amount_title: Importo mancante
-  bad_amount_message: È richiesto un importo per inviare ether
+  bad_amount_message: È richiesto un importo per inviare XRP
   bad_limit_title: Limite gas mancante
-  bad_limit_message: È richiesto un limite gas per inviare ether
+  bad_limit_message: È richiesto un limite gas per inviare XRP
   bad_address_title: Conto destinatario non valido
-  bad_address_message: È richiesto un IBAN o un conto valido per inviare ether
+  bad_address_message: È richiesto un IBAN o un conto valido per inviare XRP
   advanced_mode: modalità avanzata
   standard_mode: modalità standard
   contract_data: dati contratto
@@ -140,7 +140,7 @@ send:
 
 # Send perform screen
 send_perform:
-  page_title: invia ether
+  page_title: invia XRP
   confirm_transaction: Conferma transazione
   review_1: Controlla la transazione visualizzata sul dispositivo
   review_2: e confermala (o rifiutala) per continuare.

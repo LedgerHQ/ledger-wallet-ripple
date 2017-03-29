@@ -11,7 +11,7 @@ import scala.concurrent.{ExecutionContext, Future, Promise}
 /**
   *
   * HttpClient
-  * ledger-wallet-ethereum-chrome
+  * ledger-wallet-ripple-chrome
   *
   * Created by Pierre Pollastri on 15/06/2016.
   *

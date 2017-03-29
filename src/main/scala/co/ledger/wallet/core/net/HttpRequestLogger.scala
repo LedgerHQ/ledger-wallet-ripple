@@ -3,7 +3,7 @@ package co.ledger.wallet.core.net
 /**
   *
   * HttpRequestLogger
-  * ledger-wallet-ethereum-chrome
+  * ledger-wallet-ripple-chrome
   *
   * Created by Pierre Pollastri on 15/06/2016.
   *

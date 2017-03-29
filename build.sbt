@@ -3,7 +3,9 @@ import java.io.{FileReader, StringWriter}
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.events.ScalarEvent
 
-name := "ledger-wallet-ethereum-chrome"
+name := "ledger-wallet-ripple-chrome"
+
+updateOptions := updateOptions.value.withCachedResolution(true)
 
 version := "1.0"
 
@@ -31,7 +33,7 @@ lazy val root = (project in file(".")).enablePlugins(SbtWeb)
 includeFilter in (Assets, LessKeys.less) := "common.less"
 
 sourceGenerators in Compile <+= sourceManaged in Compile map { dir =>
-  val file = dir / "co" / "ledger" / "wallet" / "web" / "ethereum" / "i18n" / "I18nLanguagesManifest.scala"
+  val file = dir / "co" / "ledger" / "wallet" / "web" / "ripple" / "i18n" / "I18nLanguagesManifest.scala"
   file.getParentFile.mkdirs()
   new BuildI18nFiles().buildManifest(new File("src/main/resources/locales"), file)
   Seq(file)
