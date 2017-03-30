@@ -79,6 +79,7 @@ class RippleAPI() {
     return p
   }
 
+
   def setOptionsHandler(p: Promise[Any], data: JSONObject) = {
     //val response: SetOptionsResponse = data.parseJson.convertTo[SetOptionsResponse]
     //asinstanceof
@@ -96,6 +97,46 @@ class RippleAPI() {
     var error: String = js.native
   }
   //-----------------------------------------------------
+  @js.native
+  trait Instructions extends js.Object {
+    var fee: Double = js.native
+    var maxFee: Double = js.native
+    var maxLedgerVersion: Option[Int] = js.native
+    var maxLedgerVersionOffset: Int = js.native
+    var sequence: Long = js.native
+  }
+  /*@js.native
+  object Instructions {
+    def apply() = {
+      val dictionary = js.Dictionary[js.Any]()
+      dictionary.asInstanceOf[Instructions]
+    }
+  }*/
+
+  //************** Universal "prepare" methods ********
+
+  @js.native
+  trait UniversalPrepareResponse {
+    var success: Boolean = js.native
+    var response: PrepareResponse = js.native
+  }
+
+  @js.native
+  trait PrepareResponse {
+    var txJSON: String = js.native
+    var instructions: Instructions = js.native
+  }
+
+  def universalPrepareHandler(p: Promise[Any], data: JSONObject) = {
+    val response = data.asInstanceOf[UniversalPrepareResponse]
+    if(response.success){
+      p.success(true)
+    }else{
+      p.failure(Exception)
+    }
+  }
+
+  //----------------
 
   def onMessage(msg: dom.MessageEvent): Unit = {
     val data: JSONObject = msg.data.asInstanceOf[JSONObject]
@@ -105,6 +146,7 @@ class RippleAPI() {
     var p: Promise[Any] = this.promisesTable.get(call_id).get._2
     method_id match {
       case 1 => this.setOptionsHandler(p, data.getJSONObject("response"))
+      case 0 => this.universalPrepareHandler(p,data.getJSONObject("response")) //universal handler for success only method
     }
 
   }
