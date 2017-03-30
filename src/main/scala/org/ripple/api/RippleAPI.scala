@@ -2,13 +2,15 @@ package org.ripple.api
 
 import java.time.LocalDateTime
 
+import org.json.JSONObject
 import org.scalajs.dom
 import org.scalajs.dom.raw.HTMLIFrameElement
 
+import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
 import scala.scalajs.js
-import scala.scalajs.js.Promise
-
+import concurrent.Future
+import  concurrent.Promise
 
 /**
   *
@@ -60,22 +62,52 @@ object APIOption {
 
 class RippleAPI() {
   var options: APIOption = js.native
-  var promisesTable: Array[Promise[Any]] = Array[Promise[Any]]()
+  var promisesTable: Map[String,Tuple2[Int,Promise[Any]]] = Map.empty
   var target = js.native
-  def setOptions(options: APIOption) :Promise[Any] ={
-    val p = Promise[Any]
-    val call_id :String = "setOptions_"+LocalDateTime.now.toString()
+
+
+  //*************** setOptions *******************
+  def setOptions(options: APIOption) :Promise[Boolean] ={
+    val p: Promise[Boolean] = Promise[Boolean]
+    val method_id: Int = 1
+
+    val call_id: String = LocalDateTime.now.toString() + LocalDateTime.now.getSecond.toString + LocalDateTime.now.getNano.toString
     this.options = options
     var target = dom.document.getElementById("ripple-api-sandbox").asInstanceOf[HTMLIFrameElement]
     target.contentWindow.postMessage(js.Dynamic.literal(call_id = call_id,method = "set_option", parameters = options),"*")
-    this.promisesTable:+p
-    p
+    this.promisesTable += (call_id->Tuple2(method_id,p))
+    return p
   }
 
+  def setOptionsHandler(p: Promise[Any], data: JSONObject) = {
+    //val response: SetOptionsResponse = data.parseJson.convertTo[SetOptionsResponse]
+    //asinstanceof
+    val response = data.asInstanceOf[SetOptionsResponse]
+    if(response.connected){
+      p.success(true)
+    }else{
+      p.failure(Exception)
+    }
+  }
 
+  @js.native
+  trait SetOptionsResponse {
+    var connected: Boolean = js.native
+    var error: String = js.native
+  }
+  //-----------------------------------------------------
 
-
-  def send(message: js.Any): Unit ={
+  def onMessage(msg: dom.MessageEvent): Unit = {
+    val data: JSONObject = msg.data.asInstanceOf[JSONObject]
+    val call_id = data.getString("call_id")
+    //try
+    var method_id: Int = this.promisesTable.get(call_id).get._1
+    var p: Promise[Any] = this.promisesTable.get(call_id).get._2
+    method_id match {
+      case 1 => this.setOptionsHandler(p, data.getJSONObject("response"))
+    }
 
   }
+  dom.document.addEventListener("message", { (e: dom.MessageEvent) => this.onMessage(e)}) //can't figure out how to pass onMessage to the event listener
+
 }

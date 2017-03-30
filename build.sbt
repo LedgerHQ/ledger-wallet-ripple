@@ -18,6 +18,7 @@ val build = taskKey[Unit]("Build the chrome packaged app")
 persistLauncher := true
 relativeSourceMaps := true
 
+libraryDependencies += "io.spray" %%  "spray-json" % "1.3.3"
 libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.8.0"
 libraryDependencies += "biz.enef" %%% "scalajs-angulate" % "0.2.4"
 libraryDependencies += "net.lullabyte" %%% "scala-js-chrome" % "0.2.1"
