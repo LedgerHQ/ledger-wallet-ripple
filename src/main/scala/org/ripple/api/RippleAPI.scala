@@ -64,29 +64,32 @@ object APIOption {
 
 
 class RippleAPI() {
-  var promisesTable: Map[String,Tuple2[Int,Promise[Any]]] = Map.empty
-
+  var promisesTable: Map[String,Int] = Map.empty
 
   //*************** setOptions *******************
-  def setOptions(options: APIOption) :Promise[Any] ={
-    val p: Promise[Any] = Promise[Any]
-    val method_id: Int = 1
+  var setOptionsPromisesTable: Map[String,Promise[SetOptionsResponse]] = Map.empty
 
-    val call_id: String = LocalDateTime.now.toString() +
+  def setOptions(options: APIOption) :Future[SetOptionsResponse] ={
+    val p: Promise[SetOptionsResponse] = Promise[SetOptionsResponse]
+    val methodId: Int = 0
+
+    val callId: String = LocalDateTime.now.toString() +
       LocalDateTime.now.getSecond.toString + LocalDateTime.now.getNano.toString
-    var target = dom.document.getElementById("ripple-api-sandbox").asInstanceOf[HTMLIFrameElement]
-    target.contentWindow.postMessage(js.Dynamic.literal(call_id = call_id,
+    val target = dom.document.getElementById("ripple-api-sandbox").asInstanceOf[HTMLIFrameElement]
+    target.contentWindow.postMessage(js.Dynamic.literal(call_id = callId,
       method = "set_option", parameters = options),"*")
-    this.promisesTable += (call_id->Tuple2(method_id,p))
-    return p
+    this.setOptionsPromisesTable += (callId->p)
+    this.promisesTable += (callId->methodId)
+    return p.future
   }
 
 
-  def setOptionsHandler(p: Promise[Any], data: JSONObject) = {
+  def setOptionsHandler(callId: String, data: JSONObject) = {
     val response = data.asInstanceOf[SetOptionsResponse]
-    if(response.connected){
-      p.success(true)
-    }
+    val p = this.setOptionsPromisesTable.get(callId).get
+    this.promisesTable -=  callId
+    this.setOptionsPromisesTable -=  callId
+    p.success(response)
   }
 
   class SetOptionsResponse(data:JSONObject) {
@@ -142,6 +145,8 @@ class RippleAPI() {
   }
 
   //************** Universal "prepare" methods ********
+  var preparePromisesTable: Map[String,Promise[PrepareResponse]] = Map.empty
+
   def preparePayment(address: String, payment: Payment, instructions: Instructions): Future[PrepareResponse] = {
     val p: Promise[PrepareResponse] = Promise[PrepareResponse] ()
     val methodId: Int = 1
@@ -151,30 +156,31 @@ class RippleAPI() {
       val payment: Payment = payment
       val instructions: Instructions = instructions
     }
-    this.promisesTable += (getCallId()->Tuple2(methodId,p))
+    this.promisesTable += (getCallId()->methodId)
+    this.preparePromisesTable += (getCallId()->p)
     this.messageSender(methodName, PaymentParam)
     return p.future
   }
 
-  class UniversalPrepareResponse(data: JSONObject) {
-    var success: Boolean = data.getBoolean("success")
-    var response: PrepareResponse = new PrepareResponse(data.getJSONObject("response"))
+  class UniversalPrepareResponse(var success: Boolean, var response: PrepareResponse){
+    def this(data: JSONObject) ={
+      this(data.getBoolean("success"), new PrepareResponse(data.getJSONObject("response")))
+    }
   }
 
   class PrepareResponse(var txJSON: String, var instructions: Instructions) {
     def this(data: JSONObject) = {
-      this()
-      this.txJSON = data.getString("txJSON")
-      this.instructions = new Instructions(data.getJSONObject("instructions"))
+      this(data.getString("txJSON"), new Instructions(data.getJSONObject("instructions")))
     }
   }
 
 
-  def universalPrepareHandler(callID: String, data: dom.MessageEvent) = {
-    val response: PrepareResponse = data.data.toString().parseJson.convertTo[PrepareResponse]
-    var p = this.promisesTable.get(callID).get._2
-    this.promisesTable -=  callID
-    p.success(response)
+  def universalPrepareHandler(callId: String, data: dom.MessageEvent) = {
+    val response: UniversalPrepareResponse = new UniversalPrepareResponse(data.data.asInstanceOf[JSONObject])
+    val p = this.preparePromisesTable.get(callId).get
+    this.promisesTable -=  callId
+    this.preparePromisesTable -=  callId
+    p.success(response.response)
   }
   //----------------
 
@@ -183,9 +189,7 @@ class RippleAPI() {
   class MessageToJs(var parameters: Any, var methodName: String, var callId: String)
 
   def jsonify(message: MessageToJs): String ={
-    //iterate through fields recursively might be to costly for scala, first try with a spray-json
-    val jsonAst = message.toJson
-    val jsonString = jsonAst.compactPrint
+    /* Choose a library play / liftweb/ json4s*/
     return jsonString
   }
 
@@ -203,10 +207,10 @@ class RippleAPI() {
   def onMessage(msg: dom.MessageEvent): Unit = {
     val callId: String = msg.data.asInstanceOf[JSONObject].getString("callID")
     //try
-    var methodId: Int = this.promisesTable.get(callId).get._1
+    var methodId: Int = this.promisesTable.get(callId).get
     methodId match {
-      case 1 => this.setOptionsHandler(callID, data.getJSONObject("response"))
-      case 0 => this.universalPrepareHandler(callID, msg) //universal handler for success only method
+      case 0 => this.setOptionsHandler(callId, msg.data.asInstanceOf[JSONObject].getJSONObject("response"))
+      case 1 => this.universalPrepareHandler(callId, msg) //universal handler for success only method
     }
   }
   dom.document.addEventListener("message", { (e: dom.MessageEvent) => this.onMessage(e)}) //can't figure out how to pass onMessage to the event listener
