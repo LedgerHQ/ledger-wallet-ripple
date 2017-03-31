@@ -6,6 +6,9 @@ import org.json.JSONObject
 import org.scalajs.dom
 import org.scalajs.dom.raw.HTMLIFrameElement
 
+import spray.json._
+import DefaultJsonProtocol._
+
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
 import scala.scalajs.js
@@ -43,7 +46,7 @@ import  concurrent.Promise
   *
   */
 
-@js.native
+//In the future, just cast scala object to json strings instead of using a facade
 trait APIOption extends js.Object{
   var server: String = js.native
   var feeCushion: Double = js.native
@@ -51,7 +54,7 @@ trait APIOption extends js.Object{
   var proxy: String = js.native
   var timeout: Long = js.native
 }
-@js.native
+
 object APIOption {
   def apply() = {
     val dictionary = js.Dictionary[js.Any]()
@@ -61,95 +64,150 @@ object APIOption {
 
 
 class RippleAPI() {
-  var options: APIOption = js.native
   var promisesTable: Map[String,Tuple2[Int,Promise[Any]]] = Map.empty
-  var target = js.native
 
 
   //*************** setOptions *******************
-  def setOptions(options: APIOption) :Promise[Boolean] ={
-    val p: Promise[Boolean] = Promise[Boolean]
+  def setOptions(options: APIOption) :Promise[Any] ={
+    val p: Promise[Any] = Promise[Any]
     val method_id: Int = 1
 
-    val call_id: String = LocalDateTime.now.toString() + LocalDateTime.now.getSecond.toString + LocalDateTime.now.getNano.toString
-    this.options = options
+    val call_id: String = LocalDateTime.now.toString() +
+      LocalDateTime.now.getSecond.toString + LocalDateTime.now.getNano.toString
     var target = dom.document.getElementById("ripple-api-sandbox").asInstanceOf[HTMLIFrameElement]
-    target.contentWindow.postMessage(js.Dynamic.literal(call_id = call_id,method = "set_option", parameters = options),"*")
+    target.contentWindow.postMessage(js.Dynamic.literal(call_id = call_id,
+      method = "set_option", parameters = options),"*")
     this.promisesTable += (call_id->Tuple2(method_id,p))
     return p
   }
 
 
   def setOptionsHandler(p: Promise[Any], data: JSONObject) = {
-    //val response: SetOptionsResponse = data.parseJson.convertTo[SetOptionsResponse]
-    //asinstanceof
     val response = data.asInstanceOf[SetOptionsResponse]
     if(response.connected){
       p.success(true)
-    }else{
-      p.failure(Exception)
     }
   }
 
-  @js.native
-  trait SetOptionsResponse {
-    var connected: Boolean = js.native
-    var error: String = js.native
+  class SetOptionsResponse(data:JSONObject) {
+    var connected: Boolean = data.getBoolean("connected")
+    var error: String = data.getString("error")
   }
   //-----------------------------------------------------
-  @js.native
-  trait Instructions extends js.Object {
-    var fee: Double = js.native
-    var maxFee: Double = js.native
-    var maxLedgerVersion: Option[Int] = js.native
-    var maxLedgerVersionOffset: Int = js.native
-    var sequence: Long = js.native
-  }
-  /*@js.native
-  object Instructions {
-    def apply() = {
-      val dictionary = js.Dictionary[js.Any]()
-      dictionary.asInstanceOf[Instructions]
+  //****************** classes **********
+  class Instructions() {
+    var fee: Option[Double] = None
+    var maxLedgerVersion: Option[Int] = None
+    var maxLedgerVersionOffset: Option[Int] = None
+    var sequence: Option[Long] = None
+    def this(data: JSONObject) = {
+      this()
+      if(data.has("fee")){
+        this.fee = Some(data.getDouble("fee"))
+      }
+      if(data.has("maxLedgerVersion")){
+        this.maxLedgerVersion = Some(data.getInt("maxLedgerVersion"))
+      }
+      if(data.has("maxLedgerVersionOffset")){
+        this.maxLedgerVersionOffset = Some(data.getInt("maxLedgerVersionOffset"))
+      }
+      if(data.has("sequence")){
+        this.sequence = Some(data.getLong("sequence"))
+      }
     }
-  }*/
+  }
+
+  class Source(var address: String, var amount: LaxAmount, var tag: Option[Int],
+              var maxAmount: LaxAmount) {
+  }
+
+  class LaxAmount(var currency: String, var counterparty: Option[String],
+                  var value: Option[String]) {
+
+  }
+
+  class Destination(var address: String, var amount: LaxAmount, var tag: Option[Int],
+                   var minAmount: LaxAmount) {
+
+  }
+
+  class Payment(var source: Source, var destination: Destination,
+                var allowPartialPayment: Option[Boolean], var invoiceID: Option[String],
+                var limitQuality: Option[Boolean], var memos: Option[Array[Memo]],
+                var noDirectRipple: Option[Boolean], var paths: Option[String]) {
+  }
+
+  class Memo(var data: Option[String], var format: Option[String], var `type`: Option[String]) {
+
+  }
 
   //************** Universal "prepare" methods ********
-
-  @js.native
-  trait UniversalPrepareResponse {
-    var success: Boolean = js.native
-    var response: PrepareResponse = js.native
+  def preparePayment(address: String, payment: Payment, instructions: Instructions): Future[PrepareResponse] = {
+    val p: Promise[PrepareResponse] = Promise[PrepareResponse] ()
+    val methodId: Int = 1
+    val methodName: String = "preparePayment"
+    object PaymentParam {
+      val address: String = address
+      val payment: Payment = payment
+      val instructions: Instructions = instructions
+    }
+    this.promisesTable += (getCallId()->Tuple2(methodId,p))
+    this.messageSender(methodName, PaymentParam)
+    return p.future
   }
 
-  @js.native
-  trait PrepareResponse {
-    var txJSON: String = js.native
-    var instructions: Instructions = js.native
+  class UniversalPrepareResponse(data: JSONObject) {
+    var success: Boolean = data.getBoolean("success")
+    var response: PrepareResponse = new PrepareResponse(data.getJSONObject("response"))
   }
 
-  def universalPrepareHandler(p: Promise[Any], data: JSONObject) = {
-    val response = data.asInstanceOf[UniversalPrepareResponse]
-    if(response.success){
-      p.success(true)
-    }else{
-      p.failure(Exception)
+  class PrepareResponse(var txJSON: String, var instructions: Instructions) {
+    def this(data: JSONObject) = {
+      this()
+      this.txJSON = data.getString("txJSON")
+      this.instructions = new Instructions(data.getJSONObject("instructions"))
     }
   }
 
+
+  def universalPrepareHandler(callID: String, data: dom.MessageEvent) = {
+    val response: PrepareResponse = data.data.toString().parseJson.convertTo[PrepareResponse]
+    var p = this.promisesTable.get(callID).get._2
+    this.promisesTable -=  callID
+    p.success(response)
+  }
   //----------------
 
-  def onMessage(msg: dom.MessageEvent): Unit = {
-    val data: JSONObject = msg.data.asInstanceOf[JSONObject]
-    val call_id = data.getString("call_id")
-    //try
-    var method_id: Int = this.promisesTable.get(call_id).get._1
-    var p: Promise[Any] = this.promisesTable.get(call_id).get._2
-    method_id match {
-      case 1 => this.setOptionsHandler(p, data.getJSONObject("response"))
-      case 0 => this.universalPrepareHandler(p,data.getJSONObject("response")) //universal handler for success only method
-    }
+  // *************** general tools **************
 
+  class MessageToJs(var parameters: Any, var methodName: String, var callId: String)
+
+  def jsonify(message: MessageToJs): String ={
+    //iterate through fields recursively might be to costly for scala, first try with a spray-json
+    val jsonAst = message.toJson
+    val jsonString = jsonAst.compactPrint
+    return jsonString
+  }
+
+  def getCallId = {() =>LocalDateTime.now.toString() +
+    LocalDateTime.now.getSecond.toString + LocalDateTime.now.getNano.toString}
+
+  def messageSender(methodName: String, parameters: Any) ={
+    val callId: String = getCallId()
+    val message = new MessageToJs(parameters, methodName, callId)
+    val options = this.jsonify(message)
+    val target = dom.document.getElementById("ripple-api-sandbox").asInstanceOf[HTMLIFrameElement]
+    target.contentWindow.postMessage(options,"*")
+  }
+
+  def onMessage(msg: dom.MessageEvent): Unit = {
+    val callId: String = msg.data.asInstanceOf[JSONObject].getString("callID")
+    //try
+    var methodId: Int = this.promisesTable.get(callId).get._1
+    methodId match {
+      case 1 => this.setOptionsHandler(callID, data.getJSONObject("response"))
+      case 0 => this.universalPrepareHandler(callID, msg) //universal handler for success only method
+    }
   }
   dom.document.addEventListener("message", { (e: dom.MessageEvent) => this.onMessage(e)}) //can't figure out how to pass onMessage to the event listener
-
 }
