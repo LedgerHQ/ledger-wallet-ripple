@@ -13,7 +13,7 @@ import co.ledger.wallet.web.ripple.core.utils.ChromePreferences
 import co.ledger.wallet.web.ripple.filters.DateFormatFilter
 import co.ledger.wallet.web.ripple.i18n.{I18n, TranslateProvider}
 import co.ledger.wallet.web.ripple.services.{DeviceService, SessionService, WindowService}
-import org.ripple.api.{APIOption, RippleAPI}
+import org.ripple.api.{RippleAPI}
 
 import scala.scalajs.js
 import scala.scalajs.js.JSApp
