@@ -22,9 +22,6 @@ import scala.scalajs.js.JSApp
   * Created by pollas_p on 28/04/2016.
   */
 
-
-
-
 object Application extends JSApp{
 
   @scala.scalajs.js.annotation.JSExport

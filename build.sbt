@@ -21,13 +21,11 @@ relativeSourceMaps := true
 val circeVersion = "0.7.0"
 
 libraryDependencies ++= Seq(
-  "io.circe" %% "circe-core",
-  "io.circe" %% "circe-generic",
-  "io.circe" %% "circe-parser"
+  "io.circe" %%% "circe-core",
+  "io.circe" %%% "circe-generic",
+  "io.circe" %%% "circe-parser"
 ).map(_ % circeVersion)
-libraryDependencies += "org.json4s" %% "json4s-native" % "3.5.1"
-libraryDependencies += "org.json4s" %% "json4s-jackson" % "3.3.0"
-libraryDependencies += "io.spray" %%  "spray-json" % "1.3.3"
+
 libraryDependencies += "biz.enef" %%% "scalajs-angulate" % "0.2.4"
 libraryDependencies += "net.lullabyte" %%% "scala-js-chrome" % "0.2.1"
 libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.0"

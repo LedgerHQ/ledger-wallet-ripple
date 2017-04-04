@@ -6,16 +6,17 @@ import org.json.JSONObject
 import org.scalajs.dom
 import org.scalajs.dom.raw.HTMLIFrameElement
 
-import spray.json._
-import DefaultJsonProtocol._
-
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
 import scala.scalajs.js
 import concurrent.Future
-import  concurrent.Promise
-
-import io.circe._, io.circe.generic.auto._, io.circe.parser._, io.circe.syntax._
+import concurrent.Promise
+import io.circe._
+import io.circe.generic.auto._
+import io.circe.parser._
+import io.circe.syntax._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.Try
 
 
 
@@ -52,23 +53,21 @@ import io.circe._, io.circe.generic.auto._, io.circe.parser._, io.circe.syntax._
 
 
 class RippleAPI() {
-  var promisesTable: Map[String,Int] = Map.empty
+  sealed class RippleAPIObject()
+
+  var promisesTable: Map[String,Promise[String]] = Map.empty
 
   //*************** setOptions *******************
   var setOptionsPromisesTable: Map[String,Promise[SetOptionsResponse]] = Map.empty
 
   case class APIOption(server: Option[String], feeCushion: Option[Double], trace: Option[Boolean],
-                       proxy: Option[String], timeout: Option[Long])
+                       proxy: Option[String], timeout: Option[Long]) extends RippleAPIObject
 
   def setOptions(options: APIOption): Future[SetOptionsResponse] ={
     val p: Promise[SetOptionsResponse] = Promise[SetOptionsResponse]
-    val methodId: Int = 0
     val callId = getCallId()
     val methodName = "set_option"
-    this.promisesTable += (callId->methodId)
-    this.setOptionsPromisesTable += (callId->p)
-    this.messageSender(methodName, options)
-    p.future
+    execute(methodName, options).map(decode[SetOptionsResponse](_).right.get)
   }
 
 
@@ -80,48 +79,41 @@ class RippleAPI() {
     p.success(response)
   }
 
-  case class SetOptionsResponse(connected: Boolean, error: Option[String])
+  case class SetOptionsResponse(connected: Boolean, error: Option[String]) extends RippleAPIObject
 
   //-----------------------------------------------------
   //****************** classes **********
   case class Instructions(fee: Option[Double] = None,maxLedgerVersion: Option[Int] = None,
-                          maxLedgerVersionOffset: Option[Int] = None, sequence: Option[Long] = None)
+                          maxLedgerVersionOffset: Option[Int] = None, sequence: Option[Long] = None) extends RippleAPIObject
 
-  case class Source(address: String, amount: LaxAmount, tag: Option[Int], maxAmount: LaxAmount)
+  case class Source(address: String, amount: LaxAmount, tag: Option[Int], maxAmount: LaxAmount) extends RippleAPIObject
 
-  case class LaxAmount(currency: String, counterparty: Option[String], value: Option[String])
+  case class LaxAmount(currency: String, counterparty: Option[String], value: Option[String]) extends RippleAPIObject
 
-  case class Destination(address: String, amount: LaxAmount, tag: Option[Int], minAmount: LaxAmount)
+  case class Destination(address: String, amount: LaxAmount, tag: Option[Int], minAmount: LaxAmount) extends RippleAPIObject
 
   case class Payment(source: Source, destination: Destination, allowPartialPayment: Option[Boolean],
                      invoiceID: Option[String], limitQuality: Option[Boolean],
-                     memos: Option[Array[Memo]], noDirectRipple: Option[Boolean], paths: Option[String])
+                     memos: Option[Array[Memo]], noDirectRipple: Option[Boolean], paths: Option[String]) extends RippleAPIObject
 
-  case class Memo(data: Option[String], format: Option[String], `type`: Option[String])
-
+  case class Memo(data: Option[String], format: Option[String], `type`: Option[String]) extends RippleAPIObject
+  //--------------------
   //************** Universal "prepare" methods ********
   var preparePromisesTable: Map[String,Promise[PrepareResponse]] = Map.empty
 
   def preparePayment(address: String, payment: Payment, instructions: Option[Instructions] = None): Future[PrepareResponse] = {
-    val p: Promise[PrepareResponse] = Promise[PrepareResponse] ()
-    val methodId: Int = 1
-    val methodName: String = "preparePayment"
-    val paymentParam: PaymentParam = new PaymentParam(address, payment, instructions)
-    val callId = getCallId()
-    this.promisesTable += (callId->methodId)
-    this.preparePromisesTable += (callId->p)
-    this.messageSender(methodName, paymentParam)
-    p.future
+    val paymentParam: PaymentParam = PaymentParam(address, payment, instructions)
+    execute("preparePayment", paymentParam).map(decode[PrepareResponse](_).right.get)
   }
 
-  case class PaymentParam(address: String, payment: Payment, instructions: Option[Instructions])
+  case class PaymentParam(address: String, payment: Payment, instructions: Option[Instructions]) extends RippleAPIObject
 
-  case class UniversalPrepareResponse(success: Boolean, response: PrepareResponse)
+  case class UniversalPrepareResponse(success: Boolean, response: PrepareResponse) extends RippleAPIObject
 
-  case class PrepareResponse(txJSON: String, instructions: Instructions)
+  case class PrepareResponse(txJSON: String, instructions: Instructions) extends RippleAPIObject
 
   def universalPrepareHandler(callId: String, data: dom.MessageEvent) = {
-    val response: UniversalPrepareResponse = decode[UniversalPrepareResponse](UniversalPrepareResponse.asJson.spaces4).right.get
+    val response: UniversalPrepareResponse = decode[UniversalPrepareResponse](data.data.toString()).right.get
     val p = this.preparePromisesTable.get(callId).get
     this.promisesTable -=  callId
     this.preparePromisesTable -=  callId
@@ -131,27 +123,27 @@ class RippleAPI() {
 
   // *************** general tools **************
 
-  case class MessageToJs(parameters: Any, methodName: String, callId: String)
-
   def getCallId = {() =>LocalDateTime.now.toString() +
     LocalDateTime.now.getSecond.toString + LocalDateTime.now.getNano.toString}
 
-  def messageSender(methodName: String, parameters: Any) ={
-    val callId: String = getCallId()
-    val message = new MessageToJs(parameters, methodName, callId)
-    val options = message.asJson.noSpaces
+  def execute(methodName: String, parameters: RippleAPIObject) = {
+    val callId = getCallId()
+    val p = Promise[String]()
+    promisesTable += (callId->p)
+    val options = js.Dynamic.literal(
+      callId = callId,
+      methodName = methodName,
+      parameters = parameters.asJson.noSpaces
+    )
     val target = dom.document.getElementById("ripple-api-sandbox").asInstanceOf[HTMLIFrameElement]
     target.contentWindow.postMessage(options,"*")
+    p.future
   }
 
   def onMessage(msg: dom.MessageEvent): Unit = {
-    val callId: String = msg.data.asInstanceOf[JSONObject].getString("callID")
-    //try
-    var methodId: Int = this.promisesTable.get(callId).get
-    methodId match {
-      case 0 => this.setOptionsHandler(callId, msg)
-      case 1 => this.universalPrepareHandler(callId, msg) //universal handler for success only method
-    }
+    val callId: String = msg.data.asInstanceOf[JSONObject].getString("success")
+   //promisesTable.get(callId).get
+
   }
   dom.document.addEventListener("message", { (e: dom.MessageEvent) => this.onMessage(e)}) //can't figure out how to pass onMessage to the event listener
 }
