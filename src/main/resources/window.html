@@ -6,7 +6,6 @@
     <script src="libs/source-maps.min.js" defer></script>
     <script src="libs/moment.js"></script>
     <script src="libs/underscore.js"></script>
-    <script src="libs/ripple-api-tools.js"></script>
     <script src="libs/sha3.min.js"></script>
     <script src="libs/sjcl.min.js"></script>
     <script src="ledger-wallet-ripple-chrome-fastopt.js"></script>
@@ -25,7 +24,7 @@
 <body ng-csp="" ng-controller="WindowController as ctrl" ng-class="{'disable-pointer-events': !ctrl.isUiEnabled}">
     <navigation-bar  class="no-print" ng-hide="!ctrl.showNavigationBar" on-click-refresh="ctrl.refresh()"></navigation-bar>
     <div ng-view></div>
-    <iframe id="ripple-sandbox" src="templates/wallet/ripple-api.html"></iframe>
+    <iframe id="ripple-sandbox" src="ripple-api.html"></iframe>
     <snackbar class="no-print"></snackbar>
 </body>
 <script src="ledger-wallet-ripple-chrome-launcher.js"></script>

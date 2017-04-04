@@ -15,6 +15,13 @@ import scala.scalajs.js
 import concurrent.Future
 import  concurrent.Promise
 
+import org.json4s._
+import org.json4s.native.JsonMethods._
+import org.json4s.jackson.JsonMethods._
+import org.json4s.jackson.Serialization.write
+
+
+
 /**
   *
   * RippleAPI
@@ -80,7 +87,7 @@ class RippleAPI() {
       method = "set_option", parameters = options),"*")
     this.setOptionsPromisesTable += (callId->p)
     this.promisesTable += (callId->methodId)
-    return p.future
+    p.future
   }
 
 
@@ -151,16 +158,15 @@ class RippleAPI() {
     val p: Promise[PrepareResponse] = Promise[PrepareResponse] ()
     val methodId: Int = 1
     val methodName: String = "preparePayment"
-    object PaymentParam {
-      val address: String = address
-      val payment: Payment = payment
-      val instructions: Instructions = instructions
-    }
+    val paymentParam: PaymentParam = new PaymentParam(address, payment, instructions)
     this.promisesTable += (getCallId()->methodId)
     this.preparePromisesTable += (getCallId()->p)
-    this.messageSender(methodName, PaymentParam)
-    return p.future
+    this.messageSender(methodName, paymentParam)
+    p.future
   }
+
+  class PaymentParam(val address: String, val payment: Payment,
+                     val instructions: Instructions)
 
   class UniversalPrepareResponse(var success: Boolean, var response: PrepareResponse){
     def this(data: JSONObject) ={
@@ -190,7 +196,9 @@ class RippleAPI() {
 
   def jsonify(message: MessageToJs): String ={
     /* Choose a library play / liftweb/ json4s*/
-    return jsonString
+    implicit val formats = DefaultFormats
+
+    write(message)
   }
 
   def getCallId = {() =>LocalDateTime.now.toString() +
