@@ -53,22 +53,6 @@ import org.json4s.jackson.Serialization.write
   *
   */
 
-//In the future, just cast scala object to json strings instead of using a facade
-trait APIOption extends js.Object{
-  var server: String = js.native
-  var feeCushion: Double = js.native
-  var trace: Boolean = js.native
-  var proxy: String = js.native
-  var timeout: Long = js.native
-}
-
-object APIOption {
-  def apply() = {
-    val dictionary = js.Dictionary[js.Any]()
-    dictionary.asInstanceOf[APIOption]
-  }
-}
-
 
 class RippleAPI() {
   var promisesTable: Map[String,Int] = Map.empty
@@ -99,56 +83,145 @@ class RippleAPI() {
     p.success(response)
   }
 
-  class SetOptionsResponse(data:JSONObject) {
-    var connected: Boolean = data.getBoolean("connected")
-    var error: String = data.getString("error")
+  @js.native
+  trait SetOptionsResponse extends js.Object {
+    var connected: Boolean = js.native
+    var error: String = js.native
+  }
+
+  object SetOptionsResponse {
+    def apply(connected: Boolean = js.native, error: String = js.native) = {
+      var dict = js.Dictionary[js.Any]("connected" -> connected, "error" -> error)
+      dict.asInstanceOf[SetOptionsResponse]
+    }
   }
   //-----------------------------------------------------
   //****************** classes **********
-  class Instructions() {
-    var fee: Option[Double] = None
-    var maxLedgerVersion: Option[Int] = None
-    var maxLedgerVersionOffset: Option[Int] = None
-    var sequence: Option[Long] = None
-    def this(data: JSONObject) = {
-      this()
-      if(data.has("fee")){
-        this.fee = Some(data.getDouble("fee"))
-      }
-      if(data.has("maxLedgerVersion")){
-        this.maxLedgerVersion = Some(data.getInt("maxLedgerVersion"))
-      }
-      if(data.has("maxLedgerVersionOffset")){
-        this.maxLedgerVersionOffset = Some(data.getInt("maxLedgerVersionOffset"))
-      }
-      if(data.has("sequence")){
-        this.sequence = Some(data.getLong("sequence"))
-      }
+  @js.native
+  trait APIOption extends js.Object{
+    var server: String = js.native
+    var feeCushion: Double = js.native
+    var trace: Boolean = js.native
+    var proxy: String = js.native
+    var timeout: Long = js.native
+  }
+
+  object APIOption {
+    def apply(server: String = js.native, feeCushion: Double = js.native,
+             trace: Boolean = js.native, proxy: String = js.native, timeout: Long = js.native) = {
+      var dictionary = js.Dictionary[js.Any]("server" -> server, "feeCushion" -> feeCushion,
+      "trace" -> trace, "proxy" -> proxy, "timeout" -> timeout)
+      dictionary.asInstanceOf[APIOption]
     }
   }
 
-  class Source(var address: String, var amount: LaxAmount, var tag: Option[Int],
-              var maxAmount: LaxAmount) {
+
+  @js.native
+  trait Instructions extends js.Object {
+    var fee: Double = js.native
+    var maxLedgerVersion: Int = js.native
+    var maxLedgerVersionOffset: Int = js.native
+    var sequence: Long = js.native
+    }
+
+  object Instructions {
+    def apply(fee: Double = js.native, maxLedgerVersion: Int = js.native,
+              maxLedgerVersionOffset: Int = js.native, sequence: Long = js.native) = {
+      var dictionary = js.Dictionary[js.Any]("fee" -> fee, "maxLedgerVersion" -> maxLedgerVersion,
+      "maxLedgerVersionOffset" -> maxLedgerVersionOffset, "sequence" -> sequence)
+      dictionary.asInstanceOf[Instructions]
+    }
   }
 
-  class LaxAmount(var currency: String, var counterparty: Option[String],
-                  var value: Option[String]) {
-
+  trait Source extends js.Object {
+    var address: String =js.native
+    var amount: LaxAmount = js.native
+    var tag: Int = js.native
+    var maxAmount: LaxAmount = js.native
   }
 
-  class Destination(var address: String, var amount: LaxAmount, var tag: Option[Int],
-                   var minAmount: LaxAmount) {
-
+  object Source {
+    def apply(address: String = js.native, amount: LaxAmount = js.native,
+              tag: Int = js.native, maxAmount: LaxAmount = js.native) = {
+      var dictionary = js.Dictionary[js.Any]("address" -> address, "amount" -> amount,
+        "tag" -> tag, "maxAmount" -> maxAmount)
+      dictionary.asInstanceOf[Source]
+    }
   }
 
-  class Payment(var source: Source, var destination: Destination,
-                var allowPartialPayment: Option[Boolean], var invoiceID: Option[String],
-                var limitQuality: Option[Boolean], var memos: Option[Array[Memo]],
-                var noDirectRipple: Option[Boolean], var paths: Option[String]) {
+  @js.native
+  trait LaxAmount extends js.Object{
+    var currency: String =js.native
+    var counterparty: String = js.native
+    var value: String = js.native
   }
 
-  class Memo(var data: Option[String], var format: Option[String], var `type`: Option[String]) {
+  object LaxAmount {
+    def apply(currency: String = js.native, counterparty: LaxAmount = js.native,
+              value: Int = js.native) = {
+      var dictionary = js.Dictionary[js.Any]("currency" -> currency, "counterparty" -> counterparty,
+        "value" -> value)
+      dictionary.asInstanceOf[LaxAmount]
+    }
+  }
 
+  @js.native
+  trait Destination extends js.Object {
+    var address: String =js.native
+    var amount: String = js.native
+    var tag: String = js.native
+    var minAmount: String = js.native
+  }
+
+  object Destination {
+    def apply(address: String = js.native, amount: String = js.native, tag: String = js.native,
+              minAmount: String = js.native) = {
+      var dictionary = js.Dictionary[js.Any]("address" -> address, "amount" -> amount,
+        "minAmount" -> minAmount, "tag" -> tag)
+      dictionary.asInstanceOf[Destination]
+    }
+  }
+
+  @js.native
+  trait Payment extends js.Object{
+    var source: Source = js.native
+    var destination: Destination = js.native
+    var allowPartialPayment: Boolean = js.native
+    var invoiceID: String = js.native
+    var limitQuality: Boolean = js.native
+    var memos: Array[Memo] = js.native
+    var noDirectRipple: Boolean = js.native
+    var paths: String = js.native
+  }
+
+  object Payment {
+    def apply(source: Source = js.native, destination: Destination = js.native,
+              allowPartialPayment: Boolean = js.native,
+              invoiceID: String = js.native, limitQuality: Boolean = js.native,
+              memos: js.Array[Memo] = js.native,
+              noDirectRipple: Boolean = js.native, paths: String = js.native) = {
+      var dictionary = js.Dictionary[js.Any]("source" -> source,
+        "destination" -> destination, "allowPartialPayment" -> allowPartialPayment,
+        "invoiceID" -> invoiceID, "limitQuality" -> limitQuality,
+        "memos" -> memos, "noDirectRipple" -> noDirectRipple, "paths" -> paths)
+      dictionary.asInstanceOf[Payment]
+    }
+  }
+
+  @js.native
+  trait Memo extends js.Object {
+    var data: String = js.native
+    var format: String = js.native
+    var `type`: String = js.native
+  }
+
+  object Memo {
+    def apply(data: String = js.native, format: String = js.native,
+              `type`: String = js.native) = {
+      var dictionary = js.Dictionary[js.Any]("data" -> data, "format" -> format,
+        "`type`" -> `type`)
+      dictionary.asInstanceOf[Memo]
+    }
   }
 
   //************** Universal "prepare" methods ********
@@ -158,31 +231,57 @@ class RippleAPI() {
     val p: Promise[PrepareResponse] = Promise[PrepareResponse] ()
     val methodId: Int = 1
     val methodName: String = "preparePayment"
-    val paymentParam: PaymentParam = new PaymentParam(address, payment, instructions)
+    val paymentParam: PaymentParam = PaymentParam(address, payment, instructions)
     this.promisesTable += (getCallId()->methodId)
     this.preparePromisesTable += (getCallId()->p)
     this.messageSender(methodName, paymentParam)
     p.future
   }
 
-  class PaymentParam(val address: String, val payment: Payment,
-                     val instructions: Instructions)
+  @js.native
+  trait PaymentParam extends js.Object {
+    var address: String = js.native
+    var payment: Payment = js.native
+    var instructions: Instructions = js.native
+  }
 
-  class UniversalPrepareResponse(var success: Boolean, var response: PrepareResponse){
-    def this(data: JSONObject) ={
-      this(data.getBoolean("success"), new PrepareResponse(data.getJSONObject("response")))
+  object PaymentParam {
+    def apply(address: String = js.native, payment: Payment = js.native,
+              instructions: Instructions = js.native) = {
+      var dictionary = js.Dictionary[js.Any]("address" -> address, "payment" -> payment,
+        "instructions" -> instructions)
+      dictionary.asInstanceOf[PaymentParam]
     }
   }
 
-  class PrepareResponse(var txJSON: String, var instructions: Instructions) {
-    def this(data: JSONObject) = {
-      this(data.getString("txJSON"), new Instructions(data.getJSONObject("instructions")))
+  @js.native
+  trait UniversalPrepareResponse extends js.Object {
+    var success: Boolean = js.native
+    var response: PrepareResponse = js.native
+  }
+
+  object UniversalPrepareResponse {
+    def apply(success: Boolean = js.native, response: PrepareResponse = js.native) = {
+      var dictionary = js.Dictionary[js.Any]("success" -> success, "response" -> response)
+      dictionary.asInstanceOf[UniversalPrepareResponse]
     }
   }
 
+  @js.native
+  trait PrepareResponse extends js.Object {
+    var txJSON: String = js.native
+    var instructions: Instructions = js.native
+  }
+
+  object PrepareResponse {
+    def apply(txJSON: String = js.native, instructions: Instructions = js.native) = {
+      var dictionary = js.Dictionary[js.Any]("txJSON" -> txJSON, "instructions" -> instructions)
+      dictionary.asInstanceOf[PrepareResponse]
+    }
+  }
 
   def universalPrepareHandler(callId: String, data: dom.MessageEvent) = {
-    val response: UniversalPrepareResponse = new UniversalPrepareResponse(data.data.asInstanceOf[JSONObject])
+    val response: UniversalPrepareResponse = data.data.asInstanceOf[UniversalPrepareResponse]
     val p = this.preparePromisesTable.get(callId).get
     this.promisesTable -=  callId
     this.preparePromisesTable -=  callId
@@ -192,21 +291,35 @@ class RippleAPI() {
 
   // *************** general tools **************
 
-  class MessageToJs(var parameters: Any, var methodName: String, var callId: String)
+  @js.native
+  trait MessageToJs extends js.Object {
+  var parameters: js.Any = js.native
+  var methodName: String = js.native
+  var callId: String = js.native
+}
+
+object MessageToJs {
+  def apply(parameters: js.Any = js.native, methodName: String = js.native,
+           callId: String = js.native) = {
+    var dictionary = js.Dictionary[js.Any]("parameters" -> parameters,
+      "methodName" -> methodName, "callId" -> callId)
+    dictionary.asInstanceOf[MessageToJs]
+  }
+}
+
+
 
   def jsonify(message: MessageToJs): String ={
-    /* Choose a library play / liftweb/ json4s*/
-    implicit val formats = DefaultFormats
-
-    write(message)
+    //Serialize a js.object here
+    return "test"
   }
 
   def getCallId = {() =>LocalDateTime.now.toString() +
     LocalDateTime.now.getSecond.toString + LocalDateTime.now.getNano.toString}
 
-  def messageSender(methodName: String, parameters: Any) ={
+  def messageSender(methodName: String, parameters: js.Any) ={
     val callId: String = getCallId()
-    val message = new MessageToJs(parameters, methodName, callId)
+    val message = MessageToJs(parameters, methodName, callId)
     val options = this.jsonify(message)
     val target = dom.document.getElementById("ripple-api-sandbox").asInstanceOf[HTMLIFrameElement]
     target.contentWindow.postMessage(options,"*")
