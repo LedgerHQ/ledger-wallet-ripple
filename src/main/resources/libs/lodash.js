@@ -17053,7 +17053,7 @@
 
   /*--------------------------------------------------------------------------*/
 
-  // Export lodash.
+  // Export lodash
   var _ = runInContext();
 
   // Some AMD build optimizers, like r.js, check for condition patterns like:

@@ -1,39 +1,46 @@
 
 window.addEventListener('message', onMessage);
 var message = null
+var methodMatch = {
+    "setOption": createAPI,
+    "preparePayment": preparePayment,
+    "disconnect": disconnect
+}
+
+var api={}
 
 function onMessage(event) {
+    console.log("messagecaught")
     var method = event.data.method;
     var call_id = event.data.call_id;
     var parameters = event.data.parameters;
-    /*if(method !== "set_option") {
-        var response = window[api][method](parameters)
-    }else{
-        var response = createAPI(parameters);
-        break;
-    }*/
     console.log(event.data)
-    switch(method){  //faire un dict
-        case "set_option":
-            var response = createAPI(parameters);
-            break;
-        //all prepare method return the same
-        case "preparePayment":
-            var promise = api.preparePayment(parameters);
-            promise.then( function (prepared) {
-                    message = {success: true, response: prepared};
-                }
-            ).catch(function (prepared) {
-                    message = {success: false, response: prepared};
-                }
-            );
+    var result = methodMatch[method]
+        console.log("functionover")
+
+    result.then(function (message) {
+         var toScala = {call_id: event.data.call_id, response: message};
+         event.source.postMessage(toScala, event.origin);
+        }).catch(function (message) {
+            var toScala = {call_id: event.data.call_id, response: message};
+            event.source.postMessage(toScala, event.origin);
+        })
     }
-    var toScala = {call_id: event.data.call_id, response: message};
-    event.source.postMessage(toScala, event.origin);
+
+function disconnect(){
+    return api.disconnect()
+}
+
+function preparePayment(parameters) {
+    return api.preparePayment(parameters)
 }
 
 function createAPI(options){
+    console.log("inside")
+
     api = new RippleAPI(options);
+    console.log("new")
+
     api.on('error', (errorCode, errorMessage) => {
       console.log(errorCode + ': ' + errorMessage);
     });
@@ -45,7 +52,5 @@ function createAPI(options){
       // will be 1000 if this was normal closure
       console.log('disconnected, code:', code);
     });
-    api.connect().then(function () {return {connected:true};});
+    return api.connect()
 }
-
-//kjjg

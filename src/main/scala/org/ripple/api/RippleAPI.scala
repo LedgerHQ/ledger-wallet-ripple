@@ -1,7 +1,6 @@
 package org.ripple.api
 
-import java.time.LocalDateTime
-
+import java.time.LocalTime
 import org.json.JSONObject
 import org.scalajs.dom
 import org.scalajs.dom.raw.HTMLIFrameElement
@@ -17,6 +16,7 @@ import io.circe.parser._
 import io.circe.syntax._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Try
+import io.circe.generic.JsonCodec, io.circe.syntax._
 
 
 
@@ -51,32 +51,33 @@ import scala.util.Try
   *
   */
 
+@JsonCodec sealed class RippleAPIObject()
+
+case class APIOption(
+                      server: Option[String] = None,
+                      feeCushion: Option[Double] = None,
+                      trace: Option[Boolean] = None,
+                      proxy: Option[String] = None,
+                      timeout: Option[Long] = None
+                    ) extends RippleAPIObject
 
 class RippleAPI() {
-  sealed class RippleAPIObject()
 
-  var promisesTable: Map[String,Promise[String]] = Map.empty
+  var promisesTable: Map[Int,Promise[String]] = Map.empty
+
+  def disconnect(): Future[SetOptionsResponse]  = {
+    val methodName = "disconnect"
+    execute(methodName, APIOption()).map(decode[SetOptionsResponse](_).right.get)
+  }
 
   //*************** setOptions *******************
   var setOptionsPromisesTable: Map[String,Promise[SetOptionsResponse]] = Map.empty
 
-  case class APIOption(server: Option[String], feeCushion: Option[Double], trace: Option[Boolean],
-                       proxy: Option[String], timeout: Option[Long]) extends RippleAPIObject
+
 
   def setOptions(options: APIOption): Future[SetOptionsResponse] ={
-    val p: Promise[SetOptionsResponse] = Promise[SetOptionsResponse]
-    val callId = getCallId()
-    val methodName = "set_option"
+    val methodName = "setOption"
     execute(methodName, options).map(decode[SetOptionsResponse](_).right.get)
-  }
-
-
-  def setOptionsHandler(callId: String, data: dom.MessageEvent) = {
-    val response = decode[SetOptionsResponse](SetOptionsResponse.asJson.spaces4).right.get
-    val p = this.setOptionsPromisesTable.get(callId).get
-    this.promisesTable -=  callId
-    this.setOptionsPromisesTable -=  callId
-    p.success(response)
   }
 
   case class SetOptionsResponse(connected: Boolean, error: Option[String]) extends RippleAPIObject
@@ -112,22 +113,18 @@ class RippleAPI() {
 
   case class PrepareResponse(txJSON: String, instructions: Instructions) extends RippleAPIObject
 
-  def universalPrepareHandler(callId: String, data: dom.MessageEvent) = {
-    val response: UniversalPrepareResponse = decode[UniversalPrepareResponse](data.data.toString()).right.get
-    val p = this.preparePromisesTable.get(callId).get
-    this.promisesTable -=  callId
-    this.preparePromisesTable -=  callId
-    p.success(response.response)
-  }
   //----------------
 
   // *************** general tools **************
 
-  def getCallId = {() =>LocalDateTime.now.toString() +
-    LocalDateTime.now.getSecond.toString + LocalDateTime.now.getNano.toString}
+  private var callCounter=0
+  private def _callId = {
+    callCounter+=1
+    callCounter
+  }
 
   def execute(methodName: String, parameters: RippleAPIObject) = {
-    val callId = getCallId()
+    val callId = _callId
     val p = Promise[String]()
     promisesTable += (callId->p)
     val options = js.Dynamic.literal(
@@ -136,12 +133,14 @@ class RippleAPI() {
       parameters = parameters.asJson.noSpaces
     )
     val target = dom.document.getElementById("ripple-api-sandbox").asInstanceOf[HTMLIFrameElement]
+    println("Sending from scala")
+    js.Dynamic.global.console.log(target.contentWindow)
     target.contentWindow.postMessage(options,"*")
     p.future
   }
 
   def onMessage(msg: dom.MessageEvent): Unit = {
-    val callId: String = msg.data.asInstanceOf[JSONObject].getString("success")
+    val callId: Int = msg.data.asInstanceOf[JSONObject].getInt("success")
    //promisesTable.get(callId).get
 
   }
