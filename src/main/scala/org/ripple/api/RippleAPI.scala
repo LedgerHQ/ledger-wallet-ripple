@@ -142,9 +142,11 @@ class RippleAPI() {
     }
     println("exec2")
 
-    implicit val encodeNullable: ObjectEncoder[APIOption] = deriveEncoder[APIOption].mapJsonObject({(obj) =>
+    implicit val encodeAPIOption = deriveEncoder[APIOption]
+    println(parameters)
+    def cleanJsonObject(obj: JsonObject) = {
       JsonObject.fromIterable(
-        obj.toList.filter({
+        obj.toMap.head._2.asObject.get.toList.filter({
           case (_,value) => !value.isNull
           case _ => true
         }).map({
@@ -155,12 +157,11 @@ class RippleAPI() {
           }
         })
       )
-    })
-    println(parameters)
+    }
     val options = js.Dynamic.literal(
       callId = callId,
       methodName = methodName,
-      parameters = parameters.asJson.noSpaces
+      parameters = cleanJsonObject(parameters.asJsonObject).asJson.noSpaces
     )
     js.Dynamic.global.console.log(options)
     val target = dom.document.getElementById("ripple-api-sandbox").asInstanceOf[HTMLIFrameElement]
