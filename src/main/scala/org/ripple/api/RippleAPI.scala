@@ -131,7 +131,6 @@ class RippleAPI() {
     println("exec")
 
     promisesTable += (callId->p)
-    //implicit val APIOptionEncoder: Encoder[APIOption] = deriveEncoder[APIOption]
     implicit val encodeFoo: Encoder[Nullable[String]] = new Encoder[Nullable[String]] {
       final def apply(a: Nullable[String]): Json = {
         a.value match {
@@ -171,6 +170,23 @@ class RippleAPI() {
 
   def onMessage(msg: dom.MessageEvent): Unit = {
     val callId: Int = msg.data.asInstanceOf[JSONObject].getInt("success")
+    implicit val decodeNullableString: Decoder[Nullable[String]] = new Decoder[Nullable[String]] {
+      final def apply(c: HCursor): Decoder.Result[Nullable[String]] = {
+        c.value match {
+          case Json.Null => Right(Nullable[String](None))
+          case _ => Right(Nullable[String](Some(c.value.asInstanceOf[String])))
+
+        }
+      }
+    }
+    implicit val decodeNullableInt: Decoder[Nullable[Int]] = new Decoder[Nullable[Int]] {
+      final def apply(c: HCursor): Decoder.Result[Nullable[Int]] = {
+        c.value match {
+          case Json.Null => Right(Nullable[Int](None))
+          case _ => Right(Nullable[Int](Some(c.value.asInstanceOf[Int])))
+        }
+      }
+    }
   }
   dom.document.addEventListener("message", { (e: dom.MessageEvent) => this.onMessage(e)}) //can't figure out how to pass onMessage to the event listener
 }
