@@ -59,7 +59,7 @@ case class APIOption(
                       server: Option[String] = None,
                       feeCushion: Option[Double] = None,
                       trace: Option[Boolean] = None,
-                      proxy: Option[Nullable[String]] = Some(Nullable[String](None)),
+                      proxy: Option[Nullable[String]] = None,// = Some(Nullable[String](None)),
                       timeout: Option[Long] = None
                     ) extends RippleAPIObject
 
@@ -78,6 +78,7 @@ class RippleAPI() {
 
   def setOptions(options: APIOption): Future[SetOptionsResponse] ={
     val methodName = "setOption"
+    println("before exec")
     execute(methodName, options).map(decode[SetOptionsResponse](_).right.get)
   }
 
@@ -101,7 +102,6 @@ class RippleAPI() {
   case class Memo(data: Option[String], format: Option[String], `type`: Option[String]) extends RippleAPIObject
   //--------------------
   //************** Universal "prepare" methods ********
-  var preparePromisesTable: Map[String,Promise[PrepareResponse]] = Map.empty
 
   def preparePayment(address: String, payment: Payment, instructions: Option[Instructions] = None): Future[PrepareResponse] = {
     val paymentParam: PaymentParam = PaymentParam(address, payment, instructions)
@@ -124,6 +124,25 @@ class RippleAPI() {
     callCounter
   }
 
+
+  implicit val decodeNullableString: Decoder[Nullable[String]] = new Decoder[Nullable[String]] {
+    final def apply(c: HCursor): Decoder.Result[Nullable[String]] = {
+      c.value match {
+        case Json.Null => Right(Nullable[String](None))
+        case _ => Right(Nullable[String](Some(c.value.asInstanceOf[String])))
+
+      }
+    }
+  }
+  implicit val decodeNullableInt: Decoder[Nullable[Int]] = new Decoder[Nullable[Int]] {
+    final def apply(c: HCursor): Decoder.Result[Nullable[Int]] = {
+      c.value match {
+        case Json.Null => Right(Nullable[Int](None))
+        case _ => Right(Nullable[Int](Some(c.value.asInstanceOf[Int])))
+      }
+    }
+  }
+
   val SpecificNullValue = "This is null".asJson
   def execute(methodName: String, parameters: RippleAPIObject) = {
     val callId = _callId
@@ -138,7 +157,7 @@ class RippleAPI() {
         }
       }
     }
-    implicit val encodeNullableString: Encoder[Nullable[Int]] = new Encoder[Nullable[Int]] {
+    implicit val encodeNullableInt: Encoder[Nullable[Int]] = new Encoder[Nullable[Int]] {
       final def apply(a: Nullable[Int]): Json = {
         a.value match {
           case None => SpecificNullValue
@@ -174,24 +193,17 @@ class RippleAPI() {
   }
 
   def onMessage(msg: dom.MessageEvent): Unit = {
-    val callId: Int = msg.data.asInstanceOf[JSONObject].getInt("success")
-    implicit val decodeNullableString: Decoder[Nullable[String]] = new Decoder[Nullable[String]] {
-      final def apply(c: HCursor): Decoder.Result[Nullable[String]] = {
-        c.value match {
-          case Json.Null => Right(Nullable[String](None))
-          case _ => Right(Nullable[String](Some(c.value.asInstanceOf[String])))
+    println("messagereceived")
+    println(msg.data)
+    val callId: Int = msg.data.asInstanceOf[JSONObject].getInt("callId")
+    val p = promisesTable.get(callId).get
+    p success msg.data.asInstanceOf[JSONObject].getString("response")
+    println("success promise")
 
-        }
-      }
-    }
-    implicit val decodeNullableInt: Decoder[Nullable[Int]] = new Decoder[Nullable[Int]] {
-      final def apply(c: HCursor): Decoder.Result[Nullable[Int]] = {
-        c.value match {
-          case Json.Null => Right(Nullable[Int](None))
-          case _ => Right(Nullable[Int](Some(c.value.asInstanceOf[Int])))
-        }
-      }
-    }
   }
+
+
+
+
   dom.document.addEventListener("message", { (e: dom.MessageEvent) => this.onMessage(e)}) //can't figure out how to pass onMessage to the event listener
 }

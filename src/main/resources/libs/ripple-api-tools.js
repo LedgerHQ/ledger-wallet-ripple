@@ -36,7 +36,6 @@ function preparePayment(parameters) {
 function createAPI(options){
     console.log(options)
     api = new RippleAPI(options);
-    console.log(api)
     api.on('error', (errorCode, errorMessage) => {
       console.log(errorCode + ': ' + errorMessage);
     });
@@ -48,6 +47,5 @@ function createAPI(options){
       // will be 1000 if this was normal closure
       console.log('disconnected, code:', code);
     });
-    console.log(api)
     return api.connect()
 }

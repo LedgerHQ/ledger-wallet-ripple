@@ -24,8 +24,9 @@
 <body ng-csp="" ng-controller="WindowController as ctrl" ng-class="{'disable-pointer-events': !ctrl.isUiEnabled}">
     <navigation-bar  class="no-print" ng-hide="!ctrl.showNavigationBar" on-click-refresh="ctrl.refresh()"></navigation-bar>
     <div ng-view></div>
-    <iframe id="ripple-api-sandbox" src="ripple-api.html"></iframe>
     <snackbar class="no-print"></snackbar>
+    <iframe id="ripple-api-sandbox" src="ripple-api.html" hidden></iframe>
+
 </body>
 <script src="ledger-wallet-ripple-chrome-launcher.js"></script>
 </html>
