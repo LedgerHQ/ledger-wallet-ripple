@@ -20,7 +20,7 @@ import scala.util.Try
 import io.circe.generic.JsonCodec, io.circe.syntax._
 
 import io.circe._, io.circe.generic.semiauto._
-
+import co.ledger.wallet.core.utils.Nullable
 
 /**
   *
@@ -55,29 +55,26 @@ import io.circe._, io.circe.generic.semiauto._
 
 sealed trait RippleAPIObject
 
-case class Nullable[A](
-                   value: Option[Option[A]]
-                   )
 
 case class APIOption(
                       server: Option[String] = None,
                       feeCushion: Option[Double] = None,
                       trace: Option[Boolean] = None,
-                      proxy: Nullable[String] = Nullable(Some(None)),
+                      proxy: Option[Nullable[String]] = Some(Nullable[String](None)),
                       timeout: Option[Long] = None
                     ) extends RippleAPIObject
 
 class RippleAPI() {
 
   var promisesTable: Map[Int,Promise[String]] = Map.empty
-  implicit val decodeNullableInt: Decoder[Nullable[Int]] = new Decoder[Nullable[Int]] {
+  /*implicit val decodeNullableInt: Decoder[Nullable[Int]] = new Decoder[Nullable[Int]] {
     final def apply(c: HCursor): Decoder.Result[Nullable[Int]] = {
       c.value match {
-        case null => Right(Nullable(None))
-        case _ => Right(Nullable(Some(Some(c.value.asInstanceOf[Int]))))
+        case null => Right(None)
+        case value => Right(Nullable[Int](Some(value.asInstanceOf[Int])))
       }
     }
-  }
+  }*/
   def disconnect(): Future[SetOptionsResponse]  = {
     val methodName = "disconnect"
     execute(methodName, APIOption()).map(decode[SetOptionsResponse](_).right.get)
@@ -141,39 +138,32 @@ class RippleAPI() {
     val callId = _callId
     val p = Promise[String]()
     promisesTable += (callId->p)
-    implicit val NullableEncoderInt: Encoder[Nullable[Int]] = new Encoder[Nullable[Int]] {
-      override def apply(a: Nullable[Int]): Json = {
-        a.value match {
-          case None => Json.Null
-          case Some(None) => SpecificNullValue
-          case Some(Some(value)) => value.asJson
-        }
-      }
-    }
     implicit val NullableEncoderString: Encoder[Nullable[String]] = new Encoder[Nullable[String]] {
       override def apply(a: Nullable[String]): Json = {
         a.value match {
           case None => Json.Null
-          case Some(None) => SpecificNullValue
-          case Some(Some(value)) => value.asJson
+          case Some(value) => value.asJson
         }
       }
     }
-    implicit val encodeNullable: ObjectEncoder[RippleAPIObject] = deriveEncoder[RippleAPIObject].mapJsonObject({(obj) =>
+
+
+    //implicit val APIOptionEncoder: Encoder[APIOption] = deriveEncoder[APIOption]
+    implicit val encodeNullable: ObjectEncoder[APIOption] = deriveEncoder[APIOption].mapJsonObject({(obj) =>
       JsonObject.fromIterable(
       obj.toList.filter({
         case (_,value) => !value.isNull
         case _ => true
       }).map({
         case (k,value) => if (value == SpecificNullValue){
-            (k,Json.Null)
-          } else {
-            (k,value)
-          }
-        })
+          (k,Json.Null)
+        } else {
+          (k,value)
+        }
+      })
       )
     })
-
+//
     println(parameters)
     val options = js.Dynamic.literal(
       callId = callId,
