@@ -54,7 +54,12 @@ class SessionService(rippleAPIService: RippleAPIService) extends Service {
           }
           val session = new Session(walletIdentifier, password, provider, chain, appConfiguration)
           _currentSession = Some(session)
-          rippleAPIService.init(APIOption(server = Some("wss://s1.ripple.com")))
+          println("ap1iiii")
+
+          val apioption = APIOption(server = Some("wss://s1.ripple.com"))
+          println("apiiii")
+
+          rippleAPIService.init(apioption)
           Future.successful()
         }
       }

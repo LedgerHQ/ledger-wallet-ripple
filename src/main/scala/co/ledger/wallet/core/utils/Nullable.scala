@@ -11,6 +11,6 @@ class Nullable[T](v : Option[T]) {
 
 object Nullable {
   def apply[T](v: Option[T]): Nullable[T] = {
-    Nullable[T](v)
+    new Nullable[T](v)
   }
 }

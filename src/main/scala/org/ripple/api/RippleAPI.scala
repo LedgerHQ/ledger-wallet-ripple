@@ -55,7 +55,6 @@ import co.ledger.wallet.core.utils.Nullable
 
 sealed trait RippleAPIObject
 
-
 case class APIOption(
                       server: Option[String] = None,
                       feeCushion: Option[Double] = None,
@@ -67,14 +66,6 @@ case class APIOption(
 class RippleAPI() {
 
   var promisesTable: Map[Int,Promise[String]] = Map.empty
-  /*implicit val decodeNullableInt: Decoder[Nullable[Int]] = new Decoder[Nullable[Int]] {
-    final def apply(c: HCursor): Decoder.Result[Nullable[Int]] = {
-      c.value match {
-        case null => Right(None)
-        case value => Right(Nullable[Int](Some(value.asInstanceOf[Int])))
-      }
-    }
-  }*/
   def disconnect(): Future[SetOptionsResponse]  = {
     val methodName = "disconnect"
     execute(methodName, APIOption()).map(decode[SetOptionsResponse](_).right.get)
@@ -137,33 +128,34 @@ class RippleAPI() {
   def execute(methodName: String, parameters: RippleAPIObject) = {
     val callId = _callId
     val p = Promise[String]()
+    println("exec")
+
     promisesTable += (callId->p)
-    implicit val NullableEncoderString: Encoder[Nullable[String]] = new Encoder[Nullable[String]] {
-      override def apply(a: Nullable[String]): Json = {
+    //implicit val APIOptionEncoder: Encoder[APIOption] = deriveEncoder[APIOption]
+    implicit val encodeFoo: Encoder[Nullable[String]] = new Encoder[Nullable[String]] {
+      final def apply(a: Nullable[String]): Json = {
         a.value match {
-          case None => Json.Null
-          case Some(value) => value.asJson
+          case None => SpecificNullValue
+          case Some(v) => v.asJson
         }
       }
     }
+    println("exec2")
 
-
-    //implicit val APIOptionEncoder: Encoder[APIOption] = deriveEncoder[APIOption]
     implicit val encodeNullable: ObjectEncoder[APIOption] = deriveEncoder[APIOption].mapJsonObject({(obj) =>
       JsonObject.fromIterable(
-      obj.toList.filter({
-        case (_,value) => !value.isNull
-        case _ => true
-      }).map({
-        case (k,value) => if (value == SpecificNullValue){
-          (k,Json.Null)
-        } else {
-          (k,value)
-        }
-      })
+        obj.toList.filter({
+          case (_,value) => !value.isNull
+          case _ => true
+        }).map({
+          case (k,value) => if (value == SpecificNullValue){
+            (k,Json.Null)
+          } else {
+            (k,value)
+          }
+        })
       )
     })
-//
     println(parameters)
     val options = js.Dynamic.literal(
       callId = callId,
