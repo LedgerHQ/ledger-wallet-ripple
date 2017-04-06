@@ -128,10 +128,9 @@ class RippleAPI() {
   def execute(methodName: String, parameters: RippleAPIObject) = {
     val callId = _callId
     val p = Promise[String]()
-    println("exec")
 
     promisesTable += (callId->p)
-    implicit val encodeFoo: Encoder[Nullable[String]] = new Encoder[Nullable[String]] {
+    implicit val encodeNullableString: Encoder[Nullable[String]] = new Encoder[Nullable[String]] {
       final def apply(a: Nullable[String]): Json = {
         a.value match {
           case None => SpecificNullValue
@@ -139,8 +138,14 @@ class RippleAPI() {
         }
       }
     }
-    println("exec2")
-
+    implicit val encodeNullableString: Encoder[Nullable[Int]] = new Encoder[Nullable[Int]] {
+      final def apply(a: Nullable[Int]): Json = {
+        a.value match {
+          case None => SpecificNullValue
+          case Some(v) => v.asJson
+        }
+      }
+    }
     implicit val encodeAPIOption = deriveEncoder[APIOption]
     println(parameters)
     def cleanJsonObject(obj: JsonObject) = {
