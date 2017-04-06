@@ -13,11 +13,13 @@ import concurrent.Promise
 import io.circe._
 import io.circe.generic.auto._
 import io.circe.parser._
+import io.circe.Printer
 import io.circe.syntax._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Try
 import io.circe.generic.JsonCodec, io.circe.syntax._
 
+import io.circe._, io.circe.generic.semiauto._
 
 
 /**
@@ -51,20 +53,31 @@ import io.circe.generic.JsonCodec, io.circe.syntax._
   *
   */
 
-@JsonCodec sealed class RippleAPIObject()
+sealed trait RippleAPIObject
+
+case class Nullable[A](
+                   value: Option[A]
+                   )
 
 case class APIOption(
                       server: Option[String] = None,
                       feeCushion: Option[Double] = None,
                       trace: Option[Boolean] = None,
-                      proxy: Option[String] = None,
+                      proxy: Option[String] = Some("This is null"),
                       timeout: Option[Long] = None
                     ) extends RippleAPIObject
 
 class RippleAPI() {
 
   var promisesTable: Map[Int,Promise[String]] = Map.empty
-
+  implicit val decodeNullableInt: Decoder[Nullable[Int]] = new Decoder[Nullable[Int]] {
+    final def apply(c: HCursor): Decoder.Result[Nullable[Int]] = {
+      c.value match {
+        case null => Right(Nullable(Some(0))) // null inelegible
+        case _ => Right(Nullable(Some(c.value.asInstanceOf[Int])))
+      }
+    }
+  }
   def disconnect(): Future[SetOptionsResponse]  = {
     val methodName = "disconnect"
     execute(methodName, APIOption()).map(decode[SetOptionsResponse](_).right.get)
@@ -123,26 +136,41 @@ class RippleAPI() {
     callCounter
   }
 
+  val SpecificNullValue = "This is null".asJson
   def execute(methodName: String, parameters: RippleAPIObject) = {
     val callId = _callId
     val p = Promise[String]()
     promisesTable += (callId->p)
+    //implicit val APIOptionEncoder: Encoder[APIOption] = deriveEncoder[APIOption]
+    implicit val encodeNullable: ObjectEncoder[APIOption] = deriveEncoder[APIOption].mapJsonObject({(obj) =>
+      JsonObject.fromIterable(
+      obj.toList.filter({
+        case (_,value) => !value.isNull
+        case _ => true
+      }).map({
+        case (k,value) => if (value == SpecificNullValue){
+          (k,Json.Null)
+        } else {
+          (k,value)
+        }
+      })
+      )
+    })
+
+    println(parameters)
     val options = js.Dynamic.literal(
       callId = callId,
       methodName = methodName,
       parameters = parameters.asJson.noSpaces
     )
+    js.Dynamic.global.console.log(options)
     val target = dom.document.getElementById("ripple-api-sandbox").asInstanceOf[HTMLIFrameElement]
-    println("Sending from scala")
-    js.Dynamic.global.console.log(target.contentWindow)
     target.contentWindow.postMessage(options,"*")
     p.future
   }
 
   def onMessage(msg: dom.MessageEvent): Unit = {
     val callId: Int = msg.data.asInstanceOf[JSONObject].getInt("success")
-   //promisesTable.get(callId).get
-
   }
   dom.document.addEventListener("message", { (e: dom.MessageEvent) => this.onMessage(e)}) //can't figure out how to pass onMessage to the event listener
 }

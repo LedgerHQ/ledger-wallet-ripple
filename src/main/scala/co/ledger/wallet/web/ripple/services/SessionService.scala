@@ -43,9 +43,7 @@ import org.ripple.api.APIOption
   *
   */
 class SessionService(rippleAPIService: RippleAPIService) extends Service {
-  println("1")
   def startNewSessions(api: LedgerApi, chain: SessionService.RippleChainIdentifier): Future[Unit] = {
-    println("startnewsession")
     api.walletIdentifier() flatMap {(walletIdentifier) =>
       api.walletMetaPassword() flatMap {(password) =>
         api.getAppConfiguration() flatMap {(appConfiguration) =>
@@ -56,24 +54,20 @@ class SessionService(rippleAPIService: RippleAPIService) extends Service {
           }
           val session = new Session(walletIdentifier, password, provider, chain, appConfiguration)
           _currentSession = Some(session)
-          println("avant")
           rippleAPIService.init(APIOption(server = Some("wss://s1.ripple.com")))
           Future.successful()
         }
       }
     }
   }
-  println("2")
 
   def stopCurrentSessions(): Future[Unit] = {
-    println("Stop current session")
     if (_currentSession.isDefined) {
       _currentSession.get.wallet.stop()
     }
     _currentSession = None
     Future.successful()
   }
-  println("3")
 
   def currentSession = _currentSession
   private var _currentSession: Option[Session] = None
@@ -87,21 +81,17 @@ class SessionService(rippleAPIService: RippleAPIService) extends Service {
 
     val sessionPreferences = scala.collection.mutable.Map[String, Any]()
   }
-  println("4")
 
   SessionService.setInstance(this)
-  println("5")
 
 }
 
 object SessionService {
-  println("6")
 
   def instance = _instance
   private def setInstance(service: SessionService) = _instance = service
   private var _instance: SessionService = null
   def init(module: RichModule) = module.serviceOf[SessionService]("sessionService")
-  println("7")
 
   sealed abstract class RippleChainIdentifier(val id: String,
                                                 val coinType: String,

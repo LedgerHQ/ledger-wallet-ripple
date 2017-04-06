@@ -1,23 +1,21 @@
 
-window.addEventListener('message', onMessage);
 var message = null
 var methodMatch = {
     "setOption": createAPI,
     "preparePayment": preparePayment,
     "disconnect": disconnect
 }
+window.addEventListener('message', onMessage);
+
 
 var api={}
 
 function onMessage(event) {
-    console.log("messagecaught")
-    var method = event.data.method;
+    var method = event.data.methodName;
     var call_id = event.data.call_id;
-    var parameters = event.data.parameters;
-    console.log(event.data)
-    var result = methodMatch[method]
-        console.log("functionover")
-
+    var parameters = (JSON.parse(event.data.parameters));
+    var result = methodMatch[method](parameters)
+    console.log(result)
     result.then(function (message) {
          var toScala = {call_id: event.data.call_id, response: message};
          event.source.postMessage(toScala, event.origin);
@@ -36,11 +34,9 @@ function preparePayment(parameters) {
 }
 
 function createAPI(options){
-    console.log("inside")
-
+    console.log(options)
     api = new RippleAPI(options);
-    console.log("new")
-
+    console.log(api)
     api.on('error', (errorCode, errorMessage) => {
       console.log(errorCode + ': ' + errorMessage);
     });
@@ -52,5 +48,6 @@ function createAPI(options){
       // will be 1000 if this was normal closure
       console.log('disconnected, code:', code);
     });
+    console.log(api)
     return api.connect()
 }

@@ -1,5 +1,5 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-temporaryLocalStorage={}
+temporaryLocalStorage={"tutu": "tutu"}
 var ripple =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -236,6 +236,7 @@ var ripple =
 	module.exports = {
 	  RippleAPI: RippleAPI
 	};
+	_.assign(window, module.exports)
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
@@ -4677,6 +4678,8 @@ var ripple =
 	  set:   setTask,
 	  clear: clearTask
 	};
+		_.assign(window, module.exports)
+
 
 /***/ },
 /* 210 */
@@ -4930,6 +4933,8 @@ var ripple =
 	    setSpecies(NAME);
 	  }
 	};
+		_.assign(window, module.exports)
+
 
 /***/ },
 /* 214 */
@@ -5187,6 +5192,7 @@ var ripple =
 	  },
 	  ufstore: uncaughtFrozenStore
 	};
+	_.assign(window, module.exports)
 
 /***/ },
 /* 218 */
@@ -5287,6 +5293,7 @@ var ripple =
 	  TYPED:  TYPED,
 	  VIEW:   VIEW
 	};
+	_.assign(window, module.exports)
 
 /***/ },
 /* 221 */
@@ -7017,6 +7024,7 @@ var ripple =
 	  key: toMetaKey,
 	  exp: exp
 	};
+	_.assign(window, module.exports)
 
 /***/ },
 /* 280 */
@@ -8655,6 +8663,7 @@ var ripple =
 	  rippleTimeToISO8601: utils.rippleTimeToISO8601,
 	  isValidSecret: utils.isValidSecret
 	};
+	_.assign(window, module.exports)
 
 /***/ },
 /* 303 */
@@ -8757,6 +8766,7 @@ var ripple =
 	  iso8601ToRippleTime: iso8601ToRippleTime,
 	  isValidSecret: isValidSecret
 	};
+	_.assign(window, module.exports)
 
 /***/ },
 /* 304 */
@@ -11610,6 +11620,7 @@ var ripple =
 	  deriveAddress: deriveAddress,
 	  deriveNodeAddress: deriveNodeAddress
 	};
+	_.assign(window, module.exports)
 
 /***/ },
 /* 306 */
@@ -65209,3 +65220,4 @@ var ripple =
 /***/ }
 /******/ ]);
 },{}]},{},[1]);
+
