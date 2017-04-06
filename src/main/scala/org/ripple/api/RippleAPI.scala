@@ -56,14 +56,14 @@ import io.circe._, io.circe.generic.semiauto._
 sealed trait RippleAPIObject
 
 case class Nullable[A](
-                   value: Option[A]
+                   value: Option[Option[A]]
                    )
 
 case class APIOption(
                       server: Option[String] = None,
                       feeCushion: Option[Double] = None,
                       trace: Option[Boolean] = None,
-                      proxy: Option[String] = Some("This is null"),
+                      proxy: Nullable[String] = Nullable(Some(None)),
                       timeout: Option[Long] = None
                     ) extends RippleAPIObject
 
@@ -73,8 +73,8 @@ class RippleAPI() {
   implicit val decodeNullableInt: Decoder[Nullable[Int]] = new Decoder[Nullable[Int]] {
     final def apply(c: HCursor): Decoder.Result[Nullable[Int]] = {
       c.value match {
-        case null => Right(Nullable(Some(0))) // null inelegible
-        case _ => Right(Nullable(Some(c.value.asInstanceOf[Int])))
+        case null => Right(Nullable(None))
+        case _ => Right(Nullable(Some(Some(c.value.asInstanceOf[Int]))))
       }
     }
   }
@@ -141,19 +141,36 @@ class RippleAPI() {
     val callId = _callId
     val p = Promise[String]()
     promisesTable += (callId->p)
-    //implicit val APIOptionEncoder: Encoder[APIOption] = deriveEncoder[APIOption]
-    implicit val encodeNullable: ObjectEncoder[APIOption] = deriveEncoder[APIOption].mapJsonObject({(obj) =>
+    implicit val NullableEncoderInt: Encoder[Nullable[Int]] = new Encoder[Nullable[Int]] {
+      override def apply(a: Nullable[Int]): Json = {
+        a.value match {
+          case None => Json.Null
+          case Some(None) => SpecificNullValue
+          case Some(Some(value)) => value.asJson
+        }
+      }
+    }
+    implicit val NullableEncoderString: Encoder[Nullable[String]] = new Encoder[Nullable[String]] {
+      override def apply(a: Nullable[String]): Json = {
+        a.value match {
+          case None => Json.Null
+          case Some(None) => SpecificNullValue
+          case Some(Some(value)) => value.asJson
+        }
+      }
+    }
+    implicit val encodeNullable: ObjectEncoder[RippleAPIObject] = deriveEncoder[RippleAPIObject].mapJsonObject({(obj) =>
       JsonObject.fromIterable(
       obj.toList.filter({
         case (_,value) => !value.isNull
         case _ => true
       }).map({
         case (k,value) => if (value == SpecificNullValue){
-          (k,Json.Null)
-        } else {
-          (k,value)
-        }
-      })
+            (k,Json.Null)
+          } else {
+            (k,value)
+          }
+        })
       )
     })
 
