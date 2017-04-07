@@ -84,7 +84,6 @@ class RippleAPI() {
 
   def setOptions(options: APIOption): Future[SetOptionsResponse] ={
     val methodName = "setOption"
-    println("before exec")
     execute(methodName, options).map(decode[SetOptionsResponse](_).right.get)
   }
 
@@ -92,31 +91,33 @@ class RippleAPI() {
 
   //-----------------------------------------------------
   //****************** classes **********
-  case class Instructions(fee: Option[Double] = None,maxLedgerVersion: Option[Int] = None,
-                          maxLedgerVersionOffset: Option[Int] = None, sequence: Option[Long] = None) extends RippleAPIObject
+  case class Instructions(fee: Option[Double] = None,maxLedgerVersion: Nullable[Int] = Nullable[Int](None),
+                          maxLedgerVersionOffset: Option[Int] = None,
+                          sequence: Option[Long] = None) extends RippleAPIObject
 
   case class Source(address: String, amount: LaxAmount, tag: Option[Int], maxAmount: LaxAmount) extends RippleAPIObject
 
   case class LaxAmount(currency: String, counterparty: Option[String], value: Option[String]) extends RippleAPIObject
 
-  case class Destination(address: String, amount: LaxAmount, tag: Option[Int], minAmount: LaxAmount) extends RippleAPIObject
+  case class Destination(address: String, amount: LaxAmount, tag: Option[Int],
+                         minAmount: LaxAmount) extends RippleAPIObject
 
   case class Payment(source: Source, destination: Destination, allowPartialPayment: Option[Boolean],
                      invoiceID: Option[String], limitQuality: Option[Boolean],
-                     memos: Option[Array[Memo]], noDirectRipple: Option[Boolean], paths: Option[String]) extends RippleAPIObject
+                     memos: Option[Array[Memo]], noDirectRipple: Option[Boolean],
+                     paths: Option[String]) extends RippleAPIObject
 
   case class Memo(data: Option[String], format: Option[String], `type`: Option[String]) extends RippleAPIObject
   //--------------------
   //************** Universal "prepare" methods ********
 
-  def preparePayment(address: String, payment: Payment, instructions: Option[Instructions] = None): Future[PrepareResponse] = {
+  def preparePayment(address: String, payment: Payment, instructions: Option[Instructions] = None):
+    Future[PrepareResponse] = {
     val paymentParam: PaymentParam = PaymentParam(address, payment, instructions)
     execute("preparePayment", paymentParam).map(decode[PrepareResponse](_).right.get)
   }
 
   case class PaymentParam(address: String, payment: Payment, instructions: Option[Instructions]) extends RippleAPIObject
-
-  case class UniversalPrepareResponse(success: Boolean, response: PrepareResponse) extends RippleAPIObject
 
   case class PrepareResponse(txJSON: String, instructions: Instructions) extends RippleAPIObject
 
@@ -205,12 +206,14 @@ class RippleAPI() {
     println(callId)
     val p = promisesTable.get(callId).get
     println("promise found")
+    println(promisesTable)
+
     js.Dynamic.global.console.log(msg.data.asInstanceOf[js.Dynamic].response)
     p success msg.data.asInstanceOf[js.Dynamic].response.asInstanceOf[String]
     println("promise solved")
 
-    promisesTable - callId
-    println("endcaught")
+    promisesTable -= callId
+    println(promisesTable)
   }
 
 

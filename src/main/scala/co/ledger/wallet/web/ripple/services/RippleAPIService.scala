@@ -5,7 +5,7 @@ import biz.enef.angulate.Service
 import org.ripple.api.{APIOption, RippleAPI}
 
 import scala.concurrent.ExecutionContext
-
+import concurrent.ExecutionContext.Implicits.global
 /**
   * Created by alix on 4/5/17.
   */
@@ -13,7 +13,9 @@ class RippleAPIService () extends Service {
   val api = new RippleAPI
 
   def init(options: APIOption): Unit = {
-    api.setOptions(options)
+    api.setOptions(options).onSuccess {
+      case k => println("success fron future connection")
+    println(k)}
   }
 
   def close(): Unit = {

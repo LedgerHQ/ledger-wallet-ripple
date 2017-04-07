@@ -56,6 +56,7 @@ class SessionService(rippleAPIService: RippleAPIService) extends Service {
           _currentSession = Some(session)
           val apiOption = APIOption(server = Some("wss://s1.ripple.com"))
           rippleAPIService.init(apiOption)
+          println("end service start")
           Future.successful()
         }
       }
