@@ -11,18 +11,29 @@ window.addEventListener('message', onMessage);
 var api={}
 
 function onMessage(event) {
-    var method = event.data.methodName;
+       console.log("received fom scala")
+       console.log(event)
+    var method = event.data.method_name;
     var call_id = event.data.call_id;
     var parameters = (JSON.parse(event.data.parameters));
     var result = methodMatch[method](parameters)
-    console.log(result)
     result.then(function (message) {
-         var toScala = {call_id: event.data.call_id, response: message};
-         event.source.postMessage(toScala, event.origin);
+        console.log("message from api")
+        console.log(message)
+        var toScala = {call_id: event.data.call_id, response: JSON.stringify(message)};
+        if(method == "setOption"){
+            toScala.response = JSON.stringify({connected: true, info: "success"})
+        }
+         parent.postMessage(toScala, "*");
         }).catch(function (message) {
-            var toScala = {call_id: event.data.call_id, response: message};
-            event.source.postMessage(toScala, event.origin);
+            console.log("exception caught")
+            var toScala = {call_id: event.data.call_id, response: JSON.stringify(message)};
+            if(method == "setOption"){
+                        toScala.response = JSON.stringify({connected: false, info: "error"})
+                    }
+            parent.postMessage(toScala, "*");
         })
+    console.log("onMessage terminated")
     }
 
 function disconnect(){
@@ -34,7 +45,6 @@ function preparePayment(parameters) {
 }
 
 function createAPI(options){
-    console.log(options)
     api = new RippleAPI(options);
     api.on('error', (errorCode, errorMessage) => {
       console.log(errorCode + ': ' + errorMessage);

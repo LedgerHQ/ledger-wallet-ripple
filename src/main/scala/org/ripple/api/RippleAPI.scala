@@ -1,9 +1,11 @@
 package org.ripple.api
 
 import java.time.LocalTime
+import java.util.Observable
+
 import org.json.JSONObject
 import org.scalajs.dom
-import org.scalajs.dom.raw.HTMLIFrameElement
+import org.scalajs.dom.raw.{EventTarget, HTMLIFrameElement}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
@@ -15,12 +17,15 @@ import io.circe.generic.auto._
 import io.circe.parser._
 import io.circe.Printer
 import io.circe.syntax._
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Try
-import io.circe.generic.JsonCodec, io.circe.syntax._
-
-import io.circe._, io.circe.generic.semiauto._
+import io.circe.generic.JsonCodec
+import io.circe.syntax._
+import io.circe._
+import io.circe.generic.semiauto._
 import co.ledger.wallet.core.utils.Nullable
+import org.scalajs.dom.Event
 
 /**
   *
@@ -65,6 +70,7 @@ case class APIOption(
 
 class RippleAPI() {
 
+
   var promisesTable: Map[Int,Promise[String]] = Map.empty
   def disconnect(): Future[SetOptionsResponse]  = {
     val methodName = "disconnect"
@@ -82,7 +88,7 @@ class RippleAPI() {
     execute(methodName, options).map(decode[SetOptionsResponse](_).right.get)
   }
 
-  case class SetOptionsResponse(connected: Boolean, error: Option[String]) extends RippleAPIObject
+  case class SetOptionsResponse(connected: Boolean, info: String) extends RippleAPIObject
 
   //-----------------------------------------------------
   //****************** classes **********
@@ -182,8 +188,8 @@ class RippleAPI() {
       )
     }
     val options = js.Dynamic.literal(
-      callId = callId,
-      methodName = methodName,
+      call_id = callId,
+      method_name = methodName,
       parameters = cleanJsonObject(parameters.asJsonObject).asJson.noSpaces
     )
     js.Dynamic.global.console.log(options)
@@ -193,17 +199,25 @@ class RippleAPI() {
   }
 
   def onMessage(msg: dom.MessageEvent): Unit = {
-    println("messagereceived")
-    println(msg.data)
-    val callId: Int = msg.data.asInstanceOf[JSONObject].getInt("callId")
+    println("message received in scala")
+    js.Dynamic.global.console.log(msg)
+    val callId: Int = msg.data.asInstanceOf[js.Dynamic].call_id.asInstanceOf[Int]
+    println(callId)
     val p = promisesTable.get(callId).get
-    p success msg.data.asInstanceOf[JSONObject].getString("response")
-    println("success promise")
+    println("promise found")
+    js.Dynamic.global.console.log(msg.data.asInstanceOf[js.Dynamic].response)
+    p success msg.data.asInstanceOf[js.Dynamic].response.asInstanceOf[String]
+    println("promise solved")
 
+    promisesTable - callId
+    println("endcaught")
   }
 
 
+  case class PostMessage(callId: Int, response: String)
 
+  dom.window.addEventListener("message", { (e: dom.MessageEvent) =>
+      onMessage(e)
+  }) //can't figure out how to pass onMessage to the event listener
 
-  dom.document.addEventListener("message", { (e: dom.MessageEvent) => this.onMessage(e)}) //can't figure out how to pass onMessage to the event listener
 }
