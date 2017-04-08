@@ -12,6 +12,7 @@ window.addEventListener('message', onMessage);
 
 var api={}
 
+
 function onMessage(event) {
        console.log("received fom scala")
        console.log(event)
@@ -81,5 +82,30 @@ function createAPI(options){
       // will be 1000 if this was normal closure
       console.log('disconnected, code:', code);
     });
+    api.on('ledger', ledger => {
+      console.log(JSON.stringify(ledger, null, 2));
+      sendLedger(ledger);
+    });
+    api.on('error', (errorCode, errorMessage, data) => {
+      console.log(errorCode + ': ' + errorMessage);
+      sendError(error);
+    });
     return api.connect()
+}
+
+function sendError(error) {
+    var event = new ErrorEvent(error)
+    parent.dispatchEvent(event);
+}
+
+function sendLedger(ledger) {
+    var event = parent.CustomEvent(event = "ledger")
+    var toScala = JSON.stringify({
+            errorCode: errorCode,
+            errorMessage: errorMessage,
+            data: data
+            })
+    var eventDetail = Components.utils.cloneInto({ledger: toScala}, parent);
+
+    parent.dispatchEvent(event)
 }

@@ -93,7 +93,7 @@ class RippleAPI() {
                                 info: String) extends RippleAPIObject
 
   //-----------------------------------------------------
-  //****************** classes **********
+  //****************** call classes **********
   case class Instructions(
                           fee: Option[Int] = None,
                           maxLedgerVersion: Nullable[Int] = Nullable[Int](None),
@@ -360,6 +360,45 @@ class RippleAPI() {
 
   dom.window.addEventListener("message", { (e: dom.MessageEvent) =>
       onMessage(e)
-  }) //can't figure out how to pass onMessage to the event listener
+  })
 
+
+  //------------------
+
+  //****************** error event management
+  dom.window.addEventListener("error", { (e: dom.ErrorEvent) => onError(e)})
+
+  case class Error(
+                  errorCode: String,
+                  errorMessage: String,
+                  data: String
+                  ) extends RippleAPIObject
+
+  def onError(e: dom.ErrorEvent) = {
+    ???
+  }
+
+
+  //------------------
+
+  //****************** ledger event management
+  dom.window.addEventListener("load", { (e: dom.Event) => onLedger(e)})
+
+  case class Ledger(
+                     baseFeeXRP: Int, //value
+                     ledgerHash: String,
+                     ledgerTimestamp: String, // date-time-string
+                     reserveBaseXRP: Int, //value
+                     reserveIncrementXRp: Int, //value
+                     transactionCount: Int,
+                     ledgerVersion: Int,
+                     validatedLedgerVersions: String
+                   ) extends RippleAPIObject
+
+  def onLedger(e: dom.Event) = {
+    ???
+  }
+
+
+  //------------------
 }
