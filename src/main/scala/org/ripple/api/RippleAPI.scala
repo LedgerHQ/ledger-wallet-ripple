@@ -138,7 +138,7 @@ class RippleAPI() {
                   `type`: Option[String]
                  ) extends RippleAPIObject
 
-  case class Trustline(
+  /*case class Trustline(
                       currency: String, //currency
                       counterparty: String, //address
                       limit:Int, //value
@@ -148,7 +148,30 @@ class RippleAPI() {
                       qualityIn: Option[Double],
                       qualityOut: Option[Double],
                       ripplingDisabled: Option[Boolean]
-                      ) extends RippleAPIObject
+                      ) extends RippleAPIObject*/
+
+  case class Options(
+                    binary: Option[Boolean],
+                    counterparty: Option[String],
+                    earliestFirst: Option[Boolean],
+                    excludeFailures: Option[Boolean],
+                    initiated: Option[Boolean],
+                    limit: Option[Int],
+                    maxLedgerVersion: Option[Int],
+                    minLedgerVersion: Option[Int],
+                    start: Option[String],
+                    types: Option[String],
+                    currency: Option[String],
+                    ledgerVersion: Option[Int],
+                    excludeAddresses: Option[String],
+                    includeAllData: Option[Boolean],
+                    includeState: Option[Boolean],
+                    includeTransactions: Option[Boolean],
+                    signAs: Option[String],
+                    algorithm: Option[String],
+                    entropy: Option[Array[Int]]
+                    ) extends RippleAPIObject
+
   //--------------------
   //************** Universal "prepare" methods ********
 
@@ -168,7 +191,12 @@ class RippleAPI() {
                            instructions: Option[Instructions]
                          ) extends RippleAPIObject
 
-  def prepareTrustline(
+  case class PrepareResponse(
+                              txJSON: String,
+                              instructions: Instructions
+                            ) extends RippleAPIObject
+
+  /*def prepareTrustline(
                        address: String,
                        trustline: Trustline,
                        instructions: Instructions
@@ -182,14 +210,46 @@ class RippleAPI() {
                              address: String,
                              trustline: Trustline,
                              instructions: Instructions
-                           ) extends RippleAPIObject
+                           ) extends RippleAPIObject*/
 
-  case class PrepareResponse(
-                              txJSON: String,
-                              instructions: Instructions
-                            ) extends RippleAPIObject
 
   //----------------
+
+  //*************** signing tools ******************
+  def sign(
+          txJSON: String,
+          secret: String,
+          options: Option[Options]
+          ): SignedTransaction = {
+
+  }
+
+
+  case class SignedTransaction(
+                              signedTransaction: String,
+                              id: String
+                              ) extends RippleAPIObject
+  //---------------
+
+  //*************** submitting tools ******************
+  def submit(
+            signedTransaction: String
+          ): Future[SubmittedTransaction] = {
+    val submitParam: SubmitParam = SubmitParam(signedTransaction)
+    execute("submit", submitParam)
+      .map(decode[SubmittedTransaction](_).right.get)
+  }
+
+  case class SubmitParam(
+                        signedTransaction: String
+                        ) extends RippleAPIObject
+
+  case class SubmittedTransaction(
+                                resultCode: String,
+                                resultMessage: String
+                              ) extends RippleAPIObject
+  //---------------
+
 
   // *************** general tools **************
 
