@@ -3,7 +3,9 @@ var message = null
 var methodMatch = {
     "setOption": createAPI,
     "preparePayment": preparePayment,
-    "disconnect": disconnect
+    "disconnect": disconnect,
+    "submit": submit,
+    "sign": sign
 }
 window.addEventListener('message', onMessage);
 
@@ -20,24 +22,46 @@ function onMessage(event) {
     result.then(function (message) {
         console.log("message from api")
         console.log(message)
-        var toScala = {call_id: event.data.call_id, response: JSON.stringify(message)};
+        var toScala = {
+                        call_id: event.data.call_id,
+                        response: JSON.stringify(message)
+                      };
         if(method == "setOption"){
-            toScala.response = JSON.stringify({connected: true, info: "success"})
+            toScala.response = JSON.stringify({
+                                                connected: true,
+                                                info: "success"
+                                              })
         }
-         parent.postMessage(toScala, "*");
+        parent.postMessage(toScala, "*");
         }).catch(function (message) {
             console.log("exception caught")
-            var toScala = {call_id: event.data.call_id, response: JSON.stringify(message)};
+            var toScala = {
+                            call_id: event.data.call_id,
+                            response: JSON.stringify(message)
+                          };
             if(method == "setOption"){
-                        toScala.response = JSON.stringify({connected: false, info: "error"})
-                    }
+              toScala.response = JSON.stringify({
+                                                  connected: false,
+                                                  info: "error"
+                                                 })
+            }
             parent.postMessage(toScala, "*");
         })
     console.log("onMessage terminated")
     }
 
-function disconnect(){
+function disconnect(){     //not used yet
     return api.disconnect()
+}
+
+function sign(parameters) {
+    return new Promise((resolve, reject) => {
+        resolve(api.sign(parameters))
+    }
+}
+
+function submit(parameters) {
+    return api.submit(parameters)
 }
 
 function preparePayment(parameters) {
