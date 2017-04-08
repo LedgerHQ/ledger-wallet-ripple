@@ -220,10 +220,21 @@ class RippleAPI() {
           txJSON: String,
           secret: String,
           options: Option[Options]
-          ): SignedTransaction = {
-
+          ): Future[SignedTransaction] = {
+    val signParam: SignParam = SignParam(
+                                                  txJSON,
+                                                  secret,
+                                                  options
+                                                )
+    execute("sign", signParam)
+      .map(decode[SignedTransaction](_).right.get)
   }
 
+  case class SignParam(
+                        txJSON: String,
+                        secret: String,
+                        options: Option[Options]
+                      ) extends RippleAPIObject
 
   case class SignedTransaction(
                               signedTransaction: String,
