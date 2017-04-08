@@ -4,6 +4,8 @@ import java.io.StringWriter
 
 import co.ledger.wallet.core.crypto.Keccak
 import co.ledger.wallet.core.utils.HexUtils
+import org.scalajs.dom
+import org.scalajs.dom.crypto.GlobalCrypto
 
 /**
   *
@@ -38,96 +40,23 @@ import co.ledger.wallet.core.utils.HexUtils
 /***
   * Wrapper for "Address"
   */
-class RippleAccount(value: BigInt) {
-
-  def toIban: String = {
-    val bban = value.toString(36).toUpperCase
-    val checksumed = (bban + "XE00").map(_.toString).map {(c) =>
-      if (c.charAt(0) >= 'A' && c.charAt(0) <= 'Z')
-        (c.charAt(0) - 'A' + 10).toString
-      else
-        c
-    }.mkString("")
-    val checksum = ("0" + (98 - RippleAccount.mod9710(checksumed)).toString).takeRight(2)
-    s"XE$checksum$bban"
-  }
-
-  def toChecksumString: String = {
-    val out = new StringWriter()
-    out.append("0x")
-    val address = toString.substring(2)
-    val checksum = HexUtils.encodeHex(Keccak.hash256(address.getBytes))
-    for (index <- address.indices) {
-      if (Integer.parseInt(checksum(index).toString, 16) >= 8) {
-        out.append(address(index).toUpper)
-      } else {
-        out.append(address(index).toLower)
-      }
-    }
-    out.toString
-  }
-  override def toString: String = "0x" + HexUtils.bytesToHex(toByteArray).toLowerCase
+class RippleAccount(value: String) {
   def toByteArray = {
-    var bytes = value.toByteArray
-    if (bytes.length > 20) {
-      bytes = bytes.slice(1, bytes.length)
-    }
-    if (bytes.length < 20) {
-      bytes = bytes.reverse.padTo(20, 0.toByte).reverse
-    }
-    bytes
+    val byte: Array[Byte] = value.getBytes("utf-16")
   }
   override def hashCode(): Int = value.hashCode()
   override def equals(obj: scala.Any): Boolean = value.equals(obj)
 }
 
 object RippleAccount {
-
-  def apply(str: String): RippleAccount = {
-    if (str.startsWith("iban:") || str.startsWith("XE"))
-      fromIban(str)
-    else
-      fromHex(str)
-  }
-
-  def fromIban(iban: String): RippleAccount = {
-    if (!iban.startsWith("XE")) {
-      throw new Exception(s"[$iban] is not a valid ICAP")
-    }
-    val checksum = iban.substring(2, 4).toInt
-    val bban = BigInt(iban.substring(4), 36)
-    val checksumed = (iban.substring(4) + iban.substring(0, 4)).map(_.toString).map {(c) =>
-      if (c.charAt(0) >= 'A' && c.charAt(0) <= 'Z')
-        (c.charAt(0) - 'A' + 10).toString
-      else
-        c
-    }.mkString("")
-    if (mod9710(checksumed) != 1) {
-      throw new Exception(s"[$iban] is not a valid ICAP (invalid checksum)")
-    }
-    new RippleAccount(bban)
-  }
-
-  def fromHex(hex: String): RippleAccount = {
-    if (hex.length != 40 && hex.length != 42)
-      throw new Exception(s"[$hex] is not a valid hex ripple account address")
-    if (hex.exists((c) => !c.isDigit && c.isUpper) &&
-        hex.exists((c) => !c.isDigit && c.isLower && c != 'x') &&
-        !isValidHexAddress(hex)) {
-      throw new Exception(s"[$hex] has an invalid checksum")
-    }
-    if (hex.startsWith("0x"))
-      new RippleAccount(BigInt(hex.substring(2), 16))
-    else
-      new RippleAccount(BigInt(hex, 16))
+  def apply(hex: String): RippleAccount = {
+    if (!isValidHexAddress(hex))
+      throw new Exception(s"[$hex] is not a valid ripple account address")
+    new RippleAccount(String)
   }
 
   def isValidHexAddress(address: String): Boolean = {
-    if (address.startsWith("0x"))
-      new RippleAccount(BigInt(address.substring(2), 16)).toChecksumString == address.toString
-    else
-      new RippleAccount(BigInt(address, 16)).toChecksumString == ("0x" + address.toString)
+    GlobalCrypto.crypto.subtle.digest()
   }
 
-  private def mod9710(value: String) = value.foldLeft(0)((r, c) => (r * 10 + (c - '0')) % 97)
 }

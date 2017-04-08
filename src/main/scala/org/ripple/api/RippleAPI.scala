@@ -1,7 +1,7 @@
 package org.ripple.api
 
 import java.time.LocalTime
-import java.util.Observable
+import java.util.{Currency, Observable}
 
 import org.json.JSONObject
 import org.scalajs.dom
@@ -74,11 +74,13 @@ class RippleAPI() {
   var promisesTable: Map[Int,Promise[String]] = Map.empty
   def disconnect(): Future[SetOptionsResponse]  = {
     val methodName = "disconnect"
-    execute(methodName, APIOption()).map(decode[SetOptionsResponse](_).right.get)
+    execute(methodName, APIOption()).map(decode[SetOptionsResponse](_)
+        .right.get)
   }
 
   //*************** setOptions *******************
-  var setOptionsPromisesTable: Map[String,Promise[SetOptionsResponse]] = Map.empty
+  var setOptionsPromisesTable: Map[String,Promise[SetOptionsResponse]] =
+    Map.empty
 
 
 
@@ -87,39 +89,105 @@ class RippleAPI() {
     execute(methodName, options).map(decode[SetOptionsResponse](_).right.get)
   }
 
-  case class SetOptionsResponse(connected: Boolean, info: String) extends RippleAPIObject
+  case class SetOptionsResponse(connected: Boolean,
+                                info: String) extends RippleAPIObject
 
   //-----------------------------------------------------
   //****************** classes **********
-  case class Instructions(fee: Option[Double] = None,maxLedgerVersion: Nullable[Int] = Nullable[Int](None),
+  case class Instructions(
+                          fee: Option[Int] = None,
+                          maxLedgerVersion: Nullable[Int] = Nullable[Int](None),
                           maxLedgerVersionOffset: Option[Int] = None,
-                          sequence: Option[Long] = None) extends RippleAPIObject
+                          sequence: Option[Long] = None
+                         ) extends RippleAPIObject
 
-  case class Source(address: String, amount: LaxAmount, tag: Option[Int], maxAmount: LaxAmount) extends RippleAPIObject
+  case class Source(
+                     address: String,
+                     amount: LaxAmount,
+                     tag: Option[Int],
+                     maxAmount: LaxAmount
+                   ) extends RippleAPIObject
 
-  case class LaxAmount(currency: String, counterparty: Option[String], value: Option[String]) extends RippleAPIObject
+  case class LaxAmount(
+                       currency: String,
+                       counterparty: Option[String],
+                       value: Option[String]
+                      ) extends RippleAPIObject
 
-  case class Destination(address: String, amount: LaxAmount, tag: Option[Int],
-                         minAmount: LaxAmount) extends RippleAPIObject
+  case class Destination(
+                         address: String,
+                         amount: LaxAmount,
+                         tag: Option[Int],
+                         minAmount: LaxAmount
+                        ) extends RippleAPIObject
 
-  case class Payment(source: Source, destination: Destination, allowPartialPayment: Option[Boolean],
-                     invoiceID: Option[String], limitQuality: Option[Boolean],
-                     memos: Option[Array[Memo]], noDirectRipple: Option[Boolean],
-                     paths: Option[String]) extends RippleAPIObject
+  case class Payment(
+                     source: Source,
+                     destination: Destination,
+                     allowPartialPayment: Option[Boolean],
+                     invoiceID: Option[String],
+                     limitQuality: Option[Boolean],
+                     memos: Option[Array[Memo]],
+                     noDirectRipple: Option[Boolean],
+                     paths: Option[String]
+                    ) extends RippleAPIObject
 
-  case class Memo(data: Option[String], format: Option[String], `type`: Option[String]) extends RippleAPIObject
+  case class Memo(
+                  data: Option[String],
+                  format: Option[String],
+                  `type`: Option[String]
+                 ) extends RippleAPIObject
+
+  case class Trustline(
+                      currency: String, //currency
+                      counterparty: String, //address
+                      limit:Int, //value
+                      authorized: Option[Boolean],
+                      frozen: Option[Boolean],
+                      memos: Option[Array[Memo]],
+                      qualityIn: Option[Double],
+                      qualityOut: Option[Double],
+                      ripplingDisabled: Option[Boolean]
+                      ) extends RippleAPIObject
   //--------------------
   //************** Universal "prepare" methods ********
 
-  def preparePayment(address: String, payment: Payment, instructions: Option[Instructions] = None):
-    Future[PrepareResponse] = {
+  def preparePayment(
+                      address: String,
+                      payment: Payment,
+                      instructions: Option[Instructions] = None
+                    ): Future[PrepareResponse] = {
     val paymentParam: PaymentParam = PaymentParam(address, payment, instructions)
-    execute("preparePayment", paymentParam).map(decode[PrepareResponse](_).right.get)
+    execute("preparePayment", paymentParam)
+      .map(decode[PrepareResponse](_).right.get)
   }
 
-  case class PaymentParam(address: String, payment: Payment, instructions: Option[Instructions]) extends RippleAPIObject
+  case class PaymentParam(
+                           address: String,
+                           payment: Payment,
+                           instructions: Option[Instructions]
+                         ) extends RippleAPIObject
 
-  case class PrepareResponse(txJSON: String, instructions: Instructions) extends RippleAPIObject
+  def prepareTrustline(
+                       address: String,
+                       trustline: Trustline,
+                       instructions: Instructions
+                       ): Future[PrepareResponse] = {
+    val trustlineParam: TrustlineParam = TrustlineParam(address,trustline, instructions)
+    execute("prepareTrustline", trustlineParam)
+      .map(decode[PrepareResponse](_).right.get)
+  }
+
+  case class TrustlineParam(
+                             address: String,
+                             trustline: Trustline,
+                             instructions: Instructions
+                           ) extends RippleAPIObject
+
+  case class PrepareResponse(
+                              txJSON: String,
+                              instructions: Instructions
+                            ) extends RippleAPIObject
 
   //----------------
 
