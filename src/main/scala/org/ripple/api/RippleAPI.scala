@@ -175,10 +175,10 @@ class RippleAPI() {
   //--------------------
   //************** Universal "prepare" methods ********
 
-  def preparePayment(parameters: PaymentParam): Future[PrepareResponse] = {
+  /*def preparePayment(parameters: PaymentParam): Future[PrepareResponse] = {
     execute("preparePayment", parameters)
       .map(decode[PrepareResponse](_).right.get)
-  }
+  }*/
 
   case class PaymentParam(
                            address: String,
@@ -211,20 +211,6 @@ class RippleAPI() {
   //----------------
 
   //*************** signing tools ******************
-  def sign(
-          txJSON: String,
-          secret: String,
-          options: Option[Options]
-          ): Future[SignedTransaction] = {
-    val signParam: SignParam = SignParam(
-                                                  txJSON,
-                                                  secret,
-                                                  options
-                                                )
-    execute("sign", signParam)
-      .map(decode[SignedTransaction](_).right.get)
-  }
-
   case class SignParam(
                         txJSON: String,
                         secret: String,
@@ -238,13 +224,6 @@ class RippleAPI() {
   //---------------
 
   //*************** submitting tools ******************
-  def submit(
-            signedTransaction: String
-          ): Future[SubmittedTransaction] = {
-    val submitParam: SubmitParam = SubmitParam(signedTransaction)
-    execute("submit", submitParam)
-      .map(decode[SubmittedTransaction](_).right.get)
-  }
 
   case class SubmitParam(
                         signedTransaction: String

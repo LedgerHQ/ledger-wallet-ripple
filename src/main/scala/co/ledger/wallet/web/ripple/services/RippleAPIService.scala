@@ -2,6 +2,7 @@ package co.ledger.wallet.web.ripple.services
 
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.Service
+import io.circe.parser.decode
 import org.ripple.api.{APIOption, RippleAPI}
 import org.ripple.api.RippleAPIObject
 
@@ -23,9 +24,19 @@ class RippleAPIService () extends Service {
     api.disconnect()
   }
 
-  def preparePayment(parameters: api.PaymentParam):
-  Future[api.PrepareResponse]= {
-    api.preparePayment(parameters)
+  def preparePayment(parameters: api.PaymentParam): Future[api.PrepareResponse] = {
+    api.execute("preparePayment", parameters)
+      .map(decode[api.PrepareResponse](_).right.get)
+  }
+
+  def sign(parameters: api.SignParam): Future[api.SignedTransaction] = {
+    api.execute("sign", parameters)
+      .map(decode[api.SignedTransaction](_).right.get)
+  }
+
+  def submit(parameters: api.SubmitParam): Future[api.SubmittedTransaction] = {
+    api.execute("submit", parameters)
+      .map(decode[api.SubmittedTransaction](_).right.get)
   }
 }
 
