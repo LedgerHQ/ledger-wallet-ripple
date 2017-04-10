@@ -46,5 +46,6 @@ trait Account {
   def rippleAccountDerivationPath(): Future[DerivationPath]
   def transactionNonce(): Future[BigInt]
   def balance(): Future[Ether]
+  def secret(): String
 
 }

@@ -50,6 +50,7 @@ trait Wallet {
   def eventEmitter: EventEmitter
   def estimatedGasPrice(): Future[Ether]
   def stop(): Unit
+  def secret(): String
 }
 
 object Wallet {

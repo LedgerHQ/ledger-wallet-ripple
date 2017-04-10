@@ -230,7 +230,7 @@ class RippleAPI() {
   case class SignParam(
                         txJSON: String,
                         secret: String,
-                        options: Option[Options]
+                        options: Option[Options] = None
                       ) extends RippleAPIObject
 
   case class SignedTransaction(

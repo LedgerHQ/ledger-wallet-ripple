@@ -10,6 +10,8 @@ import co.ledger.wallet.web.ripple.core.utils.PermissionsHelper
 import co.ledger.wallet.web.ripple.services.{DeviceService, RippleAPIService, SessionService, WindowService}
 import org.scalajs.dom
 
+import scala.concurrent._
+import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
 import scala.scalajs.js.{Dynamic, timers}
@@ -51,8 +53,7 @@ class SendIndexController(override val windowService: WindowService,
                           override val sessionService: SessionService,
                           val deviceService: DeviceService,
                           $element: JQLite,
-                          override val $scope: Scope,
-                          rippleAPIService: RippleAPIService) extends Controller
+                          override val $scope: Scope) extends Controller
   with WalletController{
 
   var isScanning = false
@@ -142,7 +143,6 @@ class SendIndexController(override val windowService: WindowService,
 
   def send() = {
     try {
-      val api = rippleAPIService.api
       val value = getAmountInput()
       val recipient = getAddressInput()
       if (value.isFailure) {
@@ -160,7 +160,8 @@ class SendIndexController(override val windowService: WindowService,
         println(s"Is IBAN: $isIban")
         println(s"Gas limit: $fees")
         println(s"Data: $data")
-        sessionService.currentSession.get.wallet.balance() foreach {(balance) =>
+        sessionService.currentSession.get.wallet.balance() foreach {
+          (balance) =>
           if (false /*computeTotal() > balance*/) {
             SnackBar.error("send.insufficient_funds_title", "send.insufficient_funds_message").show()
           } else {
@@ -175,25 +176,6 @@ class SendIndexController(override val windowService: WindowService,
             }
           }
         }
-        api.preparePayment(new api.PaymentParam(
-            instructions = new api.Instructions(
-              fee = 0
-            ),
-            address = sessionService.currentSession.get.wallet.name, //TODO:
-          // custom getter
-            payment = new api.Payment(
-              source = new api.Source(
-                address = sessionService.currentSession.get.wallet.name,
-                amount = Some[api.LaxAmount](new api.LaxAmount(
-                  value = Some(value.toString) //TODO :  convert
-                ))
-              ),
-              destination = new api.Destination(
-                address = recipient.get.id
-              )
-            )
-          )
-        )
       }
     } catch {
       case any: Throwable =>
