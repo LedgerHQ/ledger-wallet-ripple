@@ -89,7 +89,7 @@ class OpeningController(override val windowService: WindowService,
       case others => throw others
     }
   } flatMap {(_) =>
-    if ($routeParams("chain") == "ETH") {
+    if (true /*$routeParams("chain") == "ETH"*/) {
       Future.successful(None)
     } else {
       deviceService.lastConnectedDevice() flatMap {(device) =>

@@ -102,11 +102,11 @@ object SessionService {
                                                 val symbol: String)
 
   case class RippleChain() extends RippleChainIdentifier(
-    "xrp",
+    "etc",
     "60",
     "",
-    "https://ripple.com/build/ripple-info-tool/",
-    "XRP"
+    "http://etherscan.io/", //TODO
+    "ETC"
   )
 
 }

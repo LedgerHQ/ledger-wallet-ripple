@@ -387,8 +387,7 @@ class RippleAPI() {
                    ) extends RippleAPIObject
 
   def onLedger(e: dom.CustomEvent) = {
-    println("new ledger received")
-    println(e.detail)
+    //println("new ledger received")
   }
 
 

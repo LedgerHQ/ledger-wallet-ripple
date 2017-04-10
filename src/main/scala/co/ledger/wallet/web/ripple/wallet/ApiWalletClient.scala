@@ -72,5 +72,5 @@ class ApiWalletClient(name: String, override protected val password: Option[Stri
 
   def stringToDate(string: String): Date = new Date(new js.Date(string).getTime().toLong)
 
-  override def websocketFactory: WebSocketFactory = new JsWebSocketFactory(new URI(s"wss://api.ledgerwallet.com/blockchain/v2/${chain.id}"))
+  override def websocketFactory: WebSocketFactory = new JsWebSocketFactory(new URI(s"wss://api.ledgerwallet.com/blockchain/v2/eth")) //todo TEMP
 }

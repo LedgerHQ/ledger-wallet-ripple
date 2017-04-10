@@ -50,8 +50,7 @@ class NavigationBar(sessionService: SessionService,
                     $route: js.Dynamic) extends Directive {
   override type ScopeType = js.Dynamic
   val chains = js.Dictionary(
-    "eth" -> "launch.eth",
-    "ethc" -> "launch.etc"
+    "etc" -> "launch.etc"
   )
   override def templateUrl: String = "/templates/components/navigation-bar.html"
 
@@ -62,6 +61,9 @@ class NavigationBar(sessionService: SessionService,
     scope.isRefreshing = false
     scope.refresh = {() =>
      scope.$eval(attrs.asInstanceOf[js.Dynamic].onClickRefresh)
+    }
+    scope.chain = {() => sessionService.currentSession.map(_.chain.id)
+        .map(chains(_)).getOrElse("")
     }
     scope.isSelected = isSelected _
   }

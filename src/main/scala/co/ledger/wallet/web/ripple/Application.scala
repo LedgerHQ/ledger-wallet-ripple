@@ -48,7 +48,6 @@ object Application extends JSApp{
 
     // Controllers
     LaunchController.init(module)
-    SelectChainController.init(module)
     OpeningController.init(module)
     WindowController.init(module)
     AccountController.init(module)
