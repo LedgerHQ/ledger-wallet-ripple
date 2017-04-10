@@ -7,7 +7,7 @@ import biz.enef.angulate.ext.RouteProvider
 import co.ledger.wallet.core.utils.logs._
 import co.ledger.wallet.web.ripple.components._
 import co.ledger.wallet.web.ripple.controllers.WindowController
-import co.ledger.wallet.web.ripple.controllers.onboarding.{LaunchController, OpeningController, SelectChainController, SplitDisclaimerController}
+import co.ledger.wallet.web.ripple.controllers.onboarding.{LaunchController, OpeningController, SplitDisclaimerController}
 import co.ledger.wallet.web.ripple.controllers.wallet._
 import co.ledger.wallet.web.ripple.core.utils.ChromePreferences
 import co.ledger.wallet.web.ripple.filters.DateFormatFilter

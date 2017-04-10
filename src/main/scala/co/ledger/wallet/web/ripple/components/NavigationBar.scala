@@ -3,7 +3,6 @@ package co.ledger.wallet.web.ripple.components
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.{Attributes, JQLite, Location}
 import biz.enef.angulate.{Component, ComponentDef, Directive, Scope}
-import co.ledger.wallet.web.ripple.controllers.onboarding.SelectChainController
 import co.ledger.wallet.web.ripple.services.{DeviceService, SessionService}
 
 import scala.scalajs.js
@@ -63,15 +62,6 @@ class NavigationBar(sessionService: SessionService,
     scope.isRefreshing = false
     scope.refresh = {() =>
      scope.$eval(attrs.asInstanceOf[js.Dynamic].onClickRefresh)
-    }
-    scope.chain = {() =>
-      sessionService.currentSession.map(_.chain.id).map(chains(_)).getOrElse("")
-    }
-    scope.switchChain = {() =>
-      SelectChainController.resetRemember(deviceService)
-      sessionService.stopCurrentSessions()
-      $location.url("/onboarding/chain/select")
-      $route.reload()
     }
     scope.isSelected = isSelected _
   }

@@ -38,8 +38,8 @@ object Routes {
     $routeProvider
       .when("/onboarding/launch/:animated?", Route(templateUrl = "/templates/onboarding/launch.html"))
       .when("/onboarding/linux/:animated?", Route(templateUrl = "/templates/onboarding/linux.html"))
-      .when("/onboarding/chain/select", Route(templateUrl = "/templates/onboarding/select.html"))
-      .when("/onboarding/opening/:chain", Route(templateUrl = "/templates/onboarding/opening.html"))
+      .when("/onboarding/opening/", Route(templateUrl =
+        "/templates/onboarding/opening.html"))
       .when("/onboarding/split-disclaimer/:balance", Route(templateUrl = "/templates/onboarding/split-disclaimer.html"))
       .when("/account/:id", Route(templateUrl = "/templates/wallet/account.html"))
       .when("/send", Route(templateUrl = "/templates/wallet/send/index.html"))

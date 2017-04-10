@@ -107,16 +107,13 @@ class LaunchController(override val windowService: WindowService,
       deviceService.registerDevice(device)
     } flatMap {(_) =>
       LedgerApi(device).walletIdentifier()
-    } flatMap {(_) =>
-      SelectChainController.getRememberedChain(deviceService)
     } onComplete {
-        case Success(chain) =>
+        case Success(wallet) =>
           incrementNumberOfConnection()
-          if (chain.isDefined) {
-            $location.url(s"/onboarding/opening/${chain.get}/")
+          if (true) { //TODO : check account maybe
+            $location.url(s"/onboarding/opening/")
             $route.reload()
           } else {
-            $location.url("/onboarding/chain/select")
             $route.reload()
           }
         case Failure(ex) =>

@@ -56,10 +56,8 @@ class ApiWalletClient(name: String, override protected val password: Option[Stri
   override def rippleAccountProvider: RippleAccountProvider = provider
 
   protected def http: HttpClient = chain match {
-    case SessionService.RippleClassicChain() =>
-      JQHttpClient.etcInstance
     case SessionService.RippleChain() =>
-      JQHttpClient.ethInstance
+      JQHttpClient.xrpInstance
   }
 
   override val blockRestClient = new AbstractBlockRestClient(http) {

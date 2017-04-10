@@ -14,6 +14,6 @@ object SHA256 {
     }
     val bitArray = sjcl.codec.hex.fromBits(sjcl.hash.sha256.hash(value))
       .asInstanceOf[String]
-    HexUtils
+    ??? //HexUtils
   }
 }

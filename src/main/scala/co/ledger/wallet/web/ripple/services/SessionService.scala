@@ -100,19 +100,13 @@ object SessionService {
                                                 val pathPrefix: String,
                                                 val explorerBaseUrl: String,
                                                 val symbol: String)
-  case class RippleClassicChain() extends RippleChainIdentifier(
-    "ethc",
-    "60",
-    "/160720'",
-    "https://gastracker.io/",
-    "ETC"
-  )
+
   case class RippleChain() extends RippleChainIdentifier(
-    "eth",
+    "xrp",
     "60",
     "",
-    "http://etherscan.io/",
-    "ETH"
+    "https://ripple.com/build/ripple-info-tool/",
+    "XRP"
   )
 
 }

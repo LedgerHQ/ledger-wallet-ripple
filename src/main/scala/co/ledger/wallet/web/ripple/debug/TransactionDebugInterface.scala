@@ -48,7 +48,7 @@ trait TransactionDebugInterface extends BaseDebugInterface {
 
   def wallet = SessionService.instance.currentSession.get.wallet
 
-  @JSExport
+  /*@JSExport
   def getAddress(path: String): Future[String] = {
     DeviceService.instance.lastConnectedDevice() flatMap {(d) =>
       LedgerApi(d).derivePublicAddress(DerivationPath(path), false)
@@ -126,6 +126,6 @@ trait TransactionDebugInterface extends BaseDebugInterface {
       log(s"Estimated gas price: ${price.toBigInt.toString()}")
       price.toBigInt
     }
-  }
+  }*/
 
 }

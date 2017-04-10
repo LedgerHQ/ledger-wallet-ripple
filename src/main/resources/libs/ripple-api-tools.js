@@ -1,28 +1,25 @@
 
-var message = null
+var message = null;
 var methodMatch = {
     "setOption": createAPI,
     "preparePayment": preparePayment,
     "disconnect": disconnect,
     "submit": submit,
     "sign": sign
-}
+};
 window.addEventListener('message', onMessage);
 
 
-var api={}
+var api={};
 
 
 function onMessage(event) {
-       console.log("received fom scala")
-       console.log(event)
     var method = event.data.method_name;
     var call_id = event.data.call_id;
     var parameters = (JSON.parse(event.data.parameters));
-    var result = methodMatch[method](parameters)
+    var result = methodMatch[method](parameters);
     result.then(function (message) {
-        console.log("message from api")
-        console.log(message)
+        console.log("message from api solved "+method);
         var toScala = {
                         call_id: event.data.call_id,
                         response: JSON.stringify(message)
@@ -31,11 +28,11 @@ function onMessage(event) {
             toScala.response = JSON.stringify({
                                                 connected: true,
                                                 info: "success"
-                                              })
+                                              });
         }
         parent.postMessage(toScala, "*");
         }).catch(function (message) {
-            console.log("exception caught")
+            console.log("exception caught");
             var toScala = {
                             call_id: event.data.call_id,
                             response: JSON.stringify(message)
@@ -44,35 +41,34 @@ function onMessage(event) {
               toScala.response = JSON.stringify({
                                                   connected: false,
                                                   info: "error"
-                                                 })
+                                                 });
             }
             parent.postMessage(toScala, "*");
-        })
-    console.log("onMessage terminated")
+        });
     }
 
 function disconnect(){     //not used yet
-    return api.disconnect()
+    return api.disconnect();
 }
 
 function sign(parameters) {
     return new Promise((resolve, reject) => {
-        resolve(api.sign(parameters))
-    }
+        resolve(api.sign(parameters));
+    });
 }
 
 function submit(parameters) {
-    return api.submit(parameters)
+    return api.submit(parameters);
 }
 
 function preparePayment(parameters) {
-    return api.preparePayment(parameters)
+    return api.preparePayment(parameters);
 }
 
 function createAPI(options){
     api = new RippleAPI(options);
     api.on('error', (errorCode, errorMessage) => {
-      console.log(errorCode + ': ' + errorMessage);
+      console.log('error api'+errorCode + ': ' + errorMessage);
     });
     api.on('connected', function () {
       console.log('connected');
@@ -83,29 +79,31 @@ function createAPI(options){
       console.log('disconnected, code:', code);
     });
     api.on('ledger', ledger => {
-      console.log(JSON.stringify(ledger, null, 2));
       sendLedger(ledger);
     });
     api.on('error', (errorCode, errorMessage, data) => {
       console.log(errorCode + ': ' + errorMessage);
       sendError(error);
     });
-    return api.connect()
+    return api.connect();
 }
 
 function sendError(error) {
-    var event = new ErrorEvent(error)
+    var event = new ErrorEvent(error);
     parent.dispatchEvent(event);
 }
 
 function sendLedger(ledger) {
-    var event = parent.CustomEvent(event = "ledger")
-    var toScala = JSON.stringify({
-            errorCode: errorCode,
-            errorMessage: errorMessage,
-            data: data
-            })
-    var eventDetail = Components.utils.cloneInto({ledger: toScala}, parent);
-
-    parent.dispatchEvent(event)
+    var event = new CustomEvent(
+        "newLedger",
+        {
+            detail: {
+                message: "new Ledger",
+                ledger: ledger
+            },
+            bubbles: true,
+            cancelable: true
+        }
+                                );
+    parent.dispatchEvent(event);
 }

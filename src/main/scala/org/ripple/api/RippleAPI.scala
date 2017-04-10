@@ -312,7 +312,6 @@ class RippleAPI() {
       }
     }
     implicit val encodeAPIOption = deriveEncoder[APIOption]
-    println(parameters)
     def cleanJsonObject(obj: JsonObject) = {
       JsonObject.fromIterable(
         obj.toMap.head._2.asObject.get.toList.filter({
@@ -339,20 +338,11 @@ class RippleAPI() {
   }
 
   def onMessage(msg: dom.MessageEvent): Unit = {
-    println("message received in scala")
-    js.Dynamic.global.console.log(msg)
     val callId: Int = msg.data.asInstanceOf[js.Dynamic].call_id.asInstanceOf[Int]
-    println(callId)
     val p = promisesTable.get(callId).get
-    println("promise found")
-    println(promisesTable)
-
     js.Dynamic.global.console.log(msg.data.asInstanceOf[js.Dynamic].response)
     p success msg.data.asInstanceOf[js.Dynamic].response.asInstanceOf[String]
-    println("promise solved")
-
     promisesTable -= callId
-    println(promisesTable)
   }
 
 
@@ -375,14 +365,15 @@ class RippleAPI() {
                   ) extends RippleAPIObject
 
   def onError(e: dom.ErrorEvent) = {
-    ???
+    println("error received")
+    println(e)
   }
 
 
   //------------------
 
   //****************** ledger event management
-  dom.window.addEventListener("load", { (e: dom.Event) => onLedger(e)})
+  dom.window.addEventListener("newLedger", { (e: dom.CustomEvent) => onLedger(e)})
 
   case class Ledger(
                      baseFeeXRP: Int, //value
@@ -395,8 +386,9 @@ class RippleAPI() {
                      validatedLedgerVersions: String
                    ) extends RippleAPIObject
 
-  def onLedger(e: dom.Event) = {
-    ???
+  def onLedger(e: dom.CustomEvent) = {
+    println("new ledger received")
+    println(e.detail)
   }
 
 

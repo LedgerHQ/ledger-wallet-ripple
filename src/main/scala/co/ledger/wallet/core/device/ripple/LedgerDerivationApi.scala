@@ -40,15 +40,21 @@ import scala.concurrent.{Future, Promise}
   */
 trait LedgerDerivationApi extends LedgerCommonApiInterface {
 
-  def derivePublicAddress(path: DerivationPath, askConfirmation: Boolean = false): Future[PublicAddressResult] = {
+  def derivePublicAddress(
+        path: DerivationPath,
+        askConfirmation: Boolean = false): Future[PublicAddressResult] = {
     // E0 02 00|01
     val apduPath = new BytesWriter().writeDerivationPath(path)
-    sendApdu(0xE0, 0x02, if (askConfirmation) 0x01 else 0x00, 0x00, apduPath.toByteArray, 0x00) map {(result) =>
+    sendApdu(0xE0, 0x02, if (askConfirmation) 0x01 else 0x00, 0x00,
+      apduPath.toByteArray, 0x00) map {(result) =>
       matchErrorsAndThrow(result)
       val data = result.data
       val publicKey = data.readNextBytes(data.readNextByte())
       val address = data.readNextBytes(data.readNextByte())
-      PublicAddressResult(publicKey, RippleAccount("0x" + new String(address, Charset.forName("US-ASCII"))))
+      PublicAddressResult(
+        publicKey,
+        RippleAccount("SampleAccount") //TODO
+      )
     }
   }
 

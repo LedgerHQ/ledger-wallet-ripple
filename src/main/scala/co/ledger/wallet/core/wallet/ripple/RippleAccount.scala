@@ -52,11 +52,11 @@ object RippleAccount {
   def apply(hex: String): RippleAccount = {
     if (!isValidHexAddress(hex))
       throw new Exception(s"[$hex] is not a valid ripple account address")
-    new RippleAccount(String)
+    new RippleAccount(hex)
   }
 
   def isValidHexAddress(address: String): Boolean = {
-    GlobalCrypto.crypto.subtle.digest()
+    true //GlobalCrypto.crypto.subtle.digest() //TODO
   }
 
 }

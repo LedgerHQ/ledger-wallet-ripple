@@ -66,12 +66,7 @@ class OpeningController(override val windowService: WindowService,
   deviceService.lastConnectedDevice() map {(device) =>
     LedgerApi(device)
   } flatMap {(api) =>
-    val chain = $routeParams("chain") match {
-      case "ETH" =>
-        SessionService.RippleChain()
-      case "ETC" =>
-        SessionService.RippleClassicChain()
-    }
+    val chain = SessionService.RippleChain()
     sessionService.startNewSessions(api, chain)
   } flatMap {(_) =>
     ChromePreferences.load(sessionService.currentSession.get.name, sessionService.currentSession.get.password)

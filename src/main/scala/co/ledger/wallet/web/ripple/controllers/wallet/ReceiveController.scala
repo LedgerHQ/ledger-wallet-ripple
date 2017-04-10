@@ -39,7 +39,8 @@ import scala.scalajs.js
   */
 class ReceiveController(override val windowService: WindowService,
                         override val $scope: Scope,
-                        override val sessionService: SessionService) extends Controller with WalletController {
+                        override val sessionService: SessionService)
+  extends Controller with WalletController {
 
   var address = ""
   var iban = ""
@@ -56,13 +57,13 @@ class ReceiveController(override val windowService: WindowService,
   var formats = js.Dictionary("HEX" -> "HEX", "IBAN" -> "IBAN")
   var currentFormat = sessionService.currentSession.get.sessionPreferences.lift("address_format").getOrElse("HEX")
 
-  sessionService.currentSession.get.wallet.account(0) foreach {(account) =>
+  /*sessionService.currentSession.get.wallet.account(0) foreach {(account) =>
     account.rippleAccount() foreach { (a) =>
       address = a.toChecksumString
       iban = a.toIban
       $scope.$digest()
     }
-  }
+  }*/
 
   def onFormatChanged(format: String): Unit = {
     currentFormat = format
