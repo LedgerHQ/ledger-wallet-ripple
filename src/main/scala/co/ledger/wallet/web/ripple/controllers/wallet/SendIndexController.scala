@@ -142,6 +142,7 @@ class SendIndexController(override val windowService: WindowService,
 
   def send() = {
     try {
+      val api = rippleAPIService.api
       val value = getAmountInput()
       val recipient = getAddressInput()
       if (value.isFailure) {
@@ -174,7 +175,25 @@ class SendIndexController(override val windowService: WindowService,
             }
           }
         }
-        rippleAPIService.preg
+        api.preparePayment(new api.PaymentParam(
+            instructions = new api.Instructions(
+              fee = 0
+            ),
+            address = sessionService.currentSession.get.wallet.name, //TODO:
+          // custom getter
+            payment = new api.Payment(
+              source = new api.Source(
+                address = sessionService.currentSession.get.wallet.name,
+                amount = Some[api.LaxAmount](new api.LaxAmount(
+                  value = Some(value.toString) //TODO :  convert
+                ))
+              ),
+              destination = new api.Destination(
+                address = recipient.get.id
+              )
+            )
+          )
+        )
       }
     } catch {
       case any: Throwable =>

@@ -41,6 +41,7 @@ import org.scalajs.dom.crypto.GlobalCrypto
   * Wrapper for "Address"
   */
 class RippleAccount(value: String) {
+  val id = value
   def toByteArray = {
     val byte: Array[Byte] = value.getBytes("utf-16")
   }

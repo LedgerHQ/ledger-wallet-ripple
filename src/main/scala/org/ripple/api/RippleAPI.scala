@@ -93,9 +93,25 @@ class RippleAPI() {
                                 info: String) extends RippleAPIObject
 
   //-----------------------------------------------------
+  //****************** make call
+  def preparePayment(parameters: PaymentParam): Future[PrepareResponse] = {
+    execute("preparePayment", parameters)
+      .map(decode[PrepareResponse](_).right.get)
+  }
+
+  def sign(parameters: SignParam): Future[SignedTransaction] = {
+    execute("sign", parameters)
+      .map(decode[SignedTransaction](_).right.get)
+  }
+
+  def submit(parameters: SubmitParam): Future[SubmittedTransaction] = {
+    execute("submit", parameters)
+      .map(decode[SubmittedTransaction](_).right.get)
+  }
+  //--------------------------------------
   //****************** call classes **********
   case class Instructions(
-                          fee: Option[Int] = None,
+                          fee: Int,
                           maxLedgerVersion: Nullable[Int] = Nullable[Int](None),
                           maxLedgerVersionOffset: Option[Int] = None,
                           sequence: Option[Long] = None
@@ -103,33 +119,33 @@ class RippleAPI() {
 
   case class Source(
                      address: String,
-                     amount: LaxAmount,
-                     tag: Option[Int],
-                     maxAmount: LaxAmount
+                     amount: Option[LaxAmount] = None,
+                     tag: Option[Int] = None,
+                     maxAmount: Option[LaxAmount] = None
                    ) extends RippleAPIObject
 
   case class LaxAmount(
-                       currency: String,
-                       counterparty: Option[String],
-                       value: Option[String]
+                       currency: String = "XRP",
+                       counterparty: Option[String] = None,
+                       value: Option[String] = None
                       ) extends RippleAPIObject
 
   case class Destination(
                          address: String,
-                         amount: LaxAmount,
-                         tag: Option[Int],
-                         minAmount: LaxAmount
+                         amount: Option[LaxAmount] = None,
+                         tag: Option[Int] = None,
+                         minAmount: Option[LaxAmount] = None
                         ) extends RippleAPIObject
 
   case class Payment(
                      source: Source,
                      destination: Destination,
-                     allowPartialPayment: Option[Boolean],
-                     invoiceID: Option[String],
-                     limitQuality: Option[Boolean],
-                     memos: Option[Array[Memo]],
-                     noDirectRipple: Option[Boolean],
-                     paths: Option[String]
+                     allowPartialPayment: Option[Boolean] = None,
+                     invoiceID: Option[String] = None,
+                     limitQuality: Option[Boolean] = None,
+                     memos: Option[Array[Memo]] = None,
+                     noDirectRipple: Option[Boolean] = None,
+                     paths: Option[String] = None
                     ) extends RippleAPIObject
 
   case class Memo(
@@ -183,7 +199,7 @@ class RippleAPI() {
   case class PaymentParam(
                            address: String,
                            payment: Payment,
-                           instructions: Option[Instructions]
+                           instructions: Instructions
                          ) extends RippleAPIObject
 
   case class PrepareResponse(
