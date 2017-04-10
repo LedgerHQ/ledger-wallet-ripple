@@ -3,8 +3,9 @@ package co.ledger.wallet.web.ripple.services
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.Service
 import org.ripple.api.{APIOption, RippleAPI}
+import org.ripple.api.RippleAPIObject
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import concurrent.ExecutionContext.Implicits.global
 /**
   * Created by alix on 4/5/17.
@@ -20,6 +21,11 @@ class RippleAPIService () extends Service {
 
   def close(): Unit = {
     api.disconnect()
+  }
+
+  def preparePayment(parameters: api.PaymentParam):
+  Future[api.PrepareResponse]= {
+    api.preparePayment(parameters)
   }
 }
 

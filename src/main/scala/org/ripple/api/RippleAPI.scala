@@ -175,13 +175,8 @@ class RippleAPI() {
   //--------------------
   //************** Universal "prepare" methods ********
 
-  def preparePayment(
-                      address: String,
-                      payment: Payment,
-                      instructions: Option[Instructions] = None
-                    ): Future[PrepareResponse] = {
-    val paymentParam: PaymentParam = PaymentParam(address, payment, instructions)
-    execute("preparePayment", paymentParam)
+  def preparePayment(parameters: PaymentParam): Future[PrepareResponse] = {
+    execute("preparePayment", parameters)
       .map(decode[PrepareResponse](_).right.get)
   }
 

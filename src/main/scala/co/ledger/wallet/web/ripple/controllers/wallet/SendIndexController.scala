@@ -7,7 +7,7 @@ import co.ledger.wallet.core.device.ripple.LedgerApi
 import co.ledger.wallet.core.wallet.ripple.{Ether, RippleAccount}
 import co.ledger.wallet.web.ripple.components.{QrCodeScanner, SnackBar}
 import co.ledger.wallet.web.ripple.core.utils.PermissionsHelper
-import co.ledger.wallet.web.ripple.services.{DeviceService, SessionService, WindowService}
+import co.ledger.wallet.web.ripple.services.{DeviceService, RippleAPIService, SessionService, WindowService}
 import org.scalajs.dom
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -51,7 +51,9 @@ class SendIndexController(override val windowService: WindowService,
                           override val sessionService: SessionService,
                           val deviceService: DeviceService,
                           $element: JQLite,
-                          override val $scope: Scope) extends Controller with WalletController{
+                          override val $scope: Scope,
+                          rippleAPIService: RippleAPIService) extends Controller
+  with WalletController{
 
   var isScanning = false
 
@@ -158,7 +160,7 @@ class SendIndexController(override val windowService: WindowService,
         println(s"Gas limit: $fees")
         println(s"Data: $data")
         sessionService.currentSession.get.wallet.balance() foreach {(balance) =>
-          if (computeTotal() > balance) {
+          if (false /*computeTotal() > balance*/) {
             SnackBar.error("send.insufficient_funds_title", "send.insufficient_funds_message").show()
           } else {
             deviceService.lastConnectedDevice().flatMap(LedgerApi(_).getAppConfiguration()) foreach {(conf) =>
@@ -172,6 +174,7 @@ class SendIndexController(override val windowService: WindowService,
             }
           }
         }
+        rippleAPIService.preg
       }
     } catch {
       case any: Throwable =>
