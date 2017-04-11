@@ -253,9 +253,24 @@ class RippleAPI() {
   //---------------
 
   //*************** sync tools
-  def getTransactions()
+  def getTransaction(parameters: GetTransactionParam) = {
+    execute("getTransaction", parameters)
+      .map(decode[Transaction](_).right.get)
+  }
 
-  case class GetTransactionsparam(
+
+
+  def getTransactions(parameters: GetTransactionsParam) = {
+    execute("getTransactions", parameters)
+      .map(decode[Array[Transaction]](_).right.get)
+  }
+
+  case class GetTransactionParam(
+                                   id: String,
+                                   options: Option[TransactionOptions]
+                                 ) extends RippleAPIObject
+
+  case class GetTransactionsParam(
                                  address: String,
                                  options: Option[TransactionsOptions]
                                  ) extends RippleAPIObject
@@ -272,6 +287,11 @@ class RippleAPI() {
                          start: Option[String],
                          types: Option[Array[String]]
                          ) extends RippleAPIObject
+
+  case class TransactionOptions(
+                                  maxLedgerVersion: Option[Int],
+                                  minLedgerVersion: Option[Int]
+                                ) extends RippleAPIObject
 
   case class Transaction(
                          id: String,
