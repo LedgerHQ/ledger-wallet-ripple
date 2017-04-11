@@ -43,7 +43,8 @@ import scala.util.{Failure, Success}
   * SOFTWARE.
   *
   */
-abstract class AbstractApiAccountClient(override val wallet: AbstractApiWalletClient,
+abstract class AbstractApiAccountClient(override val wallet
+                                          : AbstractApiWalletClient,
                                         private val accountRow: AccountRow)
   extends Account
     with DatabaseBackedAccountClient {
@@ -62,13 +63,16 @@ abstract class AbstractApiAccountClient(override val wallet: AbstractApiWalletCl
       Logger.i(s"Account #$index start synchronization")
       initSavedState(state)
       def synchronizeUntilEmpty(): Future[Unit] = {
-        val block = Option(state.batches).flatMap(_.headOption).map(_.blockHash).flatMap(Option(_))
-        wallet.transactionRestClient.transactions(syncToken, Array(accountRow.rippleAccount), block) flatMap {(result) =>
+        val block = Option(state.batches).flatMap(_.headOption)
+          .map(_.blockHash).flatMap(Option(_))
+        wallet.transactionRestClient.transactions(syncToken,
+          Array(accountRow.rippleAccount), block) flatMap {(result) =>
           // Find highest block
           var highestBlock = result.transactions.headOption.flatMap(_.block)
           for (tx <- result.transactions) {
             if ((tx.block.isDefined && highestBlock.isEmpty) ||
-                (tx.block.isDefined && tx.block.get.height > highestBlock.get.height)) {
+                (tx.block.isDefined && tx.block.get.height > highestBlock
+                  .get.height)) {
               highestBlock = tx.block
             }
           }

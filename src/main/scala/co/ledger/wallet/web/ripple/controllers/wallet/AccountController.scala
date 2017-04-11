@@ -85,7 +85,8 @@ class AccountController(override val windowService: WindowService,
                 "amount" -> (
                   (if (op.`type` == Operation.SendType) -1 else 1) *
                     op.transaction.value.toBigInt -
-                    (if (op.`type` == Operation.SendType) op.transaction.gasPrice.toBigInt * 21000 else 0)
+                    (if (op.`type` == Operation.SendType) op.transaction
+                      .gasPrice.toBigInt * 21000 else 0)
                   ).toString(),
                 "isSend" -> (op.`type` == Operation.SendType)
               ))
@@ -101,11 +102,15 @@ class AccountController(override val windowService: WindowService,
       }
 
       def refresh() = {
-        val top = $element.asInstanceOf[js.Dynamic].scrollTop().asInstanceOf[Double]
-        val scrollHeight = $element.asInstanceOf[js.Dynamic].height().asInstanceOf[Double]
-        val height = $element(0).asInstanceOf[js.Dynamic].scrollHeight.asInstanceOf[Double]
+        val top = $element.asInstanceOf[js.Dynamic].scrollTop()
+          .asInstanceOf[Double]
+        val scrollHeight = $element.asInstanceOf[js.Dynamic].height()
+          .asInstanceOf[Double]
+        val height = $element(0).asInstanceOf[js.Dynamic].scrollHeight
+          .asInstanceOf[Double]
         if (top + scrollHeight >= height * 0.60) {
-          if (!isLoading && reloadOperationNonce == nonce && cursor.loadedChunkCount < cursor.chunkCount) {
+          if (!isLoading && reloadOperationNonce == nonce && cursor
+            .loadedChunkCount < cursor.chunkCount) {
             loadMore()
           }
         }
@@ -122,7 +127,8 @@ class AccountController(override val windowService: WindowService,
     }
   }
 
-  var balance = sessionService.currentSession.get.sessionPreferences.lift("balance_cache").getOrElse("").toString
+  var balance = sessionService.currentSession.get.sessionPreferences
+    .lift("balance_cache").getOrElse("").toString
   def reloadBalance(): Unit = {
     sessionService.currentSession.get.wallet.account(accountId) flatMap {(account) =>
       account.balance()

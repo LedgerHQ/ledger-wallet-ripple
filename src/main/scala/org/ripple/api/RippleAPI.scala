@@ -70,7 +70,8 @@ case class APIOption(
 
 class RippleAPI() {
 
-
+  type RippleSequence = Int
+  type RippleDateTime = String
   var promisesTable: Map[Int,Promise[String]] = Map.empty
   def disconnect(): Future[SetOptionsResponse]  = {
     val methodName = "disconnect"
@@ -250,6 +251,61 @@ class RippleAPI() {
                                 resultMessage: String
                               ) extends RippleAPIObject
   //---------------
+
+  //*************** sync tools
+  def getTransactions()
+
+  case class GetTransactionsparam(
+                                 address: String,
+                                 options: Option[TransactionsOptions]
+                                 ) extends RippleAPIObject
+
+  case class TransactionsOptions(
+                         binary: Option[Boolean],
+                         counterparty: Option[String],
+                         earliestFirst: Option[Boolean],
+                         excludeFailures: Option[Boolean],
+                         initiated: Option[Boolean],
+                         limit: Option[Int],
+                         maxLedgerVersion: Option[Int],
+                         minLedgerVersion: Option[Int],
+                         start: Option[String],
+                         types: Option[Array[String]]
+                         ) extends RippleAPIObject
+
+  case class Transaction(
+                         id: String,
+                        address: String,
+                        sequence: Int,
+                        `type`: String,
+                        specification: Payment,
+                        outcome: Outcome
+                        ) extends RippleAPIObject
+
+  case class Outcome(
+                    result: String,
+                    fee: String,
+                    balanceChanges: Map[String,Array[LaxAmount]],
+                    orderbookChanges: Map[String, OrderbookChanges],
+//implement balance changing keys
+                    ledgerVersion: Int,
+                    indexInLedger: Int,
+                    deliveredAmount: Option[String],
+                    timestamp: Option[String]
+                    ) extends RippleAPIObject
+
+  case class OrderbookChanges(
+                             direction: String,
+                             quantity: LaxAmount,
+                             totalPrice: LaxAmount,
+                             sequence: RippleSequence,
+                             status: String,
+                             expirationTime: Option[RippleDateTime],
+                             markerExchangeRate: Option[String]
+                             ) extends RippleAPIObject
+
+
+  //------------------
 
 
   // *************** general tools **************

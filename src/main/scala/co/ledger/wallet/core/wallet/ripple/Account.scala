@@ -40,7 +40,9 @@ trait Account {
   def wallet: Wallet
   def synchronize(): Future[Unit]
   def isSynchronizing(): Future[Boolean]
-  def operations(limit: Int = -1, batchSize: Int = Wallet.DefaultOperationsBatchSize): Future[AsyncCursor[Operation]]
+  def operations(limit: Int = -1,
+                 batchSize: Int = Wallet.DefaultOperationsBatchSize)
+                  : Future[AsyncCursor[Operation]]
   def rippleAccount(): Future[RippleAccount]
   def rippleAccountDerivationPath(): Future[DerivationPath]
   def transactionNonce(): Future[BigInt]

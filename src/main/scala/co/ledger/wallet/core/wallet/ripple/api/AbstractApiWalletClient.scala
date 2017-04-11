@@ -45,7 +45,8 @@ import scala.util.{Failure, Success}
   */
 abstract class AbstractApiWalletClient(override val name: String,
                                        override val bip44CoinType: String,
-                                       override val coinPathPrefix: String) extends Wallet with DatabaseBackedWalletClient {
+                                       override val coinPathPrefix: String
+                                      ) extends Wallet with DatabaseBackedWalletClient {
 
   implicit val ec: ExecutionContext
 
@@ -87,7 +88,8 @@ abstract class AbstractApiWalletClient(override val name: String,
 
   def performSynchronize(): Future[Unit] = {
 
-    def synchronizeUntilEmptyAccount(syncToken: String, from: Int): Future[Unit] = {
+    def synchronizeUntilEmptyAccount(syncToken: String, from: Int)
+      : Future[Unit] = {
       init().flatMap { (_) =>
         val accounts = _accounts.slice(from, _accounts.length)
         Future.sequence(accounts.map(_.synchronize(syncToken)).toSeq)
@@ -135,13 +137,15 @@ abstract class AbstractApiWalletClient(override val name: String,
     // Open a cursor on the previous blocks
     // Delete blocks
     // End
-    Future.sequence(_accounts.map(_.synchronizationBlockHash()).toSeq) flatMap { (hashes) =>
+    Future.sequence(_accounts.map(_.synchronizationBlockHash()).toSeq)
+      .flatMap { (hashes) =>
       queryBlocks(hashes.filter(_.isDefined).map(_.get).toArray)
     } flatMap { (blocks) =>
       if (blocks.isEmpty) {
         Future.successful()
       } else {
-        queryTransactions(blocks.maxBy(_.height).height) flatMap { (transactions) =>
+        queryTransactions(blocks.maxBy(_.height).height) flatMap
+          { (transactions) =>
           val hashes = transactions.map(_.hash)
           deleteOperations(hashes) flatMap { (_) => deleteTransactions(hashes) }
         } flatMap { (_) =>
@@ -215,11 +219,13 @@ abstract class AbstractApiWalletClient(override val name: String,
     else {
       _initPromise.getOrElse({
         _initPromise = Some(Promise[Unit]())
-        _initPromise.get.completeWith(queryAccounts(0, Int.MaxValue) flatMap { (accounts) =>
+        _initPromise.get.completeWith(queryAccounts(0, Int.MaxValue)
+          flatMap { (accounts) =>
           _accounts = accounts.map(newAccountClient(_))
-          _webSocketNetworkObserver = Some(new WebSocketNetworkObserver(websocketFactory, eventEmitter, transactionRestClient, ec))
-          _webSocketNetworkObserver.get.start()
-          fetchGasPrice()
+          /*_webSocketNetworkObserver = Some(new WebSocketNetworkObserver(
+            websocketFactory, eventEmitter, transactionRestClient, ec))
+          _webSocketNetworkObserver.get.start()*/
+          //fetchGasPrice()
           if (_accounts.length == 0) {
             createAccount(0).map((_) => ())
           } else {
@@ -259,5 +265,6 @@ abstract class AbstractApiWalletClient(override val name: String,
   private var _webSocketNetworkObserver: Option[WebSocketNetworkObserver] = None
   private var _gasPrice = XRP(21000000000L)
 
-  protected def newAccountClient(accountRow: AccountRow): AbstractApiAccountClient
+  protected def newAccountClient(accountRow: AccountRow)
+  : AbstractApiAccountClient
 }

@@ -44,8 +44,10 @@ import scala.scalajs.js
   */
 abstract class AbstractTransactionRestClient(http: HttpClient, val blockRestClient: AbstractBlockRestClient) {
 
-  def transactions(syncToken: String, rippleAccounts: Array[String], blockHash: Option[String]): Future[TransactionsPage] = {
-    val request = http.get(s"/addresses/${rippleAccounts.mkString(",")}/transactions")
+  def transactions(syncToken: String, rippleAccounts: Array[String],
+                   blockHash: Option[String]): Future[TransactionsPage] = {
+    val request = http.get(s"/addresses/${rippleAccounts
+      .mkString(",")}/transactions")
         .header("X-LedgerWallet-SyncToken" -> syncToken)
     if (blockHash.isDefined)
       request.param("blockHash" -> blockHash.get)
