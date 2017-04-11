@@ -208,22 +208,6 @@ class RippleAPI() {
                               instructions: Instructions
                             ) extends RippleAPIObject
 
-  /*def prepareTrustline(
-                       address: String,
-                       trustline: Trustline,
-                       instructions: Instructions
-                       ): Future[PrepareResponse] = {
-    val trustlineParam: TrustlineParam = TrustlineParam(address,trustline, instructions)
-    execute("prepareTrustline", trustlineParam)
-      .map(decode[PrepareResponse](_).right.get)
-  }
-
-  case class TrustlineParam(
-                             address: String,
-                             trustline: Trustline,
-                             instructions: Instructions
-                           ) extends RippleAPIObject*/
-
 
   //----------------
 
@@ -253,7 +237,7 @@ class RippleAPI() {
   //---------------
 
   //*************** sync tools
-  def getTransaction(parameters: GetTransactionParam) = {
+  /*def getTransaction(parameters: GetTransactionParam) = {
     execute("getTransaction", parameters)
       .map(decode[Transaction](_).right.get)
   }
@@ -263,7 +247,7 @@ class RippleAPI() {
   def getTransactions(parameters: GetTransactionsParam) = {
     execute("getTransactions", parameters)
       .map(decode[Array[Transaction]](_).right.get)
-  }
+  }*/
 
   case class GetTransactionParam(
                                    id: String,
@@ -306,7 +290,7 @@ class RippleAPI() {
                     result: String,
                     fee: String,
                     balanceChanges: Map[String,Array[LaxAmount]],
-                    orderbookChanges: Map[String, OrderbookChanges],
+                    //orderbookChanges: Map[String, OrderbookChanges],
 //implement balance changing keys
                     ledgerVersion: Int,
                     indexInLedger: Int,
@@ -337,7 +321,8 @@ class RippleAPI() {
   }
 
 
-  implicit val decodeNullableString: Decoder[Nullable[String]] = new Decoder[Nullable[String]] {
+  implicit val decodeNullableString: Decoder[Nullable[String]] =
+    new Decoder[Nullable[String]] {
     final def apply(c: HCursor): Decoder.Result[Nullable[String]] = {
       c.value match {
         case Json.Null => Right(Nullable[String](None))
@@ -346,7 +331,8 @@ class RippleAPI() {
       }
     }
   }
-  implicit val decodeNullableInt: Decoder[Nullable[Int]] = new Decoder[Nullable[Int]] {
+  implicit val decodeNullableInt: Decoder[Nullable[Int]] =
+    new Decoder[Nullable[Int]] {
     final def apply(c: HCursor): Decoder.Result[Nullable[Int]] = {
       c.value match {
         case Json.Null => Right(Nullable[Int](None))
@@ -361,7 +347,8 @@ class RippleAPI() {
     val p = Promise[String]()
 
     promisesTable += (callId->p)
-    implicit val encodeNullableString: Encoder[Nullable[String]] = new Encoder[Nullable[String]] {
+    implicit val encodeNullableString: Encoder[Nullable[String]] =
+      new Encoder[Nullable[String]] {
       final def apply(a: Nullable[String]): Json = {
         a.value match {
           case None => SpecificNullValue
@@ -378,6 +365,29 @@ class RippleAPI() {
       }
     }
     implicit val encodeAPIOption = deriveEncoder[APIOption]
+    /*implicit val encodePaymentParam = deriveEncoder[PaymentParam]
+    implicit val encode1 = deriveEncoder[SignParam]
+    implicit val encode2 = deriveEncoder[SubmitParam]
+    implicit val encode3 = deriveEncoder[GetTransactionParam]
+    implicit val encode4 = deriveEncoder[GetTransactionsParam]
+    implicit val encode5 = deriveEncoder[LaxAmount]
+    implicit val encode6 = deriveEncoder[SubmittedTransaction]
+    implicit val encode7 = deriveEncoder[Source]
+    implicit val encode8 = deriveEncoder[SignParam]
+    implicit val encode9 = deriveEncoder[Transaction]
+    implicit val encode10 = deriveEncoder[TransactionsOptions]
+    implicit val encode11 = deriveEncoder[TransactionOptions]
+    implicit val encode12 = deriveEncoder[Outcome]
+    implicit val encode13 = deriveEncoder[OrderbookChanges]
+    implicit val encode14 = deriveEncoder[PrepareResponse]
+    implicit val encode15 = deriveEncoder[PaymentParam]
+    implicit val encode16 = deriveEncoder[Instructions]
+    implicit val encode17 = deriveEncoder[Destination]
+    implicit val encode18 = deriveEncoder[Payment]
+    implicit val encode19 = deriveEncoder[Memo]
+    implicit val encode20 = deriveEncoder[Options]
+    implicit val encode21 = deriveEncoder[SignedTransaction]*/
+
     def cleanJsonObject(obj: JsonObject) = {
       JsonObject.fromIterable(
         obj.toMap.head._2.asObject.get.toList.filter({

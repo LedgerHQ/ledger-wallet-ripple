@@ -8,9 +8,8 @@ import co.ledger.wallet.core.device.ripple.LedgerCommonApiInterface.LedgerApiExc
 import co.ledger.wallet.core.utils.HexUtils
 import co.ledger.wallet.core.wallet.ripple.RippleAccount
 import co.ledger.wallet.web.ripple.components.SnackBar
-import co.ledger.wallet.web.ripple.services.{DeviceService, RippleAPIService, SessionService, WindowService}
+import co.ledger.wallet.web.ripple.services.{DeviceService, SessionService, WindowService}
 
-import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
 import scala.util.{Failure, Success}
@@ -51,8 +50,7 @@ class SendPerformController(override val windowService: WindowService,
                             deviceService: DeviceService,
                             $location: Location,
                             $route: js.Dynamic,
-                            $routeParams: js.Dictionary[String],
-                            rippleAPIService: RippleAPIService) extends Controller with WalletController {
+                            $routeParams: js.Dictionary[String]) extends Controller with WalletController {
   private val startGas = BigInt($routeParams("fees"))
   private val gasPrice = BigInt($routeParams("price"))
   private val accountId = $routeParams("account_id").toInt
@@ -61,36 +59,6 @@ class SendPerformController(override val windowService: WindowService,
   private val data = $routeParams.lift("data").map(_.replace("0x", "")).map(HexUtils.decodeHex)
 
   windowService.disableUserInterface()
-  val api = rippleAPIService.api
-  val preparedTx = api.preparePayment(new api.PaymentParam(
-    instructions = new api.Instructions(
-      fee = 0
-    ),
-    address = sessionService.currentSession.get.wallet.name, //TODO:
-  // custom getter
-    payment = new api.Payment(
-      source = new api.Source(
-        address = sessionService.currentSession.get.wallet.name,
-        amount = Some[api.LaxAmount](new api.LaxAmount(
-          value = Some(amount.toString) //TODO :  convert
-        ))
-      ),
-      destination = new api.Destination(
-        address = to.id
-      )
-    )
-  )
-).onSuccess {
-  case k => println("payment prepared")
-  println(k)
-  api.sign(new api.SignParam(
-    txJSON = k.txJSON,
-    secret =  "sdsd" //sessionService.currentSession.get.wallet.secret //
-    // TODO : get it
-    // from device
-  ))
-}
-  //Await.result(preparedTx, 10 second) // awaitable is a future though...
 
   sessionService.currentSession.get.wallet.account(accountId) flatMap {(account) =>
     account.rippleAccountDerivationPath() flatMap {(from) =>
@@ -107,7 +75,7 @@ class SendPerformController(override val windowService: WindowService,
             data.getOrElse(Array.emptyByteArray)
           )
         }
-      }
+      }//
     }
   } flatMap {(signature) =>
     sessionService.currentSession.get.wallet.pushTransaction(signature.signedTx)

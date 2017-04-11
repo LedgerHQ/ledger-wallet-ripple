@@ -63,15 +63,15 @@ abstract class AbstractApiAccountClient(override val wallet
         .coinPathPrefix}/$index'/0"))
 
   override def synchronize(): Future[Unit] = {
-    api.getTransactions(
+    /*val transactions = api.getTransactions(
       api.GetTransactionsParam(
-        address = "titi",
+        address = accountRow.rippleAccount,
         options = Some(api.TransactionsOptions(
           types = Some(Array("payment"))
           )
         )
       )
-    )
+    )*/
     Future.successful()
   }
 

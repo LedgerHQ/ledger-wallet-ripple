@@ -10,10 +10,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 trait WalletController {
   val sessionService: SessionService
   val windowService: WindowService
-  val rippleAPIService: RippleAPIService
   val $scope: Scope
   implicit val ws = windowService
-  implicit val api = rippleAPIService
 
   windowService.showNavigationBar()
 

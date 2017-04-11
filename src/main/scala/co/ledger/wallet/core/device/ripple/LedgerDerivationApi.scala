@@ -53,7 +53,7 @@ trait LedgerDerivationApi extends LedgerCommonApiInterface {
       val address = data.readNextBytes(data.readNextByte())
       PublicAddressResult(
         publicKey,
-        RippleAccount("SampleAccount") //TODO
+        RippleAccount("rhGxojnVnEhPQFfMsQ9BK81keWzs6Lzfpv")
       )
     }
   }

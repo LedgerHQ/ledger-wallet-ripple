@@ -46,7 +46,6 @@ import scala.util.{Failure, Success}
   */
 class AccountController(override val windowService: WindowService,
                         override val sessionService: SessionService,
-                        override val rippleAPIService: RippleAPIService,
                         override val $scope: Scope,
                         $element: JQLite,
                         $routeParams: js.Dictionary[String])
