@@ -4,7 +4,7 @@ import scala.scalajs.js
 
 /**
   *
-  * Ether
+  * XRP
   * ledger-wallet-ripple-chrome
   *
   * Created by Pierre Pollastri on 13/06/2016.
@@ -32,16 +32,16 @@ import scala.scalajs.js
   * SOFTWARE.
   *
   */
-class Ether(private val value: BigInt) {
-  def +(value: Ether) = new Ether(this.value + value.value)
-  def -(value: Ether) = new Ether(this.value - value.value)
-  def /(value: Ether) = new Ether(this.value / value.value)
-  def *(value: Ether) = new Ether(this.value * value.value)
-  def %(value: Ether) = new Ether(this.value % value.value)
-  def >(value: Ether) = this.value > value.value
-  def >=(value: Ether) = this.value >= value.value
-  def <(value: Ether) = this.value < value.value
-  def <=(value: Ether) = this.value <= value.value
+class XRP(private val value: BigInt) {
+  def +(value: XRP) = new XRP(this.value + value.value)
+  def -(value: XRP) = new XRP(this.value - value.value)
+  def /(value: XRP) = new XRP(this.value / value.value)
+  def *(value: XRP) = new XRP(this.value * value.value)
+  def %(value: XRP) = new XRP(this.value % value.value)
+  def >(value: XRP) = this.value > value.value
+  def >=(value: XRP) = this.value >= value.value
+  def <(value: XRP) = this.value < value.value
+  def <=(value: XRP) = this.value <= value.value
 
   override def toString: String = value.toString()
 
@@ -49,12 +49,12 @@ class Ether(private val value: BigInt) {
   def toBigInt = value
 }
 
-object Ether {
-  val Zero = Ether(0)
+object XRP {
+  val Zero = XRP(0)
 
-  def apply(value: Int): Ether = new Ether(BigInt(value))
-  def apply(value: Long): Ether = new Ether(BigInt(value))
-  def apply(value: String): Ether = {
+  def apply(value: Int): XRP = new XRP(BigInt(value))
+  def apply(value: Long): XRP = new XRP(BigInt(value))
+  def apply(value: String): XRP = {
     // Parse Javascript double serialization (i.e. 1.654321e+200)
     if (value.indexOf("e+") != -1) {
       val pattern = "(\\d*\\.?\\d*)e\\+(\\d*)".r
@@ -64,14 +64,14 @@ object Ether {
         val n = m.group(2).toInt - (if (double.indexOf(".") != -1) (double.length - (double.indexOf(".") + 1)) else 0)
         r = s"${double.replace(".", "")}${"0" * n}"
       })
-      new Ether(BigInt(r))
+      new XRP(BigInt(r))
     } else {
-      new Ether(BigInt(value))
+      new XRP(BigInt(value))
     }
   }
 
   object Implicits {
-    implicit def int2Ether(value: Int): Ether = Ether(value)
+    implicit def int2Ether(value: Int): XRP = XRP(value)
   }
 
 }

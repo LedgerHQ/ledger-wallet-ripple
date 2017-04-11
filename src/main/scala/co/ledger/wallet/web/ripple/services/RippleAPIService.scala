@@ -12,8 +12,8 @@ import concurrent.ExecutionContext.Implicits.global
   * Created by alix on 4/5/17.
   */
 class RippleAPIService () extends Service {
-  val api = new RippleAPI
-
+  val api = new RippleAPI   //renvoie future
+// val option[future ripple]
   def init(options: APIOption): Unit = {
     api.setOptions(options).onSuccess {
       case k => println("success fron future connection")

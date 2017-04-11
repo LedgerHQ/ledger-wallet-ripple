@@ -1,6 +1,6 @@
 package co.ledger.wallet.web.ripple.core.utils
 
-import co.ledger.wallet.core.wallet.ripple.Ether
+import co.ledger.wallet.core.wallet.ripple.XRP
 
 import scala.scalajs.js
 
@@ -36,7 +36,7 @@ import scala.scalajs.js
   */
 object EtherFormatter {
 
-  def format(ether: Ether, unit: String, locale: String): String = {
+  def format(ether: XRP, unit: String, locale: String): String = {
     val decimalSep =  js.JSNumberOps.enableJSNumberExtOps(1.6).self.toLocaleString(locale).asInstanceOf[String].charAt(1).toString
     val groupSep = js.JSNumberOps.enableJSNumberExtOps(1000).self.toLocaleString(locale).asInstanceOf[String].charAt(1).toString
     val dimension = unitToDimension(unit)

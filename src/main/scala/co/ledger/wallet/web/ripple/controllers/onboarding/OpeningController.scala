@@ -9,7 +9,7 @@ import co.ledger.wallet.core.device.Device
 import co.ledger.wallet.core.device.ripple.{LedgerApi, LedgerBolosApi, LedgerDerivationApi}
 import co.ledger.wallet.core.device.ripple.LedgerDerivationApi.PublicAddressResult
 import co.ledger.wallet.core.utils.DerivationPath
-import co.ledger.wallet.core.wallet.ripple.{Ether, RippleAccount}
+import co.ledger.wallet.core.wallet.ripple.{XRP, RippleAccount}
 import co.ledger.wallet.core.wallet.ripple.Wallet.WalletNotSetupException
 import co.ledger.wallet.core.wallet.ripple.api.{AbstractApiWalletClient, AbstractTransactionRestClient}
 import co.ledger.wallet.web.ripple.core.utils.ChromePreferences

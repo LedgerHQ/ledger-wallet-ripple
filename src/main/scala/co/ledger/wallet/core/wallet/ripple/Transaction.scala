@@ -35,11 +35,11 @@ import java.util.Date
 trait Transaction {
   def hash: String
   def receivedAt: Date
-  def value: Ether
-  def gas: Ether
-  def gasUsed: Ether
-  def gasPrice: Ether
-  def cumulativeGasUsed: Ether
+  def value: XRP
+  def gas: XRP
+  def gasUsed: XRP
+  def gasPrice: XRP
+  def cumulativeGasUsed: XRP
   def from: String
   def to: String
   def block: Option[Block]

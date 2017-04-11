@@ -41,16 +41,15 @@ trait Wallet {
   def coinPathPrefix: String
   def account(index: Int): Future[Account]
   def accounts(): Future[Array[Account]]
-  def balance(): Future[Ether]
+  def balance(): Future[XRP]
   def synchronize(): Future[Unit]
   def isSynchronizing(): Future[Boolean]
   def mostRecentBlock(): Future[Block]
   def pushTransaction(transaction: Array[Byte]): Future[Unit]
   def operations(from: Int, batchSize: Int = Wallet.DefaultOperationsBatchSize): Future[AsyncCursor[Operation]]
   def eventEmitter: EventEmitter
-  def estimatedGasPrice(): Future[Ether]
+  def estimatedGasPrice(): Future[XRP]
   def stop(): Unit
-  def secret(): String
 }
 
 object Wallet {
@@ -61,5 +60,5 @@ object Wallet {
   case class NewOperationEvent(account: Account, operation: Operation)
   case class StartSynchronizationEvent()
   case class StopSynchronizationEvent()
-  case class GasPriceChanged(price: Ether)
+  case class GasPriceChanged(price: XRP)
 }

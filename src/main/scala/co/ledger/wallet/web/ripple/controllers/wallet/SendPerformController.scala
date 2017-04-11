@@ -85,8 +85,9 @@ class SendPerformController(override val windowService: WindowService,
   println(k)
   api.sign(new api.SignParam(
     txJSON = k.txJSON,
-    secret =  sessionService.currentSession.get.wallet.secret // get it from
-    // device
+    secret =  "sdsd" //sessionService.currentSession.get.wallet.secret //
+    // TODO : get it
+    // from device
   ))
 }
   //Await.result(preparedTx, 10 second) // awaitable is a future though...

@@ -3,7 +3,7 @@ package co.ledger.wallet.web.ripple.components
 import biz.enef.angulate.{Directive, Scope}
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.{Attributes, JQLite}
-import co.ledger.wallet.core.wallet.ripple.Ether
+import co.ledger.wallet.core.wallet.ripple.XRP
 import co.ledger.wallet.web.ripple.components.AmountLabel.AmountLabelScope
 import co.ledger.wallet.web.ripple.core.utils.EtherFormatter
 import co.ledger.wallet.web.ripple.services.SessionService
@@ -50,7 +50,7 @@ class AmountLabel($locale: js.Dynamic, $translate: js.Dynamic, sessionService: S
     scope.$watch("rawValue", {(value: js.Any) =>
       if (scope.rawValue == null)
         scope.rawValue = ""
-      scope.value = EtherFormatter.format(Ether(if (scope.rawValue.isEmpty) "1000000000000000000" else scope.rawValue), unit(attrs), js.Dynamic.global.navigator.language.asInstanceOf[String])
+      scope.value = EtherFormatter.format(XRP(if (scope.rawValue.isEmpty) "1000000000000000000" else scope.rawValue), unit(attrs), js.Dynamic.global.navigator.language.asInstanceOf[String])
       scope.isNegative = scope.value.startsWith("-")
       scope.unit = unit(attrs)
       scope.`type` = `type`(attrs)

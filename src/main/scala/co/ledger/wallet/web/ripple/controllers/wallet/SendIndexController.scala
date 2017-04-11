@@ -4,7 +4,7 @@ import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.JQLite
 import biz.enef.angulate.{Controller, Scope}
 import co.ledger.wallet.core.device.ripple.LedgerApi
-import co.ledger.wallet.core.wallet.ripple.{Ether, RippleAccount}
+import co.ledger.wallet.core.wallet.ripple.{XRP, RippleAccount}
 import co.ledger.wallet.web.ripple.components.{QrCodeScanner, SnackBar}
 import co.ledger.wallet.web.ripple.core.utils.PermissionsHelper
 import co.ledger.wallet.web.ripple.services.{DeviceService, RippleAPIService, SessionService, WindowService}
@@ -66,7 +66,7 @@ class SendIndexController(override val windowService: WindowService,
   def gasLimit = if (!isInAdvancedMode) BigInt(21000) else Try(BigInt(customGasLimit)).getOrElse(BigInt(21000))
   private var _gasPrice = BigInt("21000000000")
   var gasPrice = _gasPrice.toString()
-  var total = Ether(0).toBigInt.toString()
+  var total = XRP(0).toBigInt.toString()
   val unit = sessionService.currentSession.get.chain.symbol
 
   var isInAdvancedMode = false
@@ -99,17 +99,17 @@ class SendIndexController(override val windowService: WindowService,
 
   def max(): Unit = {
     sessionService.currentSession.get.wallet.balance() foreach {(b) =>
-      var a = new Ether(b.toBigInt - (_gasPrice * gasLimit))
+      var a = new XRP(b.toBigInt - (_gasPrice * gasLimit))
       if (a.toBigInt < 0)
-        a = Ether(0)
+        a = XRP(0)
       amount = a.toEther.toString()
       computeTotal()
       $scope.$apply()
     }
   }
 
-  def computeTotal(): Ether = {
-    val t = getAmountInput().map((amount) => amount + (_gasPrice * gasLimit)).map(new Ether(_)).getOrElse(Ether(0))
+  def computeTotal(): XRP = {
+    val t = getAmountInput().map((amount) => amount + (_gasPrice * gasLimit)).map(new XRP(_)).getOrElse(XRP(0))
     total = t.toBigInt.toString()
     t
   }
@@ -197,7 +197,7 @@ class SendIndexController(override val windowService: WindowService,
     val amount = Try((BigDecimal($element.find("#amount_input").asInstanceOf[JQLite].`val`().toString) * BigDecimal(10).pow(18)).toBigInt())
     val recipient = $element.find("#receiver_input").asInstanceOf[JQLite].`val`().toString
     sessionService.currentSession.get.sessionPreferences(SendIndexController.RestoreKey) =  SendIndexController.RestoreState(
-      amount.map(new Ether(_)),
+      amount.map(new XRP(_)),
       recipient,
       customGasLimit,
       data,
@@ -210,5 +210,5 @@ object SendIndexController {
   def init(module: RichModule) = module.controllerOf[SendIndexController]("SendIndexController")
 
   val RestoreKey = "SendIndexController#Restore"
-  case class RestoreState(amount: Try[Ether], to: String, customGasLimit: String, data: String, advancedMode: Boolean)
+  case class RestoreState(amount: Try[XRP], to: String, customGasLimit: String, data: String, advancedMode: Boolean)
 }

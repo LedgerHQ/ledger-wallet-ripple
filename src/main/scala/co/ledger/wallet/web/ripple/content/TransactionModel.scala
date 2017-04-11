@@ -2,7 +2,7 @@ package co.ledger.wallet.web.ripple.content
 
 import java.util.Date
 
-import co.ledger.wallet.core.wallet.ripple.{Block, Ether, Transaction}
+import co.ledger.wallet.core.wallet.ripple.{Block, XRP, Transaction}
 import co.ledger.wallet.web.ripple.core.database.Model
 
 /**
@@ -52,11 +52,11 @@ class TransactionModel extends Model("transaction") {
 
   def proxy: Transaction = {
     new Transaction {
-      override def gas: Ether = Ether(TransactionModel.this.gas().get)
+      override def gas: XRP = XRP(TransactionModel.this.gas().get)
 
       override def nonce: BigInt = BigInt(TransactionModel.this.nonce().get, 16)
 
-      override def gasPrice: Ether = Ether(TransactionModel.this.gas().get)
+      override def gasPrice: XRP = XRP(TransactionModel.this.gas().get)
 
       override def block: Option[Block] = None
 
@@ -68,11 +68,11 @@ class TransactionModel extends Model("transaction") {
 
       override def to: String = TransactionModel.this.to().get
 
-      override def value: Ether = Ether(TransactionModel.this.gas().get)
+      override def value: XRP = XRP(TransactionModel.this.gas().get)
 
-      override def cumulativeGasUsed: Ether = Ether(TransactionModel.this.gas().get)
+      override def cumulativeGasUsed: XRP = XRP(TransactionModel.this.gas().get)
 
-      override def gasUsed: Ether = Ether(TransactionModel.this.gas().get)
+      override def gasUsed: XRP = XRP(TransactionModel.this.gas().get)
 
       override def receivedAt: Date = new Date(TransactionModel.this.receivedAt().get.getTime().toLong)
     }

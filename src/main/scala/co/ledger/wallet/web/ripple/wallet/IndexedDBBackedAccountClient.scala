@@ -74,7 +74,8 @@ trait IndexedDBBackedAccountClient extends DatabaseBackedAccountClient {
 //  }
 
   override def queryOperation(from: Int, to: Int): Future[Array[Operation]] = {
-    wallet.OperationModel.readonly(password).openCursor("time").reverse().cursor flatMap {(cursor) =>
+    wallet.OperationModel.readonly(password).openCursor("time").reverse()
+      .cursor flatMap {(cursor) =>
       val length = to - from
       val result = new ArrayBuffer[OperationModel](length)
       def iterate(): Future[Array[OperationModel]] = {
@@ -108,7 +109,8 @@ trait IndexedDBBackedAccountClient extends DatabaseBackedAccountClient {
   }
 
   private def getOperation(model: OperationModel): Future[Operation] = {
-    wallet.TransactionModel.readonly(password).get(model.transactionHash().get).items map {(txs) =>
+    wallet.TransactionModel.readonly(password).get(model.transactionHash()
+      .get).items map {(txs) =>
       txs.head
     } flatMap {(tx) =>
       tx.blockHash() map {(blockHash) =>
@@ -121,13 +123,13 @@ trait IndexedDBBackedAccountClient extends DatabaseBackedAccountClient {
 
           override def data: String = tx.data().get
 
-          override def gas: Ether = Ether(tx.gas().get)
+          override def gas: XRP = XRP(tx.gas().get)
 
           override def block: Option[Block] = b.map(_.proxy)
 
-          override def gasUsed: Ether = Ether(tx.gasUsed().get)
+          override def gasUsed: XRP = XRP(tx.gasUsed().get)
 
-          override def gasPrice: Ether = Ether(tx.gasPrice().get)
+          override def gasPrice: XRP = XRP(tx.gasPrice().get)
 
           override def from: String = tx.from().get
 
@@ -135,9 +137,9 @@ trait IndexedDBBackedAccountClient extends DatabaseBackedAccountClient {
 
           override def hash: String = tx.hash().get
 
-          override def value: Ether = Ether(tx.value().get)
+          override def value: XRP = XRP(tx.value().get)
 
-          override def cumulativeGasUsed: Ether = Ether(tx.cumulativeGasUsed().get)
+          override def cumulativeGasUsed: XRP = XRP(tx.cumulativeGasUsed().get)
 
           override def receivedAt: Date = new Date(tx.receivedAt().get.getTime().toLong)
         }
@@ -157,7 +159,7 @@ trait IndexedDBBackedAccountClient extends DatabaseBackedAccountClient {
     wallet.OperationModel.readonly(password).exactly(index).openCursor("accountId").count
   }
 
-  override def updateAccountBalance(balance: Ether): Future[Unit] = {
+  override def updateAccountBalance(balance: XRP): Future[Unit] = {
     wallet.AccountModel.readonly(password).get(index).items flatMap {(accounts) =>
       val account = accounts.head
       account.balance.set(balance.toBigInt.toString())
@@ -167,10 +169,10 @@ trait IndexedDBBackedAccountClient extends DatabaseBackedAccountClient {
     }
   }
 
-  override def queryAccountBalance(): Future[Ether] = {
+  override def queryAccountBalance(): Future[XRP] = {
     wallet.AccountModel.readonly(password).get(index).items map {(accounts) =>
       val account = accounts.head
-      account.balance().map(Ether(_)).getOrElse(Ether.Zero)
+      account.balance().map(XRP(_)).getOrElse(XRP.Zero)
     }
   }
 }

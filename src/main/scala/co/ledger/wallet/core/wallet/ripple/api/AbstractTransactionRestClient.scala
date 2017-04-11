@@ -4,7 +4,7 @@ import java.util.Date
 
 import co.ledger.wallet.core.net.HttpClient
 import co.ledger.wallet.core.utils.HexUtils
-import co.ledger.wallet.core.wallet.ripple.{Block, Ether, Transaction}
+import co.ledger.wallet.core.wallet.ripple.{Block, XRP, Transaction}
 import org.json.JSONObject
 
 import scala.collection.mutable.ArrayBuffer
@@ -75,17 +75,17 @@ abstract class AbstractTransactionRestClient(http: HttpClient, val blockRestClie
     }
   }
 
-  def getEstimatedGasPrice(): Future[Ether] = {
+  def getEstimatedGasPrice(): Future[XRP] = {
     http.get("/fees").json map {
       case (json, _) =>
-        Ether(json.getString("gas_price"))
+        XRP(json.getString("gas_price"))
     }
   }
 
-  def getAccountBalance(rippleAccount: String): Future[Ether] = {
+  def getAccountBalance(rippleAccount: String): Future[XRP] = {
     http.get(s"/addresses/$rippleAccount/balance").jsonArray map {
       case (json, _) =>
-        Ether(json.getJSONObject(0).getString("balance"))
+        XRP(json.getJSONObject(0).getString("balance"))
     }
   }
 
@@ -103,11 +103,11 @@ abstract class AbstractTransactionRestClient(http: HttpClient, val blockRestClie
     override def data: String = json.getString("input")
     override val hash: String = json.getString("hash")
     override val receivedAt: Date = stringToDate(json.getString("received_at"))
-    override val value: Ether = Ether(json.getString("value"))
-    override val gas: Ether = Ether(json.getString("gas"))
-    override val gasUsed: Ether = Ether(json.optString("gas_used", "0"))
-    override val gasPrice: Ether = Ether(json.getString("gas_price"))
-    override val cumulativeGasUsed: Ether = Ether(json.optString("cumulative_gas_used", "0"))
+    override val value: XRP = XRP(json.getString("value"))
+    override val gas: XRP = XRP(json.getString("gas"))
+    override val gasUsed: XRP = XRP(json.optString("gas_used", "0"))
+    override val gasPrice: XRP = XRP(json.getString("gas_price"))
+    override val cumulativeGasUsed: XRP = XRP(json.optString("cumulative_gas_used", "0"))
     override val from: String = json.getString("from")
     override val to: String = json.getString("to")
     override val block: Option[Block] = Option(json.optJSONObject("block")).map((b) => blockRestClient.jsonToBlock(b))

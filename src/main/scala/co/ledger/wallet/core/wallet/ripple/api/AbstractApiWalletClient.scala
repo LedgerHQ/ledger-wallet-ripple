@@ -175,7 +175,7 @@ abstract class AbstractApiWalletClient(override val name: String,
     }
   }
 
-  override def estimatedGasPrice(): Future[Ether] = init().map((_) => _gasPrice)
+  override def estimatedGasPrice(): Future[XRP] = init().map((_) => _gasPrice)
 
   def rippleAccountProvider: RippleAccountProvider
 
@@ -183,10 +183,10 @@ abstract class AbstractApiWalletClient(override val name: String,
 
   override def isSynchronizing(): Future[Boolean] = init().map((_) => _synchronizationFuture.isDefined)
 
-  override def balance(): Future[Ether] = accounts().flatMap { (accounts) =>
+  override def balance(): Future[XRP] = accounts().flatMap { (accounts) =>
     Future.sequence(accounts.map(_.balance()).toSeq)
   } map { (balances) =>
-    var result = Ether.Zero
+    var result = XRP.Zero
     for (balance <- balances) {
       result = result + balance
     }
@@ -257,7 +257,7 @@ abstract class AbstractApiWalletClient(override val name: String,
   private var _stopped = false
   private var _synchronizationFuture: Option[Future[Unit]] = None
   private var _webSocketNetworkObserver: Option[WebSocketNetworkObserver] = None
-  private var _gasPrice = Ether(21000000000L)
+  private var _gasPrice = XRP(21000000000L)
 
   protected def newAccountClient(accountRow: AccountRow): AbstractApiAccountClient
 }

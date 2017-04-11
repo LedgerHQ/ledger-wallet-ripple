@@ -199,14 +199,14 @@ abstract class AbstractApiAccountClient(override val wallet: AbstractApiWalletCl
     }
   }
 
-  override def balance(): Future[Ether] = _balanceCache.map((b) => Future.successful(b)) getOrElse {
+  override def balance(): Future[XRP] = _balanceCache.map((b) => Future.successful(b)) getOrElse {
     queryAccountBalance()
   } andThen {
     case Success(balance) =>
       _balanceCache = Option(balance)
     case Failure(ex) => // Do nothing
   }
-  private var _balanceCache: Option[Ether] = None
+  private var _balanceCache: Option[XRP] = None
 
   def transactionNonce(): Future[BigInt] = wallet.transactionRestClient.getAccountNonce(accountRow.rippleAccount)
 
