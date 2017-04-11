@@ -150,9 +150,9 @@ class RippleAPI() {
                     ) extends RippleAPIObject
 
   case class Memo(
-                  data: Option[String],
-                  format: Option[String],
-                  `type`: Option[String]
+                  data: Option[String] = None,
+                  format: Option[String] = None,
+                  `type`: Option[String] = None
                  ) extends RippleAPIObject
 
   /*case class Trustline(
@@ -168,25 +168,25 @@ class RippleAPI() {
                       ) extends RippleAPIObject*/
 
   case class Options(
-                    binary: Option[Boolean],
-                    counterparty: Option[String],
-                    earliestFirst: Option[Boolean],
-                    excludeFailures: Option[Boolean],
-                    initiated: Option[Boolean],
-                    limit: Option[Int],
-                    maxLedgerVersion: Option[Int],
-                    minLedgerVersion: Option[Int],
-                    start: Option[String],
-                    types: Option[String],
-                    currency: Option[String],
-                    ledgerVersion: Option[Int],
-                    excludeAddresses: Option[String],
-                    includeAllData: Option[Boolean],
-                    includeState: Option[Boolean],
-                    includeTransactions: Option[Boolean],
-                    signAs: Option[String],
-                    algorithm: Option[String],
-                    entropy: Option[Array[Int]]
+                    binary: Option[Boolean] = None,
+                    counterparty: Option[String] = None,
+                    earliestFirst: Option[Boolean] = None,
+                    excludeFailures: Option[Boolean] = None,
+                    initiated: Option[Boolean] = None,
+                    limit: Option[Int] = None,
+                    maxLedgerVersion: Option[Int] = None,
+                    minLedgerVersion: Option[Int] = None,
+                    start: Option[String] = None,
+                    types: Option[String] = None,
+                    currency: Option[String] = None,
+                    ledgerVersion: Option[Int] = None,
+                    excludeAddresses: Option[String] = None,
+                    includeAllData: Option[Boolean] = None,
+                    includeState: Option[Boolean] = None,
+                    includeTransactions: Option[Boolean] = None,
+                    signAs: Option[String] = None,
+                    algorithm: Option[String] = None,
+                    entropy: Option[Array[Int]] = None
                     ) extends RippleAPIObject
 
   //--------------------
@@ -267,30 +267,30 @@ class RippleAPI() {
 
   case class GetTransactionParam(
                                    id: String,
-                                   options: Option[TransactionOptions]
+                                   options: Option[TransactionOptions] = None
                                  ) extends RippleAPIObject
 
   case class GetTransactionsParam(
                                  address: String,
-                                 options: Option[TransactionsOptions]
+                                 options: Option[TransactionsOptions] = None
                                  ) extends RippleAPIObject
 
   case class TransactionsOptions(
-                         binary: Option[Boolean],
-                         counterparty: Option[String],
-                         earliestFirst: Option[Boolean],
-                         excludeFailures: Option[Boolean],
-                         initiated: Option[Boolean],
-                         limit: Option[Int],
-                         maxLedgerVersion: Option[Int],
-                         minLedgerVersion: Option[Int],
-                         start: Option[String],
-                         types: Option[Array[String]]
+                         binary: Option[Boolean] = None,
+                         counterparty: Option[String] = None,
+                         earliestFirst: Option[Boolean] = None,
+                         excludeFailures: Option[Boolean] = None,
+                         initiated: Option[Boolean] = None,
+                         limit: Option[Int] = None,
+                         maxLedgerVersion: Option[Int] = None,
+                         minLedgerVersion: Option[Int] = None,
+                         start: Option[String] = None,
+                         types: Option[Array[String]] = None
                          ) extends RippleAPIObject
 
   case class TransactionOptions(
-                                  maxLedgerVersion: Option[Int],
-                                  minLedgerVersion: Option[Int]
+                                  maxLedgerVersion: Option[Int] = None,
+                                  minLedgerVersion: Option[Int] = None
                                 ) extends RippleAPIObject
 
   case class Transaction(
@@ -310,8 +310,8 @@ class RippleAPI() {
 //implement balance changing keys
                     ledgerVersion: Int,
                     indexInLedger: Int,
-                    deliveredAmount: Option[String],
-                    timestamp: Option[String]
+                    deliveredAmount: Option[String] = None,
+                    timestamp: Option[String] = None
                     ) extends RippleAPIObject
 
   case class OrderbookChanges(
@@ -320,8 +320,8 @@ class RippleAPI() {
                              totalPrice: LaxAmount,
                              sequence: RippleSequence,
                              status: String,
-                             expirationTime: Option[RippleDateTime],
-                             markerExchangeRate: Option[String]
+                             expirationTime: Option[RippleDateTime] = None,
+                             markerExchangeRate: Option[String] = None
                              ) extends RippleAPIObject
 
 

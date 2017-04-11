@@ -65,8 +65,11 @@ abstract class AbstractApiAccountClient(override val wallet
   override def synchronize(): Future[Unit] = {
     api.getTransactions(
       api.GetTransactionsParam(
-        api.
-
+        address = "titi",
+        options = Some(api.TransactionsOptions(
+          types = Some(Array("payment"))
+          )
+        )
       )
     )
     Future.successful()
