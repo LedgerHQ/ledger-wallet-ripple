@@ -7,6 +7,7 @@ import co.ledger.wallet.core.wallet.ripple.api.AbstractApiAccountClient.{Account
 import co.ledger.wallet.core.wallet.ripple.database.AccountRow
 import co.ledger.wallet.web.ripple.core.utils.ChromePreferences
 import co.ledger.wallet.web.ripple.services.SessionService
+import org.ripple.api.RippleAPI
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
@@ -41,8 +42,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
   * SOFTWARE.
   *
   */
-class ApiAccountClient(override val wallet: ApiWalletClient, override protected val password: Option[String], accountRow: AccountRow)
-  extends AbstractApiAccountClient(wallet, accountRow) with IndexedDBBackedAccountClient {
+class ApiAccountClient(override val wallet: ApiWalletClient, override
+protected val password: Option[String], accountRow: AccountRow, api: RippleAPI)
+  extends AbstractApiAccountClient(wallet, accountRow, api) with
+    IndexedDBBackedAccountClient {
 
   override protected def load(): Future[AccountSavedState] = {
     Future.successful({

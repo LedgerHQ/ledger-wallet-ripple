@@ -9,6 +9,8 @@ import co.ledger.wallet.core.wallet.ripple.Wallet.NewOperationEvent
 import co.ledger.wallet.core.wallet.ripple._
 import co.ledger.wallet.core.wallet.ripple.api.AbstractApiAccountClient.{AccountSavedState, AccountSavedStateBatch, SynchronizationStatus}
 import co.ledger.wallet.core.wallet.ripple.database.{AccountRow, DatabaseBackedAccountClient}
+import co.ledger.wallet.web.ripple.services.RippleAPIService
+import org.ripple.api.RippleAPI
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{ExecutionContext, Future}
@@ -45,79 +47,29 @@ import scala.util.{Failure, Success}
   */
 abstract class AbstractApiAccountClient(override val wallet
                                           : AbstractApiWalletClient,
-                                        private val accountRow: AccountRow)
+                                        private val accountRow: AccountRow,
+                                       api: RippleAPI)
   extends Account
     with DatabaseBackedAccountClient {
 
   implicit val ec: ExecutionContext = wallet.ec
 
   override def index: Int = accountRow.index
-  override def rippleAccount(): Future[RippleAccount] = Future.successful(RippleAccount(accountRow.rippleAccount))
-  override def rippleAccountDerivationPath(): Future[DerivationPath] = Future.successful(DerivationPath(s"44'/${wallet.bip44CoinType}'${wallet.coinPathPrefix}/$index'/0"))
+  override def rippleAccount(): Future[RippleAccount] =
+    Future.successful(RippleAccount(accountRow.rippleAccount))
+  override def rippleAccountDerivationPath(): Future[DerivationPath] =
+    Future.successful(
+      DerivationPath(s"44'/${wallet.bip44CoinType}'${wallet
+        .coinPathPrefix}/$index'/0"))
 
-  override def synchronize(): Future[Unit] = wallet.synchronize()
+  override def synchronize(): Future[Unit] = {
+    api.getTransactions(
+      api.GetTransactionsParam(
+        api.
 
-  private[api] def synchronize(syncToken: String): Future[Unit] = {
-    val startDate = new Date()
-    load() flatMap {(state) =>
-      Logger.i(s"Account #$index start synchronization")
-      initSavedState(state)
-      def synchronizeUntilEmpty(): Future[Unit] = {
-        val block = Option(state.batches).flatMap(_.headOption)
-          .map(_.blockHash).flatMap(Option(_))
-        wallet.transactionRestClient.transactions(syncToken,
-          Array(accountRow.rippleAccount), block) flatMap {(result) =>
-          // Find highest block
-          var highestBlock = result.transactions.headOption.flatMap(_.block)
-          for (tx <- result.transactions) {
-            if ((tx.block.isDefined && highestBlock.isEmpty) ||
-                (tx.block.isDefined && tx.block.get.height > highestBlock
-                  .get.height)) {
-              highestBlock = tx.block
-            }
-          }
-          if (highestBlock.isDefined) {
-            val batch = state.batches.head
-            batch.blockHash = highestBlock.get.hash
-            batch.blockHeight = highestBlock.get.height
-          }
-          wallet.putTransactions(result.transactions) flatMap { _ =>
-            val operations = createOperations(result.transactions)
-            wallet.putOperations(operations) map {(_) =>
-              operations foreach {(op) =>
-                wallet.eventEmitter.emit(NewOperationEvent(this, op))
-              }
-              ()
-            }
-          } flatMap {_ =>
-            if (result.isTruncated) {
-              synchronizeUntilEmpty()
-            } else {
-              Future.successful()
-            }
-          }
-        }
-      }
-      synchronizeUntilEmpty().flatMap({(_) =>
-        wallet.transactionRestClient.getAccountBalance(accountRow.rippleAccount).flatMap {(ethers) =>
-          _balanceCache = Option(ethers)
-          updateAccountBalance(ethers)
-        }
-      }).flatMap({(_) =>
-        val endDate = new Date()
-        Logger.i(s"Account #$index synchronization end in ${(endDate.getTime - startDate.getTime) / 1000}s")
-        state.lastSynchronizationDate = endDate.getTime
-        state.lastSynchronizationStatus = SynchronizationStatus.Success
-        save(state)
-      }) recoverWith {
-        case all: Throwable =>
-          val endDate = new Date()
-          Logger.e(s"Account #$index synchronization failed in ${(endDate.getTime - startDate.getTime) / 1000}s - ${all.getMessage}")
-          state.lastSynchronizationDate = endDate.getTime
-          state.lastSynchronizationStatus = SynchronizationStatus.Failure
-          save(state)
-      }
-    }
+      )
+    )
+    Future.successful()
   }
 
   def synchronizationBlockHash(): Future[Option[String]] = {

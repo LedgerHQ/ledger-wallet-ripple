@@ -64,7 +64,8 @@ trait IndexedDBBackedWalletClient extends DatabaseBackedWalletClient {
 
   override def commitDatabaseTransaction(): Unit = () // Noop
 
-  override protected def queryAccounts(from: Int, to: Int): Future[Array[AccountRow]] = {
+  override protected def queryAccounts(from: Int, to: Int)
+    : Future[Array[AccountRow]] = {
     val result = new ArrayBuffer[AccountRow]()
     AccountModel.readonly(password).cursor flatMap {(cursor) =>
       cursor.advance(from) flatMap {(_) =>

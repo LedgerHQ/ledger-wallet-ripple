@@ -88,17 +88,17 @@ abstract class AbstractApiWalletClient(override val name: String,
 
   def performSynchronize(): Future[Unit] = {
 
-    def synchronizeUntilEmptyAccount(syncToken: String, from: Int)
+    def synchronizeUntilEmptyAccount(from: Int)
       : Future[Unit] = {
       init().flatMap { (_) =>
         val accounts = _accounts.slice(from, _accounts.length)
-        Future.sequence(accounts.map(_.synchronize(syncToken)).toSeq)
+        Future.sequence(accounts.map(_.synchronize()).toSeq)
       } flatMap { (_) =>
         if (_accounts.last.keyChain.issuedKeys != 0) {
           // Create an new account
           val newAccountIndex = _accounts.length
           createAccount(newAccountIndex) flatMap { (_) =>
-            synchronizeUntilEmptyAccount(syncToken, newAccountIndex)
+            synchronizeUntilEmptyAccount(newAccountIndex)
           }
         } else {
           Future.successful()
@@ -116,9 +116,7 @@ abstract class AbstractApiWalletClient(override val name: String,
         case other => Future.failed(other)
       }
     }
-    transactionRestClient.obtainSyncToken() flatMap { (token) =>
-      synchronizeUntilEmptyAccount(token, 0)
-    } andThen {
+    synchronizeUntilEmptyAccount(0) andThen {
       case all =>
         eventEmitter.emit(StopSynchronizationEvent())
         _synchronizationFuture = None

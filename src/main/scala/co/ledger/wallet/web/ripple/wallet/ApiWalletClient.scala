@@ -11,6 +11,7 @@ import co.ledger.wallet.core.wallet.ripple.database.AccountRow
 import co.ledger.wallet.web.ripple.core.event.JsEventEmitter
 import co.ledger.wallet.web.ripple.core.net.{JQHttpClient, JsWebSocketFactory}
 import co.ledger.wallet.web.ripple.services.SessionService
+import org.ripple.api.RippleAPI
 
 import scala.concurrent.ExecutionContext
 import scala.scalajs.js
@@ -45,12 +46,17 @@ import scala.scalajs.js
   * SOFTWARE.
   *
   */
-class ApiWalletClient(name: String, override protected val password: Option[String], provider: RippleAccountProvider, chain: SessionService.RippleChainIdentifier) extends AbstractApiWalletClient(s"${chain.id}_${name}_${chain.coinType}_${chain.pathPrefix}", chain.coinType, chain.pathPrefix) with IndexedDBBackedWalletClient {
+class ApiWalletClient(name: String,
+                      override protected val password: Option[String],
+                      provider: RippleAccountProvider,
+                      chain: SessionService.RippleChainIdentifier,
+                      val api: RippleAPI) extends
+  AbstractApiWalletClient(s"${chain.id}_${name}_${chain.coinType}_${chain.pathPrefix}", chain.coinType, chain.pathPrefix) with IndexedDBBackedWalletClient {
 
   override implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
   override protected def newAccountClient(accountRow: AccountRow): AbstractApiAccountClient = {
-    new ApiAccountClient(this, password, accountRow)
+    new ApiAccountClient(this, password, accountRow, api)
   }
 
   override def rippleAccountProvider: RippleAccountProvider = provider
