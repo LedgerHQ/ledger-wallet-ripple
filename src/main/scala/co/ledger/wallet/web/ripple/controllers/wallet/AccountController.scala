@@ -8,7 +8,7 @@ import co.ledger.wallet.core.wallet.ripple.Operation
 import co.ledger.wallet.core.wallet.ripple.Wallet.{NewOperationEvent, StartSynchronizationEvent, StopSynchronizationEvent}
 import co.ledger.wallet.web.ripple.components.SnackBar
 import co.ledger.wallet.web.ripple.i18n.DateFormat
-import co.ledger.wallet.web.ripple.services.{SessionService, WindowService}
+import co.ledger.wallet.web.ripple.services.{RippleAPIService, SessionService, WindowService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
@@ -46,6 +46,7 @@ import scala.util.{Failure, Success}
   */
 class AccountController(override val windowService: WindowService,
                         override val sessionService: SessionService,
+                        override val rippleAPIService: RippleAPIService,
                         override val $scope: Scope,
                         $element: JQLite,
                         $routeParams: js.Dictionary[String])
