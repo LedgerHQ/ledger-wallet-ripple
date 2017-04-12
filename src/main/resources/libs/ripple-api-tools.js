@@ -5,7 +5,9 @@ var methodMatch = {
     "preparePayment": preparePayment,
     "disconnect": disconnect,
     "submit": submit,
-    "sign": sign
+    "sign": sign,
+    "getTransaction": getTransaction,
+    "getTransactions": getTransactions
 };
 window.addEventListener('message', onMessage);
 
@@ -63,6 +65,14 @@ function submit(parameters) {
 
 function preparePayment(parameters) {
     return api.preparePayment(parameters);
+}
+
+function getTransaction(parameters) {
+    return api.getTransaction(parameters)
+}
+
+function getTransactions(parameters) {
+    return api.getTransaction(parameters)
 }
 
 function createAPI(options){

@@ -237,7 +237,7 @@ class RippleAPI() {
   //---------------
 
   //*************** sync tools
-  /*def getTransaction(parameters: GetTransactionParam) = {
+  def getTransaction(parameters: GetTransactionParam) = {
     execute("getTransaction", parameters)
       .map(decode[Transaction](_).right.get)
   }
@@ -247,7 +247,7 @@ class RippleAPI() {
   def getTransactions(parameters: GetTransactionsParam) = {
     execute("getTransactions", parameters)
       .map(decode[Array[Transaction]](_).right.get)
-  }*/
+  }
 
   case class GetTransactionParam(
                                    id: String,
@@ -290,7 +290,7 @@ class RippleAPI() {
                     result: String,
                     fee: String,
                     balanceChanges: Map[String,Array[LaxAmount]],
-                    //orderbookChanges: Map[String, OrderbookChanges],
+                    orderbookChanges: Map[String, OrderbookChanges],
 //implement balance changing keys
                     ledgerVersion: Int,
                     indexInLedger: Int,
