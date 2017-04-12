@@ -14,19 +14,11 @@ import concurrent.ExecutionContext.Implicits.global
 class RippleAPIService () extends Service {
   val api = new RippleAPI   //renvoie future
 // val option[future ripple]
-  def init(options: APIOption): Unit = {
-    api.setOptions(options).onSuccess {
-      case k => println("success fron future connection")
-    println(k)}
+  def init(options: APIOption): Future[Unit] = {
+    api.setOptions(options) map(_ => ())
   }
-
-  def close(): Unit = {
-    api.disconnect()
-  }
-
 }
 
 object RippleAPIService {
   def init(module: RichModule) = module.serviceOf[RippleAPIService]("rippleAPIService")
-
 }

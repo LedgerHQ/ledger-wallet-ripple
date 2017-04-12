@@ -47,6 +47,8 @@ class RippleAccount(value: String) {
   }
   override def hashCode(): Int = value.hashCode()
   override def equals(obj: scala.Any): Boolean = value.equals(obj)
+
+  override def toString: String = value
 }
 
 object RippleAccount {

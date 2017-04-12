@@ -9,7 +9,6 @@ import co.ledger.wallet.web.ripple.wallet.ApiWalletClient
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-
 import org.ripple.api.APIOption
 
 /**
@@ -56,8 +55,6 @@ class SessionService(rippleAPIService: RippleAPIService) extends Service {
           _currentSession = Some(session)
           val apiOption = APIOption(server = Some("wss://s1.ripple.com"))
           rippleAPIService.init(apiOption)
-          println("end service start")
-          Future.successful()
         }
       }
     }

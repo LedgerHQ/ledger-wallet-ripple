@@ -92,6 +92,7 @@ function createAPI(options){
       sendLedger(ledger);
     });
     api.on('error', (errorCode, errorMessage, data) => {
+      console.log("console from api root")  
       console.log(errorCode + ': ' + errorMessage);
       sendError(error);
     });

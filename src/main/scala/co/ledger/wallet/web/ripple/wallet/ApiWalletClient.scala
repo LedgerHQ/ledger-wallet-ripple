@@ -53,9 +53,11 @@ class ApiWalletClient(name: String,
                       val api: RippleAPI) extends
   AbstractApiWalletClient(s"${chain.id}_${name}_${chain.coinType}_${chain.pathPrefix}", chain.coinType, chain.pathPrefix) with IndexedDBBackedWalletClient {
 
-  override implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+  override implicit val ec: ExecutionContext = scala.concurrent
+    .ExecutionContext.Implicits.global
 
-  override protected def newAccountClient(accountRow: AccountRow): AbstractApiAccountClient = {
+  override protected def newAccountClient(accountRow: AccountRow):
+  AbstractApiAccountClient = {
     new ApiAccountClient(this, password, accountRow, api)
   }
 
@@ -67,7 +69,8 @@ class ApiWalletClient(name: String,
   }
 
   override val blockRestClient = new AbstractBlockRestClient(http) {
-    override def stringToDate(string: String): Date = ApiWalletClient.this.stringToDate(string)
+    override def stringToDate(string: String): Date = ApiWalletClient
+      .this.stringToDate(string)
   }
 
   override val transactionRestClient = new AbstractTransactionRestClient(http, blockRestClient) {

@@ -13,14 +13,12 @@ import scala.scalajs.js
 import concurrent.Future
 import concurrent.Promise
 import io.circe._
-import io.circe.generic.auto._
 import io.circe.parser._
 import io.circe.Printer
 import io.circe.syntax._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Try
-import io.circe.generic.JsonCodec
 import io.circe.syntax._
 import io.circe._
 import io.circe.generic.semiauto._
@@ -61,7 +59,7 @@ import org.scalajs.dom.Event
 sealed trait RippleAPIObject
 
 case class APIOption(
-                      server: Option[String] = None,
+                      server: Option[String] = Some("wss://s1.ripple.com"),
                       feeCushion: Option[Double] = None,
                       trace: Option[Boolean] = None,
                       proxy: Option[Nullable[String]] = None,// = Some(Nullable[String](None)),
@@ -73,11 +71,11 @@ class RippleAPI() {
   type RippleSequence = Int
   type RippleDateTime = String
   var promisesTable: Map[Int,Promise[String]] = Map.empty
-  def disconnect(): Future[SetOptionsResponse]  = {
+  /*def disconnect(): Future[SetOptionsResponse]  = {
     val methodName = "disconnect"
     execute(methodName, APIOption()).map(decode[SetOptionsResponse](_)
         .right.get)
-  }
+  }*/
 
   //*************** setOptions *******************
   var setOptionsPromisesTable: Map[String,Promise[SetOptionsResponse]] =
@@ -95,7 +93,7 @@ class RippleAPI() {
 
   //-----------------------------------------------------
   //****************** make call
-  def preparePayment(parameters: PaymentParam): Future[PrepareResponse] = {
+  /*def preparePayment(parameters: PaymentParam): Future[PrepareResponse] = {
     execute("preparePayment", parameters)
       .map(decode[PrepareResponse](_).right.get)
   }
@@ -108,7 +106,7 @@ class RippleAPI() {
   def submit(parameters: SubmitParam): Future[SubmittedTransaction] = {
     execute("submit", parameters)
       .map(decode[SubmittedTransaction](_).right.get)
-  }
+  }*/
   //--------------------------------------
   //****************** call classes **********
   case class Instructions(
@@ -192,11 +190,6 @@ class RippleAPI() {
   //--------------------
   //************** Universal "prepare" methods ********
 
-  /*def preparePayment(parameters: PaymentParam): Future[PrepareResponse] = {
-    execute("preparePayment", parameters)
-      .map(decode[PrepareResponse](_).right.get)
-  }*/
-
   case class PaymentParam(
                            address: String,
                            payment: Payment,
@@ -237,6 +230,30 @@ class RippleAPI() {
   //---------------
 
   //*************** sync tools
+
+  implicit val decodeAPIOption = deriveDecoder[APIOption]
+  implicit val decode2 = deriveDecoder[SubmitParam]
+  implicit val decode5 = deriveDecoder[LaxAmount]
+  implicit val decode6 = deriveDecoder[SubmittedTransaction]
+  implicit val decode7 = deriveDecoder[Source]
+  implicit val decode10 = deriveDecoder[TransactionsOptions]
+  implicit val decode11 = deriveDecoder[TransactionOptions]
+  implicit val decode13 = deriveDecoder[OrderbookChanges]
+  implicit val decode16 = deriveDecoder[Instructions]
+  implicit val decode17 = deriveDecoder[Destination]
+  implicit val decode19 = deriveDecoder[Memo]
+  implicit val decode20 = deriveDecoder[Options]
+  implicit val decode21 = deriveDecoder[SignedTransaction]
+  implicit val decode4 = deriveDecoder[GetTransactionsParam] //error
+  implicit val decodeSign = deriveDecoder[SignParam]//error
+  implicit val decode14 = deriveDecoder[PrepareResponse]//error
+  implicit val decode18 = deriveDecoder[Payment]//error
+  implicit val decode15 = deriveDecoder[PaymentParam]//error
+  implicit val decode12 = deriveDecoder[Outcome]//error
+  implicit val decode8 = deriveDecoder[SignParam]//error
+  implicit val decode9 = deriveDecoder[Transaction]//error
+  implicit val decode3 = deriveDecoder[GetTransactionParam]//error
+
   def getTransaction(parameters: GetTransactionParam) = {
     execute("getTransaction", parameters)
       .map(decode[Transaction](_).right.get)
@@ -245,6 +262,8 @@ class RippleAPI() {
 
 
   def getTransactions(parameters: GetTransactionsParam) = {
+    println("getTransactions called")
+
     execute("getTransactions", parameters)
       .map(decode[Array[Transaction]](_).right.get)
   }
@@ -341,8 +360,11 @@ class RippleAPI() {
     }
   }
 
+  implicit  val decode1 = deriveDecoder[SetOptionsResponse]
+
   val SpecificNullValue = "This is null".asJson
   def execute(methodName: String, parameters: RippleAPIObject) = {
+
     val callId = _callId
     val p = Promise[String]()
 
@@ -356,7 +378,8 @@ class RippleAPI() {
         }
       }
     }
-    implicit val encodeNullableInt: Encoder[Nullable[Int]] = new Encoder[Nullable[Int]] {
+    implicit val encodeNullableInt: Encoder[Nullable[Int]] =
+      new Encoder[Nullable[Int]] {
       final def apply(a: Nullable[Int]): Json = {
         a.value match {
           case None => SpecificNullValue
@@ -365,30 +388,30 @@ class RippleAPI() {
       }
     }
     implicit val encodeAPIOption = deriveEncoder[APIOption]
-    /*implicit val encodePaymentParam = deriveEncoder[PaymentParam]
-    implicit val encode1 = deriveEncoder[SignParam]
     implicit val encode2 = deriveEncoder[SubmitParam]
-    implicit val encode3 = deriveEncoder[GetTransactionParam]
-    implicit val encode4 = deriveEncoder[GetTransactionsParam]
     implicit val encode5 = deriveEncoder[LaxAmount]
     implicit val encode6 = deriveEncoder[SubmittedTransaction]
-    implicit val encode7 = deriveEncoder[Source]
-    implicit val encode8 = deriveEncoder[SignParam]
-    implicit val encode9 = deriveEncoder[Transaction]
+    implicit val encode7 = deriveEncoder[Source] //good but nested?
     implicit val encode10 = deriveEncoder[TransactionsOptions]
     implicit val encode11 = deriveEncoder[TransactionOptions]
-    implicit val encode12 = deriveEncoder[Outcome]
     implicit val encode13 = deriveEncoder[OrderbookChanges]
-    implicit val encode14 = deriveEncoder[PrepareResponse]
-    implicit val encode15 = deriveEncoder[PaymentParam]
     implicit val encode16 = deriveEncoder[Instructions]
     implicit val encode17 = deriveEncoder[Destination]
-    implicit val encode18 = deriveEncoder[Payment]
     implicit val encode19 = deriveEncoder[Memo]
     implicit val encode20 = deriveEncoder[Options]
-    implicit val encode21 = deriveEncoder[SignedTransaction]*/
+    implicit val encode21 = deriveEncoder[SignedTransaction]
+    implicit val encode4 = deriveEncoder[GetTransactionsParam]//error
+    implicit val encode18 = deriveEncoder[Payment]//error
+    implicit val encode14 = deriveEncoder[PrepareResponse]//error
+    implicit val encode15 = deriveEncoder[PaymentParam]//error
+    implicit val encode12 = deriveEncoder[Outcome]//error
+    implicit val encode8 = deriveEncoder[SignParam]//error
+    implicit val encode9 = deriveEncoder[Transaction]//error
+    implicit val encode3 = deriveEncoder[GetTransactionParam]//error
+    implicit val encode1 = deriveEncoder[SignParam]//error
 
     def cleanJsonObject(obj: JsonObject) = {
+      println("clean")
       JsonObject.fromIterable(
         obj.toMap.head._2.asObject.get.toList.filter({
           case (_,value) => !value.isNull
@@ -402,19 +425,28 @@ class RippleAPI() {
         })
       )
     }
+    println("exectute param")
+    println(parameters)
+
     val options = js.Dynamic.literal(
       call_id = callId,
       method_name = methodName,
       parameters = cleanJsonObject(parameters.asJsonObject).asJson.noSpaces
     )
+
     js.Dynamic.global.console.log(options)
-    val target = dom.document.getElementById("ripple-api-sandbox").asInstanceOf[HTMLIFrameElement]
+    val target = dom.document.getElementById("ripple-api-sandbox")
+      .asInstanceOf[HTMLIFrameElement]
     target.contentWindow.postMessage(options,"*")
+    println("exectute completted")
+
     p.future
   }
 
   def onMessage(msg: dom.MessageEvent): Unit = {
-    val callId: Int = msg.data.asInstanceOf[js.Dynamic].call_id.asInstanceOf[Int]
+    println("onMessage called")
+    val callId: Int = msg.data.asInstanceOf[js.Dynamic].call_id
+      .asInstanceOf[Int]
     val p = promisesTable.get(callId).get
     js.Dynamic.global.console.log(msg.data.asInstanceOf[js.Dynamic].response)
     p success msg.data.asInstanceOf[js.Dynamic].response.asInstanceOf[String]
@@ -441,7 +473,7 @@ class RippleAPI() {
                   ) extends RippleAPIObject
 
   def onError(e: dom.ErrorEvent) = {
-    println("error received")
+    println("error received in scala")
     println(e)
   }
 

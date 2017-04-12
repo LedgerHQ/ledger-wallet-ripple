@@ -203,7 +203,8 @@ abstract class AbstractApiWalletClient(override val name: String,
   }
 
   private def createAccount(index: Int): Future[Account] = {
-    rippleAccountProvider.getRippleAccount(DerivationPath(s"44'/$bip44CoinType'${coinPathPrefix}/$index'/0")).map { (rippleAccount) =>
+    rippleAccountProvider.getRippleAccount(
+      DerivationPath(s"44'/$bip44CoinType'${coinPathPrefix}/$index'/0")).map { (rippleAccount) =>
       val account = new AccountRow(index, rippleAccount.toString)
       putAccount(account)
       _accounts = Array(newAccountClient(account))
