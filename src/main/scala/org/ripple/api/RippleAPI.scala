@@ -365,32 +365,9 @@ class RippleAPI() {
 
   val SpecificNullValue = "This is null".asJson
 
-  /*implicit val encodeAPIOption = deriveEncoder[APIOption]
-  implicit val encode2 = deriveEncoder[SubmitParam]
-  implicit val encode5 = deriveEncoder[LaxAmount]
-  implicit val encode6 = deriveEncoder[SubmittedTransaction]
-  implicit val encode7 = deriveEncoder[Source]
-  implicit val encode10 = deriveEncoder[TransactionsOptions]
-  implicit val encode11 = deriveEncoder[TransactionOptions]
-  implicit val encode13 = deriveEncoder[OrderbookChanges]
-  implicit val encode16 = deriveEncoder[Instructions]
-  implicit val encode17 = deriveEncoder[Destination]
-  implicit val encode19 = deriveEncoder[Memo]
-  implicit val encode20 = deriveEncoder[Options]
-  implicit val encode21 = deriveEncoder[SignedTransaction]
-  implicit val encode4 = deriveEncoder[GetTransactionsParam]
-  implicit val encode18 = deriveEncoder[Payment]
-  implicit val encode14 = deriveEncoder[PrepareResponse]
-  implicit val encode15 = deriveEncoder[PaymentParam]
-  implicit val encode12 = deriveEncoder[Outcome]
-  implicit val encode8 = deriveEncoder[SignParam]
-  implicit val encode9 = deriveEncoder[Transaction]
-  implicit val encode3 = deriveEncoder[GetTransactionParam]
-  implicit val encode1 = deriveEncoder[SignParam]*/
-
   implicit val encodeRippleAPIObject: ObjectEncoder[RippleAPIObject] = {
     new ObjectEncoder[RippleAPIObject] {
-      override def encodeObject(obj: RippleAPIObject): JsonObject =
+      override def encodeObject(obj: RippleAPIObject): JsonObject = {
         obj match {
           case o: APIOption => o.asJsonObject
           case o: GetTransactionParam => o.asJsonObject
@@ -399,6 +376,7 @@ class RippleAPI() {
           case o: SignParam => o.asJsonObject
           case o: SubmitParam => o.asJsonObject
         }
+      }
     }
   }
 
@@ -408,26 +386,41 @@ class RippleAPI() {
     val p = Promise[String]()
 
     promisesTable += (callId->p)
+    println(parameters)
 
-
-
-    def cleanJsonObject(obj: JsonObject) = {
-      println("clean")
+    def cleanJsonObject(obj: JsonObject): JsonObject = {
       JsonObject.fromIterable(
-        obj.toMap.head._2.asObject.get.toList.filter({
+        obj.toMap.toList.filter({
           case (_,value) => !value.isNull
-          case _ => true
         }).map({
           case (k,value) => if (value == SpecificNullValue){
             (k,Json.Null)
+          } else if (value.isObject) {
+            (k,Json.fromJsonObject(cleanJsonObject(value.asObject.get)))
+          } else if (value.isArray) {
+            (k,Json.fromValues(cleanJsonArray(value.asArray.get)))
           } else {
             (k,value)
           }
         })
       )
     }
-    println("exectute param")
-    println(parameters)
+
+    def cleanJsonArray(obj: Vector[Json]): Vector[Json] = {
+      obj filter {(value) =>
+        !value.isNull
+      } map {(value) =>
+        if (value == SpecificNullValue) {
+          Json.Null
+        } else if (value.isObject) {
+          Json.fromJsonObject(cleanJsonObject(value.asObject.get))
+        } else if (value.isArray) {
+          Json.fromValues(cleanJsonArray(value.asArray.get))
+        } else {
+          value
+        }
+      }
+    }
 
     val options = js.Dynamic.literal(
       call_id = callId,
@@ -439,14 +432,11 @@ class RippleAPI() {
     val target = dom.document.getElementById("ripple-api-sandbox")
       .asInstanceOf[HTMLIFrameElement]
     target.contentWindow.postMessage(options,"*")
-    println("exectute completted")
-
     p.future
   }
 
 
   def onMessage(msg: dom.MessageEvent): Unit = {
-    object RippleAPIObject
     println("onMessage called")
     val callId: Int = msg.data.asInstanceOf[js.Dynamic].call_id
       .asInstanceOf[Int]
@@ -462,10 +452,7 @@ class RippleAPI() {
   dom.window.addEventListener("message", { (e: dom.MessageEvent) =>
       onMessage(e)
   })
-
-
   //------------------
-
   //****************** error event management
   dom.window.addEventListener("error", { (e: dom.ErrorEvent) => onError(e)})
 

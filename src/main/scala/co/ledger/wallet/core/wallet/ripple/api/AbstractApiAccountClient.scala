@@ -67,11 +67,10 @@ abstract class AbstractApiAccountClient(override val wallet
 
     val transactions = api.getTransactions(
       api.GetTransactionsParam(
-        address = accountRow.rippleAccount,
-        options = Some(api.TransactionsOptions(
+        address = accountRow.rippleAccount
+        /*options = Some(api.TransactionsOptions(
           types = Some(Array[String]("payment"))
-          )
-        )
+          )*/
       )
     )
     Future.successful()
