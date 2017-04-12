@@ -9,8 +9,6 @@ import co.ledger.wallet.core.wallet.ripple.Wallet.NewOperationEvent
 import co.ledger.wallet.core.wallet.ripple._
 import co.ledger.wallet.core.wallet.ripple.api.AbstractApiAccountClient.{AccountSavedState, AccountSavedStateBatch, SynchronizationStatus}
 import co.ledger.wallet.core.wallet.ripple.database.{AccountRow, DatabaseBackedAccountClient}
-import co.ledger.wallet.web.ripple.services.RippleAPIService
-import org.ripple.api.RippleAPI
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{ExecutionContext, Future}
@@ -47,8 +45,7 @@ import scala.util.{Failure, Success}
   */
 abstract class AbstractApiAccountClient(override val wallet
                                           : AbstractApiWalletClient,
-                                        private val accountRow: AccountRow,
-                                       api: RippleAPI)
+                                        private val accountRow: AccountRow)
   extends Account
     with DatabaseBackedAccountClient {
 
@@ -64,15 +61,6 @@ abstract class AbstractApiAccountClient(override val wallet
 
   override def synchronize(): Future[Unit] = {
     println(accountRow.rippleAccount)
-
-    val transactions = api.getTransactions(
-      api.GetTransactionsParam(
-        address = accountRow.rippleAccount
-        /*options = Some(api.TransactionsOptions(
-          types = Some(Array[String]("payment"))
-          )*/
-      )
-    )
     Future.successful()
   }
 

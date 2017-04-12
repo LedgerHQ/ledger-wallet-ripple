@@ -9,7 +9,6 @@ import co.ledger.wallet.web.ripple.wallet.ApiWalletClient
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import org.ripple.api.RippleAPI
 
 /**
   *
@@ -41,7 +40,7 @@ import org.ripple.api.RippleAPI
   * SOFTWARE.
   *
   */
-class SessionService(rippleAPIService: RippleAPIService) extends Service {
+class SessionService() extends Service {
   def startNewSessions(api: LedgerApi, chain: SessionService.RippleChainIdentifier): Future[Unit] = {
     api.walletIdentifier() flatMap {(walletIdentifier) =>
       api.walletMetaPassword() flatMap {(password) =>
@@ -53,9 +52,7 @@ class SessionService(rippleAPIService: RippleAPIService) extends Service {
           }
           val session = new Session(walletIdentifier, password, provider, chain, appConfiguration)
           _currentSession = Some(session)
-          val apiOption = rippleAPIService.api.APIOption(server = Some("wss://s1" +
-            ".ripple.com"))
-          rippleAPIService.init(apiOption)
+          Future.successful()
         }
       }
     }
@@ -78,7 +75,7 @@ class SessionService(rippleAPIService: RippleAPIService) extends Service {
                 val chain: SessionService.RippleChainIdentifier,
                 val dongleAppVersion: LedgerRippleAppApi.AppConfiguration) {
     val wallet: Wallet = new ApiWalletClient(name, Option(password),
-      provider, chain, rippleAPIService.api)
+      provider, chain)
 
     val sessionPreferences = scala.collection.mutable.Map[String, Any]()
   }

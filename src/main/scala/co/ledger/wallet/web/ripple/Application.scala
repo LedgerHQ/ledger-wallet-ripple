@@ -12,8 +12,7 @@ import co.ledger.wallet.web.ripple.controllers.wallet._
 import co.ledger.wallet.web.ripple.core.utils.ChromePreferences
 import co.ledger.wallet.web.ripple.filters.DateFormatFilter
 import co.ledger.wallet.web.ripple.i18n.{I18n, TranslateProvider}
-import co.ledger.wallet.web.ripple.services.{DeviceService, RippleAPIService, SessionService, WindowService}
-import org.ripple.api.RippleAPI
+import co.ledger.wallet.web.ripple.services.{DeviceService, SessionService, WindowService}
 
 import scala.scalajs.js
 import scala.scalajs.js.JSApp
@@ -60,7 +59,6 @@ object Application extends JSApp{
     // Services
     WindowService.init(module)
     DeviceService.init(module)
-    RippleAPIService.init(module)
     SessionService.init(module)
 
     // Filters

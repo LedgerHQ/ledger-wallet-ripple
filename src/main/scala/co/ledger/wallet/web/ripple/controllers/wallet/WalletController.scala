@@ -1,7 +1,7 @@
 package co.ledger.wallet.web.ripple.controllers.wallet
 
 import biz.enef.angulate.Scope
-import co.ledger.wallet.web.ripple.services.{RippleAPIService, SessionService, WindowService}
+import co.ledger.wallet.web.ripple.services.{SessionService, WindowService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 /**

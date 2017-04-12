@@ -7,7 +7,7 @@ import co.ledger.wallet.core.device.ripple.LedgerApi
 import co.ledger.wallet.core.wallet.ripple.{XRP, RippleAccount}
 import co.ledger.wallet.web.ripple.components.{QrCodeScanner, SnackBar}
 import co.ledger.wallet.web.ripple.core.utils.PermissionsHelper
-import co.ledger.wallet.web.ripple.services.{DeviceService, RippleAPIService, SessionService, WindowService}
+import co.ledger.wallet.web.ripple.services.{DeviceService, SessionService, WindowService}
 import org.scalajs.dom
 
 import scala.concurrent._

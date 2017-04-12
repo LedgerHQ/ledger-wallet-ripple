@@ -6,7 +6,6 @@ import co.ledger.wallet.core.net.{WebSocket, WebSocketFactory}
 import org.json.JSONObject
 import org.scalajs.dom.{CloseEvent, ErrorEvent}
 import org.scalajs.dom.raw.{Event, MessageEvent}
-
 import scala.concurrent.{Future, Promise}
 
 /**
