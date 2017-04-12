@@ -3,7 +3,7 @@ package co.ledger.wallet.web.ripple.services
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.Service
 import io.circe.parser.decode
-import org.ripple.api.{APIOption, RippleAPI}
+import org.ripple.api.{RippleAPI}
 import org.ripple.api.RippleAPIObject
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -14,7 +14,7 @@ import concurrent.ExecutionContext.Implicits.global
 class RippleAPIService () extends Service {
   val api = new RippleAPI   //renvoie future
 // val option[future ripple]
-  def init(options: APIOption): Future[Unit] = {
+  def init(options: api.APIOption): Future[Unit] = {
     api.setOptions(options) map(_ => ())
   }
 }

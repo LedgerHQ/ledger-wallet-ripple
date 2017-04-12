@@ -12,7 +12,6 @@ import scala.concurrent.Future
 import scala.scalajs.js
 import concurrent.Future
 import concurrent.Promise
-import io.circe._
 import io.circe.parser._
 import io.circe.Printer
 import io.circe.syntax._
@@ -24,6 +23,9 @@ import io.circe._
 import io.circe.generic.semiauto._
 import co.ledger.wallet.core.utils.Nullable
 import org.scalajs.dom.Event
+import io.circe.generic.auto._
+import io.circe.generic.JsonCodec
+
 
 /**
   *
@@ -56,18 +58,39 @@ import org.scalajs.dom.Event
   *
   */
 
-sealed trait RippleAPIObject
+sealed trait RippleAPIObject {
+}
 
-case class APIOption(
-                      server: Option[String] = Some("wss://s1.ripple.com"),
-                      feeCushion: Option[Double] = None,
-                      trace: Option[Boolean] = None,
-                      proxy: Option[Nullable[String]] = None,// = Some(Nullable[String](None)),
-                      timeout: Option[Long] = None
-                    ) extends RippleAPIObject
 
 class RippleAPI() {
 
+  implicit val encodeNullableString: Encoder[Nullable[String]] =
+    new Encoder[Nullable[String]] {
+      final def apply(a: Nullable[String]): Json = {
+        a.value match {
+          case None => SpecificNullValue
+          case Some(v) => v.asJson
+        }
+      }
+    }
+  implicit val encodeNullableInt: Encoder[Nullable[Int]] =
+    new Encoder[Nullable[Int]] {
+      final def apply(a: Nullable[Int]): Json = {
+        a.value match {
+          case None => SpecificNullValue
+          case Some(v) => v.asJson
+        }
+      }
+    }
+
+
+  @JsonCodec case class APIOption(
+                                   server: Option[String] = Some("wss://s1.ripple.com"),
+                                   feeCushion: Option[Double] = None,
+                                   trace: Option[Boolean] = None,
+                                   proxy: Option[Nullable[String]] = None,// = Some(Nullable[String](None)),
+                                   timeout: Option[Long] = None
+                                 ) extends RippleAPIObject
   type RippleSequence = Int
   type RippleDateTime = String
   var promisesTable: Map[Int,Promise[String]] = Map.empty
@@ -89,7 +112,7 @@ class RippleAPI() {
   }
 
   case class SetOptionsResponse(connected: Boolean,
-                                info: String) extends RippleAPIObject
+                                info: String)
 
   //-----------------------------------------------------
   //****************** make call
@@ -108,35 +131,36 @@ class RippleAPI() {
       .map(decode[SubmittedTransaction](_).right.get)
   }*/
   //--------------------------------------
+
   //****************** call classes **********
-  case class Instructions(
+  @JsonCodec case class Instructions(
                           fee: Int,
                           maxLedgerVersion: Nullable[Int] = Nullable[Int](None),
                           maxLedgerVersionOffset: Option[Int] = None,
                           sequence: Option[Long] = None
-                         ) extends RippleAPIObject
+                         )
 
-  case class Source(
+  @JsonCodec case class Source(
                      address: String,
                      amount: Option[LaxAmount] = None,
                      tag: Option[Int] = None,
                      maxAmount: Option[LaxAmount] = None
-                   ) extends RippleAPIObject
+                   )
 
-  case class LaxAmount(
+  @JsonCodec case class LaxAmount(
                        currency: String = "XRP",
                        counterparty: Option[String] = None,
                        value: Option[String] = None
-                      ) extends RippleAPIObject
+                      )
 
-  case class Destination(
+  @JsonCodec case class Destination(
                          address: String,
                          amount: Option[LaxAmount] = None,
                          tag: Option[Int] = None,
                          minAmount: Option[LaxAmount] = None
-                        ) extends RippleAPIObject
+                        )
 
-  case class Payment(
+  @JsonCodec case class Payment(
                      source: Source,
                      destination: Destination,
                      allowPartialPayment: Option[Boolean] = None,
@@ -145,13 +169,13 @@ class RippleAPI() {
                      memos: Option[Array[Memo]] = None,
                      noDirectRipple: Option[Boolean] = None,
                      paths: Option[String] = None
-                    ) extends RippleAPIObject
+                    )
 
-  case class Memo(
+  @JsonCodec case class Memo(
                   data: Option[String] = None,
                   format: Option[String] = None,
                   `type`: Option[String] = None
-                 ) extends RippleAPIObject
+                 )
 
   /*case class Trustline(
                       currency: String, //currency
@@ -163,9 +187,9 @@ class RippleAPI() {
                       qualityIn: Option[Double],
                       qualityOut: Option[Double],
                       ripplingDisabled: Option[Boolean]
-                      ) extends RippleAPIObject*/
+                      )*/
 
-  case class Options(
+  @JsonCodec case class Options(
                     binary: Option[Boolean] = None,
                     counterparty: Option[String] = None,
                     earliestFirst: Option[Boolean] = None,
@@ -185,74 +209,51 @@ class RippleAPI() {
                     signAs: Option[String] = None,
                     algorithm: Option[String] = None,
                     entropy: Option[Array[Int]] = None
-                    ) extends RippleAPIObject
+                    )
 
   //--------------------
   //************** Universal "prepare" methods ********
 
-  case class PaymentParam(
+  @JsonCodec case class PaymentParam(
                            address: String,
                            payment: Payment,
                            instructions: Instructions
                          ) extends RippleAPIObject
 
-  case class PrepareResponse(
+  @JsonCodec case class PrepareResponse(
                               txJSON: String,
                               instructions: Instructions
-                            ) extends RippleAPIObject
+                            )
 
 
   //----------------
 
   //*************** signing tools ******************
-  case class SignParam(
+  @JsonCodec case class SignParam(
                         txJSON: String,
                         secret: String,
                         options: Option[Options] = None
                       ) extends RippleAPIObject
 
-  case class SignedTransaction(
+  @JsonCodec case class SignedTransaction(
                               signedTransaction: String,
                               id: String
-                              ) extends RippleAPIObject
+                              )
   //---------------
 
   //*************** submitting tools ******************
 
-  case class SubmitParam(
+  @JsonCodec case class SubmitParam(
                         signedTransaction: String
                         ) extends RippleAPIObject
 
-  case class SubmittedTransaction(
+  @JsonCodec case class SubmittedTransaction(
                                 resultCode: String,
                                 resultMessage: String
-                              ) extends RippleAPIObject
+                              )
   //---------------
 
   //*************** sync tools
-
-  implicit val decodeAPIOption = deriveDecoder[APIOption]
-  implicit val decode2 = deriveDecoder[SubmitParam]
-  implicit val decode5 = deriveDecoder[LaxAmount]
-  implicit val decode6 = deriveDecoder[SubmittedTransaction]
-  implicit val decode7 = deriveDecoder[Source]
-  implicit val decode10 = deriveDecoder[TransactionsOptions]
-  implicit val decode11 = deriveDecoder[TransactionOptions]
-  implicit val decode13 = deriveDecoder[OrderbookChanges]
-  implicit val decode16 = deriveDecoder[Instructions]
-  implicit val decode17 = deriveDecoder[Destination]
-  implicit val decode19 = deriveDecoder[Memo]
-  implicit val decode20 = deriveDecoder[Options]
-  implicit val decode21 = deriveDecoder[SignedTransaction]
-  implicit val decode4 = deriveDecoder[GetTransactionsParam] //error
-  implicit val decodeSign = deriveDecoder[SignParam]//error
-  implicit val decode14 = deriveDecoder[PrepareResponse]//error
-  implicit val decode18 = deriveDecoder[Payment]//error
-  implicit val decode15 = deriveDecoder[PaymentParam]//error
-  implicit val decode12 = deriveDecoder[Outcome]//error
-  implicit val decode8 = deriveDecoder[SignParam]//error
-  implicit val decode9 = deriveDecoder[Transaction]//error
-  implicit val decode3 = deriveDecoder[GetTransactionParam]//error
 
   def getTransaction(parameters: GetTransactionParam) = {
     execute("getTransaction", parameters)
@@ -268,17 +269,17 @@ class RippleAPI() {
       .map(decode[Array[Transaction]](_).right.get)
   }
 
-  case class GetTransactionParam(
+  @JsonCodec case class GetTransactionParam(
                                    id: String,
                                    options: Option[TransactionOptions] = None
                                  ) extends RippleAPIObject
 
-  case class GetTransactionsParam(
+  @JsonCodec case class GetTransactionsParam(
                                  address: String,
                                  options: Option[TransactionsOptions] = None
                                  ) extends RippleAPIObject
 
-  case class TransactionsOptions(
+  @JsonCodec case class TransactionsOptions(
                          binary: Option[Boolean] = None,
                          counterparty: Option[String] = None,
                          earliestFirst: Option[Boolean] = None,
@@ -289,23 +290,23 @@ class RippleAPI() {
                          minLedgerVersion: Option[Int] = None,
                          start: Option[String] = None,
                          types: Option[Array[String]] = None
-                         ) extends RippleAPIObject
+                         )
 
-  case class TransactionOptions(
+  @JsonCodec case class TransactionOptions(
                                   maxLedgerVersion: Option[Int] = None,
                                   minLedgerVersion: Option[Int] = None
-                                ) extends RippleAPIObject
+                                )
 
-  case class Transaction(
+  @JsonCodec case class Transaction(
                          id: String,
                         address: String,
                         sequence: Int,
                         `type`: String,
                         specification: Payment,
                         outcome: Outcome
-                        ) extends RippleAPIObject
+                        )
 
-  case class Outcome(
+  @JsonCodec case class Outcome(
                     result: String,
                     fee: String,
                     balanceChanges: Map[String,Array[LaxAmount]],
@@ -315,9 +316,9 @@ class RippleAPI() {
                     indexInLedger: Int,
                     deliveredAmount: Option[String] = None,
                     timestamp: Option[String] = None
-                    ) extends RippleAPIObject
+                    )
 
-  case class OrderbookChanges(
+  @JsonCodec case class OrderbookChanges(
                              direction: String,
                              quantity: LaxAmount,
                              totalPrice: LaxAmount,
@@ -325,7 +326,7 @@ class RippleAPI() {
                              status: String,
                              expirationTime: Option[RippleDateTime] = None,
                              markerExchangeRate: Option[String] = None
-                             ) extends RippleAPIObject
+                             )
 
 
   //------------------
@@ -363,52 +364,52 @@ class RippleAPI() {
   implicit  val decode1 = deriveDecoder[SetOptionsResponse]
 
   val SpecificNullValue = "This is null".asJson
+
+  /*implicit val encodeAPIOption = deriveEncoder[APIOption]
+  implicit val encode2 = deriveEncoder[SubmitParam]
+  implicit val encode5 = deriveEncoder[LaxAmount]
+  implicit val encode6 = deriveEncoder[SubmittedTransaction]
+  implicit val encode7 = deriveEncoder[Source]
+  implicit val encode10 = deriveEncoder[TransactionsOptions]
+  implicit val encode11 = deriveEncoder[TransactionOptions]
+  implicit val encode13 = deriveEncoder[OrderbookChanges]
+  implicit val encode16 = deriveEncoder[Instructions]
+  implicit val encode17 = deriveEncoder[Destination]
+  implicit val encode19 = deriveEncoder[Memo]
+  implicit val encode20 = deriveEncoder[Options]
+  implicit val encode21 = deriveEncoder[SignedTransaction]
+  implicit val encode4 = deriveEncoder[GetTransactionsParam]
+  implicit val encode18 = deriveEncoder[Payment]
+  implicit val encode14 = deriveEncoder[PrepareResponse]
+  implicit val encode15 = deriveEncoder[PaymentParam]
+  implicit val encode12 = deriveEncoder[Outcome]
+  implicit val encode8 = deriveEncoder[SignParam]
+  implicit val encode9 = deriveEncoder[Transaction]
+  implicit val encode3 = deriveEncoder[GetTransactionParam]
+  implicit val encode1 = deriveEncoder[SignParam]*/
+
+  implicit val encodeRippleAPIObject: ObjectEncoder[RippleAPIObject] = {
+    new ObjectEncoder[RippleAPIObject] {
+      override def encodeObject(obj: RippleAPIObject): JsonObject =
+        obj match {
+          case o: APIOption => o.asJsonObject
+          case o: GetTransactionParam => o.asJsonObject
+          case o: GetTransactionsParam => o.asJsonObject
+          case o: PaymentParam => o.asJsonObject
+          case o: SignParam => o.asJsonObject
+          case o: SubmitParam => o.asJsonObject
+        }
+    }
+  }
+
   def execute(methodName: String, parameters: RippleAPIObject) = {
 
     val callId = _callId
     val p = Promise[String]()
 
     promisesTable += (callId->p)
-    implicit val encodeNullableString: Encoder[Nullable[String]] =
-      new Encoder[Nullable[String]] {
-      final def apply(a: Nullable[String]): Json = {
-        a.value match {
-          case None => SpecificNullValue
-          case Some(v) => v.asJson
-        }
-      }
-    }
-    implicit val encodeNullableInt: Encoder[Nullable[Int]] =
-      new Encoder[Nullable[Int]] {
-      final def apply(a: Nullable[Int]): Json = {
-        a.value match {
-          case None => SpecificNullValue
-          case Some(v) => v.asJson
-        }
-      }
-    }
-    implicit val encodeAPIOption = deriveEncoder[APIOption]
-    implicit val encode2 = deriveEncoder[SubmitParam]
-    implicit val encode5 = deriveEncoder[LaxAmount]
-    implicit val encode6 = deriveEncoder[SubmittedTransaction]
-    implicit val encode7 = deriveEncoder[Source] //good but nested?
-    implicit val encode10 = deriveEncoder[TransactionsOptions]
-    implicit val encode11 = deriveEncoder[TransactionOptions]
-    implicit val encode13 = deriveEncoder[OrderbookChanges]
-    implicit val encode16 = deriveEncoder[Instructions]
-    implicit val encode17 = deriveEncoder[Destination]
-    implicit val encode19 = deriveEncoder[Memo]
-    implicit val encode20 = deriveEncoder[Options]
-    implicit val encode21 = deriveEncoder[SignedTransaction]
-    implicit val encode4 = deriveEncoder[GetTransactionsParam]//error
-    implicit val encode18 = deriveEncoder[Payment]//error
-    implicit val encode14 = deriveEncoder[PrepareResponse]//error
-    implicit val encode15 = deriveEncoder[PaymentParam]//error
-    implicit val encode12 = deriveEncoder[Outcome]//error
-    implicit val encode8 = deriveEncoder[SignParam]//error
-    implicit val encode9 = deriveEncoder[Transaction]//error
-    implicit val encode3 = deriveEncoder[GetTransactionParam]//error
-    implicit val encode1 = deriveEncoder[SignParam]//error
+
+
 
     def cleanJsonObject(obj: JsonObject) = {
       println("clean")
@@ -443,7 +444,9 @@ class RippleAPI() {
     p.future
   }
 
+
   def onMessage(msg: dom.MessageEvent): Unit = {
+    object RippleAPIObject
     println("onMessage called")
     val callId: Int = msg.data.asInstanceOf[js.Dynamic].call_id
       .asInstanceOf[Int]
@@ -470,7 +473,7 @@ class RippleAPI() {
                   errorCode: String,
                   errorMessage: String,
                   data: String
-                  ) extends RippleAPIObject
+                  )
 
   def onError(e: dom.ErrorEvent) = {
     println("error received in scala")
@@ -492,7 +495,7 @@ class RippleAPI() {
                      transactionCount: Int,
                      ledgerVersion: Int,
                      validatedLedgerVersions: String
-                   ) extends RippleAPIObject
+                   )
 
   def onLedger(e: dom.CustomEvent) = {
     //println("new ledger received")
