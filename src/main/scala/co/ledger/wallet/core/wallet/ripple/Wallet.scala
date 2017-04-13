@@ -44,22 +44,17 @@ trait Wallet {
   def balance(): Future[XRP]
   def synchronize(): Future[Unit]
   def isSynchronizing(): Future[Boolean]
-  def mostRecentBlock(): Future[Block]
   def pushTransaction(transaction: Array[Byte]): Future[Unit]
   def operations(from: Int, batchSize: Int = Wallet.DefaultOperationsBatchSize)
     : Future[AsyncCursor[Operation]]
   def eventEmitter: EventEmitter
-  def estimatedGasPrice(): Future[XRP]
   def stop(): Unit
 }
 
 object Wallet {
   val DefaultOperationsBatchSize = 20
-
   case class WalletNotSetupException() extends Exception("The wallet is currently empty")
-
   case class NewOperationEvent(account: Account, operation: Operation)
   case class StartSynchronizationEvent()
   case class StopSynchronizationEvent()
-  case class GasPriceChanged(price: XRP)
 }

@@ -5,7 +5,7 @@ import biz.enef.angulate.Service
 import co.ledger.wallet.core.device.ripple.{LedgerApi, LedgerDerivationApi, LedgerRippleAppApi}
 import co.ledger.wallet.core.utils.DerivationPath
 import co.ledger.wallet.core.wallet.ripple.{RippleAccount, RippleAccountProvider, Wallet}
-import co.ledger.wallet.web.ripple.wallet.ApiWalletClient
+import co.ledger.wallet.web.ripple.wallet.RippleWalletClient
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -74,7 +74,7 @@ class SessionService() extends Service {
                 provider: RippleAccountProvider,
                 val chain: SessionService.RippleChainIdentifier,
                 val dongleAppVersion: LedgerRippleAppApi.AppConfiguration) {
-    val wallet: Wallet = new ApiWalletClient(name, Option(password),
+    val wallet: Wallet = new RippleWalletClient(name, Option(password),
       provider, chain)
 
     val sessionPreferences = scala.collection.mutable.Map[String, Any]()
@@ -98,11 +98,11 @@ object SessionService {
                                                 val symbol: String)
 
   case class RippleChain() extends RippleChainIdentifier(
-    "etc",
+    "xrp",
     "60",
     "",
-    "http://etherscan.io/", //TODO
-    "ETC"
+    "", //TODO change
+    "XRP"
   )
 
 }

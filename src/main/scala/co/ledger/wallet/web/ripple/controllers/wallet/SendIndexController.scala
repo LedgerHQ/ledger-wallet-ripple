@@ -127,19 +127,6 @@ class SendIndexController(override val windowService: WindowService,
     Try(RippleAccount(address))
   }
 
-  def updateGasPrice(): Unit = {
-    import timers._
-    sessionService.currentSession.get.wallet.estimatedGasPrice() foreach {(price) =>
-      _gasPrice = price.toBigInt
-      gasPrice = price.toBigInt.toString()
-      computeTotal()
-      setTimeout(0) {
-        $scope.$digest()
-      }
-    }
-  }
-
-  updateGasPrice()
 
   def send() = {
     try {

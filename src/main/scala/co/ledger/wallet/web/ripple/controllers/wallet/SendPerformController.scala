@@ -11,6 +11,7 @@ import co.ledger.wallet.web.ripple.components.SnackBar
 import co.ledger.wallet.web.ripple.services.{DeviceService, SessionService, WindowService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.scalajs.js
 import scala.util.{Failure, Success}
 
@@ -61,24 +62,7 @@ class SendPerformController(override val windowService: WindowService,
   windowService.disableUserInterface()
 
   sessionService.currentSession.get.wallet.account(accountId) flatMap {(account) =>
-    account.rippleAccountDerivationPath() flatMap {(from) =>
-      account.transactionNonce() flatMap {(nonce) =>
-        println(s"Transaction nonce: $nonce")
-        deviceService.lastConnectedDevice() flatMap {(device) =>
-          LedgerApi(device).signTransaction(
-            nonce,
-            gasPrice,
-            startGas,
-            from,
-            to,
-            amount,
-            data.getOrElse(Array.emptyByteArray)
-          )
-        }
-      }//
-    }
-  } flatMap {(signature) =>
-    sessionService.currentSession.get.wallet.pushTransaction(signature.signedTx)
+    Future.failed(new Exception("not implemented"))
   } onComplete {
     case Success(_) =>
       sessionService.currentSession.get.sessionPreferences.remove(SendIndexController.RestoreKey)

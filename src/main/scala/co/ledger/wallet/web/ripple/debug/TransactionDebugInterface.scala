@@ -4,7 +4,6 @@ import co.ledger.wallet.core.device.Device
 import co.ledger.wallet.core.device.ripple.LedgerApi
 import co.ledger.wallet.core.utils.{DerivationPath, HexUtils}
 import co.ledger.wallet.core.wallet.ripple.{XRP, RippleAccount}
-import co.ledger.wallet.core.wallet.ripple.api.AbstractApiWalletClient
 import co.ledger.wallet.web.ripple.services.{DeviceService, SessionService}
 
 import scala.concurrent.ExecutionContext.Implicits.global

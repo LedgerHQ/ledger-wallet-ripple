@@ -1,26 +1,16 @@
 package co.ledger.wallet.web.ripple.controllers.onboarding
 
-import java.util.Date
-
-import biz.enef.angulate.{Controller, Scope}
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.{JQLite, Location}
-import co.ledger.wallet.core.device.Device
-import co.ledger.wallet.core.device.ripple.{LedgerApi, LedgerBolosApi, LedgerDerivationApi}
-import co.ledger.wallet.core.device.ripple.LedgerDerivationApi.PublicAddressResult
-import co.ledger.wallet.core.utils.DerivationPath
-import co.ledger.wallet.core.wallet.ripple.{XRP, RippleAccount}
-import co.ledger.wallet.core.wallet.ripple.Wallet.WalletNotSetupException
-import co.ledger.wallet.core.wallet.ripple.api.{AbstractApiWalletClient, AbstractTransactionRestClient}
+import biz.enef.angulate.{Controller, Scope}
+import co.ledger.wallet.core.device.ripple.LedgerApi
 import co.ledger.wallet.web.ripple.core.utils.ChromePreferences
 import co.ledger.wallet.web.ripple.services.{DeviceService, SessionService, WindowService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Future, Promise, duration}
+import scala.concurrent.Future
 import scala.scalajs.js
 import scala.util.{Failure, Success}
-import duration._
-import scala.scalajs.js.timers
 
 /**
   *
@@ -75,44 +65,11 @@ class OpeningController(override val windowService: WindowService,
         sessionService.currentSession.get.sessionPreferences("balance_cache") = balance.toBigInt.toString()
       })
   } flatMap { (_) =>
-    sessionService.currentSession.get.wallet.mostRecentBlock() flatMap { (block) =>
-      val now = new Date()
-      if (now.getTime - block.time.getTime >= 7.days.toMillis) {
-        synchronizeWallet()
-      } else {
-        synchronizeWallet()
-        Future.successful()
-      }
-    } recoverWith {
-      case walletNotSetup: WalletNotSetupException =>
-        synchronizeWallet()
-      case others => throw others
-    }
-  } flatMap {(_) =>
-    if (true /*$routeParams("chain") == "ETH"*/) {
-      Future.successful(None)
-    } else {
-      deviceService.lastConnectedDevice() flatMap {(device) =>
-        val api = LedgerApi(device)
-        api.derivePublicAddress(DerivationPath("44'/60'/0'/0"), false) flatMap {(result) =>
-          val txApi = sessionService.currentSession.get.wallet.asInstanceOf[AbstractApiWalletClient].transactionRestClient
-          txApi.getAccountBalance(result.account.toString) map {(balance) =>
-            if (balance.toBigInt > 0) {
-              Some(balance)
-            } else {
-              None
-            }
-          }
-        }
-      }
-    }
+    synchronizeWallet()
+    Future.successful()
   } onComplete {
-    case Success(balance) =>
-      if (balance.isDefined) {
-        $location.url(s"/onboarding/split-disclaimer/${balance.get.toBigInt.toString()}")
-      } else {
-        $location.url("/account/0")
-      }
+    case Success(_) =>
+      $location.url("/account/0")
       $route.reload()
     case Failure(ex) =>
       ex.printStackTrace()

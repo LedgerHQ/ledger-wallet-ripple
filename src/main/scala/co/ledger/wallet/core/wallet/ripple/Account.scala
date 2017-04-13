@@ -45,7 +45,6 @@ trait Account {
                   : Future[AsyncCursor[Operation]]
   def rippleAccount(): Future[RippleAccount]
   def rippleAccountDerivationPath(): Future[DerivationPath]
-  def transactionNonce(): Future[BigInt]
   def balance(): Future[XRP]
 
 }

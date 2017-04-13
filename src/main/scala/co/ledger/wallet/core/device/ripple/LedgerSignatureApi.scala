@@ -1,10 +1,8 @@
 package co.ledger.wallet.core.device.ripple
 
-import co.ledger.wallet.core.device.ripple.LedgerCommonApiInterface.CommandResult
 import co.ledger.wallet.core.device.ripple.LedgerSignatureApi.SignatureResult
-import co.ledger.wallet.core.utils.{BytesWriter, DerivationPath, HexUtils}
+import co.ledger.wallet.core.utils.DerivationPath
 import co.ledger.wallet.core.wallet.ripple.RippleAccount
-import co.ledger.wallet.core.wallet.ripple.rlp.RLP
 
 import scala.concurrent.Future
 
@@ -46,43 +44,12 @@ trait LedgerSignatureApi extends LedgerCommonApiInterface {
                       from: DerivationPath,
                       to: RippleAccount,
                       value: BigInt,
-                      data: Array[Byte]): Future[SignatureResult] = {
-    val unsignedSerialization = List(nonce, gasPrice, startGas, to.toByteArray, value, data)
-    val serializedTx = RLP.encode(unsignedSerialization)
-    val rawDerivationPath = new BytesWriter().writeDerivationPath(from).toByteArray
-    def sendChunks(i: Int): Future[CommandResult] = {
-      val offset = Math.max(i * 255 - rawDerivationPath.length, 0)
-      val length = 255 - (if (i == 0) rawDerivationPath.length else 0)
-      val chunk = (if (i == 0) rawDerivationPath else Array.empty[Byte]) ++ serializedTx.slice(offset, offset + length)
-      sendApdu(0xE0, 0x04, if (i == 0) 0x00 else 0x80, 0x00, chunk, 0x00) flatMap {(result) =>
-        matchErrorsAndThrow(result)
-        if ((i + 1) * 255 - rawDerivationPath.length < serializedTx.length)
-          sendChunks(i + 1)
-        else
-          Future.successful(result)
-      }
-    }
-    sendChunks(0) map {(result) =>
-      SignatureResult(unsignedSerialization, result.data.readNextByte(), result.data.readNextBytes(32), result.data.readNextBytes(32))
-    }
-  }
-
-  /*
-  ('nonce', big_endian_int),
-  ('gasprice', big_endian_int),
-  ('startgas', big_endian_int),
-  ('to', utils.address),
-  ('value', big_endian_int),
-  ('data', binary),
-  ('v', big_endian_int),
-  ('r', big_endian_int),
-  ('s', big_endian_int),
-  */
+                      data: Array[Byte]): Future[SignatureResult] = ???
 
 }
 
 object LedgerSignatureApi {
   case class SignatureResult(unsignedTx: List[Any], v: Byte, r: Array[Byte], s: Array[Byte]) {
-    val signedTx = RLP.encode(unsignedTx :+ v :+ r :+ s)
+    val signedTx = ???
   }
 }
