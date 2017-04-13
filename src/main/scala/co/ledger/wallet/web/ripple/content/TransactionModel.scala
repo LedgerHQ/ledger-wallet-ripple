@@ -37,7 +37,7 @@ import co.ledger.wallet.web.ripple.core.database.Model
   */
 class TransactionModel extends Model("transaction") {
   val hash = string("hash").unique().index().encrypted()
-  val height = long("height").unique
+  val height = long("height")
   val receivedAt = date("receivedAt").index()
   val account = string("account")
   val fee = string("fee")

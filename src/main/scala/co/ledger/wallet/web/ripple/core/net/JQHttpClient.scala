@@ -77,6 +77,5 @@ class JQHttpClient(override val baseUrl: String) extends HttpClient {
 }
 
 object JQHttpClient {
-  val xrpInstance = new JQHttpClient("https://api.ledgerwallet" +
-    ".com/blockchain/v2/eth")
+  val xrpInstance = new JQHttpClient("https://data.ripple.com/v2")
 }

@@ -22,7 +22,7 @@ class RippleWalletClient(override val name: String,
 
   override def account(index: Int): Future[Account] = ???
 
-  override def accounts(): Future[Array[Account]] = ???
+  override def accounts(): Future[Array[Account]] =
 
   override def balance(): Future[XRP] = ???
 
