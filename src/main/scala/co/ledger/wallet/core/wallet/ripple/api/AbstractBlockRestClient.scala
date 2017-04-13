@@ -50,19 +50,10 @@ abstract class AbstractBlockRestClient(http: HttpClient) {
 
   class JsonBlock(json: JSONObject) extends Block {
     override def hash: String = json.getString("hash")
-    override def height: Long = json.getLong("height")
-    override def time: Date = stringToDate(json.getString("time"))
-    override def transactionsHashes: Option[Array[String]] = {
-      if (json.has("txs")) {
-        val txs = json.getJSONArray("txs")
-        val result = new Array[String](txs.length())
-        for (i <- 0 until txs.length()) {
-          result(i) = txs.getString(i)
-        }
-        Some(result)
-      } else {
-        None
-      }
-    }
+    override def closeTime: Date = stringToDate(json.getString("close_time"))
+    override def seqNum: String = json.getString("seqNum")
+    override def ledgerIndex: Long = json.getLong("ledger_index")
+    override def toString: String = super.toString
+    override def totalCoins: String = json.getString("totalCoins")
   }
 }

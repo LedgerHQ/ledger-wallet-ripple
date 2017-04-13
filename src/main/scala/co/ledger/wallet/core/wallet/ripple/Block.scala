@@ -34,9 +34,10 @@ import java.util.Date
   */
 trait Block {
   def hash: String
-  def height: Long
-  def time: Date
-  def transactionsHashes: Option[Array[String]] = None
+  def closeTime: Long
+  def ledgerIndex: Long
+  def seqNum: String
+  def totalCoins: String
 
-  override def toString: String = s"{hash: $hash, height: $height, time: $time, txs: ${transactionsHashes.map(_.length)}"
+  override def toString: String = s"{hash: $hash}"
 }

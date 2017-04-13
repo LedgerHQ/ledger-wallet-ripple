@@ -83,9 +83,9 @@ class AccountController(override val windowService: WindowService,
                 "date" -> new js.Date(op.transaction.receivedAt.getTime),
                 "amount" -> (
                   (if (op.`type` == Operation.SendType) -1 else 1) *
-                    op.transaction.value.toBigInt -
+                    op.transaction.amount.toBigInt -
                     (if (op.`type` == Operation.SendType) op.transaction
-                      .gasPrice.toBigInt * 21000 else 0)
+                      .fee.toBigInt * 21000 else 0)
                   ).toString(),
                 "isSend" -> (op.`type` == Operation.SendType)
               ))
