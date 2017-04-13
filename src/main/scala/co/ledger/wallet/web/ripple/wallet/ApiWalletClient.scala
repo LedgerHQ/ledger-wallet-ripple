@@ -49,7 +49,9 @@ class ApiWalletClient(name: String,
                       override protected val password: Option[String],
                       provider: RippleAccountProvider,
                       chain: SessionService.RippleChainIdentifier) extends
-  AbstractApiWalletClient(s"${chain.id}_${name}_${chain.coinType}_${chain.pathPrefix}", chain.coinType, chain.pathPrefix) with IndexedDBBackedWalletClient {
+  AbstractApiWalletClient(s"${chain.id}_${name}_${chain.coinType}_${chain
+    .pathPrefix}", chain.coinType, chain.pathPrefix) with
+    IndexedDBBackedWalletClient {
 
   override implicit val ec: ExecutionContext = scala.concurrent
     .ExecutionContext.Implicits.global

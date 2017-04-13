@@ -33,33 +33,23 @@ import java.util.Date
   *
   */
 trait Transaction {
-  def hash: String
+  def amount: XRP
+  def fee: XRP
+  def account: String
+  def destination: String
   def receivedAt: Date
-  def value: XRP
-  def gas: XRP
-  def gasUsed: XRP
-  def gasPrice: XRP
-  def cumulativeGasUsed: XRP
-  def from: String
-  def to: String
-  def block: Option[Block]
-  def nonce: BigInt
-  def data: String
+  def hash: String
+  def ledgerIndex: Option[Block]
+
 
   override def toString: String =
     s"""{
-       |  nonce: $nonce
+       |  amount: $amount
        |  hash: $hash
-       |  receiveAt: $receivedAt
-       |  value: $value
-       |  gas: $gas
-       |  gasUsed: $gasUsed
-       |  gasPrice: $gasPrice
-       |  cumulativeGasUsed: $cumulativeGasUsed
-       |  from: $from
-       |  to: $to
-       |  block: $block
-       |  data: $data
+       |  fee: $fee
+       |  account: $account
+       |  destination: $destination
+       |  ledgerIndex: $ledgerIndex
        |}
        |""".stripMargin
 }

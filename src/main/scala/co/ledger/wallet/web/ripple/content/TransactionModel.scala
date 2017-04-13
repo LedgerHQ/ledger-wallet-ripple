@@ -37,44 +37,31 @@ import co.ledger.wallet.web.ripple.core.database.Model
   */
 class TransactionModel extends Model("transaction") {
   val hash = string("hash").unique().index().encrypted()
+  val ledgerIndex = long("ledger_index").unique
   val receivedAt = date("receivedAt").index()
-  val value = string("value")
-  val gas = string("gas")
-  val gasUsed = string("gasUsed")
-  val gasPrice = string("gasPrice")
-  val cumulativeGasUsed = string("cumulativeGasUsed")
-  val from = string("from").encrypted()
-  val to = string("to").encrypted()
-  val blockHash = string("blockHash").encrypted()
-  val blockHeight = long("blockHeight").encrypted()
-  val nonce = string("nonce").index()
-  val data = string("data")
+  val account = string("account")
+  val fee = string("fee")
+  val amount = string("amount")
+  val destination = string("destination")
+
 
   def proxy: Transaction = {
     new Transaction {
-      override def gas: XRP = XRP(TransactionModel.this.gas().get)
 
-      override def nonce: BigInt = BigInt(TransactionModel.this.nonce().get, 16)
+      override def ledgerIndex: Option[Block] = None
 
-      override def gasPrice: XRP = XRP(TransactionModel.this.gas().get)
+      override def account: String = TransactionModel.this.account().get
 
-      override def block: Option[Block] = None
-
-      override def from: String = TransactionModel.this.from().get
-
-      override def data: String = TransactionModel.this.data().get
+      override def destination: String = TransactionModel.this.destination().get
 
       override def hash: String = TransactionModel.this.hash().get
 
-      override def to: String = TransactionModel.this.to().get
+      override def amount: XRP = XRP(TransactionModel.this.amount().get)
 
-      override def value: XRP = XRP(TransactionModel.this.gas().get)
+      override def fee: XRP = XRP(TransactionModel.this.fee().get)
 
-      override def cumulativeGasUsed: XRP = XRP(TransactionModel.this.gas().get)
-
-      override def gasUsed: XRP = XRP(TransactionModel.this.gas().get)
-
-      override def receivedAt: Date = new Date(TransactionModel.this.receivedAt().get.getTime().toLong)
+      override def receivedAt: Date = new Date(TransactionModel.this.receivedAt().get
+        .getTime().toLong)
     }
   }
 }

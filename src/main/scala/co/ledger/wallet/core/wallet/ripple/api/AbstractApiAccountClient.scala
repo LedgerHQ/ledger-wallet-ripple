@@ -61,6 +61,7 @@ abstract class AbstractApiAccountClient(override val wallet
 
   override def synchronize(): Future[Unit] = {
     println(accountRow.rippleAccount)
+
     Future.successful()
   }
 
