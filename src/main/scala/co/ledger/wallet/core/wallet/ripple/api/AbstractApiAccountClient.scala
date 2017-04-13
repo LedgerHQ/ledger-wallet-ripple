@@ -95,7 +95,7 @@ abstract class AbstractApiAccountClient(override val wallet
     val result = new ArrayBuffer[Operation]()
     transactions foreach {(tx) =>
       _balanceCache = None
-      if (tx.to == accountRow.rippleAccount) {
+      if (tx.destination == accountRow.rippleAccount) {
         // Receive
         result += new Operation {
           override def `type`: String = Operation.ReceiveType
@@ -105,7 +105,7 @@ abstract class AbstractApiAccountClient(override val wallet
           override def transaction: Transaction = tx
         }
       }
-      if (tx.from == accountRow.rippleAccount) {
+      if (tx.account == accountRow.rippleAccount) {
         // Send
         result += new Operation {
           override def `type`: String = Operation.SendType

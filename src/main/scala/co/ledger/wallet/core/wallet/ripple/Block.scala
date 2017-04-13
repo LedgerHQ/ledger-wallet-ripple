@@ -34,10 +34,9 @@ import java.util.Date
   */
 trait Block {
   def hash: String
-  def closeTime: Long
-  def ledgerIndex: Long
-  def seqNum: String
-  def totalCoins: String
+  def time: Date
+  def height: Long
+  def totalCoins: Long
 
   override def toString: String = s"{hash: $hash}"
 }

@@ -33,23 +33,22 @@ import java.util.Date
   *
   */
 trait Transaction {
-  def amount: XRP
+  def value: XRP
   def fee: XRP
-  def account: String
-  def destination: String
+  def account: RippleAccount
+  def destination: RippleAccount
   def receivedAt: Date
   def hash: String
-  def ledgerIndex: Option[Block]
+  def height: Option[Long]
 
 
   override def toString: String =
     s"""{
-       |  amount: $amount
+       |  value: $value
        |  hash: $hash
        |  fee: $fee
        |  account: $account
        |  destination: $destination
-       |  ledgerIndex: $ledgerIndex
        |}
        |""".stripMargin
 }

@@ -2,7 +2,7 @@ package co.ledger.wallet.web.ripple.content
 
 import java.util.Date
 
-import co.ledger.wallet.core.wallet.ripple.{Block, XRP, Transaction}
+import co.ledger.wallet.core.wallet.ripple.{Block, RippleAccount, Transaction, XRP}
 import co.ledger.wallet.web.ripple.core.database.Model
 
 /**
@@ -37,26 +37,27 @@ import co.ledger.wallet.web.ripple.core.database.Model
   */
 class TransactionModel extends Model("transaction") {
   val hash = string("hash").unique().index().encrypted()
-  val ledgerIndex = long("ledger_index").unique
+  val height = long("height").unique
   val receivedAt = date("receivedAt").index()
   val account = string("account")
   val fee = string("fee")
-  val amount = string("amount")
+  val value = string("value")
   val destination = string("destination")
-
 
   def proxy: Transaction = {
     new Transaction {
 
-      override def ledgerIndex: Option[Block] = None
+      override def height: Option[Long] = None
 
-      override def account: String = TransactionModel.this.account().get
+      override def account: RippleAccount = RippleAccount(TransactionModel
+        .this.account().get)
 
-      override def destination: String = TransactionModel.this.destination().get
+      override def destination: RippleAccount = RippleAccount(TransactionModel
+        .this.destination().get)
 
       override def hash: String = TransactionModel.this.hash().get
 
-      override def amount: XRP = XRP(TransactionModel.this.amount().get)
+      override def value: XRP = XRP(TransactionModel.this.value().get)
 
       override def fee: XRP = XRP(TransactionModel.this.fee().get)
 

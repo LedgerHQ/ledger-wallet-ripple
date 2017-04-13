@@ -41,7 +41,7 @@ trait DatabaseBackedWalletClient extends Wallet {
     * @param block
     * @return
     */
-  def putBlock(block: Block): Future[Unit]
+  def putBlock(block: Long): Future[Unit]
 
   /**
     * Insert or update a transaction in the database

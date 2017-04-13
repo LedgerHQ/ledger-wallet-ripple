@@ -4,7 +4,7 @@ import java.util.Date
 
 import co.ledger.wallet.core.net.HttpClient
 import co.ledger.wallet.core.utils.HexUtils
-import co.ledger.wallet.core.wallet.ripple.{Block, XRP, Transaction}
+import co.ledger.wallet.core.wallet.ripple.{Block, RippleAccount, Transaction, XRP}
 import org.json.JSONObject
 
 import scala.collection.mutable.ArrayBuffer
@@ -92,29 +92,24 @@ abstract class AbstractTransactionRestClient(http: HttpClient, val blockRestClie
   }
 
   def stringToDate(string: String): Date
-  def obtainSyncToken(): Future[String] = http.get("/syncToken").json map(_._1.getString("token"))
-  def deleteSyncToken(syncToken: String): Future[Unit] = {
-    http.delete("/syncToken")
-        .header("X-LedgerWallet-SyncToken" -> syncToken)
-        .noResponseBody
-        .map((_) => ())
-  }
 
   class JsonTransaction(json: JSONObject) extends Transaction {
-    override def nonce: BigInt = BigInt(json.getString("nonce").substring(2), 16)
-    override def data: String = json.getString("input")
     override val hash: String = json.getString("hash")
-    override val receivedAt: Date = stringToDate(json.getString("received_at"))
-    override val value: XRP = XRP(json.getString("value"))
-    override val gas: XRP = XRP(json.getString("gas"))
-    override val gasUsed: XRP = XRP(json.optString("gas_used", "0"))
-    override val gasPrice: XRP = XRP(json.getString("gas_price"))
-    override val cumulativeGasUsed: XRP = XRP(json.optString("cumulative_gas_used", "0"))
-    override val from: String = json.getString("from")
-    override val to: String = json.getString("to")
-    override val block: Option[Block] = Option(json.optJSONObject("block")).map((b) => blockRestClient.jsonToBlock(b))
-  }
+    override val receivedAt: Date = stringToDate(json.getString("date"))
 
+    override val value: XRP = XRP(json.getJSONObject("tx").getString("Amount"))
+
+    override val fee: XRP = XRP(json.getJSONObject("tx").getString("Fee"))
+
+    override val account: RippleAccount = RippleAccount(json.getJSONObject
+    ("tx").getString("Account"))
+
+    override val destination: RippleAccount = RippleAccount(json
+      .getJSONObject("tx").getString
+    ("Destination"))
+
+    override def height: Option[Long] = Some(json.getLong("ledger_index"))
+  }
   case class TransactionsPage(transactions: Array[Transaction], isTruncated: Boolean)
 
 }

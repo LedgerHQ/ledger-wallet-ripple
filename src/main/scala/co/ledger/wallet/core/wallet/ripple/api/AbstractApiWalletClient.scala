@@ -245,14 +245,14 @@ abstract class AbstractApiWalletClient(override val name: String,
             account.asInstanceOf[AbstractApiAccountClient].putTransaction(tx)
           }
         }
-      case NewBlock(block) =>
+      /*case NewBlock(block) =>
         block.transactionsHashes foreach { (hashes) =>
           queryTransactions(hashes) foreach { (txs) =>
             if (txs.nonEmpty) {
               synchronize()
             }
           }
-        }
+        }*/
       case drop =>
     }
   }

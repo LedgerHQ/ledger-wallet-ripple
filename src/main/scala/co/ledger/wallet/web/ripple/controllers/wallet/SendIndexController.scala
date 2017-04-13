@@ -79,7 +79,7 @@ class SendIndexController(override val windowService: WindowService,
     isInAdvancedMode = restore.advancedMode
     data = restore.data
     if (restore.amount.isSuccess)
-      amount = restore.amount.get.toEther.toString()
+      amount = restore.amount.get.toXRP.toString()
   }
 
   def scanQrCode() = {
@@ -102,7 +102,7 @@ class SendIndexController(override val windowService: WindowService,
       var a = new XRP(b.toBigInt - (_gasPrice * gasLimit))
       if (a.toBigInt < 0)
         a = XRP(0)
-      amount = a.toEther.toString()
+      amount = a.toXRP.toString()
       computeTotal()
       $scope.$apply()
     }

@@ -113,33 +113,24 @@ trait IndexedDBBackedAccountClient extends DatabaseBackedAccountClient {
       .get).items map {(txs) =>
       txs.head
     } flatMap {(tx) =>
-      tx.blockHash() map {(blockHash) =>
+      tx.height() map {(blockHash) =>
         wallet.BlockModel.readonly(password).get(blockHash).items.map(_.headOption)
       } getOrElse {
         Future.successful(None)
       } map {(b) =>
         new Transaction {
-          override def nonce: BigInt = BigInt(tx.nonce().get, 16)
 
-          override def data: String = tx.data().get
+          override def fee: XRP = XRP(tx.fee().get)
 
-          override def gas: XRP = XRP(tx.gas().get)
+          override def height: Option[Long] = tx.height()
 
-          override def block: Option[Block] = b.map(_.proxy)
+          override def account: RippleAccount = RippleAccount(tx.account().get)
 
-          override def gasUsed: XRP = XRP(tx.gasUsed().get)
-
-          override def gasPrice: XRP = XRP(tx.gasPrice().get)
-
-          override def from: String = tx.from().get
-
-          override def to: String = tx.to().get
+          override def destination: RippleAccount = RippleAccount(tx.destination().get)
 
           override def hash: String = tx.hash().get
 
           override def value: XRP = XRP(tx.value().get)
-
-          override def cumulativeGasUsed: XRP = XRP(tx.cumulativeGasUsed().get)
 
           override def receivedAt: Date = new Date(tx.receivedAt().get.getTime().toLong)
         }

@@ -52,7 +52,7 @@ trait IndexedDBBackedWalletClient extends DatabaseBackedWalletClient {
   private val connection = DatabaseDeclaration.obtainConnection()
   // \Constructor
 
-  override def putBlock(block: Block): Future[Unit] = {
+  override def putBlock(block: Long): Future[Unit] = {
     BlockModel.readwrite(password).add(BlockModel(block)).commit().map((_) => ()).recover({case all => ()})
   }
 
@@ -141,7 +141,7 @@ trait IndexedDBBackedWalletClient extends DatabaseBackedWalletClient {
         Future.successful()
       } else {
         putTransaction(transactions(index)) flatMap {(_) =>
-          transactions(index).block match {
+          transactions(index).height match {
             case Some(block) => putBlock(block)
             case None => Future.successful()
           }
@@ -192,11 +192,11 @@ trait IndexedDBBackedWalletClient extends DatabaseBackedWalletClient {
     override def database: DatabaseDeclaration = DatabaseDeclaration
     override def creator: ModelCreator[content.BlockModel] = this
     override def newInstance(): content.BlockModel = new content.BlockModel()
-    def apply(block: Block): content.BlockModel = {
+    def apply(block: Long): content.BlockModel = {
       val b = new content.BlockModel
-      b.hash.set(block.hash)
-      b.height.set(block.height)
-      b.time.set(new js.Date(block.time.getTime))
+      //b.hash.set(block.hash)
+      b.height.set(block)
+      //b.time.set(new js.Date(block.time.getTime))
       b
     }
   }
@@ -221,19 +221,11 @@ trait IndexedDBBackedWalletClient extends DatabaseBackedWalletClient {
     def apply(transaction: Transaction) = {
       val t = new content.TransactionModel
       t.hash.set(transaction.hash)
-      t.blockHash.set(transaction.block.map(_.hash).orNull)
-      if (transaction.block.isDefined)
-        t.blockHeight.set(transaction.block.get.height)
-      t.to.set(transaction.to)
-      t.from.set(transaction.from)
-      t.gas.set(transaction.gas.toString)
-      t.gasUsed.set(transaction.gasUsed.toString)
-      t.gasPrice.set(transaction.gasPrice.toString)
-      t.cumulativeGasUsed.set(transaction.cumulativeGasUsed.toString)
+      t.destination.set(transaction.destination.toString)
+      t.account.set(transaction.account.toString)
+      t.fee.set(transaction.fee.toString)
       t.receivedAt.set(new js.Date(transaction.receivedAt.getTime))
       t.value.set(transaction.value.toString)
-      t.nonce.set(transaction.nonce.toString(16).reverse.padTo(64, '0').reverse.toString)
-      t.data.set(transaction.data)
       t
     }
   }

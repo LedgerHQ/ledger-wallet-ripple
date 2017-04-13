@@ -40,11 +40,12 @@ class BlockModel extends Model("blocks") {
   val hash = string("hash").unique().index()
   val height = long("height")
   val time = date("date")
+  val totalCoins = long("totalCoins")
 
   def proxy = new Block() {
     override def hash: String = BlockModel.this.hash().get
     override def height: Long = BlockModel.this.height().get
-
     override def time: Date = new Date(BlockModel.this.time().get.getTime().toLong)
+    override def totalCoins: Long = BlockModel.this.totalCoins().get
   }
 }

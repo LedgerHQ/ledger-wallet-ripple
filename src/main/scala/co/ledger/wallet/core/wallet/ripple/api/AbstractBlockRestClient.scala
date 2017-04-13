@@ -50,10 +50,9 @@ abstract class AbstractBlockRestClient(http: HttpClient) {
 
   class JsonBlock(json: JSONObject) extends Block {
     override def hash: String = json.getString("hash")
-    override def closeTime: Date = stringToDate(json.getString("close_time"))
-    override def seqNum: String = json.getString("seqNum")
-    override def ledgerIndex: Long = json.getLong("ledger_index")
+    override def time: Date = stringToDate(json.getString("close_time"))
+    override def height: Long = json.getLong("ledger_index")
     override def toString: String = super.toString
-    override def totalCoins: String = json.getString("totalCoins")
+    override def totalCoins: Long = json.getString("totalCoins").toLong
   }
 }
