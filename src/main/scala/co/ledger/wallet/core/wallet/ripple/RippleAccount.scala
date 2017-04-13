@@ -52,10 +52,10 @@ class RippleAccount(value: String) {
 }
 
 object RippleAccount {
-  def apply(hex: String): RippleAccount = {
-    if (!isValidHexAddress(hex))
-      throw new Exception(s"[$hex] is not a valid ripple account address")
-    new RippleAccount(hex)
+  def apply(base58: String): RippleAccount = {
+    if (!isValidHexAddress(base58))
+      throw new Exception(s"[$base58] is not a valid ripple account address")
+    new RippleAccount(base58)
   }
 
   def isValidHexAddress(address: String): Boolean = {

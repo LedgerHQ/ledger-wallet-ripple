@@ -5,6 +5,7 @@ import co.ledger.wallet.web.ripple.content.{AccountModel, TransactionModel, Wall
 import co.ledger.wallet.web.ripple.core.database.{DatabaseDeclaration, ModelCreator, QueryHelper}
 import co.ledger.wallet.web.ripple.content
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
 /**
@@ -40,14 +41,16 @@ trait RippleDatabase {
       OperationModel
     )
   }
-  def queryAccounts(): Future[Array[AccountModel]] = {
+  def queryAccounts(): Future[Array[AccountRow]] = {
     AccountModel.readonly(password).cursor flatMap {(cursor) =>
-      val buffer = new ArrayBuffer[AccountModel]
-      def iterate(): Future[Array[AccountModel]] = {
+      val buffer = new ArrayBuffer[AccountRow]
+      def iterate(): Future[Array[AccountRow]] = {
         if (cursor.value.isEmpty){
           Future.successful(buffer.toArray)
         } else {
-          buffer.append(cursor.value.get)
+          val model = cursor.value.get
+          buffer.append(new AccountRow(model.index().get, model.rippleAccount
+          ().get))
           cursor.continue() flatMap {(_) =>
             iterate()
           }
