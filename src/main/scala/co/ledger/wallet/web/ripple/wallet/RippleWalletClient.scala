@@ -7,8 +7,10 @@ import co.ledger.wallet.core.wallet.ripple.database.AccountRow
 import co.ledger.wallet.web.ripple.core.event.JsEventEmitter
 import co.ledger.wallet.web.ripple.services.SessionService
 import co.ledger.wallet.web.ripple.wallet.database.RippleDatabase
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
 /**
   * Created by alix on 4/13/17.
@@ -35,7 +37,8 @@ class RippleWalletClient(override val name: String,
     })
   }
 
-  private def createNewAccount(index: Int): Future[AccountRow] = ???
+  private def createNewAccount(index: Int): Future[AccountRow] = ??? //not
+  // used yet
 
   private var _accounts: Option[Future[Array[RippleAccountClient]]] = None
 
@@ -43,13 +46,27 @@ class RippleWalletClient(override val name: String,
 
   override def coinPathPrefix: String = chain.pathPrefix
 
-  override def account(index: Int): Future[Account] = ???
+  override def account(index: Int): Future[Account] = {
+    init() map {(accounts) =>
+      accounts(index)}
+  }
+  override def accounts(): Future[Array[Account]] = {
 
-  override def accounts(): Future[Array[Account]] = ???
+  }
 
-  override def balance(): Future[XRP] = ???
-
-  override def synchronize(): Future[Unit] = ???
+  override def balance(): Future[XRP] = {
+    accounts() flatMap { (accounts) =>
+      var futureBalances = accounts map { (account) =>
+        account.balance()
+      }
+      Future.sequence(futureBalances.toSeq)
+    } map {(balances) =>
+      balances.foldLeft(XRP.Zero)(_ + _)
+    }
+  }
+  override def synchronize(): Future[Unit] = {
+    accounts()
+  }
 
   override def isSynchronizing(): Future[Boolean] = ???
 

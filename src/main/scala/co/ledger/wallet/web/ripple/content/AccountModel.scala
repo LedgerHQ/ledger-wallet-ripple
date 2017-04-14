@@ -38,6 +38,6 @@ class AccountModel extends Model("accounts") {
   val rippleAccount = string("rippleAccount").encrypted()
   val balance = string("balance").encrypted()
 
-  def proxy = new AccountRow(index().get, rippleAccount().get)
+  def proxy = new AccountRow(index().get, rippleAccount().get, balance().get)
 
 }

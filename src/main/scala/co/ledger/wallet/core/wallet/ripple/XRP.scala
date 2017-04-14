@@ -71,7 +71,7 @@ object XRP {
   }
 
   object Implicits {
-    implicit def int2Ether(value: Int): XRP = XRP(value)
+    implicit def int2XRP(value: Int): XRP = XRP(value)
   }
 
 }

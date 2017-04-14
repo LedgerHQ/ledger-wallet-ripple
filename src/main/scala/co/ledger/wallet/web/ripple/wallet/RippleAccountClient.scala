@@ -29,7 +29,7 @@ class RippleAccountClient(walletClient: RippleWalletClient,
     Future.successful(DerivationPath(s"44'/${walletClient
       .bip44CoinType}'/$index'/0/0"))
 
-  override def balance(): Future[XRP] = ???
+  override def balance(): Future[XRP] =
 }
 
 
