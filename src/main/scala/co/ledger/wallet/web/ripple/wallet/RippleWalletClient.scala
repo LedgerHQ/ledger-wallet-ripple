@@ -81,7 +81,6 @@ class RippleWalletClient(override val name: String,
     _synchronizationFuture.getOrElse({
       _synchronizationFuture = Some(
         accounts() flatMap {(accounts) =>
-          println("Synchronizing1")
           Future.sequence(accounts.map(_.synchronize()).toSeq)
         } map { _ => _synchronizationFuture = None}
       )

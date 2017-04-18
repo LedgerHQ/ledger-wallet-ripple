@@ -29,24 +29,29 @@ class RippleAccountClient(walletClient: RippleWalletClient,
 
   override def synchronize(): Future[Unit] = {
     println("Synchronizing account")
-    _api.balance() flatMap {(bal) =>
-      println("balance=")
-      println(bal)
-      walletClient.putAccount(new AccountRow(row.index, row.rippleAccount, bal))
-      println(s"account ${row.index} updated")
-      _api.transactions() map {(transactions) =>
-        for (transaction <- transactions) {
-          println("transaction")
-          println("transaction2")
-          walletClient.putTransaction(transaction)
-          walletClient.putOperation(new AccountRow(row.index, row
-            .rippleAccount, bal),transaction)
+    _synchronizationFuture.getOrElse({
+      _synchronizationFuture = Some(
+        _api.balance() flatMap { (bal) =>
+          println(s"balance=$bal")
+          walletClient.putAccount(new AccountRow(row.index, row.rippleAccount, bal))
+          println(s"account ${row.index} updated")
+          _api.transactions() map { (transactions) =>
+            for (transaction <- transactions) {
+              walletClient.putTransaction(transaction)
+              walletClient.putOperation(new AccountRow(row.index, row
+                .rippleAccount, bal), transaction)
+            }
+            _synchronizationFuture = None
+          }
         }
-      }
-    }
+      )
+      _synchronizationFuture.get
+    })
   }
 
-  override def isSynchronizing(): Future[Boolean] = ???
+  override def isSynchronizing(): Future[Boolean] = Future.successful(
+    _synchronizationFuture.nonEmpty
+  )
 
   override def operations(limit: Int, batchSize: Int): Future[AsyncCursor[Operation]] = ???
 
