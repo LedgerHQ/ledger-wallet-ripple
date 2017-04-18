@@ -45,7 +45,7 @@ trait LedgerDerivationApi extends LedgerCommonApiInterface {
         askConfirmation: Boolean = false): Future[PublicAddressResult] = {
     // E0 02 00|01
     val apduPath = new BytesWriter().writeDerivationPath(path)
-    sendApdu(0xE0, 0x02, if (askConfirmation) 0x01 else 0x00, 0x00,
+    sendApdu(0xE0, 0x02, if (askConfirmation) 0x01 else 0x00, 0x40|0x01,
       apduPath.toByteArray, 0x00) map {(result) =>
       matchErrorsAndThrow(result)
       val data = result.data
@@ -53,7 +53,7 @@ trait LedgerDerivationApi extends LedgerCommonApiInterface {
       val address = data.readNextBytes(data.readNextByte())
       PublicAddressResult(
         publicKey,
-        RippleAccount("rhGxojnVnEhPQFfMsQ9BK81keWzs6Lzfpv")
+        RippleAccount(new String(address))
       )
     }
   }

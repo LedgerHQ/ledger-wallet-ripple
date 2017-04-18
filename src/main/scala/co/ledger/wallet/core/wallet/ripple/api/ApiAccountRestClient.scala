@@ -4,8 +4,8 @@ import co.ledger.wallet.core.concurrent.AsyncCursor
 import co.ledger.wallet.core.net.HttpClient
 import co.ledger.wallet.core.wallet.ripple._
 import co.ledger.wallet.core.wallet.ripple.database.AccountRow
-import scala.concurrent.ExecutionContext.Implicits.global
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import java.util.Date
 import java.text.DateFormat
@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 import scala.collection.mutable.ArrayBuffer
+import scala.scalajs.js
 
 /**
   * Created by alix on 4/14/17.
@@ -34,10 +35,12 @@ class ApiAccountRestClient(http: HttpClient,
       }
   }
 
-  def transactions(start: Date = new Date(2004,1,1)):
+  def transactions(start: Date = new Date(0)):
   Future[Array[JsonTransaction]] = {
-    val request = http.get(s"/accounts/${accountRow.rippleAccount}/payment?currency=XRP" +
-      s"&descending=false&start=${start.toString}") //TODO use calendar
+    val dateLiteral = new js.Date(start.getTime).toJSON()
+    val request = http.get(s"/accounts/${accountRow
+      .rippleAccount}/payments?currency=XRP" +
+      s"&descending=false&start=${dateLiteral}")
     request.json map {
       case (json, _) =>
         val txs = json.getJSONArray("payments")

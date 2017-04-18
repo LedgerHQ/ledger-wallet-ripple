@@ -50,7 +50,8 @@ class SessionService() extends Service {
               api.derivePublicAddress(path).map(_.account)
             }
           }
-          val session = new Session(walletIdentifier, password, provider, chain, appConfiguration)
+          val session = new Session(walletIdentifier, password,
+            provider, chain, appConfiguration)
           _currentSession = Some(session)
           Future.successful()
         }
@@ -74,7 +75,7 @@ class SessionService() extends Service {
                 provider: RippleAccountProvider,
                 val chain: SessionService.RippleChainIdentifier,
                 val dongleAppVersion: LedgerRippleAppApi.AppConfiguration) {
-    val wallet: Wallet = new RippleWalletClient(name, Option(password),
+    val wallet: Wallet = new RippleWalletClient(name, None /*Option(password)*/,
       provider, chain)
 
     val sessionPreferences = scala.collection.mutable.Map[String, Any]()

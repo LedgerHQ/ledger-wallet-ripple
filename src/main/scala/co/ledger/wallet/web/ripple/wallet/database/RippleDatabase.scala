@@ -34,6 +34,7 @@ trait RippleDatabase {
       model
     }
   }
+
   object OperationModel extends QueryHelper[content.OperationModel] with
     ModelCreator[content.OperationModel] {
     override def database: DatabaseDeclaration = DatabaseDeclaration
@@ -50,6 +51,7 @@ trait RippleDatabase {
       model
     }
   }
+
   object TransactionModel extends QueryHelper[content.TransactionModel] with
     ModelCreator[content.TransactionModel] {
     override def database: DatabaseDeclaration = DatabaseDeclaration
@@ -68,6 +70,7 @@ trait RippleDatabase {
       model
     }
   }
+
   object DatabaseDeclaration
     extends WalletDatabaseDeclaration(name) {
     override def models: Seq[QueryHelper[_]] = Seq(
@@ -76,6 +79,7 @@ trait RippleDatabase {
       TransactionModel
     )
   }
+
   def queryAccounts(): Future[Array[AccountRow]] = {
     AccountModel.readonly(password).cursor flatMap {(cursor) =>
       val buffer = new ArrayBuffer[AccountRow]
@@ -94,6 +98,22 @@ trait RippleDatabase {
       iterate()
     }
   }
+  case class BadAccountIndex() extends Exception
+
+  def queryAccount(index: Int): Future[AccountRow] = {
+    AccountModel.readonly(password).cursor flatMap {(cursor) =>
+      cursor.advance(index) map {_ =>
+        if (cursor.value.isEmpty) {
+          throw BadAccountIndex()
+        } else {
+          val model = cursor.value.get
+          new AccountRow(model.index().get, model.rippleAccount
+          ().get, XRP(model.balance().get))
+        }
+      }
+    }
+  }
+
   def putAccount(account: AccountRow): Future[Unit] = {
     AccountModel.readwrite(password).put(AccountModel(account)).commit().map(
       (_) =>())
@@ -109,9 +129,5 @@ trait RippleDatabase {
     TransactionModel.readwrite(password).put(TransactionModel(transaction))
       .commit().map((_) =>())
   }
-
-
-//delete
-
 }
 

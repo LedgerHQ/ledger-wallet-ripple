@@ -47,13 +47,14 @@ class LedgerApi(override val device: Device)
   with LedgerRippleAppApi {
   override implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
   def walletIdentifier(): Future[String] = {
-    derivePublicAddress(DerivationPath("44'/60'/0'/0'")).map {(result) =>
+    derivePublicAddress(DerivationPath("44'/144'/0'/0'")).map {(result) =>
       result.account.toString
     }
   }
   def walletMetaPassword(): Future[String] = {
     if (_walletIdentifier.isEmpty || (_walletIdentifier.get.isCompleted && _walletIdentifier.get.value.get.isFailure)) {
-      _walletIdentifier = Some(derivePublicAddress(DerivationPath("44'/60'/14'/5'/16")).map {(result) =>
+      _walletIdentifier = Some(derivePublicAddress(DerivationPath
+      ("44'/144'/14'/5'/16")).map {(result) =>
         HexUtils.encodeHex(result.publicKey)
       })
     }

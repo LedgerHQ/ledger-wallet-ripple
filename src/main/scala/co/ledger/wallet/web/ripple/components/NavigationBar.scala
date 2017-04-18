@@ -50,7 +50,8 @@ class NavigationBar(sessionService: SessionService,
                     $route: js.Dynamic) extends Directive {
   override type ScopeType = js.Dynamic
   val chains = js.Dictionary(
-    "etc" -> "launch.etc"
+    "etc" -> "launch.etc",
+    "xrp" -> "launch.etc"
   )
   override def templateUrl: String = "/templates/components/navigation-bar.html"
 

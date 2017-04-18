@@ -45,7 +45,7 @@ launch:
   to_begin_1: Per cominciare, collega e sblocca il tuo Ledger Wallet.
   unlock_and_open_app: Poi, apri l'app Ripple sul tuo dispositivo.
   ripple_chain: Catena Ripple
-  etc: ETC
+  xrp: XRP
   eth: ETH
 
 # Linux launch screen
