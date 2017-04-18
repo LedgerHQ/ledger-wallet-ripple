@@ -18,8 +18,6 @@ import scala.scalajs.js
   * Created by alix on 4/13/17.
   */
 trait RippleDatabase {
-  val format = new SimpleDateFormat("yyyy-MM-ddTHH:mm:ssZ", Locale.ENGLISH)
-
   def name: String
   def password: Option[String]
   object AccountModel extends QueryHelper[content.AccountModel] with
@@ -62,7 +60,7 @@ trait RippleDatabase {
       val model = new TransactionModel()
       model.hash.set(transaction.hash)
       model.height.set(transaction.height.get)
-      model.destination.set(transaction.destination.toString())
+      model.destination.set(transaction.destination.toString)
       model.fee.set(transaction.value.toBigInt.toLong)
       model.value.set(transaction.value.toBigInt.toLong)
       model.receivedAt.set(new js.Date(transaction.receivedAt.getTime))
