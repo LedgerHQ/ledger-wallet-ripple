@@ -40,8 +40,8 @@ class TransactionModel extends Model("transaction") {
   val height = long("height")
   val receivedAt = date("receivedAt").index()
   val account = string("account")
-  val fee = string("fee")
-  val value = string("value")
+  val fee = long("fee")
+  val value = long("value")
   val destination = string("destination")
 
   def proxy: Transaction = {

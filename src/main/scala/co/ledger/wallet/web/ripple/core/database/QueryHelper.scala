@@ -152,10 +152,35 @@ abstract class QueryHelper[M >: Null <: Model](implicit classTag: ClassTag[M]) {
       this
     }
 
+    def put(item: M): this.type = {
+      this :+ {(transaction, result) =>
+        val promise = Promise[Unit]()
+        try {
+          val request = transaction.objectStore(modelDeclaration.entityName)
+            .put(item.toDictionary(password))
+          request.onerror = { (event: ErrorEvent) =>
+            promise.failure(new Exception(event.asInstanceOf[js.Dynamic].target.error.message.asInstanceOf[String]))
+          }
+          request.onsuccess = { (event: Event) =>
+            promise.success()
+          }
+        } catch {
+          case er: Throwable => promise.failure(er)
+        }
+        promise.future
+      }
+      this
+    }
+
     def writeCursor: Future[WriteCursor[M]] = commit().map(_.cursor.asInstanceOf[WriteCursor[M]])
     def add(items: Array[M]): this.type  = {
       for (item <- items)
         add(item)
+      this
+    }
+    def put(items: Array[M]): this.type  = {
+      for (item <- items)
+        put(item)
       this
     }
 

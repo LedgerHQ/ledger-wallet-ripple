@@ -52,3 +52,4 @@ trait Transaction {
        |}
        |""".stripMargin
 }
+

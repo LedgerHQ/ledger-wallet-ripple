@@ -1,5 +1,7 @@
 package co.ledger.wallet.core.wallet.ripple.database
 
+import co.ledger.wallet.core.wallet.ripple.XRP
+
 /**
   *
   * AccountRow
@@ -32,6 +34,6 @@ package co.ledger.wallet.core.wallet.ripple.database
   */
 class AccountRow(val index: Int,
                  val rippleAccount: String,
-                  val balance: String) {
+                  val balance: XRP) {
   override def toString: String = rippleAccount
 }

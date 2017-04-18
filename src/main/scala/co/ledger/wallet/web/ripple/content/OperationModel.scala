@@ -33,11 +33,9 @@ import co.ledger.wallet.web.ripple.core.database.Model
   *
   */
 class OperationModel extends Model("operations") {
-
   val uid = string("uid").unique().encrypted()
-  val accountId = int("accountId").index()
+  val accountId = string("accountId").index()
   val operationType = string("operationType")
   val transactionHash = string("transactionHash").index().encrypted()
   val time = date("time").index()
-
 }

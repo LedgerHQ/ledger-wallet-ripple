@@ -50,9 +50,7 @@ class RippleWalletClient(override val name: String,
     init() map {(accounts) =>
       accounts(index)}
   }
-  override def accounts(): Future[Array[Account]] = {
-
-  }
+  override def accounts(): Future[Array[Account]] = ???
 
   override def balance(): Future[XRP] = {
     accounts() flatMap { (accounts) =>
@@ -64,9 +62,7 @@ class RippleWalletClient(override val name: String,
       balances.foldLeft(XRP.Zero)(_ + _)
     }
   }
-  override def synchronize(): Future[Unit] = {
-    accounts()
-  }
+  override def synchronize(): Future[Unit] = ???
 
   override def isSynchronizing(): Future[Boolean] = ???
 

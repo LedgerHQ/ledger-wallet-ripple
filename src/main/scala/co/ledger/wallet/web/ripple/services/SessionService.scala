@@ -99,10 +99,9 @@ object SessionService {
 
   case class RippleChain() extends RippleChainIdentifier(
     "xrp",
-    "60",
+    "144",
     "",
     "", //TODO change
     "XRP"
   )
-
 }

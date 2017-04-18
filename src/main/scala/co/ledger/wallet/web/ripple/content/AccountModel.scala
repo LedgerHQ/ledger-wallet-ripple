@@ -1,5 +1,6 @@
 package co.ledger.wallet.web.ripple.content
 
+import co.ledger.wallet.core.wallet.ripple.XRP
 import co.ledger.wallet.core.wallet.ripple.database.AccountRow
 import co.ledger.wallet.web.ripple.core.database.Model
 
@@ -38,6 +39,7 @@ class AccountModel extends Model("accounts") {
   val rippleAccount = string("rippleAccount").encrypted()
   val balance = string("balance").encrypted()
 
-  def proxy = new AccountRow(index().get, rippleAccount().get, balance().get)
+  def proxy = new AccountRow(index().get, rippleAccount().get, XRP(balance()
+    .get))
 
 }
