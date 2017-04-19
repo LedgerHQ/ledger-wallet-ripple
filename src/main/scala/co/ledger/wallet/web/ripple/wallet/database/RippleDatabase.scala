@@ -49,6 +49,11 @@ trait RippleDatabase {
       model.operationType.set("payment")
       model.time.set(new js.Date(transaction.receivedAt.getTime))
       model.transactionHash.set(transaction.hash)
+      if (transaction.account.toString == account.rippleAccount) {
+        model.operationType.set("send")
+      } else {
+        model.operationType.set("receive")
+      }
       model
     }
   }

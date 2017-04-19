@@ -8,15 +8,14 @@ import co.ledger.wallet.web.ripple.content.{OperationModel, TransactionModel}
   */
 class DatabaseOperation( operation: OperationModel,
                          override val account: Account,
-                         override val `type`: String,
                          transactionModel: TransactionModel) extends Operation {
 
   override val transaction: Transaction = transactionModel.proxy
-
+  override val `type`: String = operation.operationType().get
   }
 
 object DatabaseOperation {
   def apply(operation: OperationModel)(account: Account)(transactionModel: TransactionModel): DatabaseOperation = {
-    new DatabaseOperation(operation, account,"payment" , transactionModel)
+    new DatabaseOperation(operation, account, transactionModel)
   }
 }
