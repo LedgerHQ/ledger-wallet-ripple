@@ -4,6 +4,7 @@ import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.{JQLite, Location}
 import biz.enef.angulate.{Controller, Scope}
 import co.ledger.wallet.core.device.ripple.LedgerApi
+import co.ledger.wallet.web.ripple.components.WindowManager
 import co.ledger.wallet.web.ripple.core.utils.ChromePreferences
 import co.ledger.wallet.web.ripple.services.{DeviceService, SessionService, WindowService}
 
@@ -87,7 +88,7 @@ class OpeningController(override val windowService: WindowService,
   }
 
   def openHelpCenter(): Unit = {
-    js.Dynamic.global.open("http://support.ledgerwallet.com/help_center")
+    WindowManager.open("http://support.ledgerwallet.com/help_center")
   }
 
 }

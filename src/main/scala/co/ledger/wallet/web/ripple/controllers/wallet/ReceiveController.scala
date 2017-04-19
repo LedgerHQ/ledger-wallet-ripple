@@ -2,11 +2,12 @@ package co.ledger.wallet.web.ripple.controllers.wallet
 
 import biz.enef.angulate.{Controller, Scope}
 import biz.enef.angulate.Module.RichModule
+import co.ledger.wallet.web.ripple.components.WindowManager
 import co.ledger.wallet.web.ripple.services.{SessionService, WindowService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
-
+//import co.ledger.wallet.core.wallet.ripple.RippleAccount
 /**
   *
   * ReceiveController
@@ -43,27 +44,22 @@ class ReceiveController(override val windowService: WindowService,
   extends Controller with WalletController {
 
   var address = ""
-  var iban = ""
+
   def uri = {
-    if (showIban)
-      s"iban:$iban"
-    else
       address
   }
 
-  def showIban = currentFormat == "IBAN"
   def showHex = currentFormat == "HEX"
 
-  var formats = js.Dictionary("HEX" -> "HEX", "IBAN" -> "IBAN")
+  var formats = js.Dictionary("HEX" -> "HEX")
   var currentFormat = sessionService.currentSession.get.sessionPreferences.lift("address_format").getOrElse("HEX")
 
-  /*sessionService.currentSession.get.wallet.account(0) foreach {(account) =>
+  sessionService.currentSession.get.wallet.account(0) foreach {(account) =>
     account.rippleAccount() foreach { (a) =>
-      address = a.toChecksumString
-      iban = a.toIban
+      address = a.toString
       $scope.$digest()
     }
-  }*/
+  }
 
   def onFormatChanged(format: String): Unit = {
     currentFormat = format
@@ -75,7 +71,7 @@ class ReceiveController(override val windowService: WindowService,
   }
 
   def sendEmail(address: String): Unit = {
-    js.Dynamic.global.open(s"mailto:?body=$address")
+    WindowManager.open(s"mailto:?body=$address")
   }
 
 }

@@ -6,9 +6,11 @@ import biz.enef.angulate.{Controller, Scope}
 import co.ledger.wallet.core.device.utils.EventReceiver
 import co.ledger.wallet.core.wallet.ripple.Operation
 import co.ledger.wallet.core.wallet.ripple.Wallet.{NewOperationEvent, StartSynchronizationEvent, StopSynchronizationEvent}
-import co.ledger.wallet.web.ripple.components.SnackBar
+import co.ledger.wallet.web.ripple.components.{SnackBar, WindowManager}
 import co.ledger.wallet.web.ripple.i18n.DateFormat
 import co.ledger.wallet.web.ripple.services.{SessionService, WindowService}
+import org.scalajs
+import org.scalajs.dom
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
@@ -143,7 +145,7 @@ class AccountController(override val windowService: WindowService,
   }
 
   def openTransactionDetails(hash: String): Unit = {
-    js.Dynamic.global.open(s"${sessionService.currentSession.get.chain.explorerBaseUrl}/tx/$hash")
+    WindowManager.open(s"https://charts.ripple.com/#/transactions/$hash")
   }
 
   sessionService.currentSession.get.wallet.eventEmitter.register(this)

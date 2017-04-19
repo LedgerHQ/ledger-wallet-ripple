@@ -7,6 +7,7 @@ import co.ledger.wallet.core.device.DeviceFactory.{DeviceDiscovered, DeviceLost,
 import co.ledger.wallet.core.device.ripple.LedgerApi
 import co.ledger.wallet.core.device.{Device, DeviceFactory}
 import co.ledger.wallet.core.utils.DerivationPath
+import co.ledger.wallet.web.ripple.components.WindowManager
 import co.ledger.wallet.web.ripple.core.utils.{ChromeGlobalPreferences, ChromePreferences, JQueryHelper, OsHelper}
 import co.ledger.wallet.web.ripple.services.{DeviceService, WindowService}
 import org.scalajs.jquery.jQuery
@@ -123,11 +124,11 @@ class LaunchController(override val windowService: WindowService,
   }
 
   def openHelpCenter(): Unit = {
-    js.Dynamic.global.open("http://support.ledgerwallet.com/help_center")
+    WindowManager.open("http://support.ledgerwallet.com/help_center")
   }
 
   def openLinuxInstruction(): Unit = {
-    js.Dynamic.global.open("http://support.ledgerwallet.com/knowledge_base/topics/ledger-wallet-is-not-recognized-on-linux")
+    WindowManager.open("http://support.ledgerwallet.com/knowledge_base/topics/ledger-wallet-is-not-recognized-on-linux")
   }
 
   def numberOfConnection = new ChromeGlobalPreferences("launches").int("count").getOrElse(0)

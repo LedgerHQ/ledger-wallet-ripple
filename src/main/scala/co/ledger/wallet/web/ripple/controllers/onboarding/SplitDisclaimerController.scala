@@ -3,6 +3,7 @@ package co.ledger.wallet.web.ripple.controllers.onboarding
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.{Controller, Scope}
 import biz.enef.angulate.core.{JQLite, Location}
+import co.ledger.wallet.web.ripple.components.WindowManager
 import co.ledger.wallet.web.ripple.services.{DeviceService, SessionService, WindowService}
 
 import scala.scalajs.js
@@ -55,7 +56,7 @@ class SplitDisclaimerController(override val windowService: WindowService,
   }
 
   def openHelpCenter(): Unit = {
-    js.Dynamic.global.open("https://ledger.groovehq.com/knowledge_base/topics/ripple-classic-etc-important-notice")
+    WindowManager.open("https://ledger.groovehq.com/knowledge_base/topics/ripple-classic-etc-important-notice")
   }
 
 }

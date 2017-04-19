@@ -5,6 +5,7 @@ import java.util.Date
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.{Controller, Scope}
 import co.ledger.wallet.core.utils.logs.{LogExporter, Logger}
+import co.ledger.wallet.web.ripple.components.WindowManager
 import co.ledger.wallet.web.ripple.core.filesystem.ChromeFileSystem
 import co.ledger.wallet.web.ripple.core.utils.PermissionsHelper
 import co.ledger.wallet.web.ripple.services.{SessionService, WindowService}
@@ -50,11 +51,11 @@ class HelpController(override val windowService: WindowService,
 
 
   def browseKnowledgeBase(): Unit = {
-    js.Dynamic.global.open("http://support.ledgerwallet.com/help_center")
+    WindowManager.open("http://support.ledgerwallet.com/help_center")
   }
 
   def contactSupport(): Unit = {
-    js.Dynamic.global.open("mailto:hello@ledger.fr")
+    WindowManager.open("mailto:hello@ledger.fr")
   }
 
   def exportLogs(): Unit = {

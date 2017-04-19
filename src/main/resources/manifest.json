@@ -10,7 +10,7 @@
       "scripts": ["background.js"]
     }
   },
-  "content_security_policy": "default-src 'unsafe-eval;",
+  "content_security_policy": "default-src 'unsafe-inline' 'unsafe-eval'; child-src 'unsafe-inline' 'unsafe-eval'; frame-src 'unsafe-inline' 'unsafe-eval';",
 
   "optional_permissions": [
     "videoCapture",
@@ -30,6 +30,7 @@
     "storage",
     "unlimitedStorage",
     "notifications",
+    "webview",
     "usb",
     "hid",
     {
