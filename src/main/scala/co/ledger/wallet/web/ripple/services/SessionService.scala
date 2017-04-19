@@ -75,7 +75,7 @@ class SessionService() extends Service {
                 provider: RippleAccountProvider,
                 val chain: SessionService.RippleChainIdentifier,
                 val dongleAppVersion: LedgerRippleAppApi.AppConfiguration) {
-    val wallet: Wallet = new RippleWalletClient(name, None /*Option(password)*/,
+    val wallet: Wallet = new RippleWalletClient(name, Option(password),
       provider, chain)
 
     val sessionPreferences = scala.collection.mutable.Map[String, Any]()

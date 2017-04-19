@@ -61,6 +61,7 @@ class RippleAccountClient(walletClient: RippleWalletClient,
       println(s"count $c")
       new AbstractAsyncCursor[Operation](global, batchSize) {
         override protected def performQuery(from: Int, to: Int): Future[Array[Operation]] = {
+          println(s"perform query called from $from to $to for account ${RippleAccountClient.this}")
           walletClient.queryOperations(from, to, RippleAccountClient.this)
         }
 

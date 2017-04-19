@@ -147,17 +147,25 @@ trait RippleDatabase {
         cursor.advance(from)
         val buffer = new ArrayBuffer[(String, (TransactionModel) => DatabaseOperation)]
         def iterate(): Future[Array[Operation]] = {
+          println(s"iterate buffer  $buffer")
+
           if (cursor.value.isEmpty || buffer.length >= (to-from)){
             val bufferOperation = new ArrayBuffer[Operation]
-            buffer foreach { case (hash, function) =>
-              TransactionModel.readonly(password).exactly(hash).openCursor("hash")
-                .cursor map {(cursor) =>
-                  bufferOperation.append(function(cursor.value.get))
+            def iterateOperation(): Future[Array[Operation]] = {
+              if (buffer.isEmpty) {
+                Future.successful(bufferOperation.toArray)
+              } else {
+                TransactionModel.readonly(password).get((buffer(0)._1)).openCursor("hash").cursor map {(cursor) =>
+                  bufferOperation.append(buffer(0)._2(cursor.value.get))
+                  buffer.drop(0)
+                }
+                iterateOperation()
               }
             }
-            Future.successful(bufferOperation.toArray)
+            iterateOperation()
           } else {
             val model = cursor.value.get
+            println(s"getting model  ${model.transactionHash().get}")
             buffer.append((model.transactionHash().get,
               DatabaseOperation(model)(account)(_)))
             cursor.continue() flatMap {(_) =>
