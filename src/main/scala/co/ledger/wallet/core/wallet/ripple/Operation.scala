@@ -41,3 +41,4 @@ object Operation {
   val SendType = "send"
   val ReceiveType = "receive"
 }
+

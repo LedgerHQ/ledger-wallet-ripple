@@ -3,9 +3,9 @@ package co.ledger.wallet.web.ripple.wallet.database
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-import co.ledger.wallet.core.wallet.ripple.{Transaction, XRP}
+import co.ledger.wallet.core.wallet.ripple.{Account, Operation, Transaction, XRP}
 import co.ledger.wallet.core.wallet.ripple.api.JsonTransaction
-import co.ledger.wallet.core.wallet.ripple.database.AccountRow
+import co.ledger.wallet.core.wallet.ripple.database.{AccountRow, DatabaseOperation}
 import co.ledger.wallet.web.ripple.content.{AccountModel, OperationModel, TransactionModel, WalletDatabaseDeclaration}
 import co.ledger.wallet.web.ripple.core.database.{DatabaseDeclaration, ModelCreator, QueryHelper}
 import co.ledger.wallet.web.ripple.content
@@ -14,6 +14,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
 import scala.scalajs.js
+
 /**
   * Created by alix on 4/13/17.
   */
@@ -44,7 +45,7 @@ trait RippleDatabase {
     def apply(account: AccountRow, transaction: Transaction): OperationModel = {
       val model = new OperationModel()
       model.uid.set(transaction.hash.concat(account.rippleAccount))
-      model.accountId.set(account.rippleAccount)
+      model.accountId.set(account.index)
       model.operationType.set("payment")
       model.time.set(new js.Date(transaction.receivedAt.getTime))
       model.transactionHash.set(transaction.hash)
@@ -63,7 +64,7 @@ trait RippleDatabase {
       model.hash.set(transaction.hash)
       model.height.set(transaction.height.get)
       model.destination.set(transaction.destination.toString)
-      model.fee.set(transaction.value.toBigInt.toLong)
+      model.fee.set(transaction.fee.toBigInt.toLong)
       model.value.set(transaction.value.toBigInt.toLong)
       model.receivedAt.set(new js.Date(transaction.receivedAt.getTime))
       model.account.set(transaction.account.toString)
@@ -128,6 +129,39 @@ trait RippleDatabase {
   def putTransaction(transaction: Transaction): Future[Unit] = {
     TransactionModel.readwrite(password).put(TransactionModel(transaction))
       .commit().map((_) =>())
+  }
+
+  def countOperations(index: Int = 0): Future[Long] = {
+    OperationModel.readonly(password).exactly(index).openCursor("accountId")
+      .count
+  }
+
+  def queryOperations(from: Int, to: Int, account: Account): Future[Array[Operation]] = {
+    OperationModel.readonly(password).openCursor("time").reverse().cursor
+      .flatMap({(cursor) =>
+        cursor.advance(from)
+        val buffer = new ArrayBuffer[(String, (TransactionModel) => DatabaseOperation)]
+        def iterate(): Future[Array[Operation]] = {
+          if (cursor.value.isEmpty || buffer.length >= (to-from)){
+            val bufferOperation = new ArrayBuffer[Operation]
+            buffer foreach { case (hash, function) =>
+              TransactionModel.readonly(password).exactly(hash).openCursor("hash")
+                .cursor map {(cursor) =>
+                  bufferOperation.append(function(cursor.value.get))
+              }
+            }
+            Future.successful(bufferOperation.toArray)
+          } else {
+            val model = cursor.value.get
+            buffer.append((model.transactionHash().get,
+              DatabaseOperation(model)(account)(_)))
+            cursor.continue() flatMap {(_) =>
+              iterate()
+            }
+          }
+        }
+        iterate()
+      })
   }
 }
 

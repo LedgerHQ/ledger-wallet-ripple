@@ -1,16 +1,17 @@
 package co.ledger.wallet.web.ripple.wallet
 
-import co.ledger.wallet.core.concurrent.AsyncCursor
+import co.ledger.wallet.core.concurrent.{AbstractAsyncCursor, AsyncCursor}
 import co.ledger.wallet.core.utils.DerivationPath
 import co.ledger.wallet.core.wallet.ripple._
 import co.ledger.wallet.core.wallet.ripple.api.ApiAccountRestClient
-import co.ledger.wallet.core.wallet.ripple.database.AccountRow
+import co.ledger.wallet.core.wallet.ripple.database.{AccountRow, DatabaseBackedAccountClient}
 import co.ledger.wallet.web.ripple.core.net.JQHttpClient
 import co.ledger.wallet.web.ripple.services.SessionService
 import co.ledger.wallet.web.ripple.wallet.database.RippleDatabase
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
 /**
   * Created by alix on 4/13/17.
@@ -53,7 +54,23 @@ class RippleAccountClient(walletClient: RippleWalletClient,
     _synchronizationFuture.nonEmpty
   )
 
-  override def operations(limit: Int, batchSize: Int): Future[AsyncCursor[Operation]] = ???
+  override def operations(limit: Int, batchSize: Int):
+  Future[AsyncCursor[Operation]] = {
+    println("operation really called")
+    walletClient.countOperations(index) map {(c) =>
+      println(s"count $c")
+      new AbstractAsyncCursor[Operation](global, batchSize) {
+        override protected def performQuery(from: Int, to: Int): Future[Array[Operation]] = {
+          walletClient.queryOperations(from, to, RippleAccountClient.this)
+        }
+
+        override def count: Int = if (limit == -1 || limit > c) c.toInt else limit
+
+        override def requery(): Future[AsyncCursor[Operation]] =
+          operations(limit, batchSize)
+      }
+    }
+  }
 
   override def rippleAccount(): Future[RippleAccount] =
     Future.successful(RippleAccount(row.rippleAccount))

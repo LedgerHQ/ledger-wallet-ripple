@@ -13,19 +13,22 @@ import scala.scalajs.js
   */
 class JsonTransaction(obj: JSONObject) extends Transaction {
 
-  override def value: XRP = XRP(obj.getString("delivered_amount"))
+  override def value: XRP = XRP(obj
+      .getJSONObject("tx").getString("Amount"))
 
-  override def fee: XRP = XRP(obj.getString("transaction_cost"))
+  override def fee: XRP = XRP(obj
+    .getJSONObject("tx").getString("Fee"))
 
-  override def account: RippleAccount = RippleAccount(obj.getString("source"))
+  override def account: RippleAccount = RippleAccount(obj
+    .getJSONObject("tx").getString("Account"))
 
-  override def destination: RippleAccount = RippleAccount(obj.getString
-  ("destination"))
+  override def destination: RippleAccount = RippleAccount(obj
+    .getJSONObject("tx").getString("Destination"))
 
   override def receivedAt: Date = new Date(new js.Date(obj.getString("date"))
     .getTime.toLong)
 
-  override def hash: String = obj.getString("tx_hash")
+  override def hash: String = obj.getString("hash")
 
   override def height: Option[Long] = Some(obj.getLong("ledger_index"))
 }

@@ -5,7 +5,7 @@ import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.{Attributes, JQLite}
 import co.ledger.wallet.core.wallet.ripple.XRP
 import co.ledger.wallet.web.ripple.components.AmountLabel.AmountLabelScope
-import co.ledger.wallet.web.ripple.core.utils.EtherFormatter
+import co.ledger.wallet.web.ripple.core.utils.XRPFormatter
 import co.ledger.wallet.web.ripple.services.SessionService
 
 import scala.scalajs.js
@@ -50,13 +50,13 @@ class AmountLabel($locale: js.Dynamic, $translate: js.Dynamic, sessionService: S
     scope.$watch("rawValue", {(value: js.Any) =>
       if (scope.rawValue == null)
         scope.rawValue = ""
-      scope.value = EtherFormatter.format(XRP(if (scope.rawValue.isEmpty) "1000000000000000000" else scope.rawValue), unit(attrs), js.Dynamic.global.navigator.language.asInstanceOf[String])
+      scope.value = XRPFormatter.format(XRP(if (scope.rawValue.isEmpty) "1000000000000000000" else scope.rawValue), unit(attrs), js.Dynamic.global.navigator.language.asInstanceOf[String])
       scope.isNegative = scope.value.startsWith("-")
       scope.unit = unit(attrs)
       scope.`type` = `type`(attrs)
       if (scope.`type` == "operation" && !scope.isNegative)
         scope.value = "+" + scope.value
-      val direction = EtherFormatter.currencyDirection(js.Dynamic.global.navigator.language.asInstanceOf[String])
+      val direction = XRPFormatter.currencyDirection(js.Dynamic.global.navigator.language.asInstanceOf[String])
       if (direction == "rtl" && scope.`type` == "operation")
         scope.value = scope.value.substring(1) + scope.value.substring(0, 1)
       scope.value = scope.value + " "

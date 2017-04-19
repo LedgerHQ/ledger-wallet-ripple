@@ -120,7 +120,8 @@ class SendIndexController(override val windowService: WindowService,
   }
 
   def getAmountInput(): Try[BigInt] = {
-    Try((BigDecimal(amount.replace(',', '.').replace(" ", "")) * BigDecimal(10).pow(18)).toBigInt())
+    Try((BigDecimal(amount.replace(',', '.')
+      .replace(" ", "")) * BigDecimal(10).pow(6)).toBigInt())
   }
 
   def getAddressInput(): Try[RippleAccount] = {

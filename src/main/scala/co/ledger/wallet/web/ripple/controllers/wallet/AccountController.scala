@@ -69,6 +69,7 @@ class AccountController(override val windowService: WindowService,
     hideLoader = true
     val nonce = reloadOperationNonce
     sessionService.currentSession.get.wallet.account(accountId).flatMap {
+      println("operation called")
       _.operations(-1, 10)
     } foreach {cursor =>
       var isLoading = false

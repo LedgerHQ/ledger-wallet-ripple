@@ -6,7 +6,7 @@ import scala.scalajs.js
 
 /**
   *
-  * EtherFormatter
+  * XRPFormatter
   * ledger-wallet-ripple-chrome
   *
   * Created by Pierre Pollastri on 13/07/2016.
@@ -34,7 +34,7 @@ import scala.scalajs.js
   * SOFTWARE.
   *
   */
-object EtherFormatter {
+object XRPFormatter {
 
   def format(ether: XRP, unit: String, locale: String): String = {
     val decimalSep =  js.JSNumberOps.enableJSNumberExtOps(1.6).self.toLocaleString(locale).asInstanceOf[String].charAt(1).toString
@@ -56,7 +56,7 @@ object EtherFormatter {
     (if (bigInt < 0) "-" else "") + (if (integerPart.length == 0) "0" else integerPart) + (if (decimalPart.length > 0) decimalSep + decimalPart else "")
   }
 
-  def unitToDimension(unit: String) = Units.lift(unit).getOrElse(Units("ether"))
+  def unitToDimension(unit: String) = Units.lift(unit).getOrElse(Units("xrp"))
 
   def currencyDirection(locale: String) = {
     val f = js.JSNumberOps.enableJSNumberExtOps(10).self.toLocaleString(locale, js.Dictionary("style" -> "currency", "currency" -> "USD")).asInstanceOf[String]
@@ -68,17 +68,7 @@ object EtherFormatter {
   }
 
   val Units = Map(
-    "tether" -> 30,
-    "gether" -> 27,
-    "mether" -> 24,
-    "kether" -> 21,
-    "ether" -> 18,
-    "finney" -> 15,
-    "szabo" -> 12,
-    "gwei" -> 9,
-    "mwei" -> 6,
-    "kwei" -> 3,
-    "wei" -> 0,
-    "gas" -> 0
+    "drops" -> 0,
+    "xrp" -> 6
   )
 }

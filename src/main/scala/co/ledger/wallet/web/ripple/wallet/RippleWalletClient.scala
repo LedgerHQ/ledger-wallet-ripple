@@ -1,6 +1,6 @@
 package co.ledger.wallet.web.ripple.wallet
 
-import co.ledger.wallet.core.concurrent.AsyncCursor
+import co.ledger.wallet.core.concurrent.{AbstractAsyncCursor, AsyncCursor}
 import co.ledger.wallet.core.device.utils.EventEmitter
 import co.ledger.wallet.core.utils.DerivationPath
 import co.ledger.wallet.core.wallet.ripple._
@@ -94,9 +94,9 @@ class RippleWalletClient(override val name: String,
 
   override def pushTransaction(transaction: Array[Byte]): Future[Unit] = ???
 
-  override def operations(from: Int, batchSize: Int): Future[AsyncCursor[Operation]] = ???
-
   override val eventEmitter: EventEmitter = new JsEventEmitter()
+
+  override def operations(from: Int, batchSize: Int): Future[AsyncCursor[Operation]] = ???
 
   override def stop(): Unit = ???
 

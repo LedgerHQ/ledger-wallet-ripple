@@ -29,9 +29,9 @@ class ApiAccountRestClient(http: HttpClient,
         accountRow.rippleAccount}/balances?currency=XRP")
       request.json map {
         case (json, _) =>
-          val value = XRP(json.getJSONArray("balances").getJSONObject(0)
-            .getString("value"))
-          value
+          var value = json.getJSONArray("balances").getJSONObject(0)
+            .getString("value")
+          new XRP((BigDecimal(value) * BigDecimal(10).pow(6)).toBigInt())
       }
   }
 
@@ -39,11 +39,11 @@ class ApiAccountRestClient(http: HttpClient,
   Future[Array[JsonTransaction]] = {
     val dateLiteral = new js.Date(start.getTime).toJSON()
     val request = http.get(s"/accounts/${accountRow
-      .rippleAccount}/payments?currency=XRP" +
-      s"&descending=false&start=${dateLiteral}")
+      .rippleAccount}/transactions?type=Payment" +
+      s"&descending=false&result=tesSUCCESS&start=${dateLiteral}")
     request.json map {
       case (json, _) =>
-        val txs = json.getJSONArray("payments")
+        val txs = json.getJSONArray("transactions")
         (0 until txs.length()) map {(index: Int) =>
          new JsonTransaction(txs.getJSONObject(index))
         } toArray

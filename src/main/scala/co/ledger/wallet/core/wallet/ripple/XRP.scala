@@ -45,7 +45,7 @@ class XRP(private val value: BigInt) {
 
   override def toString: String = value.toString()
 
-  def toXRP: BigDecimal = BigDecimal(value.toString()) / BigDecimal(10).pow(18)
+  def toXRP: BigDecimal = BigDecimal(value.toString()) / BigDecimal(10).pow(6)
   def toBigInt = value
 }
 
