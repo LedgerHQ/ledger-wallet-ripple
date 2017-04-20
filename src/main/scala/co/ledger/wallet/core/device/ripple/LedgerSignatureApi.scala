@@ -38,13 +38,10 @@ import scala.concurrent.Future
   */
 trait LedgerSignatureApi extends LedgerCommonApiInterface {
 
-  def signTransaction(nonce: BigInt,
-                      startGas: BigInt,
-                      gasPrice: BigInt,
-                      from: DerivationPath,
-                      to: RippleAccount,
+  def signTransaction(source: DerivationPath,
+                      destination: RippleAccount,
                       value: BigInt,
-                      data: Array[Byte]): Future[SignatureResult] = ???
+                      Fee: BigInt): Future[SignatureResult] = ??? ///
 
 }
 

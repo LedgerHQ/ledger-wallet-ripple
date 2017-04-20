@@ -7,7 +7,7 @@ import co.ledger.wallet.web.ripple.services.{SessionService, WindowService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
-//import co.ledger.wallet.core.wallet.ripple.RippleAccount
+//TODO : clean remains of iban
 /**
   *
   * ReceiveController
@@ -73,7 +73,6 @@ class ReceiveController(override val windowService: WindowService,
   def sendEmail(address: String): Unit = {
     WindowManager.open(s"mailto:?body=$address")
   }
-
 }
 
 object ReceiveController {

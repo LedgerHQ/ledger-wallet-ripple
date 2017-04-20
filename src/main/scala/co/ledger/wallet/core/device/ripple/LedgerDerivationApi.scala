@@ -57,7 +57,6 @@ trait LedgerDerivationApi extends LedgerCommonApiInterface {
       )
     }
   }
-
 }
 
 object LedgerDerivationApi {

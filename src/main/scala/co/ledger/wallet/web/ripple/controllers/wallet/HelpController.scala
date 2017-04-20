@@ -9,6 +9,7 @@ import co.ledger.wallet.web.ripple.components.WindowManager
 import co.ledger.wallet.web.ripple.core.filesystem.ChromeFileSystem
 import co.ledger.wallet.web.ripple.core.utils.PermissionsHelper
 import co.ledger.wallet.web.ripple.services.{SessionService, WindowService}
+import org.scalajs.dom
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
