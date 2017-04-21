@@ -40,7 +40,7 @@ import scala.concurrent.Future
   * SOFTWARE.
   *
   */
-class SessionService() extends Service {
+class SessionService(rippleLibApiService: RippleLibApiService) extends Service {
   def startNewSessions(api: LedgerApi, chain: SessionService.RippleChainIdentifier): Future[Unit] = {
     api.walletIdentifier() flatMap {(walletIdentifier) =>
       api.walletMetaPassword() flatMap {(password) =>
@@ -53,7 +53,9 @@ class SessionService() extends Service {
           val session = new Session(walletIdentifier, password,
             provider, chain, appConfiguration)
           _currentSession = Some(session)
-          Future.successful()
+          val apiOption = rippleLibApiService.api.APIOption(server = Some("wss://s1" +
+            ".ripple.com"))
+          rippleLibApiService.init(apiOption)
         }
       }
     }

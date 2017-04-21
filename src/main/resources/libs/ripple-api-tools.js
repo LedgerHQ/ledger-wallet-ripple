@@ -35,6 +35,7 @@ function onMessage(event) {
         parent.postMessage(toScala, "*");
         }).catch(function (message) {
             console.log("exception caught");
+            console.log(message)
             var toScala = {
                             call_id: event.data.call_id,
                             response: JSON.stringify(message)
@@ -48,6 +49,11 @@ function onMessage(event) {
             parent.postMessage(toScala, "*");
         });
     }
+
+function serializer(parameters){
+    return Object.keys(parameters).map(key =>
+    `${key}=${encodeURIComponent(parameters[key])}`).join('&');
+}
 
 function disconnect(){     //not used yet
     return api.disconnect();
@@ -72,11 +78,12 @@ function getTransaction(parameters) {
 }
 
 function getTransactions(parameters) {
-    return api.getTransaction(parameters)
+    console.log(parameters.address, parameters.options)
+    return api.getTransactions(parameters.address)
 }
 
 function createAPI(options){
-    api = new RippleAPI(options);
+    api = new ripple.RippleAPI(options);
     api.on('error', (errorCode, errorMessage) => {
       console.log('error api'+errorCode + ': ' + errorMessage);
     });

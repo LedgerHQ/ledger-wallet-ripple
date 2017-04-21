@@ -387,7 +387,7 @@ class RippleLibApi() {
 
   implicit val encodeRippleAPIObject: ObjectEncoder[RippleAPIObject] = {
     new ObjectEncoder[RippleAPIObject] {
-      override def encodeObject(obj: RippleAPIObject): JsonObject =
+      override def encodeObject(obj: RippleAPIObject): JsonObject = {
         obj match {
           case o: APIOption => o.asJsonObject
           case o: GetTransactionParam => o.asJsonObject
@@ -396,6 +396,7 @@ class RippleLibApi() {
           case o: SignParam => o.asJsonObject
           case o: SubmitParam => o.asJsonObject
         }
+      }
     }
   }
 
@@ -408,23 +409,39 @@ class RippleLibApi() {
 
 
 
-    def cleanJsonObject(obj: JsonObject) = {
-      println("clean")
+    def cleanJsonObject(obj: JsonObject): JsonObject = {
       JsonObject.fromIterable(
-        obj.toMap.head._2.asObject.get.toList.filter({
+        obj.toMap.toList.filter({
           case (_,value) => !value.isNull
-          case _ => true
         }).map({
           case (k,value) => if (value == SpecificNullValue){
             (k,Json.Null)
+          } else if (value.isObject) {
+            (k,Json.fromJsonObject(cleanJsonObject(value.asObject.get)))
+          } else if (value.isArray) {
+            (k,Json.fromValues(cleanJsonArray(value.asArray.get)))
           } else {
             (k,value)
           }
         })
       )
     }
-    println("exectute param")
-    println(parameters)
+
+    def cleanJsonArray(obj: Vector[Json]): Vector[Json] = {
+      obj filter {(value) =>
+        !value.isNull
+      } map {(value) =>
+        if (value == SpecificNullValue) {
+          Json.Null
+        } else if (value.isObject) {
+          Json.fromJsonObject(cleanJsonObject(value.asObject.get))
+        } else if (value.isArray) {
+          Json.fromValues(cleanJsonArray(value.asArray.get))
+        } else {
+          value
+        }
+      }
+    }
 
     val options = js.Dynamic.literal(
       call_id = callId,
@@ -433,17 +450,14 @@ class RippleLibApi() {
     )
 
     js.Dynamic.global.console.log(options)
-    val target = dom.document.getElementById("ripple-api-sandbox")
+    val target = dom.document.getElementById("ripple-lib-api-sandbox")
       .asInstanceOf[HTMLIFrameElement]
     target.contentWindow.postMessage(options,"*")
-    println("exectute completted")
-
     p.future
   }
 
 
   def onMessage(msg: dom.MessageEvent): Unit = {
-    object RippleAPIObject
     println("onMessage called")
     val callId: Int = msg.data.asInstanceOf[js.Dynamic].call_id
       .asInstanceOf[Int]
