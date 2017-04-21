@@ -5,10 +5,10 @@ import biz.enef.angulate.core.Location
 import biz.enef.angulate.{Controller, Scope}
 import co.ledger.wallet.core.device.ripple.LedgerApi
 import co.ledger.wallet.core.device.ripple.LedgerCommonApiInterface.LedgerApiException
-import co.ledger.wallet.core.utils.HexUtils
-import co.ledger.wallet.core.wallet.ripple.RippleAccount
-import co.ledger.wallet.web.ripple.components.SnackBar
-import co.ledger.wallet.web.ripple.services.{DeviceService, SessionService, WindowService}
+import co.ledger.wallet.core.utils.{DerivationPath, HexUtils}
+import co.ledger.wallet.core.wallet.ripple.{RippleAccount, XRP}
+import co.ledger.wallet.web.ripple.components.{RippleSerializer, SnackBar}
+import co.ledger.wallet.web.ripple.services.{DeviceService, RippleLibApiService, SessionService, WindowService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -48,21 +48,47 @@ import scala.util.{Failure, Success}
 class SendPerformController(override val windowService: WindowService,
                             override val $scope: Scope,
                             override val sessionService: SessionService,
+                            rippleLibApiService: RippleLibApiService,
                             deviceService: DeviceService,
                             $location: Location,
                             $route: js.Dynamic,
                             $routeParams: js.Dictionary[String]) extends Controller with WalletController {
-  private val startGas = BigInt($routeParams("fees"))
-  private val gasPrice = BigInt($routeParams("price"))
+  private val fee = XRP($routeParams("fee"))
   private val accountId = $routeParams("account_id").toInt
-  private val amount = BigInt($routeParams("amount"))
+  private val amount = XRP($routeParams("amount"))
   private val to = RippleAccount($routeParams("recipient").trim)
   private val data = $routeParams.lift("data").map(_.replace("0x", "")).map(HexUtils.decodeHex)
-
+  val api = rippleLibApiService.api
+  var rippleAccount: RippleAccount = RippleAccount("rrrrrrrrrrrrrrrrrrrrrhoLvTp")
+  var derivationPath: DerivationPath = DerivationPath("44/144/0/0")
+  var prepared: String = ""
   windowService.disableUserInterface()
 
-  sessionService.currentSession.get.wallet.account(accountId) flatMap {(account) =>
-    Future.failed(new Exception("not implemented"))
+  sessionService.currentSession.get.wallet.account(accountId) map {(account) =>
+    account.rippleAccount() flatMap  { (rippleAccount_) =>
+      rippleAccount = rippleAccount_
+      account.rippleAccountDerivationPath()
+    } flatMap {(derivationPath_) =>
+      derivationPath = derivationPath_
+      api.preparePayment(new api.PaymentParam(
+          rippleAccount.toString,
+          new api.Payment(
+            new api.Source(rippleAccount.toString, Some(new api.LaxAmount(value = Some(amount.toXRP.toString())))),
+            new api.Destination(to.toString,Some(new api.LaxAmount(value = Some(amount.toXRP.toString()))))
+          ),
+          new api.Instructions(fee.toBigInt)
+        )
+      )
+    } flatMap {(prepareResponse) =>
+       prepared = prepareResponse.txJSON
+       deviceService.lastConnectedDevice()
+    } flatMap {(device) =>
+      LedgerApi(device).signTransaction(derivationPath, prepared)
+    } flatMap {(signed) =>
+      api.submit(new api.SubmitParam(
+        HexUtils.bytesToHex(signed)
+      ))
+    }
   } onComplete {
     case Success(_) =>
       sessionService.currentSession.get.sessionPreferences.remove(SendIndexController.RestoreKey)

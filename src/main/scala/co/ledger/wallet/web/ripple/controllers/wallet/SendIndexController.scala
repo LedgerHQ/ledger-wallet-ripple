@@ -4,10 +4,10 @@ import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.JQLite
 import biz.enef.angulate.{Controller, Scope}
 import co.ledger.wallet.core.device.ripple.LedgerApi
-import co.ledger.wallet.core.wallet.ripple.{XRP, RippleAccount}
+import co.ledger.wallet.core.wallet.ripple.{RippleAccount, XRP}
 import co.ledger.wallet.web.ripple.components.{QrCodeScanner, SnackBar}
 import co.ledger.wallet.web.ripple.core.utils.PermissionsHelper
-import co.ledger.wallet.web.ripple.services.{DeviceService, SessionService, WindowService}
+import co.ledger.wallet.web.ripple.services.{DeviceService, RippleLibApiService, SessionService, WindowService}
 import org.scalajs.dom
 
 import scala.concurrent._
@@ -48,6 +48,7 @@ import scala.util.{Failure, Success, Try}
   *
   */
 class SendIndexController(override val windowService: WindowService,
+                         api: RippleLibApiService,
                           $location: js.Dynamic,
                           $route: js.Dynamic,
                           override val sessionService: SessionService,
@@ -57,17 +58,15 @@ class SendIndexController(override val windowService: WindowService,
   with WalletController{
 
   var isScanning = false
-
   var address = ""
   var amount = ""
-  var customGasLimit = ""
   var data = ""
+  var customFee = ""
 
-  def gasLimit = if (!isInAdvancedMode) BigInt(21000) else Try(BigInt(customGasLimit)).getOrElse(BigInt(21000))
-  private var _gasPrice = BigInt("21000000000")
-  var gasPrice = _gasPrice.toString()
   var total = XRP(0).toBigInt.toString()
   val unit = sessionService.currentSession.get.chain.symbol
+
+  def fee = if (!isInAdvancedMode) BigInt(12) else Try(BigInt(customFee)).getOrElse(BigInt(12))
 
   var isInAdvancedMode = false
   val supportAdvancedMode = sessionService.currentSession.get.dongleAppVersion > "1.0.0"
@@ -75,7 +74,7 @@ class SendIndexController(override val windowService: WindowService,
   sessionService.currentSession.get.sessionPreferences.lift(SendIndexController.RestoreKey) foreach {(state) =>
     val restore = state.asInstanceOf[SendIndexController.RestoreState]
     address = restore.to
-    customGasLimit = restore.customGasLimit
+    customFee = restore.customFee
     isInAdvancedMode = restore.advancedMode
     data = restore.data
     if (restore.amount.isSuccess)
@@ -99,7 +98,7 @@ class SendIndexController(override val windowService: WindowService,
 
   def max(): Unit = {
     sessionService.currentSession.get.wallet.balance() foreach {(b) =>
-      var a = new XRP(b.toBigInt - (_gasPrice * gasLimit))
+      var a = new XRP(b.toBigInt - fee)
       if (a.toBigInt < 0)
         a = XRP(0)
       amount = a.toXRP.toString()
@@ -109,7 +108,7 @@ class SendIndexController(override val windowService: WindowService,
   }
 
   def computeTotal(): XRP = {
-    val t = getAmountInput().map((amount) => amount + (_gasPrice * gasLimit)).map(new XRP(_)).getOrElse(XRP(0))
+    val t = getAmountInput().map((amount) => amount + (fee)).map(new XRP(_)).getOrElse(XRP(0))
     total = t.toBigInt.toString()
     t
   }
@@ -128,7 +127,6 @@ class SendIndexController(override val windowService: WindowService,
     Try(RippleAccount(address))
   }
 
-
   def send() = {
     try {
       val value = getAmountInput()
@@ -137,28 +135,22 @@ class SendIndexController(override val windowService: WindowService,
         SnackBar.error("send.bad_amount_title", "send.bad_amount_message").show()
       } else if (recipient.isFailure) {
         SnackBar.error("send.bad_address_title", "send.bad_address_message").show()
-      } else if (isInAdvancedMode && Try(BigInt(customGasLimit)).isFailure) {
-        SnackBar.error("send.bad_limit_title", "send.bad_limit_message").show()
       } else {
-        val isIban = true
-        val fees = gasLimit
-        val gasPrice = _gasPrice
         println(s"Amount: $amount")
         println(s"Recipient: $address")
-        println(s"Is IBAN: $isIban")
-        println(s"Gas limit: $fees")
+        println(s"Fee: $fee")
         println(s"Data: $data")
         sessionService.currentSession.get.wallet.balance() foreach {
           (balance) =>
-          if (false /*computeTotal() > balance*/) {
+          if (computeTotal() > balance) {
             SnackBar.error("send.insufficient_funds_title", "send.insufficient_funds_message").show()
           } else {
             deviceService.lastConnectedDevice().flatMap(LedgerApi(_).getAppConfiguration()) foreach {(conf) =>
               if (data.nonEmpty && !conf.isArbitraryDataSignatureEnabled) {
                 SnackBar.error("send.enable_data_title", "send.enable_data_message").show()
               } else {
-                println(s"/send/${value.get.toString()}/to/$address/from/0/with/$fees/price/$gasPrice/data/$data")
-                $location.path(s"/send/${value.get.toString()}/to/$address/from/0/with/$fees/price/$gasPrice/data/$data")
+                println(s"/send/${value.get.toString()}/to/$address/from/0/with/$fee/price/data/$data")
+                $location.path(s"/send/${value.get.toString()}/to/$address/from/0/with/$fee/price/data/$data")
                 $scope.$apply()
               }
             }
@@ -187,7 +179,7 @@ class SendIndexController(override val windowService: WindowService,
     sessionService.currentSession.get.sessionPreferences(SendIndexController.RestoreKey) =  SendIndexController.RestoreState(
       amount.map(new XRP(_)),
       recipient,
-      customGasLimit,
+      customFee,
       data,
       isInAdvancedMode
     )
@@ -198,5 +190,5 @@ object SendIndexController {
   def init(module: RichModule) = module.controllerOf[SendIndexController]("SendIndexController")
 
   val RestoreKey = "SendIndexController#Restore"
-  case class RestoreState(amount: Try[XRP], to: String, customGasLimit: String, data: String, advancedMode: Boolean)
+  case class RestoreState(amount: Try[XRP], to: String, customFee: String, data: String, advancedMode: Boolean)
 }

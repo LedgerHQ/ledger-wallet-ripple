@@ -61,6 +61,10 @@ sealed trait RippleAPIObject {
 
 class RippleLibApi() {
 
+  def bigIntToString(value: BigInt): String = {
+    value.toFloat.toString
+  }
+
   implicit val encodeNullableString: Encoder[Nullable[String]] =
     new Encoder[Nullable[String]] {
       final def apply(a: Nullable[String]): Json = {
@@ -113,7 +117,7 @@ class RippleLibApi() {
 
   //-----------------------------------------------------
   //****************** make call
-  /*def preparePayment(parameters: PaymentParam): Future[PrepareResponse] = {
+  def preparePayment(parameters: PaymentParam): Future[PrepareResponse] = {
     execute("preparePayment", parameters)
       .map(decode[PrepareResponse](_).right.get)
   }
@@ -126,12 +130,12 @@ class RippleLibApi() {
   def submit(parameters: SubmitParam): Future[SubmittedTransaction] = {
     execute("submit", parameters)
       .map(decode[SubmittedTransaction](_).right.get)
-  }*/
+  }
   //--------------------------------------
 
   //****************** call classes **********
   @JsonCodec case class Instructions(
-                                      fee: Int,
+                                      fee: BigInt,
                                       maxLedgerVersion: Nullable[Int] = Nullable[Int](None),
                                       maxLedgerVersionOffset: Option[Int] = None,
                                       sequence: Option[Long] = None
@@ -257,8 +261,6 @@ class RippleLibApi() {
       .map(decode[Transaction](_).right.get)
   }
 
-
-
   def getTransactions(parameters: GetTransactionsParam) = {
     println("getTransactions called")
 
@@ -324,8 +326,6 @@ class RippleLibApi() {
                                           expirationTime: Option[RippleDateTime] = None,
                                           markerExchangeRate: Option[String] = None
                                         )
-
-
   //------------------
 
 
