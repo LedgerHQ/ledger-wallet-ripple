@@ -1,8 +1,11 @@
 package co.ledger.wallet.core.device.ripple
 
-import co.ledger.wallet.core.device.ripple.LedgerSignatureApi.SignatureResult
-import co.ledger.wallet.core.utils.DerivationPath
+import java.io.ByteArrayInputStream
+
+import co.ledger.wallet.core.device.ripple.LedgerCommonApiInterface.CommandResult
+import co.ledger.wallet.core.utils.{BytesWriter, DerivationPath}
 import co.ledger.wallet.core.wallet.ripple.RippleAccount
+import co.ledger.wallet.web.ripple.components.RippleSerializer
 
 import scala.concurrent.Future
 
@@ -38,15 +41,25 @@ import scala.concurrent.Future
   */
 trait LedgerSignatureApi extends LedgerCommonApiInterface {
 
-  def signTransaction(source: DerivationPath,
-                      destination: RippleAccount,
-                      value: BigInt,
-                      Fee: BigInt): Future[SignatureResult] = ??? ///
+  def signTransaction(from: DerivationPath,
+                      preparedPayment: String): Future[Array[Byte]] = {
+    val rawDerivationPath = new BytesWriter().writeDerivationPath(from).toByteArray
+    val serialized = RippleSerializer.encode(preparedPayment)
 
-}
-
-object LedgerSignatureApi {
-  case class SignatureResult(unsignedTx: List[Any], v: Byte, r: Array[Byte], s: Array[Byte]) {
-    val signedTx = ???
+    def sendChunks(i: Int): Future[CommandResult] = {
+      val offset = Math.max(i * 255 - rawDerivationPath.length, 0)
+      val length = 255 - (if (i == 0) rawDerivationPath.length else 0)
+      val chunk = (if (i == 0) rawDerivationPath else Array.empty[Byte]) ++ serialized.slice(offset, offset + length)
+      sendApdu(0xE0, 0x04, if (i == 0) 0x00 else 0x80, 0x00, chunk, 0x00) flatMap { (result) =>
+        matchErrorsAndThrow(result)
+        if ((i + 1) * 255 - rawDerivationPath.length < serialized.length)
+          sendChunks(i + 1)
+        else
+          Future.successful(result)
+      }
+    }
+    sendChunks(0) map {(result) =>
+      result.data.readNextBytesUntilEnd()
+    }
   }
 }

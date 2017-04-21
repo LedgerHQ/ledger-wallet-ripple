@@ -37566,13 +37566,6 @@ function deprecate (fn, msg) {
  */
 
 function config (name) {
-  global.localStorage = {
-      key : function(n) {return temporaryLocalStorage[Objects.keys(temporaryLocalStorage)[n]]},
-      getItem : function(k) {return temporaryLocalStorage[k]},
-      setItem : function(k,value) {temporaryLocalStorage[k]=v},
-      removeItem : function(k) {delete temporaryLocalStorage[k]},
-      clear : function() {temporaryLocalStorage={}},
-   }
   // accessing global.localStorage can trigger a DOMException in sandboxed iframes
   try {
     if (!global.localStorage) return false;
