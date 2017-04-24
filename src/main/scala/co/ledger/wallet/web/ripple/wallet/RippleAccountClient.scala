@@ -29,21 +29,19 @@ class RippleAccountClient(walletClient: RippleWalletClient,
   override def wallet: Wallet = walletClient.asInstanceOf[Wallet]
 
   override def synchronize(): Future[Unit] = {
-    println("Synchronizing account")
     _synchronizationFuture.getOrElse({
       _synchronizationFuture = Some(
         _api.balance() flatMap { (bal) =>
-          println(s"balance=$bal")
           walletClient.putAccount(new AccountRow(row.index, row.rippleAccount, bal))
-          println(s"account ${row.index} updated")
           _api.transactions() map { (transactions) =>
             for (transaction <- transactions) {
               walletClient.putTransaction(transaction)
               walletClient.putOperation(new AccountRow(row.index, row
                 .rippleAccount, bal), transaction)
             }
-            _synchronizationFuture = None
           }
+        } andThen {
+          case all => _synchronizationFuture = None
         }
       )
       _synchronizationFuture.get
@@ -56,12 +54,9 @@ class RippleAccountClient(walletClient: RippleWalletClient,
 
   override def operations(limit: Int, batchSize: Int):
   Future[AsyncCursor[Operation]] = {
-    println("operation really called")
     walletClient.countOperations(index) map {(c) =>
-      println(s"count $c")
       new AbstractAsyncCursor[Operation](global, batchSize) {
         override protected def performQuery(from: Int, to: Int): Future[Array[Operation]] = {
-          println(s"perform query called from $from to $to for account ${RippleAccountClient.this}")
           walletClient.queryOperations(from, to, RippleAccountClient.this)
         }
 

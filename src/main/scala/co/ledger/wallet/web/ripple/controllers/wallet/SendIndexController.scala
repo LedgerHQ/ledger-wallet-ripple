@@ -48,7 +48,7 @@ import scala.util.{Failure, Success, Try}
   *
   */
 class SendIndexController(override val windowService: WindowService,
-                         api: RippleLibApiService,
+                         rippleLibApiService: RippleLibApiService,
                           $location: js.Dynamic,
                           $route: js.Dynamic,
                           override val sessionService: SessionService,
@@ -58,16 +58,18 @@ class SendIndexController(override val windowService: WindowService,
   with WalletController{
 
   var isScanning = false
-  var address = ""
-  var amount = ""
+  var address = "sdfgdsfgsdf"
+  var amount = "1"
   var data = ""
   var customFee = ""
 
-  var total = XRP(0).toBigInt.toString()
+  var total = XRP.Zero.toBigInt.toString()
+  println(s"total = $total")
+
+
   val unit = sessionService.currentSession.get.chain.symbol
 
-  def fee = if (!isInAdvancedMode) BigInt(12) else Try(BigInt(customFee)).getOrElse(BigInt(12))
-
+  def fee = if (!isInAdvancedMode) None else Try(Some(BigInt(customFee))).getOrElse(Some(BigInt(11)))
   var isInAdvancedMode = false
   val supportAdvancedMode = sessionService.currentSession.get.dongleAppVersion > "1.0.0"
 
@@ -76,7 +78,6 @@ class SendIndexController(override val windowService: WindowService,
     address = restore.to
     customFee = restore.customFee
     isInAdvancedMode = restore.advancedMode
-    data = restore.data
     if (restore.amount.isSuccess)
       amount = restore.amount.get.toXRP.toString()
   }
@@ -98,7 +99,7 @@ class SendIndexController(override val windowService: WindowService,
 
   def max(): Unit = {
     sessionService.currentSession.get.wallet.balance() foreach {(b) =>
-      var a = new XRP(b.toBigInt - fee)
+      var a = new XRP(b.toBigInt - fee.getOrElse(0)) //minus fees
       if (a.toBigInt < 0)
         a = XRP(0)
       amount = a.toXRP.toString()
@@ -108,7 +109,7 @@ class SendIndexController(override val windowService: WindowService,
   }
 
   def computeTotal(): XRP = {
-    val t = getAmountInput().map((amount) => amount + (fee)).map(new XRP(_)).getOrElse(XRP(0))
+    val t = getAmountInput().map((amount) => amount + (fee.getOrElse(0))).map(new XRP(_)).getOrElse(XRP(0))
     total = t.toBigInt.toString()
     t
   }
@@ -139,7 +140,6 @@ class SendIndexController(override val windowService: WindowService,
         println(s"Amount: $amount")
         println(s"Recipient: $address")
         println(s"Fee: $fee")
-        println(s"Data: $data")
         sessionService.currentSession.get.wallet.balance() foreach {
           (balance) =>
           if (computeTotal() > balance) {
@@ -149,8 +149,8 @@ class SendIndexController(override val windowService: WindowService,
               if (data.nonEmpty && !conf.isArbitraryDataSignatureEnabled) {
                 SnackBar.error("send.enable_data_title", "send.enable_data_message").show()
               } else {
-                println(s"/send/${value.get.toString()}/to/$address/from/0/with/$fee/price/data/$data")
-                $location.path(s"/send/${value.get.toString()}/to/$address/from/0/with/$fee/price/data/$data")
+                println(s"/send/${value.get.toString()}/to/$address/from/0/with/$fee/data/$data")
+                $location.path(s"/send/${value.get.toString()}/to/$address/from/0/with/$fee/data/$data")
                 $scope.$apply()
               }
             }
@@ -172,7 +172,6 @@ class SendIndexController(override val windowService: WindowService,
     address = value.replace("iban:", "")
     $scope.$apply()
   })
-
   $scope.$on("$destroy", {() =>
     val amount = Try((BigDecimal($element.find("#amount_input").asInstanceOf[JQLite].`val`().toString) * BigDecimal(10).pow(18)).toBigInt())
     val recipient = $element.find("#receiver_input").asInstanceOf[JQLite].`val`().toString
@@ -180,7 +179,6 @@ class SendIndexController(override val windowService: WindowService,
       amount.map(new XRP(_)),
       recipient,
       customFee,
-      data,
       isInAdvancedMode
     )
   })
@@ -188,7 +186,6 @@ class SendIndexController(override val windowService: WindowService,
 
 object SendIndexController {
   def init(module: RichModule) = module.controllerOf[SendIndexController]("SendIndexController")
-
   val RestoreKey = "SendIndexController#Restore"
-  case class RestoreState(amount: Try[XRP], to: String, customFee: String, data: String, advancedMode: Boolean)
+  case class RestoreState(amount: Try[XRP], to: String, customFee: String, advancedMode: Boolean)
 }

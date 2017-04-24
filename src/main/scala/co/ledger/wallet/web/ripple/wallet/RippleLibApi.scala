@@ -135,8 +135,8 @@ class RippleLibApi() {
 
   //****************** call classes **********
   @JsonCodec case class Instructions(
-                                      fee: BigInt,
-                                      maxLedgerVersion: Nullable[Int] = Nullable[Int](None),
+                                      fee: Option[String],
+                                      maxLedgerVersion: Option[Int] = None, //Some(Nullable(None)),
                                       maxLedgerVersionOffset: Option[Int] = None,
                                       sequence: Option[Long] = None
                                     )
@@ -218,7 +218,7 @@ class RippleLibApi() {
   @JsonCodec case class PaymentParam(
                                       address: String,
                                       payment: Payment,
-                                      instructions: Instructions
+                                      instructions: Option[Instructions] = None
                                     ) extends RippleAPIObject
 
   @JsonCodec case class PrepareResponse(

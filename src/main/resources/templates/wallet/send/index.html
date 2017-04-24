@@ -39,7 +39,7 @@
                                type="text"
                                ng-pattern="/^[0-9]+$/"
                                ng-change="ctrl.computeTotal()"
-                               ng-model="ctrl.customGasLimit"/>
+                               ng-model="ctrl.customFee"/>
                         <label class="small-text-input" translate>send.gas</label>
                     </div>
                 </div>
@@ -56,11 +56,7 @@
                 </div>
                 <div ng-show="!ctrl.isInAdvancedMode" >
                     <div class="optional" translate>send.gas_limit</div>
-                    <div><div class="regular-grey-text-small">{{ctrl.gasLimit.toString()}} gas</div></div>
-                </div>
-                <div>
-                    <div class="optional" translate>send.gas_price</div>
-                    <div><amount value="ctrl.gasPrice"></amount></div>
+                    <div><div class="regular-grey-text-small">{{ctrl.fee.toString()}} gas</div></div>
                 </div>
                 <div>
                     <div class="optional" translate>send.total_spent</div>

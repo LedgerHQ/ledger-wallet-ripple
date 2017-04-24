@@ -66,11 +66,12 @@ function sign(parameters) {
 }
 
 function submit(parameters) {
-    return api.submit(parameters);
+    console.log("transaction subnitted", parameters.signedTransaction)
+    return api.submit(parameters.signedTransaction);
 }
 
 function preparePayment(parameters) {
-    return api.preparePayment(parameters);
+    return api.preparePayment(parameters.address, parameters.payment, parameters.instructions);
 }
 
 function getTransaction(parameters) {

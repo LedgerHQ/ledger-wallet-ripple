@@ -57,20 +57,15 @@ class OpeningController(override val windowService: WindowService,
   deviceService.lastConnectedDevice() map {(device) =>
     LedgerApi(device)
   } flatMap {(api) =>
-    println("chain")
     val chain = SessionService.RippleChain()
     sessionService.startNewSessions(api, chain)
   } flatMap {(_) =>
-    println("session started")
     ChromePreferences.load(sessionService.currentSession.get.name, sessionService.currentSession.get.password)
   } flatMap { (_) =>
-    println("chrome init")
     sessionService.currentSession.get.wallet.balance().map({(balance) =>
-        print("got balance")
         sessionService.currentSession.get.sessionPreferences("balance_cache") = balance.toBigInt.toString()
       })
   } flatMap { (_) =>
-    println("fghgfhfghgf")
     synchronizeWallet()
     Future.successful()
   } onComplete {

@@ -62,22 +62,16 @@ class RippleWalletClient(override val name: String,
   }
 
   override def balance(): Future[XRP] = {
-    println("called")
     accounts() flatMap { (accounts) =>
-      println("account")
       val futureBalances = accounts map { (account) =>
         account.balance()
       }
-      println("mid")
-      println(futureBalances)
       Future.sequence(futureBalances.toSeq)
     } map {(balances) =>
-      println("beforefold")
       balances.foldLeft(XRP.Zero)(_ + _)
     }
   }
   override def synchronize(): Future[Unit] = {
-    println("Synchronizing")
     _synchronizationFuture.getOrElse({
       _synchronizationFuture = Some(
         accounts() flatMap {(accounts) =>

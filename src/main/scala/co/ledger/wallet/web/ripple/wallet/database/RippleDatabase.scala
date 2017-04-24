@@ -147,18 +147,14 @@ trait RippleDatabase {
         cursor.advance(from)
         val buffer = new ArrayBuffer[(String, (TransactionModel) => DatabaseOperation)]
         def iterate(): Future[Array[Operation]] = {
-          println(s"iterate buffer  $buffer")
           if (cursor.value.isEmpty || buffer.length >= (to-from)){
             val bufferOperation = new ArrayBuffer[Operation]
             def iterateOperation(): Future[Array[Operation]] = {
               if (buffer.length == bufferOperation.length) {
-                bufferOperation.map(_.uid).foreach(println)
                 Future.successful(bufferOperation.toArray)
               } else {
                 TransactionModel.readonly(password).get(buffer(bufferOperation.length)._1).items flatMap {(items) =>
-                  println(s"appending object found for hash ${(buffer(bufferOperation.length)._1)} ${items.head.receivedAt().get}")
                   bufferOperation.append(buffer(bufferOperation.length)._2(items.head))
-                  println(s"buffer length after append = ${bufferOperation.length}")
                   iterateOperation()
                 }
               }
