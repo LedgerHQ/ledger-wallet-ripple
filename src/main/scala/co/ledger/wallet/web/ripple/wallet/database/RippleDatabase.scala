@@ -142,34 +142,40 @@ trait RippleDatabase {
   }
 
   def queryOperations(from: Int, to: Int, account: Account): Future[Array[Operation]] = {
+    var count = 0
+    var count2 = 0
     OperationModel.readonly(password).openCursor("time").reverse().cursor
       .flatMap({(cursor) =>
-        cursor.advance(from)
-        val buffer = new ArrayBuffer[(String, (TransactionModel) => DatabaseOperation)]
-        def iterate(): Future[Array[Operation]] = {
-          if (cursor.value.isEmpty || buffer.length >= (to-from)){
-            val bufferOperation = new ArrayBuffer[Operation]
-            def iterateOperation(): Future[Array[Operation]] = {
-              if (buffer.length == bufferOperation.length) {
-                Future.successful(bufferOperation.toArray)
-              } else {
-                TransactionModel.readonly(password).get(buffer(bufferOperation.length)._1).items flatMap {(items) =>
-                  bufferOperation.append(buffer(bufferOperation.length)._2(items.head))
-                  iterateOperation()
+        cursor.advance(from) flatMap {(_) =>
+          val buffer = new ArrayBuffer[(String, (TransactionModel) => DatabaseOperation)]
+          def iterate(): Future[Array[Operation]] = {
+            count += 1
+            if (cursor.value.isEmpty || buffer.length >= (to - from)) {
+              val bufferOperation = new ArrayBuffer[Operation]
+
+              def iterateOperation(): Future[Array[Operation]] = {
+                count2 += 1
+                if (buffer.length == bufferOperation.length) {
+                  Future.successful(bufferOperation.toArray)
+                } else {
+                  TransactionModel.readonly(password).get(buffer(bufferOperation.length)._1).items flatMap { (items) =>
+                    bufferOperation.append(buffer(bufferOperation.length)._2(items.head))
+                    iterateOperation()
+                  }
                 }
               }
-            }
-            iterateOperation()
-          } else {
-            val model = cursor.value.get
-            buffer.append((model.transactionHash().get,
-              DatabaseOperation(model)(account)(_)))
-            cursor.continue() flatMap {(_) =>
-              iterate()
+              iterateOperation()
+            } else {
+              val model = cursor.value.get
+              buffer.append((model.transactionHash().get,
+                DatabaseOperation(model)(account)(_)))
+              cursor.continue() flatMap { (_) =>
+                iterate()
+              }
             }
           }
+          iterate()
         }
-        iterate()
       })
   }
 }

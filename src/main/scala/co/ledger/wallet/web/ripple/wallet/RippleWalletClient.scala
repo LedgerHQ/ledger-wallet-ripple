@@ -3,6 +3,7 @@ package co.ledger.wallet.web.ripple.wallet
 import co.ledger.wallet.core.concurrent.{AbstractAsyncCursor, AsyncCursor}
 import co.ledger.wallet.core.device.utils.EventEmitter
 import co.ledger.wallet.core.utils.DerivationPath
+import co.ledger.wallet.core.wallet.ripple.Wallet.{StartSynchronizationEvent, StopSynchronizationEvent}
 import co.ledger.wallet.core.wallet.ripple._
 import co.ledger.wallet.core.wallet.ripple.database.AccountRow
 import co.ledger.wallet.web.ripple.core.event.JsEventEmitter
@@ -73,10 +74,14 @@ class RippleWalletClient(override val name: String,
   }
   override def synchronize(): Future[Unit] = {
     _synchronizationFuture.getOrElse({
+      eventEmitter.emit(StartSynchronizationEvent())
       _synchronizationFuture = Some(
         accounts() flatMap {(accounts) =>
           Future.sequence(accounts.map(_.synchronize()).toSeq)
-        } map { _ => _synchronizationFuture = None}
+        } map { _ =>
+          _synchronizationFuture = None
+          eventEmitter.emit(StopSynchronizationEvent())
+        }
       )
       _synchronizationFuture.get
     })

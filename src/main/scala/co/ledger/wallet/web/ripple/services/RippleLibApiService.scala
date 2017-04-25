@@ -15,6 +15,9 @@ class RippleLibApiService () extends Service {
   def init(options: api.APIOption): Future[Unit] = {
     api.setOptions(options) map(_ => ())
   }
+  def close(): Future[Unit] = {
+    api.close map(_ => ())
+  }
 }
 
 object RippleLibApiService {

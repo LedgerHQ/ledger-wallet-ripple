@@ -4,8 +4,10 @@ import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.JQLite
 import biz.enef.angulate.{Controller, Scope}
 import co.ledger.wallet.core.device.ripple.LedgerApi
+import co.ledger.wallet.core.wallet.ripple.api.ApiAccountRestClient
 import co.ledger.wallet.core.wallet.ripple.{RippleAccount, XRP}
 import co.ledger.wallet.web.ripple.components.{QrCodeScanner, SnackBar}
+import co.ledger.wallet.web.ripple.core.net.JQHttpClient
 import co.ledger.wallet.web.ripple.core.utils.PermissionsHelper
 import co.ledger.wallet.web.ripple.services.{DeviceService, RippleLibApiService, SessionService, WindowService}
 import org.scalajs.dom
@@ -69,7 +71,9 @@ class SendIndexController(override val windowService: WindowService,
 
   val unit = sessionService.currentSession.get.chain.symbol
 
-  def fee = if (!isInAdvancedMode) None else Try(Some(BigInt(customFee))).getOrElse(Some(BigInt(11)))
+  var fee: Option[XRP] = None
+  def feeDisplay = fee.getOrElse(XRP.Zero).toXRP
+
   var isInAdvancedMode = false
   val supportAdvancedMode = sessionService.currentSession.get.dongleAppVersion > "1.0.0"
 
@@ -99,7 +103,7 @@ class SendIndexController(override val windowService: WindowService,
 
   def max(): Unit = {
     sessionService.currentSession.get.wallet.balance() foreach {(b) =>
-      var a = new XRP(b.toBigInt - fee.getOrElse(0)) //minus fees
+      var a = new XRP(b.toBigInt - fee.getOrElse(XRP.Zero).toBigInt) //minus fees
       if (a.toBigInt < 0)
         a = XRP(0)
       amount = a.toXRP.toString()
@@ -109,7 +113,8 @@ class SendIndexController(override val windowService: WindowService,
   }
 
   def computeTotal(): XRP = {
-    val t = getAmountInput().map((amount) => amount + (fee.getOrElse(0))).map(new XRP(_)).getOrElse(XRP(0))
+    _api.fees().map((value) => fee = Some(value))
+    val t = getAmountInput().map((amount) => amount + (fee.getOrElse(XRP.Zero).toBigInt)).map(new XRP(_)).getOrElse(XRP(0))
     total = t.toBigInt.toString()
     t
   }
@@ -149,8 +154,8 @@ class SendIndexController(override val windowService: WindowService,
               if (data.nonEmpty && !conf.isArbitraryDataSignatureEnabled) {
                 SnackBar.error("send.enable_data_title", "send.enable_data_message").show()
               } else {
-                println(s"/send/${value.get.toString()}/to/$address/from/0/with/$fee/data/$data")
-                $location.path(s"/send/${value.get.toString()}/to/$address/from/0/with/$fee/data/$data")
+                println(s"/send/${value.get.toString()}/to/$address/from/0/with/${fee.getOrElse(12)}/data/$data")
+                $location.path(s"/send/${value.get.toString()}/to/$address/from/0/with/${fee.getOrElse(12)}/data/$data")
                 $scope.$apply()
               }
             }
@@ -182,6 +187,9 @@ class SendIndexController(override val windowService: WindowService,
       isInAdvancedMode
     )
   })
+
+  private val _api = new ApiAccountRestClient(JQHttpClient.xrpInstance)
+
 }
 
 object SendIndexController {

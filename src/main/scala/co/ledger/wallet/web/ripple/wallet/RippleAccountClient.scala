@@ -2,11 +2,11 @@ package co.ledger.wallet.web.ripple.wallet
 
 import co.ledger.wallet.core.concurrent.{AbstractAsyncCursor, AsyncCursor}
 import co.ledger.wallet.core.utils.DerivationPath
+import co.ledger.wallet.core.wallet.ripple.Wallet.StartSynchronizationEvent
 import co.ledger.wallet.core.wallet.ripple._
 import co.ledger.wallet.core.wallet.ripple.api.ApiAccountRestClient
 import co.ledger.wallet.core.wallet.ripple.database.{AccountRow, DatabaseBackedAccountClient}
 import co.ledger.wallet.web.ripple.core.net.JQHttpClient
-import co.ledger.wallet.web.ripple.services.SessionService
 import co.ledger.wallet.web.ripple.wallet.database.RippleDatabase
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -30,6 +30,7 @@ class RippleAccountClient(walletClient: RippleWalletClient,
 
   override def synchronize(): Future[Unit] = {
     _synchronizationFuture.getOrElse({
+
       _synchronizationFuture = Some(
         _api.balance() flatMap { (bal) =>
           walletClient.putAccount(new AccountRow(row.index, row.rippleAccount, bal))

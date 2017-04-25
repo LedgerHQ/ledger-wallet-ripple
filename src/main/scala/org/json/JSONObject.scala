@@ -76,7 +76,7 @@ class JSONObject(private[json] val obj: js.Dynamic) {
     this
   }
 
-  def has(name: String) = obj.selectDynamic(name) != null
+  def has(name: String) = !js.isUndefined(obj.selectDynamic(name))
 
   def optBoolean(name: String, fallBack: Boolean): Boolean = Option(obj.selectDynamic(name).asInstanceOf[Boolean]).getOrElse(fallBack)
   def optInt(name: String, fallBack: Int): Int = Option(obj.selectDynamic(name).asInstanceOf[Int]).getOrElse(fallBack)

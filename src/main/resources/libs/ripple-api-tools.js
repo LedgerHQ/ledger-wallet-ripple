@@ -32,6 +32,12 @@ function onMessage(event) {
                                                 info: "success"
                                               });
         }
+        if(method == "disconnect"){
+            toScala.response = JSON.stringify({
+                                                connected: false,
+                                                info: "disconnected"
+                                              });
+        }
         parent.postMessage(toScala, "*");
         }).catch(function (message) {
             console.log("exception caught");
@@ -44,6 +50,12 @@ function onMessage(event) {
               toScala.response = JSON.stringify({
                                                   connected: false,
                                                   info: "error"
+                                                 });
+            }
+            if(method == "disconnect"){
+              toScala.response = JSON.stringify({
+                                                  connected: false,
+                                                  info: "error while disconnecting"
                                                  });
             }
             parent.postMessage(toScala, "*");

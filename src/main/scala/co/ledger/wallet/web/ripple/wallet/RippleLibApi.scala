@@ -101,16 +101,24 @@ class RippleLibApi() {
         .right.get)
   }*/
 
-  //*************** setOptions *******************
   var setOptionsPromisesTable: Map[String,Promise[SetOptionsResponse]] =
     Map.empty
 
+  //*************** connect/disconnect *******************
 
 
-  def setOptions(options: APIOption): Future[SetOptionsResponse] ={
+
+  def setOptions(options: APIOption): Future[SetOptionsResponse] = {
     val methodName = "setOption"
     execute(methodName, options).map(decode[SetOptionsResponse](_).right.get)
   }
+
+  def close(): Future[Unit] = {
+    val methodName = "disconnect"
+    execute(methodName, DisconnectArgument()).map(decode[SetOptionsResponse](_).right.get)
+  }
+
+  @JsonCodec case class DisconnectArgument(cause: String = "End of usage") extends RippleAPIObject
 
   case class SetOptionsResponse(connected: Boolean,
                                 info: String)
@@ -390,6 +398,7 @@ class RippleLibApi() {
       override def encodeObject(obj: RippleAPIObject): JsonObject = {
         obj match {
           case o: APIOption => o.asJsonObject
+          case o: DisconnectArgument => o.asJsonObject
           case o: GetTransactionParam => o.asJsonObject
           case o: GetTransactionsParam => o.asJsonObject
           case o: PaymentParam => o.asJsonObject
