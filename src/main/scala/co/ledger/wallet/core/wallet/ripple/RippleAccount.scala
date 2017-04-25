@@ -2,7 +2,8 @@ package co.ledger.wallet.core.wallet.ripple
 
 import java.io.StringWriter
 
-import co.ledger.wallet.core.crypto.Keccak
+import co.ledger.wallet.core.crypto.SHA256
+import co.ledger.wallet.core.ripple.Base58
 import co.ledger.wallet.core.utils.HexUtils
 import org.scalajs.dom
 import org.scalajs.dom.crypto.GlobalCrypto
@@ -60,7 +61,6 @@ object RippleAccount {
   }
 
   def isValidHexAddress(address: String): Boolean = {
-    true //GlobalCrypto.crypto.subtle.digest() //TODO
+    (Base58.decodeWithChecksum(address)._1.length == 21) && Base58.checkAndDecode(address).isDefined
   }
-
 }

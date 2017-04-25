@@ -69,4 +69,12 @@ class ApiAccountRestClient(http: HttpClient,
         new XRP((BigDecimal(fees) * BigDecimal(10).pow(6)).toBigInt())
     }
   }
+
+  def account(address: String): Future[Boolean] = {
+    val request = http.get(s"/accounts/$address")
+    request.json map {
+      case (json, _) =>
+        json.getString("result") == "success"
+    }
+  }
 }

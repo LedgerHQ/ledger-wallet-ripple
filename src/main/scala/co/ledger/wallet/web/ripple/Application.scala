@@ -4,6 +4,9 @@ import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate._
 import biz.enef.angulate.core.HttpService
 import biz.enef.angulate.ext.RouteProvider
+import co.ledger.wallet.core.crypto.SHA256
+import co.ledger.wallet.core.ripple.Base58
+import co.ledger.wallet.core.utils.HexUtils
 import co.ledger.wallet.core.utils.logs._
 import co.ledger.wallet.web.ripple.components._
 import co.ledger.wallet.web.ripple.controllers.WindowController

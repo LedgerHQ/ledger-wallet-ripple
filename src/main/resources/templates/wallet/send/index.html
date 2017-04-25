@@ -43,17 +43,6 @@
                         <label class="small-text-input" translate>send.gas</label>
                     </div>
                 </div>
-                <div ng-show="ctrl.isInAdvancedMode" >
-                    <div translate>send.contract_data</div>
-                    <div>
-                        <input
-                               placeholder="{{'send.contract_data_hex' | translate}}"
-                               class="small-text-input"
-                               type="text"
-                               ng-pattern="/^(0x)?[0-9A-Fa-f]+$/"
-                               ng-model="ctrl.data"/>
-                    </div>
-                </div>
                 <div ng-show="!ctrl.isInAdvancedMode" >
                     <div class="optional" translate>send.gas_limit</div>
                     <div><div class="regular-grey-text-small">{{ctrl.feeDisplay.toString()}} gas</div></div>
