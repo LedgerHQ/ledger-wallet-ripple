@@ -168,15 +168,15 @@ class SendIndexController(override val windowService: WindowService,
                   }
               }
           }
-          windowService.enableUserInterface()
         }
-        }
+        windowService.enableUserInterface()
+      }
     } catch {
       case any: Throwable =>
+        windowService.enableUserInterface()
         any.printStackTrace()
         // Display error message
     }
-    //
   }
 
   private val scanner = $element.find("qrcodescanner").scope().asInstanceOf[QrCodeScanner.Controller]

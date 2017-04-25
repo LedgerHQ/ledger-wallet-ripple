@@ -30,11 +30,10 @@ class RippleAccountClient(walletClient: RippleWalletClient,
 
   override def synchronize(): Future[Unit] = {
     _synchronizationFuture.getOrElse({
-
       _synchronizationFuture = Some(
         _api.balance() flatMap { (bal) =>
           walletClient.putAccount(new AccountRow(row.index, row.rippleAccount, bal))
-          _api.transactions() map { (transactions) =>
+          _api.transactions(walletClient.lastOperation()) map { (transactions) =>
             for (transaction <- transactions) {
               walletClient.putTransaction(transaction)
               walletClient.putOperation(new AccountRow(row.index, row

@@ -14,6 +14,7 @@ import java.util.Locale
 
 import scala.collection.mutable.ArrayBuffer
 import scala.scalajs.js
+import scala.util.Try
 
 /**
   * Created by alix on 4/14/17.
@@ -35,8 +36,8 @@ class ApiAccountRestClient(http: HttpClient,
       }
   }
 
-  def transactions(start: Date = new Date(0)):
-  Future[Array[JsonTransaction]] = {
+  def transactions(init: Int = 0): Future[Array[JsonTransaction]] = {
+    val start = new Date(init)
     val dateLiteral = new js.Date(start.getTime).toJSON()
     var transactionsBuffer = ArrayBuffer[JsonTransaction]()
     def iterate(marker: String = ""): Future[Array[JsonTransaction]] = {
@@ -72,9 +73,11 @@ class ApiAccountRestClient(http: HttpClient,
 
   def account(address: String): Future[Boolean] = {
     val request = http.get(s"/accounts/$address")
-    request.json map {
-      case (json, _) =>
-        json.getString("result") == "success"
-    }
+    Try {
+      request.json map {
+        case (json, _) =>
+          json.getString("result") == "success"
+      }
+    }.getOrElse(Future.failed(new Throwable()))
   }
 }

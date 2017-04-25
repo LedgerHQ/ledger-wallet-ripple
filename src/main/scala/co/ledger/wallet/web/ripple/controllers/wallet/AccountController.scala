@@ -165,7 +165,6 @@ class AccountController(override val windowService: WindowService,
       }
     case StopSynchronizationEvent() =>
       isRefreshing = false
-      reloadOperations()
       reloadBalance()
       setTimeout(0) {
         $scope.$digest()

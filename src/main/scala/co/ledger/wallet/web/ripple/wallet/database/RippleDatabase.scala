@@ -14,6 +14,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
 import scala.scalajs.js
+import java.util.Date
 
 /**
   * Created by alix on 4/13/17.
@@ -120,15 +121,27 @@ trait RippleDatabase {
     }
   }
 
+  def lastOperation(): Future[Int] = {
+    OperationModel.readonly(password).openCursor("time").reverse().items
+      .map({(array) =>
+        array(0).time().get.getDate()
+      })
+  }
+
   def putAccount(account: AccountRow): Future[Unit] = {
     AccountModel.readwrite(password).put(AccountModel(account)).commit().map(
       (_) =>())
   }
 
-  def putOperation(account: AccountRow, transaction: Transaction): Future[Unit]
-  = {
-    OperationModel.readwrite(password).put(this.OperationModel(account,transaction))
-      .commit().map((_) =>())
+  def putOperation(account: AccountRow, transaction: Transaction): Future[Unit] = {
+    OperationModel.readonly(password).get(this.OperationModel(account,transaction).uid().get).items flatMap {(array) =>
+      if (array.isEmpty) {
+        OperationModel.readwrite(password).put(this.OperationModel(account, transaction))
+          .commit().map((_) => ())
+      } else {
+        Future.successful()
+      }
+    }
   }
 
   def putTransaction(transaction: Transaction): Future[Unit] = {
