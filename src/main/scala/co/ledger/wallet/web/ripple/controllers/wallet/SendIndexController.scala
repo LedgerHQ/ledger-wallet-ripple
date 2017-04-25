@@ -60,7 +60,7 @@ class SendIndexController(override val windowService: WindowService,
   with WalletController{
 
   var isScanning = false
-  var address = "sdfgdsfgsdf"
+  var address = "rhGxojnVnEhPQFfMsQ9BK81keWzs6Lzfpv"
   var amount = "1"
   var data = ""
   var customFee = ""
@@ -141,27 +141,36 @@ class SendIndexController(override val windowService: WindowService,
         SnackBar.error("send.bad_amount_title", "send.bad_amount_message").show()
       } else if (recipient.isFailure) {
         SnackBar.error("send.bad_address_title", "send.bad_address_message").show()
-      } else {
-        println(s"Amount: $amount")
-        println(s"Recipient: $address")
-        println(s"Fee: $fee")
-        sessionService.currentSession.get.wallet.balance() foreach {
-          (balance) =>
-          if (computeTotal() > balance) {
-            SnackBar.error("send.insufficient_funds_title", "send.insufficient_funds_message").show()
+      }  else {
+        windowService.disableUserInterface()
+        SnackBar.neutral("Getting Recipient info", "connecting").show()
+        _api.account(recipient.get.toString) map {(exists) =>
+          if (!exists) {
+            SnackBar.error("Recipient not on ledger", "amount should be at least 20XRP").show()
           } else {
-            deviceService.lastConnectedDevice().flatMap(LedgerApi(_).getAppConfiguration()) foreach {(conf) =>
-              if (data.nonEmpty && !conf.isArbitraryDataSignatureEnabled) {
-                SnackBar.error("send.enable_data_title", "send.enable_data_message").show()
-              } else {
-                println(s"/send/${value.get.toString()}/to/$address/from/0/with/${fee.getOrElse(12)}/data/$data")
-                $location.path(s"/send/${value.get.toString()}/to/$address/from/0/with/${fee.getOrElse(12)}/data/$data")
-                $scope.$apply()
+              println(s"Amount: $amount")
+              println(s"Recipient: $address")
+              println(s"Fee: $fee")
+              sessionService.currentSession.get.wallet.balance() foreach {
+                (balance) =>
+                  if (computeTotal() > balance) {
+                    SnackBar.error("send.insufficient_funds_title", "send.insufficient_funds_message").show()
+                  } else {
+                    deviceService.lastConnectedDevice().flatMap(LedgerApi(_).getAppConfiguration()) foreach {(conf) =>
+                      if (data.nonEmpty && !conf.isArbitraryDataSignatureEnabled) {
+                        SnackBar.error("send.enable_data_title", "send.enable_data_message").show()
+                      } else {
+                        println(s"/send/${value.get.toString()}/to/$address/from/0/with/${fee.getOrElse(12)}/data/$data")
+                        $location.path(s"/send/${value.get.toString()}/to/$address/from/0/with/${fee.getOrElse(12)}/data/$data")
+                        $scope.$apply()
+                      }
+                    }
+                  }
               }
-            }
           }
+          windowService.enableUserInterface()
         }
-      }
+        }
     } catch {
       case any: Throwable =>
         any.printStackTrace()

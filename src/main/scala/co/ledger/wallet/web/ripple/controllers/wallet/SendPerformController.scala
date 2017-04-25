@@ -62,12 +62,9 @@ class SendPerformController(override val windowService: WindowService,
     val amount =
     XRP($routeParams("amount"))
     val to =
-    RippleAccount("rhGxojnVnEhPQFfMsQ9BK81keWzs6Lzfpv".trim) ////RippleAccount($routeParams("recipient").trim)
-    println(s"0destination ${to.toString}")
-    val data =
-    $routeParams.lift("data").map(_.replace("0x", "")).map(HexUtils.decodeHex)
-     val api =
-    rippleLibApiService.api
+    RippleAccount($routeParams("recipient").trim)
+    val data = $routeParams.lift("data").map(_.replace("0x", "")).map(HexUtils.decodeHex)
+     val api = rippleLibApiService.api
     var rippleAccount: RippleAccount = RippleAccount("rhGxojnVnEhPQFfMsQ9BK81keWzs6Lzfpv")
     var derivationPath: DerivationPath = null
     var prepared: String = ""
@@ -79,12 +76,9 @@ class SendPerformController(override val windowService: WindowService,
       sessionService.currentSession.get.wallet.account(accountId) flatMap { (account) =>
         account.rippleAccount() flatMap { (rippleAccount_) =>
           rippleAccount = rippleAccount_
-          println(s"1ripple account ${rippleAccount.toString}")
           account.rippleAccountDerivationPath()
         } flatMap { (derivationPath_) =>
           derivationPath = derivationPath_
-          println(s"2derivation path $derivationPath")
-          println(s"3value = ${amount.toXRP.toString}")
           api.preparePayment(api.PaymentParam(
             rippleAccount.toString,
             api.Payment(
@@ -98,7 +92,6 @@ class SendPerformController(override val windowService: WindowService,
           )
         } flatMap { (prepareResponse) =>
           prepared = prepareResponse.txJSON
-          println(s"4prepared $prepared")
           deviceService.lastConnectedDevice()
         } flatMap { (device) =>
           deviceLocal = device
@@ -108,11 +101,9 @@ class SendPerformController(override val windowService: WindowService,
           tx.SigningPubKey = HexUtils.bytesToHex(pubAddressResult.publicKey).toUpperCase
           val stringToSign = JSON.stringify(tx)
           js.Dynamic.global.console.log(tx)
-          println(s"5signing $stringToSign")
           LedgerApi(deviceLocal).signTransaction(derivationPath, stringToSign)
         } flatMap { (signed) =>
           tx.TxnSignature = HexUtils.bytesToHex(signed).toUpperCase
-          println(s"6submitting")
           val encodedTx = RippleSerializer.encode(JSON.stringify(tx))
           api.submit(new api.SubmitParam(HexUtils.bytesToHex(encodedTx))
           )
