@@ -16,6 +16,7 @@ import scala.concurrent._
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
+import scala.scalajs.js.timers.setTimeout
 import scala.scalajs.js.{Dynamic, timers}
 import scala.util.{Failure, Success, Try}
 
@@ -71,7 +72,6 @@ class SendIndexController(override val windowService: WindowService,
   val unit = sessionService.currentSession.get.chain.symbol
 
   var fee: Option[XRP] = None
-  _api.fees().map((value) => fee = Some(value))
 
   def feeDisplay = fee.getOrElse(XRP.Zero).toXRP
 
@@ -113,8 +113,16 @@ class SendIndexController(override val windowService: WindowService,
     }
   }
 
+  def computeFees(): Future[Unit] = {
+    _api.fees().map({ (value) =>
+      fee = Some(value)
+      setTimeout(0) {
+        $scope.$digest()
+      }
+    })
+  }
   def computeTotal(): XRP = {
-    _api.fees().map((value) => fee = Some(value))
+    this.computeFees()
     val t = getAmountInput().map((amount) => amount + (fee.getOrElse(XRP.Zero).toBigInt)).map(new XRP(_)).getOrElse(XRP(0))
     total = t.toBigInt.toString()
     t
@@ -178,7 +186,6 @@ class SendIndexController(override val windowService: WindowService,
         // Display error message
     }
   }
-
   private val scanner = $element.find("qrcodescanner").scope().asInstanceOf[QrCodeScanner.Controller]
 
   scanner.$on("qr-code", { (event: js.Any, value: String) =>
@@ -198,6 +205,8 @@ class SendIndexController(override val windowService: WindowService,
   })
 
   private val _api = new ApiAccountRestClient(JQHttpClient.xrpInstance)
+
+  computeFees()
 
 }
 
