@@ -20,6 +20,7 @@
     }
   ],
   "permissions": [
+    "node",
     "*://ledgerwallet.com/*",
     "*://*.ledgerwallet.com/*",
     "*://*.chain.com/v2/notifications/*",
