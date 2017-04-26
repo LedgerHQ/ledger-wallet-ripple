@@ -1,5 +1,8 @@
 package co.ledger.wallet.web.ripple.content
 
+import java.util.Date
+
+import co.ledger.wallet.core.wallet.ripple._
 import co.ledger.wallet.web.ripple.core.database.Model
 
 /**
@@ -38,4 +41,21 @@ class OperationModel extends Model("operations") {
   val operationType = string("operationType")
   val transactionHash = string("transactionHash").index().encrypted()
   val time = date("time").index()
+
+  def proxy(accountParam: Account, transactionParam: Transaction): Operation = {
+    new Operation {
+
+      override def uid: String = OperationModel.this.uid().get
+
+      override def account: Account = accountParam
+
+      override def transaction: Transaction = transactionParam
+
+      override def `type`: String = if (this.transaction.account.toString == this.account.toString) {
+        "send"
+      } else {
+        "receive"
+      }
+    }
+  }
 }

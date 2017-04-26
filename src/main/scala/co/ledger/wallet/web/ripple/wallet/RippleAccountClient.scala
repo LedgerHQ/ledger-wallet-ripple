@@ -2,7 +2,7 @@ package co.ledger.wallet.web.ripple.wallet
 
 import co.ledger.wallet.core.concurrent.{AbstractAsyncCursor, AsyncCursor}
 import co.ledger.wallet.core.utils.DerivationPath
-import co.ledger.wallet.core.wallet.ripple.Wallet.StartSynchronizationEvent
+import co.ledger.wallet.core.wallet.ripple.Wallet.{NewOperationEvent, StartSynchronizationEvent}
 import co.ledger.wallet.core.wallet.ripple._
 import co.ledger.wallet.core.wallet.ripple.api.ApiAccountRestClient
 import co.ledger.wallet.core.wallet.ripple.database.{AccountRow, DatabaseBackedAccountClient}
@@ -39,6 +39,8 @@ class RippleAccountClient(walletClient: RippleWalletClient,
                 walletClient.putTransaction(transaction)
                 walletClient.putOperation(new AccountRow(row.index, row
                   .rippleAccount, bal), transaction)
+                walletClient.eventEmitter.emit(NewOperationEvent(this,walletClient.OperationModel(new AccountRow(row.index, row
+                  .rippleAccount, bal), transaction).proxy(this,transaction)))
               }
             }
           }

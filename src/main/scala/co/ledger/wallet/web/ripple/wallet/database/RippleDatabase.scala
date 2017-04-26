@@ -16,6 +16,8 @@ import scala.concurrent.Future
 import scala.scalajs.js
 import java.util.Date
 
+import co.ledger.wallet.core.wallet.ripple.Wallet.NewOperationEvent
+
 /**
   * Created by alix on 4/13/17.
   */
