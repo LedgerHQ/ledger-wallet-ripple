@@ -58,7 +58,6 @@ class SendIndexController(override val windowService: WindowService,
                           $element: JQLite,
                           override val $scope: Scope) extends Controller
   with WalletController{
-
   var isScanning = false
   var address = "rhGxojnVnEhPQFfMsQ9BK81keWzs6Lzfpv"
   var amount = "1"
@@ -72,6 +71,8 @@ class SendIndexController(override val windowService: WindowService,
   val unit = sessionService.currentSession.get.chain.symbol
 
   var fee: Option[XRP] = None
+  _api.fees().map((value) => fee = Some(value))
+
   def feeDisplay = fee.getOrElse(XRP.Zero).toXRP
 
   var isInAdvancedMode = false
@@ -143,10 +144,9 @@ class SendIndexController(override val windowService: WindowService,
         SnackBar.error("send.bad_address_title", "send.bad_address_message").show()
       }  else {
         windowService.disableUserInterface()
-        SnackBar.neutral("Getting Recipient info", "connecting").show()
         _api.account(recipient.get.toString) map {(exists) =>
-          if (!exists) {
-            SnackBar.error("Recipient not on ledger", "amount should be at least 20XRP").show()
+          if (!exists && value.get<20000000) {
+            SnackBar.error("send.bad_amount_for_account_creation_title", "send.bad_amount_for_account_creation_message").show()
           } else {
               println(s"Amount: $amount")
               println(s"Recipient: $address")
@@ -187,7 +187,7 @@ class SendIndexController(override val windowService: WindowService,
     $scope.$apply()
   })
   $scope.$on("$destroy", {() =>
-    val amount = Try((BigDecimal($element.find("#amount_input").asInstanceOf[JQLite].`val`().toString) * BigDecimal(10).pow(18)).toBigInt())
+    val amount = Try((BigDecimal($element.find("#amount_input").asInstanceOf[JQLite].`val`().toString) * BigDecimal(10).pow(6)).toBigInt())
     val recipient = $element.find("#receiver_input").asInstanceOf[JQLite].`val`().toString
     sessionService.currentSession.get.sessionPreferences(SendIndexController.RestoreKey) =  SendIndexController.RestoreState(
       amount.map(new XRP(_)),

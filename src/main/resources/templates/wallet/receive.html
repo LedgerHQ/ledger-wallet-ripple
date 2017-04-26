@@ -6,6 +6,7 @@
         </header>
         <div>
             <qrcodeviewer value="ctrl.uri"></qrcodeviewer>
+            <div ng-show="ctrl.showHex" class="small-top-margin regular-text selectable">{{ctrl.address}}</div>
             <div class="almost-small-top-margin regular-grey-text-small" translate>receive.share_qr_code</div>
         </div>
         <actions-bottom-bar class="no-print">

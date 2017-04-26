@@ -30,26 +30,26 @@
                     </div>
                 </div>
                 <div ng-show="ctrl.isInAdvancedMode" >
-                    <div translate>send.gas_limit</div>
+                    <div translate>send.fees</div>
                     <div>
                         <input
                                style="text-transform: capitalize"
-                               placeholder="{{'send.gas_limit' | translate}}"
+                               placeholder="{{'send.fees' | translate}}"
                                class="small-text-input"
                                type="text"
                                ng-pattern="/^[0-9]+$/"
                                ng-change="ctrl.computeTotal()"
                                ng-model="ctrl.customFee"/>
-                        <label class="small-text-input" translate>send.gas</label>
+                        <label class="small-text-input" translate>send.fees</label>
                     </div>
                 </div>
                 <div ng-show="!ctrl.isInAdvancedMode" >
-                    <div class="optional" translate>send.gas_limit</div>
-                    <div><div class="regular-grey-text-small">{{ctrl.feeDisplay.toString()}} gas</div></div>
+                    <div class="optional" translate>send.fees</div>
+                    <div><div class="regular-grey-text-small">{{ctrl.feeDisplay.toString()}} {{ctrl.unit}}</div></div>
                 </div>
                 <div>
                     <div class="optional" translate>send.total_spent</div>
-                    <div><div class="regular-grey-text-small"><amount value="ctrl.total"></amount> <span translate>send.including_gas</span></div></div>
+                    <div><div class="regular-grey-text-small"><amount value="ctrl.total"></amount> <span translate>send.including_fees</span></div></div>
                 </div>
             </div>
         </section>

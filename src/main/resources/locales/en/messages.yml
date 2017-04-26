@@ -22,7 +22,6 @@ dates:
 
 # Common
 common:
-  eth: ETH
   please_wait: Please wait, this may take a few moments.
   confirm: confirm
   cancel: cancel
@@ -107,11 +106,10 @@ send:
   amount_placeholder: Amount
   max: max
   recipient: recipient account
-  recipient_placeholder: Ripple IBAN or account
-  gas_price: gas price
-  gas_limit: gas limit
+  recipient_placeholder: Ripple account
+  fees: fees
   total_spent: max total spent
-  including_gas: (incl. gas)
+  including_fees: (incl. fees)
   scan_qr_code: scan qr code
   send: send
   place_qr_code: Place the QR code in the center of the image
@@ -121,15 +119,14 @@ send:
   enable_data_message: Data are not allowed in your device Ripple app
   bad_amount_title: Empty amount
   bad_amount_message: An amount is required to send XRPs
-  bad_limit_title: Empty gas limit
-  bad_limit_message: A gas limit is required to send XRPs
+  bad_fees_title: Empty fees
+  bad_fees_message: Fees are required to send XRPs
   bad_address_title: Invalid recipient account
-  bad_address_message: A valid IBAN or account is required to send XRPs
+  bad_address_message: A valid account is required to send XRPs
   advanced_mode: advanced mode
   standard_mode: standard mode
-  contract_data: contract data
-  contract_data_hex: Contract data hex
-  gas: gas
+  bad_amount_for_account_creation_title: Insufficient initial transfer
+  bad_amount_for_account_creation_message: New Ripple accounts must be initialized with at least 20 XRP
 
 # Send perform screen
 send_perform:
