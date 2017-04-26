@@ -36,7 +36,7 @@ class ApiAccountRestClient(http: HttpClient,
       }
   }
 
-  def transactions(init: Int = 0): Future[Array[JsonTransaction]] = {
+  def transactions(init: String): Future[Array[JsonTransaction]] = {
     val start = new Date(init)
     val dateLiteral = new js.Date(start.getTime).toJSON()
     var transactionsBuffer = ArrayBuffer[JsonTransaction]()
@@ -49,16 +49,18 @@ class ApiAccountRestClient(http: HttpClient,
       var request = http.get(url)
       request.json map {
         case (json, _) =>
-          val txs = json.getJSONArray("transactions")
-          (0 until txs.length()) map { (index: Int) =>
-            transactionsBuffer.append(new JsonTransaction(txs.getJSONObject(index)))
+          if (json.getInt("count") > 0) {
+            val txs = json.getJSONArray("transactions")
+            (0 until txs.length()) map { (index: Int) =>
+              transactionsBuffer.append(new JsonTransaction(txs.getJSONObject(index)))
+            }
+            if (json.has("marker")) {
+              iterate(json.getString("marker"))
+            }
           }
-          if (json.has("marker")) {
-            iterate(json.getString("marker"))
-          }
-        transactionsBuffer.toArray
+          transactionsBuffer.toArray
+        }
       }
-    }
     iterate()
   }
 

@@ -121,10 +121,14 @@ trait RippleDatabase {
     }
   }
 
-  def lastOperation(): Future[Int] = {
-    OperationModel.readonly(password).openCursor("time").reverse().items
-      .map({(array) =>
-        array(0).time().get.getDate()
+  def lastOperationDate(): Future[String] = {
+    OperationModel.readonly(password).openCursor("time").reverse().cursor
+      .map({(cursor) =>
+        if (cursor.value.isDefined) {
+          cursor.value.get.time().get.toJSON()
+        } else {
+          "2017-01-01T00:00:00.000Z"
+        }
       })
   }
 

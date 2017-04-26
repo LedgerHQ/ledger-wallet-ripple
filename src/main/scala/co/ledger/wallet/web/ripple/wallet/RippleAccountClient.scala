@@ -33,11 +33,13 @@ class RippleAccountClient(walletClient: RippleWalletClient,
       _synchronizationFuture = Some(
         _api.balance() flatMap { (bal) =>
           walletClient.putAccount(new AccountRow(row.index, row.rippleAccount, bal))
-          _api.transactions(walletClient.lastOperation()) map { (transactions) =>
-            for (transaction <- transactions) {
-              walletClient.putTransaction(transaction)
-              walletClient.putOperation(new AccountRow(row.index, row
-                .rippleAccount, bal), transaction)
+          walletClient.lastOperationDate() flatMap {(last) =>
+            _api.transactions(last) map { (transactions) =>
+              for (transaction <- transactions) {
+                walletClient.putTransaction(transaction)
+                walletClient.putOperation(new AccountRow(row.index, row
+                  .rippleAccount, bal), transaction)
+              }
             }
           }
         } andThen {
