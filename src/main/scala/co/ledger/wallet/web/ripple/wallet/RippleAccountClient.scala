@@ -29,23 +29,29 @@ class RippleAccountClient(walletClient: RippleWalletClient,
   override def wallet: Wallet = walletClient.asInstanceOf[Wallet]
 
   override def synchronize(): Future[Unit] = {
+    println("synchronize called")
     _synchronizationFuture.getOrElse({
       _synchronizationFuture = Some(
-        _api.balance() flatMap { (bal) =>
+        _api.balance() flatMap {(bal) =>
           walletClient.putAccount(new AccountRow(row.index, row.rippleAccount, bal))
           walletClient.lastOperationDate() flatMap {(last) =>
+            println("last", last)
             _api.transactions(last) map { (transactions) =>
               for (transaction <- transactions) {
+                print("transaction ", transaction)
                 walletClient.putTransaction(transaction)
                 walletClient.putOperation(new AccountRow(row.index, row
                   .rippleAccount, bal), transaction)
+                println("new transaction event")
                 walletClient.eventEmitter.emit(NewOperationEvent(this,walletClient.OperationModel(new AccountRow(row.index, row
                   .rippleAccount, bal), transaction).proxy(this,transaction)))
               }
             }
           }
         } andThen {
-          case all => _synchronizationFuture = None
+          case all =>
+            println("synchronized over")
+            _synchronizationFuture = None
         }
       )
       _synchronizationFuture.get
@@ -56,8 +62,7 @@ class RippleAccountClient(walletClient: RippleWalletClient,
     _synchronizationFuture.nonEmpty
   )
 
-  override def operations(limit: Int, batchSize: Int):
-  Future[AsyncCursor[Operation]] = {
+  override def operations(limit: Int, batchSize: Int): Future[AsyncCursor[Operation]] = {
     walletClient.countOperations(index) map {(c) =>
       new AbstractAsyncCursor[Operation](global, batchSize) {
         override protected def performQuery(from: Int, to: Int): Future[Array[Operation]] = {

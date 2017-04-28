@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "name": "__MSG_application_name__",
-  "description": "__MSG_application_small_description__",
+  "name": "Ledger Wallet Ripple",
+  "description": "Ledger Wallet application for Ripple",
   "version": "1.1.0",
   "default_locale": "en",
   "minimum_chrome_version": "50",

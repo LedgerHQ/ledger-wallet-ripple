@@ -3,7 +3,7 @@ package co.ledger.wallet.core.device.ripple
 import java.io.ByteArrayInputStream
 
 import co.ledger.wallet.core.device.ripple.LedgerCommonApiInterface.CommandResult
-import co.ledger.wallet.core.utils.{BytesWriter, DerivationPath}
+import co.ledger.wallet.core.utils.{BytesWriter, DerivationPath, HexUtils}
 import co.ledger.wallet.core.wallet.ripple.RippleAccount
 import co.ledger.wallet.web.ripple.components.RippleSerializer
 
@@ -48,6 +48,7 @@ trait LedgerSignatureApi extends LedgerCommonApiInterface {
     println(s"rawderiv ${rawDerivationPath.length}")
     val serialized = RippleSerializer.encode(preparedPayment)
     println(s"serialized ${serialized.length}")
+    println("serialized", HexUtils.bytesToHex(serialized))
 
     def sendChunks(i: Int): Future[CommandResult] = {
       println(s"chunk i $i")

@@ -10,7 +10,7 @@
 */
 
 var gui = require('nw.gui');
-var pkg = require('../package.json'); // Insert your app's manifest here
+var pkg = require('./manifest.json'); // Insert your app's manifest here
 var updater = require('node-webkit-updater');
 var upd = new updater(pkg);
 var copyPath, execPath;
