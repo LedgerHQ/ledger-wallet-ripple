@@ -1,12 +1,15 @@
 package co.ledger.wallet.web.ripple.wallet
 
+import java.net.URI
+
 import co.ledger.wallet.core.concurrent.{AbstractAsyncCursor, AsyncCursor}
+import co.ledger.wallet.core.net.WebSocketFactory
 import co.ledger.wallet.core.utils.DerivationPath
 import co.ledger.wallet.core.wallet.ripple.Wallet.{NewOperationEvent, StartSynchronizationEvent}
 import co.ledger.wallet.core.wallet.ripple._
-import co.ledger.wallet.core.wallet.ripple.api.ApiAccountRestClient
+import co.ledger.wallet.core.wallet.ripple.api.{ApiAccountRestClient, WebSocketRipple}
 import co.ledger.wallet.core.wallet.ripple.database.{AccountRow, DatabaseBackedAccountClient}
-import co.ledger.wallet.web.ripple.core.net.JQHttpClient
+import co.ledger.wallet.web.ripple.core.net.{JQHttpClient, JsWebSocketFactory}
 import co.ledger.wallet.web.ripple.wallet.database.RippleDatabase
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -30,19 +33,17 @@ class RippleAccountClient(walletClient: RippleWalletClient,
   override def wallet: Wallet = walletClient.asInstanceOf[Wallet]
 
   override def synchronize(): Future[Unit] = {
-    println("synchronize called")
+    println("Synchronizing")
     _synchronizationFuture.getOrElse({
       _synchronizationFuture = Some(
         _api.balance() flatMap {(bal) =>
           walletClient.putAccount(new AccountRow(row.index, row.rippleAccount, bal))
           walletClient.lastOperationDate() flatMap {(last) =>
-            println("last", last)
             _api.transactions(last) map { (transactions) =>
               for (transaction <- transactions) {
                 walletClient.putTransaction(transaction)
                 walletClient.putOperation(new AccountRow(row.index, row
                   .rippleAccount, bal), transaction) map {(_) =>
-                  println("new transaction event")
                   walletClient.eventEmitter.emit(NewOperationEvent(this, walletClient.OperationModel(new AccountRow(row.index, row
                     .rippleAccount, bal), transaction).proxy(this, transaction)))
                 }
@@ -51,7 +52,6 @@ class RippleAccountClient(walletClient: RippleWalletClient,
           }
         } andThen {
           case all =>
-            println("synchronized over")
             _synchronizationFuture = None
         }
       )
@@ -94,8 +94,10 @@ class RippleAccountClient(walletClient: RippleWalletClient,
     }
   }
 
+
   private val _api = new ApiAccountRestClient(JQHttpClient.xrpInstance,row)
   private var _synchronizationFuture: Option[Future[Unit]] = None
+
 }
 
 

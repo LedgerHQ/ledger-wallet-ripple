@@ -66,9 +66,7 @@ class AccountController(override val windowService: WindowService,
 
   private var reloadOperationNonce = 0
   def reloadOperations(): Unit = {
-    println("reload operation called")
     operations = js.Array[js.Dictionary[js.Any]]()
-    js.Dynamic.global.console.log("clean opere" ,operations)
     reloadOperationNonce += 1
     hideLoader = true
     val nonce = reloadOperationNonce
@@ -77,8 +75,6 @@ class AccountController(override val windowService: WindowService,
     } foreach {cursor =>
       var isLoading = false
       def loadMore(): Unit = {
-        println("loadmore")
-
         isLoading = true
         cursor.loadNextChunk() andThen {
           case Success(ops) =>
@@ -96,7 +92,6 @@ class AccountController(override val windowService: WindowService,
                     ).toString(),
                   "isSend" -> (op.`type` == Operation.SendType)
                 ))
-                js.Dynamic.global.console.log("Operations" ,operations)
               }
             }
             $scope.$digest()
@@ -110,7 +105,6 @@ class AccountController(override val windowService: WindowService,
       }
 
       def refresh() = {
-        println("refresh")
         val top = $element.asInstanceOf[js.Dynamic].scrollTop()
           .asInstanceOf[Double]
         val scrollHeight = $element.asInstanceOf[js.Dynamic].height()

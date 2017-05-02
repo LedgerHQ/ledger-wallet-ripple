@@ -161,7 +161,6 @@ trait RippleDatabase {
   }
 
   def queryOperations(from: Int, to: Int, account: Account): Future[Array[Operation]] = {
-    println("query operation from ", from, "to", to)
     var count = 0
     var count2 = 0
     OperationModel.readonly(password).openCursor("time").reverse().cursor

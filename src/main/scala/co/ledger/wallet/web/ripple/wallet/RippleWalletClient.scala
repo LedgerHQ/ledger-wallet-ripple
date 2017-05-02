@@ -1,12 +1,18 @@
 package co.ledger.wallet.web.ripple.wallet
 
+import java.net.URI
+
 import co.ledger.wallet.core.concurrent.{AbstractAsyncCursor, AsyncCursor}
-import co.ledger.wallet.core.device.utils.EventEmitter
+import co.ledger.wallet.core.device.utils.{EventEmitter, EventReceiver}
+import co.ledger.wallet.core.net.WebSocketFactory
 import co.ledger.wallet.core.utils.DerivationPath
 import co.ledger.wallet.core.wallet.ripple.Wallet.{StartSynchronizationEvent, StopSynchronizationEvent}
 import co.ledger.wallet.core.wallet.ripple._
+import co.ledger.wallet.core.wallet.ripple.api.WebSocketRipple
 import co.ledger.wallet.core.wallet.ripple.database.AccountRow
+import co.ledger.wallet.core.wallet.ripple.events.NewTransaction
 import co.ledger.wallet.web.ripple.core.event.JsEventEmitter
+import co.ledger.wallet.web.ripple.core.net.JsWebSocketFactory
 import co.ledger.wallet.web.ripple.services.SessionService
 import co.ledger.wallet.web.ripple.wallet.database.RippleDatabase
 
@@ -23,20 +29,24 @@ class RippleWalletClient(override val name: String,
                         chain: SessionService.RippleChainIdentifier
                         ) extends Wallet with RippleDatabase {
   private def init(): Future[Array[RippleAccountClient]] = {
-    _accounts.getOrElse({
-      _accounts = Some(queryAccounts() flatMap { (accounts) =>
-        if (accounts.isEmpty) {
-          createNewAccount(0).map(Array(_))
-        } else {
-          Future.successful(accounts)
-        }
-      } map { (accounts) =>
-        accounts map { (account) =>
-          new RippleAccountClient(this, account)
-        }
+    if (_stopped)
+      Future.failed(new Exception("Client is stopped"))
+    else {
+      _accounts.getOrElse({
+        _accounts = Some(queryAccounts() flatMap { (accounts) =>
+          if (accounts.isEmpty) {
+            createNewAccount(0).map(Array(_))
+          } else {
+            Future.successful(accounts)
+          }
+        } map { (accounts) =>
+          accounts map { (account) =>
+            new RippleAccountClient(this, account)
+          }
+        })
+        _accounts.get
       })
-      _accounts.get
-    })
+    }
   }
 
   private def createNewAccount(index: Int): Future[AccountRow] = {
@@ -46,8 +56,6 @@ class RippleWalletClient(override val name: String,
         putAccount(row).map(_ => row)
     }
   }
-
-  private var _accounts: Option[Future[Array[RippleAccountClient]]] = None
 
   override def bip44CoinType: String = chain.coinType
 
@@ -97,8 +105,27 @@ class RippleWalletClient(override val name: String,
 
   override def operations(from: Int, batchSize: Int): Future[AsyncCursor[Operation]] = ???
 
-  override def stop(): Unit = ???
+  override def stop(): Unit = {
+    init() foreach {(_) =>
+      _stopped = true
+      _webSocketRipple.get.stop()
+    }
+  }
+  private def websocketFactory: WebSocketFactory = new JsWebSocketFactory(new URI(s"wss://s1.ripple.com"))
+
+  private var _webSocketRipple: Option[WebSocketRipple] = None
+
+  private var _accounts: Option[Future[Array[RippleAccountClient]]] = None
+
+  private var _stopped = false
 
   private var _synchronizationFuture: Option[Future[Unit]] = None
+
+  accounts().map({(accounts) =>
+    _webSocketRipple = Some(new WebSocketRipple(websocketFactory, accounts.map(_.toString), this))
+    _webSocketRipple.get.start()
+    _webSocketRipple.get
+  })
+
 
 }
