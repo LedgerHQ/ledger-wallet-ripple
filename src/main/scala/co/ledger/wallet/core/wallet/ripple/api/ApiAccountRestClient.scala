@@ -74,6 +74,7 @@ class ApiAccountRestClient(http: HttpClient,
     }
   }
 
+
   def account(address: String): Future[Boolean] = {
     val request = http.get(s"/accounts/$address")
     Try {

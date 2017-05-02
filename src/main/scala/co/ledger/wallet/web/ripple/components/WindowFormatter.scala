@@ -9,11 +9,12 @@ import scala.scalajs.js
   */
 object WindowManager {
   def open(url: String) = {
-    val width = 600
+    /*val width = 600
     val height = 1200
     js.Dynamic.global.chrome.app.window.create(url, js.Dynamic.literal(outerBounds = js.Dynamic.literal(width = width,
       height = height,
       left = (dom.window.screen.availWidth - width),
-      top = (dom.window.screen.availHeight - height))))
+      top = (dom.window.screen.availHeight - height))))*/
+    js.Dynamic.global.open(url)
   }
 }

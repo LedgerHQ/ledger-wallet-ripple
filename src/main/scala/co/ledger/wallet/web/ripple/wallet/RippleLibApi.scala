@@ -139,6 +139,11 @@ class RippleLibApi() {
     execute("submit", parameters)
       .map(decode[SubmittedTransaction](_).right.get)
   }
+
+  def getFee(): Future[GetFeeResponse] = {
+    execute("getFee", new APIOption(feeCushion = Some(1)))
+      .map(decode[GetFeeResponse](_).right.get)
+  }
   //--------------------------------------
 
   //****************** call classes **********
@@ -236,7 +241,9 @@ class RippleLibApi() {
 
 
   //----------------
-
+  @JsonCodec case class GetFeeResponse(
+                                         fee: String
+                                       )
   //*************** signing tools ******************
   @JsonCodec case class SignParam(
                                    txJSON: String,

@@ -51,7 +51,7 @@ import scala.util.{Failure, Success, Try}
   *
   */
 class SendIndexController(override val windowService: WindowService,
-                         rippleLibApiService: RippleLibApiService,
+                          val rippleLibApiService: RippleLibApiService,
                           $location: js.Dynamic,
                           $route: js.Dynamic,
                           override val sessionService: SessionService,
@@ -67,7 +67,6 @@ class SendIndexController(override val windowService: WindowService,
 
   var total = XRP.Zero.toBigInt.toString()
   println(s"total = $total")
-
 
   val unit = sessionService.currentSession.get.chain.symbol
 
@@ -115,6 +114,7 @@ class SendIndexController(override val windowService: WindowService,
 
   def computeFees(): Future[Unit] = {
     _api.fees().map({ (value) =>
+      //api.getFee() map {(value) =>
       fee = Some(value)
       setTimeout(0) {
         $scope.$digest()
@@ -203,7 +203,6 @@ class SendIndexController(override val windowService: WindowService,
       isInAdvancedMode
     )
   })
-
   private val _api = new ApiAccountRestClient(JQHttpClient.xrpInstance)
 
   computeFees()

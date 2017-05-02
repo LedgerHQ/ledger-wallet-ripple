@@ -7,7 +7,8 @@ var methodMatch = {
     "submit": submit,
     "sign": sign,
     "getTransaction": getTransaction,
-    "getTransactions": getTransactions
+    "getTransactions": getTransactions,
+    "getFee": getFee
 };
 window.addEventListener('message', onMessage);
 
@@ -78,7 +79,7 @@ function sign(parameters) {
 }
 
 function submit(parameters) {
-    console.log("transaction subnitted", parameters.signedTransaction)
+    console.log("transaction submitted", parameters.signedTransaction)
     return api.submit(parameters.signedTransaction);
 }
 
@@ -88,6 +89,10 @@ function preparePayment(parameters) {
 
 function getTransaction(parameters) {
     return api.getTransaction(parameters)
+}
+
+function getFee(parameters) {
+    return api.getFee().then(function (value) {return {fee: value}})
 }
 
 function getTransactions(parameters) {

@@ -45,7 +45,6 @@ import scala.util.{Failure, Success}
   * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   * SOFTWARE.
-  *
   */
 class SendPerformController(override val windowService: WindowService,
                             override val $scope: Scope,
@@ -64,7 +63,7 @@ class SendPerformController(override val windowService: WindowService,
     val to =
     RippleAccount($routeParams("recipient").trim)
     val data = $routeParams.lift("data").map(_.replace("0x", "")).map(HexUtils.decodeHex)
-     val api = rippleLibApiService.api
+    val api = rippleLibApiService.api
     var rippleAccount: RippleAccount = RippleAccount("rhGxojnVnEhPQFfMsQ9BK81keWzs6Lzfpv")
     var derivationPath: DerivationPath = null
     var prepared: String = ""
@@ -85,7 +84,7 @@ class SendPerformController(override val windowService: WindowService,
               api.Source(rippleAccount.toString, amount = Some(api.LaxAmount(value = Some(amount.toXRP.toString)))),
               api.Destination(to.toString, minAmount = Some(api.LaxAmount(value = Some(amount.toXRP.toString))))
             ),
-            Some(api.Instructions(fee = Some(fee.toXRP.toString),
+            Some(api.Instructions(fee = None/*Some(fee.toXRP.toString)*/,
               maxLedgerVersionOffset = Some(400)
             ))
           )
