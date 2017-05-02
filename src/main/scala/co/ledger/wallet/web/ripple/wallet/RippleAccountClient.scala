@@ -11,6 +11,7 @@ import co.ledger.wallet.web.ripple.wallet.database.RippleDatabase
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.scalajs.js.timers.setTimeout
 import scala.util.{Failure, Success}
 
 /**
@@ -38,13 +39,13 @@ class RippleAccountClient(walletClient: RippleWalletClient,
             println("last", last)
             _api.transactions(last) map { (transactions) =>
               for (transaction <- transactions) {
-                print("transaction ", transaction)
                 walletClient.putTransaction(transaction)
                 walletClient.putOperation(new AccountRow(row.index, row
-                  .rippleAccount, bal), transaction)
-                println("new transaction event")
-                walletClient.eventEmitter.emit(NewOperationEvent(this,walletClient.OperationModel(new AccountRow(row.index, row
-                  .rippleAccount, bal), transaction).proxy(this,transaction)))
+                  .rippleAccount, bal), transaction) map {(_) =>
+                  println("new transaction event")
+                  walletClient.eventEmitter.emit(NewOperationEvent(this, walletClient.OperationModel(new AccountRow(row.index, row
+                    .rippleAccount, bal), transaction).proxy(this, transaction)))
+                }
               }
             }
           }
@@ -68,7 +69,6 @@ class RippleAccountClient(walletClient: RippleWalletClient,
         override protected def performQuery(from: Int, to: Int): Future[Array[Operation]] = {
           walletClient.queryOperations(from, to, RippleAccountClient.this)
         }
-
         override def count: Int = if (limit == -1 || limit > c) c.toInt else limit
 
         override def requery(): Future[AsyncCursor[Operation]] =

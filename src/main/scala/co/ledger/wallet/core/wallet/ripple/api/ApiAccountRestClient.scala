@@ -38,7 +38,7 @@ class ApiAccountRestClient(http: HttpClient,
 
   def transactions(init: String): Future[Array[JsonTransaction]] = {
     val start = new Date(init)
-    val dateLiteral = new js.Date(start.getTime +1000).toJSON()
+    val dateLiteral = new js.Date(start.getTime + 1000).toJSON()
     var transactionsBuffer = ArrayBuffer[JsonTransaction]()
     def iterate(marker: String = ""): Future[Array[JsonTransaction]] = {
       var url = s"/accounts/${accountRow.rippleAccount}/transactions?type=Payment" +
@@ -46,22 +46,22 @@ class ApiAccountRestClient(http: HttpClient,
       if (marker != "") {
         url += s"&marker=$marker"
       }
-      println("gettin transaction for marker",marker)
       var request = http.get(url)
-      request.json map {
+      request.json flatMap {
         case (json, _) =>
           if (json.getInt("count") > 0) {
             val txs = json.getJSONArray("transactions")
             (0 until txs.length()) map { (index: Int) =>
               transactionsBuffer.append(new JsonTransaction(txs.getJSONObject(index)))
             }
-            if (json.has("marker")) {
-              iterate(json.getString("marker"))
-            }
           }
-          transactionsBuffer.toArray
-        }
+          if (json.has("marker")) {
+            iterate(json.getString("marker"))
+          } else {
+            Future.successful(transactionsBuffer.toArray)
+          }
       }
+    }
     iterate()
   }
 
