@@ -184,7 +184,8 @@ class SendIndexController(override val windowService: WindowService,
       case any: Throwable =>
         windowService.enableUserInterface()
         any.printStackTrace()
-        // Display error message
+        SnackBar.error("send.network_unavailable_title", "send.network_unavailable_message").show()
+
     }
   }
   private val scanner = $element.find("qrcodescanner").scope().asInstanceOf[QrCodeScanner.Controller]

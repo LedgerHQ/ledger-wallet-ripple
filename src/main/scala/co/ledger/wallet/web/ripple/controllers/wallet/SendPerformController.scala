@@ -118,7 +118,7 @@ class SendPerformController(override val windowService: WindowService,
           SnackBar.success("send_perform.completed_title", "send_perform.completed_message").show()
         } else if (response.resultCode == "terQUEUED") {
           sessionService.currentSession.get.sessionPreferences.remove(SendIndexController.RestoreKey)
-          SnackBar.success("send_perform.completed_title", "send_perform.completed_message_queued").show()
+          SnackBar.success("send_perform.queued_title", "send_perform.completed_message_queued").show()
         } else {
           SnackBar.error("send_perform.failed_title", "send_perform.failed_message").show()
         }

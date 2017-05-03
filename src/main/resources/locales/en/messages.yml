@@ -123,10 +123,13 @@ send:
   bad_fees_message: Fees are required to send XRPs
   bad_address_title: Invalid recipient account
   bad_address_message: A valid account is required to send XRPs
+  network_unavailable_title: Network unavaiable
+  network_unavailable_message: Imposisble to reach the Ripple network
   advanced_mode: advanced mode
   standard_mode: standard mode
   bad_amount_for_account_creation_title: Insufficient initial transfer
   bad_amount_for_account_creation_message: New Ripple accounts must be initialized with at least 20 XRP
+
 
 # Send perform screen
 send_perform:
@@ -135,6 +138,7 @@ send_perform:
   review_1: Check the transaction displayed on your device
   review_2: and confirm (or reject) it to continue.
   completed_title: Transaction completed
+  queued_title: Transaction completed
   completed_message: Successfully broadcasted to network
   completed_message_queued: Successfully queued to network
   cancelled_title: Transaction failed
