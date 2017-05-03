@@ -102,7 +102,7 @@ object SessionService {
     "xrp",
     "144",
     "https://charts.ripple.com/#/transactions",
-    "", //TODO change
+    "https://charts.ripple.com/", //TODO change
     "XRP"
   )
 }

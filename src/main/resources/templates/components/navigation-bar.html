@@ -1,23 +1,23 @@
-<div class="navigationbar">
+<div class="navigationbar" draggable="false" style="user-drag: none">
     <div class="item" ng-repeat="item in items" ng-class="{selected: isSelected(item.path, location.path())}">
-        <a ng-href="{{item.url}}">
-            <img ng-src="{{item.img}}">
+        <a ng-href="{{item.url}}" draggable="false" style="user-drag: none">
+            <img ng-src="{{item.img}}" draggable="false" style="user-drag: none">
         </a>
         <div class="spacer"></div>
         <div class="selector"></div>
     </div>
     <div class="spacer"></div>
-    <div class="item" ng-repeat="item in rightItems" ng-class="{selected: isSelected(item.path, location.path())}">
-        <a ng-href="{{item.url}}">
-            <img ng-src="{{item.img}}">
+    <div class="item" ng-repeat="item in rightItems" ng-class="{selected: isSelected(item.path, location.path())}" draggable="false" style="user-drag: none">
+        <a ng-href="{{item.url}}" draggable="false" style="user-drag: none">
+            <img ng-src="{{item.img}}" draggable="false" style="user-drag: none">
         </a>
         <div class="spacer"></div>
         <div class="selector"></div>
     </div>
-    <div class="right">
-        <div class="item" ng-class="{spinning: isRefreshing}">
-            <a ng-click="refresh()">
-                <img ng-src="{{synchronize.img}}">
+    <div class="right" draggable="false" style="user-drag: none">
+        <div class="item" ng-class="{spinning: isRefreshing}" draggable="false" style="user-drag: none">
+            <a ng-click="refresh()" draggable="false" style="user-drag: none">
+                <img ng-src="{{synchronize.img}}" draggable="false" style="user-drag: none">
             </a>
             <div class="spacer"></div>
             <div class="selector"></div>

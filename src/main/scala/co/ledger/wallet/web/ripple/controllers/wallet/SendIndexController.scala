@@ -113,8 +113,7 @@ class SendIndexController(override val windowService: WindowService,
   }
 
   def computeFees(): Future[Unit] = {
-    _api.fees().map({ (value) =>
-      //api.getFee() map {(value) =>
+    _api.fees().map({ (value) =>  //api.getFee() map {(value) =>
       fee = Some(value)
       setTimeout(0) {
         $scope.$digest()

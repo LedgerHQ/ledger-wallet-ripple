@@ -112,7 +112,7 @@ class LaunchController(override val windowService: WindowService,
         case Success(wallet) =>
           incrementNumberOfConnection()
           if (true) { //TODO : check account maybe
-            $location.url(s"/onboarding/opening/")
+            $location.url(s"/onboarding/opening")
             $route.reload()
           } else {
             $route.reload()
