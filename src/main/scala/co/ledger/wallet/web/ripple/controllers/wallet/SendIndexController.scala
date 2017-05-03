@@ -61,7 +61,7 @@ class SendIndexController(override val windowService: WindowService,
   with WalletController{
   var isScanning = false
   var address = "rhGxojnVnEhPQFfMsQ9BK81keWzs6Lzfpv"
-  var amount = "1"
+  var amount = ""
   var data = ""
   var customFee = ""
 
@@ -115,6 +115,8 @@ class SendIndexController(override val windowService: WindowService,
   def computeFees(): Future[Unit] = {
     _api.fees().map({ (value) =>  //api.getFee() map {(value) =>
       fee = Some(value)
+      val t = getAmountInput().map((amount) => amount + (fee.getOrElse(XRP.Zero).toBigInt)).map(new XRP(_)).getOrElse(XRP(0))
+      total = t.toBigInt.toString()
       setTimeout(0) {
         $scope.$digest()
       }
@@ -204,8 +206,7 @@ class SendIndexController(override val windowService: WindowService,
   })
   private val _api = new ApiAccountRestClient(JQHttpClient.xrpInstance)
 
-  computeFees()
-
+  computeTotal()
 }
 
 object SendIndexController {
