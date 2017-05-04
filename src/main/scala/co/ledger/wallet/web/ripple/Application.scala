@@ -1,5 +1,6 @@
 package co.ledger.wallet.web.ripple
 
+import autoupdater.Updater
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate._
 import biz.enef.angulate.core.HttpService

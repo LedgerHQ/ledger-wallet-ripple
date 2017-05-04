@@ -1,2 +1,2 @@
-const nwAutoupdate = require( "nw-autoupdater" );
-const os = require("os");
+window.nwAutoupdate = require( "nw-autoupdater" );
+window.os = require("os");

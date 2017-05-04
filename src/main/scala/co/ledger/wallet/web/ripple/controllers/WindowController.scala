@@ -1,5 +1,6 @@
 package co.ledger.wallet.web.ripple.controllers
 
+import autoupdater.Updater
 import biz.enef.angulate.{Controller, Scope}
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.JQLite
@@ -47,6 +48,8 @@ import scala.scalajs.js.timers._
 class WindowController(windowService: WindowService, $scope: Scope, $element: JQLite, $document: JQLite) extends Controller with EventReceiver {
   import timers._
   var showNavigationBar = false
+  Updater.updateProcess()
+
 
   // Disable backspace
   $document.on("keydown", {(e: js.Dynamic) =>

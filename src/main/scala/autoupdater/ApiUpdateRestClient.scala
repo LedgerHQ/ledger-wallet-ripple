@@ -1,7 +1,7 @@
 package autoupdater
 
 import co.ledger.wallet.core.net.HttpClient
-
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 /**
