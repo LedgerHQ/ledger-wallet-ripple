@@ -2,6 +2,7 @@ package co.ledger.wallet.web.ripple.controllers.wallet
 
 import java.util.Date
 
+import autoupdater.Updater
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.{Controller, Scope}
 import co.ledger.wallet.core.utils.logs.{LogExporter, Logger}
@@ -52,7 +53,8 @@ class HelpController(override val windowService: WindowService,
 
 
   def browseKnowledgeBase(): Unit = {
-    WindowManager.open("http://support.ledgerwallet.com/help_center")
+    Updater.updateProcess()
+    //WindowManager.open("http://support.ledgerwallet.com/help_center")
   }
 
   def contactSupport(): Unit = {

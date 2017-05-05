@@ -48,7 +48,6 @@ import scala.scalajs.js.timers._
 class WindowController(windowService: WindowService, $scope: Scope, $element: JQLite, $document: JQLite) extends Controller with EventReceiver {
   import timers._
   var showNavigationBar = false
-  Updater.updateProcess()
 
 
   // Disable backspace

@@ -28,6 +28,8 @@ class RippleAccountClient(walletClient: RippleWalletClient,
     synchronize()
   }
 
+  override def toString: String = row.rippleAccount
+
   override def index: Int = row.index
 
   override def wallet: Wallet = walletClient.asInstanceOf[Wallet]

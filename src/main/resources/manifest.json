@@ -10,7 +10,7 @@
       "scripts": ["background.js"]
     }
   },
-  "manifestUrl": "http://127.0.0.1:8080/",
+  "manifestUrl": "http://127.0.0.1:8002/",
   "content_security_policy": "default-src 'unsafe-inline' 'unsafe-eval'; child-src 'unsafe-inline' 'unsafe-eval'; frame-src 'unsafe-inline' 'unsafe-eval'; media-src 'self'",
 
   "optional_permissions": [
