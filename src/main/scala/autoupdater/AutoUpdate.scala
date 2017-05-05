@@ -28,10 +28,8 @@ trait AutoUpdate extends js.Object {
 
 object AutoUpdate {
   def apply(dir: String) =  {
-    js.Dynamic.newInstance(js.Dynamic.global.nwAutoupdate)(js.Dynamic.global.chrome.runtime.getManifest(),
-      js.Dynamic.literal(strategy = "ScriptSwap",
+    js.Dynamic.global.nwAutoupdaterFactory(js.Dynamic.literal(strategy = "ScriptSwap",
         updateDir = dir)).asInstanceOf[AutoUpdate]
-
   }
 }
 
@@ -39,8 +37,6 @@ object Updater {
 
   private val _updateDir = "/home/alix/Desktop"
   val autoUpdate: AutoUpdate = AutoUpdate(_updateDir)
-  js.Dynamic.global.console.log(autoUpdate.unpack _)
-
   val httpClient = new JQHttpClient(autoUpdate.manifest("manifestUrl").asInstanceOf[String])
 
   var os = js.Dynamic.global.os.`type`().asInstanceOf[String] match {
@@ -86,14 +82,13 @@ object Updater {
     println("download arguments", autoUpdate.manifest("manifestUrl").asInstanceOf[String]
       ++ "download/"
       ++ "channel/stable" ++ "/" ++ os)
-    println("update dir", js.Dynamic.global.env.UPDATE_DIR.asInstanceOf[String])
-    println("args passed")
+    //println("update dir", js.Dynamic.global.env.UPDATE_DIR.asInstanceOf[String])
     js.Dynamic.global.request.download(
       autoUpdate.manifest("manifestUrl").asInstanceOf[String]
       ++ "download/"
       ++ "channel/stable" ++ "/" ++ os,
       _updateDir,
-      js.Dynamic.global.debounce({(e: js.Any) => js.Dynamic.global.console.log(e)},100).asInstanceOf[js.Function]
+      js.Dynamic.global.debounce({(e: js.Any) => js.Dynamic.global.console.log(e)},50).asInstanceOf[js.Function]
     ).asInstanceOf[scalajs.js.Promise[String]].toFuture
   }
 
@@ -106,19 +101,20 @@ object Updater {
       autoUpdate.restartToSwap().toFuture map {(_) => ()}
     } else {
       println("checking new updates")
-
       isNewVersion().flatMap({ (test) =>
         if (test) {
           print("test version", test)
           println("downloading")
-          download() flatMap { (updateFile) =>
+          download() flatMap {(updateFile) =>
             println("download returned", updateFile)
-            autoUpdate.unpack(updateFile).toFuture map { (updateDir) =>
+            autoUpdate.unpack(updateFile).toFuture flatMap { (updateDir) =>
               println("setting flag", updateDir)
               new ChromePreferences("update").edit().putBoolean("readyToUpdate", true)
                 //.putString("version", newVersion)
                 //.putString("updateDir", updateDir)
                 .commit()
+              println("fertig!")
+              Future.successful()
             }
           }
         } else {

@@ -9,11 +9,12 @@ import scala.concurrent.Future
   */
 class ApiUpdateRestClient(http: HttpClient) {
 
-  def lastVersion(os: String): Future[String] = {
+  def lastVersion(os: String): Future[String] = {/*
     val request = http.get(s"/api/resolve?platform=$os&channel=stable")
     request.json.map({
       case (json, _) =>
         json.getString("tag")
-    })
+    })*/
+    Future.successful("0.0.2")
   }
 }

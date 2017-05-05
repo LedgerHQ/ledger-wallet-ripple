@@ -49,7 +49,6 @@ class WindowController(windowService: WindowService, $scope: Scope, $element: JQ
   import timers._
   var showNavigationBar = false
 
-
   // Disable backspace
   $document.on("keydown", {(e: js.Dynamic) =>
     if (e.which.asInstanceOf[Double] == 8 && ( e.target.nodeName.asInstanceOf[String] != "INPUT" && e.target.nodeName.asInstanceOf[String] != "SELECT" ) ){
