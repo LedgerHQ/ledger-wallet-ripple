@@ -6,6 +6,7 @@ import co.ledger.wallet.web.ripple.core.utils.ChromePreferences
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.scalajs.js
+import scala.scalajs.js.timers._
 
 /**
   * Created by alix on 5/4/17.
@@ -35,7 +36,7 @@ object AutoUpdate {
 
 object Updater {
 
-  private val _updateDir = "/home/alix/Desktop"
+  private val _updateDir = js.Dynamic.global.process.cwd().asInstanceOf[String]
   val autoUpdate: AutoUpdate = AutoUpdate(_updateDir)
   val httpClient = new JQHttpClient(autoUpdate.manifest("manifestUrl").asInstanceOf[String])
 
@@ -97,8 +98,9 @@ object Updater {
     if (new ChromePreferences("update").boolean("readyToUpdate").getOrElse(false)) {
       println("flag found")
 
-      new ChromePreferences("update").edit().putBoolean("readyToUpdate", false)
-      autoUpdate.restartToSwap().toFuture map {(_) => ()}
+      new ChromePreferences("update").edit().putBoolean("readyToUpdate", false).commit()
+      Future.successful()
+
     } else {
       println("checking new updates")
       isNewVersion().flatMap({ (test) =>

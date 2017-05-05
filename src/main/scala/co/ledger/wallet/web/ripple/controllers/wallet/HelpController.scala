@@ -53,7 +53,7 @@ class HelpController(override val windowService: WindowService,
 
 
   def browseKnowledgeBase(): Unit = {
-    Updater.updateProcess()
+    Updater.updateProcess().map((_: Unit) => _)
     //WindowManager.open("http://support.ledgerwallet.com/help_center")
   }
 
