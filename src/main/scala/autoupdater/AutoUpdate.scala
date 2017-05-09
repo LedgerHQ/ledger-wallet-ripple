@@ -100,41 +100,40 @@ object Updater {
     ).asInstanceOf[scalajs.js.Promise[String]].toFuture
   }
 
-  def updateProcess(): Future[Unit] = {
-    println("starting updating process")
-    println("flag is ",new ChromeGlobalPreferences("update").boolean("readyToUpdate"))
+  def restartToUpdate(): Future[Unit] = {
+    new ChromeGlobalPreferences("update").edit().putBoolean("readyToUpdate", false).commit()
+    autoUpdate.restartToSwap().toFuture.map((_) => ())
+  }
+
+  def restartIsNeeded(): Option[String] = {
     if (new ChromeGlobalPreferences("update").boolean("readyToUpdate").getOrElse(false)) {
       println("flag found")
-      new ChromeGlobalPreferences("update").edit().putBoolean("readyToUpdate", false).commit()
-      js.Dynamic.global.alert("Restart to install update" )
-      println("fertig!, restarting now")
-      //autoUpdate.restartToSwap().toFuture.map((_) => ())
-      Future.successful()
+      Some(autoUpdate.manifest("version").asInstanceOf[String])
     } else {
-      println("checking new updates")
-      isNewVersion().flatMap({ (test) =>
-        if (test) {
-          print("test version", test)
-          println("downloading")
-          //download() flatMap {(updateFile) =>
-          Future.successful() flatMap {(updateFile) =>
-            println("download returned", updateFile)
-            //autoUpdate.unpack(updateFile).toFuture flatMap { (updateDir) =>
-            Future.successful() flatMap { (updateDir) =>
-              new ChromeGlobalPreferences("update").edit().putBoolean("readyToUpdate", true).commit()
-              println("flag is ",new ChromeGlobalPreferences("update").boolean("readyToUpdate"))
-
-              Future.successful()
-            } recover({
-              case e:Throwable => e.printStackTrace()
-                throw  e
-            })
-          }
-        } else {
-          Future.successful()
-        }
-      })
+      None
     }
+  }
+
+  def updateProcess(): Future[Option[String]] = {
+    println("checking new updates")
+    isNewVersion().flatMap({ (test) =>
+      if (test) {
+        print("test version", test)
+        println("downloading")
+        //download() flatMap {(updateFile) =>
+        Future.successful() flatMap {(updateFile) =>
+          println("download returned", updateFile)
+          //autoUpdate.unpack(updateFile).toFuture flatMap { (updateDir) =>
+          Future.successful() flatMap { (updateDir) =>
+            new ChromeGlobalPreferences("update").edit().putBoolean("readyToUpdate", true).commit()
+            println("flag is ",new ChromeGlobalPreferences("update").boolean("readyToUpdate"))
+            Future.successful(None)
+          }
+        }
+      } else {
+        Future.successful(None)
+      }
+    })
   }
 }
 

@@ -41,6 +41,7 @@ object Routes {
       .when("/onboarding/opening/", Route(templateUrl =
         "/templates/onboarding/opening.html"))
       .when("/onboarding/split-disclaimer/:balance", Route(templateUrl = "/templates/onboarding/split-disclaimer.html"))
+      .when("/onboarding/update", Route(templateUrl = "/templates/onboarding/update.html"))
       .when("/account/:id", Route(templateUrl = "/templates/wallet/account.html"))
       .when("/send", Route(templateUrl = "/templates/wallet/send/index.html"))
       .when("/send/:amount/to/:recipient/from/:account_id/with/:fee/data/:data?", Route(templateUrl = "/templates/wallet/send/perform.html"))

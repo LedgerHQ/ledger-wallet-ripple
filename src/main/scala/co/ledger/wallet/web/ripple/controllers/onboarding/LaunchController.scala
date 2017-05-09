@@ -60,10 +60,16 @@ class LaunchController(override val windowService: WindowService,
 
   import timers._
   private var _scanRequest: ScanRequest = null
+  private var _noRestart: Boolean = true
   private val preferences = new ChromeGlobalPreferences("launch_screen")
 
-
-  Updater.updateProcess().map((_) => println("search for update is over"))
+  if(Updater.restartIsNeeded().isDefined) {
+    println("rerouting")
+    $location.path(s"/onboarding/update")
+    $route.reload()
+  } else {
+    _noRestart = false
+  }
 
   private def animate(discover: Boolean) = {
     // Initialize default state
@@ -150,18 +156,20 @@ class LaunchController(override val windowService: WindowService,
     stopDeviceDiscovery()
   })
 
-  if (numberOfConnection == 0 && OsHelper.requiresUdevRules && $element.attr("controller-mode") != "linux") {
-    if ($routeParams.contains("animated")) {
-      animate(false)
-    }
-    $location.path("/onboarding/linux" + (if ($routeParams.contains("animated")) "/animated" else ""))
-    $route.reload()
-  } else {
-    if ($routeParams.contains("animated")) {
-      animate(true)
+  if (!_noRestart) {
+    if (numberOfConnection == 0 && OsHelper.requiresUdevRules && $element.attr("controller-mode") != "linux") {
+      if ($routeParams.contains("animated")) {
+        animate(false)
+      }
+      $location.path("/onboarding/linux" + (if ($routeParams.contains("animated")) "/animated" else ""))
+      $route.reload()
     } else {
-      jQuery($element.find("#introFooter")).fadeOut(0)
-      startDeviceDiscovery()
+      if ($routeParams.contains("animated")) {
+        animate(true)
+      } else {
+        jQuery($element.find("#introFooter")).fadeOut(0)
+        startDeviceDiscovery()
+      }
     }
   }
 }

@@ -34,6 +34,12 @@ common:
 onboarding:
   help_center: Need assistance?
 
+# Update screen
+update:
+  title: Install new version
+  message: A new version has been dowloaded and is ready to install. The wallet will close and restart after a few seconds
+  accept: Restart and install the update
+
 # Navigation bar
 navigation_bar:
   switch_chain: switch
