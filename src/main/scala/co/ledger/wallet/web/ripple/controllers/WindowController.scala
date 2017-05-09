@@ -13,6 +13,7 @@ import co.ledger.wallet.web.ripple.services.WindowService
 import scala.scalajs.js
 import scala.scalajs.js.timers
 import scala.scalajs.js.timers._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
 /**

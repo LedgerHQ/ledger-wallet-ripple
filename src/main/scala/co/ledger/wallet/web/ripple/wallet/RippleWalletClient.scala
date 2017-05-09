@@ -124,7 +124,6 @@ class RippleWalletClient(override val name: String,
   accounts().map({(accounts) =>
     _webSocketRipple = Some(new WebSocketRipple(websocketFactory, accounts.map(_.toString), this))
     _webSocketRipple.get.start()
-    _webSocketRipple.get
   })
 
 

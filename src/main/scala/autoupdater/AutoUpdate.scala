@@ -1,7 +1,7 @@
 package autoupdater
 
 import co.ledger.wallet.web.ripple.core.net.JQHttpClient
-import co.ledger.wallet.web.ripple.core.utils.ChromePreferences
+import co.ledger.wallet.web.ripple.core.utils.{ChromeGlobalPreferences, ChromePreferences}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -30,14 +30,20 @@ trait AutoUpdate extends js.Object {
 object AutoUpdate {
   def apply(dir: String) =  {
     js.Dynamic.global.nwAutoupdaterFactory(js.Dynamic.literal(strategy = "ScriptSwap",
-        updateDir = dir)).asInstanceOf[AutoUpdate]
+        /*updateDir = dir,*/ logPath = "/home/alix/AAAA.log")).asInstanceOf[AutoUpdate]
   }
 }
 
 object Updater {
 
-  private val _updateDir = js.Dynamic.global.process.cwd().asInstanceOf[String]
-  val autoUpdate: AutoUpdate = AutoUpdate(_updateDir)
+  private val _updateDir = {
+    val path = js.Dynamic.global.require("path")
+    val nwPath = js.Dynamic.global.process.argv.asInstanceOf[js.Array[String]](0)
+    val nwDir= path.dirname(nwPath)
+    nwDir.asInstanceOf[String]
+  }
+  println("chemin", _updateDir)
+  val autoUpdate: AutoUpdate = AutoUpdate("/home/alix/UpdateDir")
   val httpClient = new JQHttpClient(autoUpdate.manifest("manifestUrl").asInstanceOf[String])
 
   var os = js.Dynamic.global.os.`type`().asInstanceOf[String] match {
@@ -51,6 +57,8 @@ object Updater {
   }
 
   def versionCompare(str1: String, str2: String) = {
+
+
     val vals1 = str1.split("\\.")
     val vals2 = str2.split("\\.")
     var i = 0
@@ -74,7 +82,6 @@ object Updater {
     api.lastVersion(os) map {(latest) =>
       println("latest", latest, "current",autoUpdate.manifest("version").asInstanceOf[String] )
       newVersion = latest
-      println(versionCompare(latest,autoUpdate.manifest("version").asInstanceOf[String]))
       versionCompare(latest,autoUpdate.manifest("version").asInstanceOf[String]) > 0
     }
   }
@@ -95,29 +102,33 @@ object Updater {
 
   def updateProcess(): Future[Unit] = {
     println("starting updating process")
-    if (new ChromePreferences("update").boolean("readyToUpdate").getOrElse(false)) {
+    println("flag is ",new ChromeGlobalPreferences("update").boolean("readyToUpdate"))
+    if (new ChromeGlobalPreferences("update").boolean("readyToUpdate").getOrElse(false)) {
       println("flag found")
-
-      new ChromePreferences("update").edit().putBoolean("readyToUpdate", false).commit()
+      new ChromeGlobalPreferences("update").edit().putBoolean("readyToUpdate", false).commit()
+      js.Dynamic.global.alert("Restart to install update" )
+      println("fertig!, restarting now")
+      //autoUpdate.restartToSwap().toFuture.map((_) => ())
       Future.successful()
-
     } else {
       println("checking new updates")
       isNewVersion().flatMap({ (test) =>
         if (test) {
           print("test version", test)
           println("downloading")
-          download() flatMap {(updateFile) =>
+          //download() flatMap {(updateFile) =>
+          Future.successful() flatMap {(updateFile) =>
             println("download returned", updateFile)
-            autoUpdate.unpack(updateFile).toFuture flatMap { (updateDir) =>
-              println("setting flag", updateDir)
-              new ChromePreferences("update").edit().putBoolean("readyToUpdate", true)
-                //.putString("version", newVersion)
-                //.putString("updateDir", updateDir)
-                .commit()
-              println("fertig!")
+            //autoUpdate.unpack(updateFile).toFuture flatMap { (updateDir) =>
+            Future.successful() flatMap { (updateDir) =>
+              new ChromeGlobalPreferences("update").edit().putBoolean("readyToUpdate", true).commit()
+              println("flag is ",new ChromeGlobalPreferences("update").boolean("readyToUpdate"))
+
               Future.successful()
-            }
+            } recover({
+              case e:Throwable => e.printStackTrace()
+                throw  e
+            })
           }
         } else {
           Future.successful()

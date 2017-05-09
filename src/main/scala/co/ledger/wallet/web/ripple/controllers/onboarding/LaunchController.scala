@@ -1,5 +1,6 @@
 package co.ledger.wallet.web.ripple.controllers.onboarding
 
+import autoupdater.Updater
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.{JQLite, Location}
 import biz.enef.angulate.{Controller, Scope}
@@ -60,6 +61,9 @@ class LaunchController(override val windowService: WindowService,
   import timers._
   private var _scanRequest: ScanRequest = null
   private val preferences = new ChromeGlobalPreferences("launch_screen")
+
+
+  Updater.updateProcess().map((_) => println("search for update is over"))
 
   private def animate(discover: Boolean) = {
     // Initialize default state
