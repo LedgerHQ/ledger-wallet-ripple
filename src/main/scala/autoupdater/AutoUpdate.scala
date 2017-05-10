@@ -120,11 +120,13 @@ object Updater {
       if (test) {
         print("test version", test)
         println("downloading")
-        download() flatMap {(updateFile) =>
+        //download() flatMap {(updateFile) =>
+        Future.successful() flatMap {(updateFile) =>
           println("download returned", updateFile)
-          autoUpdate.unpack(updateFile).toFuture flatMap { (updateDir) =>
-            new ChromeGlobalPreferences("update").edit().putBoolean("readyToUpdate", true).commit()
-            println("flag is ",new ChromeGlobalPreferences("update").boolean("readyToUpdate"))
+          //autoUpdate.unpack(updateFile).toFuture flatMap { (updateDir) =>
+          Future.successful() flatMap { (updateDir) =>
+            new ChromeGlobalPreferences("update.html").edit().putBoolean("readyToUpdate", true).commit()
+            println("flag is ",new ChromeGlobalPreferences("update.html").boolean("readyToUpdate"))
             Future.successful(None)
           }
         }
