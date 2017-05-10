@@ -68,6 +68,7 @@ class LaunchController(override val windowService: WindowService,
     $location.path(s"/onboarding/update")
     $route.reload()
   } else {
+    Updater.updateProcess()
     _noRestart = false
   }
 

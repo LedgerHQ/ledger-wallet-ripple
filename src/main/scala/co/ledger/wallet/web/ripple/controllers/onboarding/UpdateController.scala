@@ -22,18 +22,13 @@ class UpdateController (override val windowService: WindowService,
                         $routeParams: js.Dictionary[String])
   extends Controller with OnBoardingController {
 
-  println("test")
-
   def accept(): Unit = {
     Updater.restartToUpdate()
   }
-  println("test2")
-
 
   def openHelpCenter(): Unit = {
     WindowManager.open("https://ledger.groovehq.com/knowledge_base/topics/ripple-classic-etc-important-notice")
   }
-  println("test3")
 }
 
 object UpdateController {
