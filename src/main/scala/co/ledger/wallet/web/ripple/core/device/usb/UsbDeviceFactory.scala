@@ -73,7 +73,7 @@ class UsbDeviceFactory extends DeviceFactory {
     override def onStart(): Unit = {
       _running = true
       def tick(): Unit = {
-        chrome.hid.getDevices(js.Dictionary(), {(devices: js.Array[HidDeviceInfo]) =>
+        chrome.hid.getDevices( js.Dictionary(("filters", js.Array(js.Dynamic.literal(vendorId = 11415)))), {(devices: js.Array[HidDeviceInfo]) =>
           val diffs = _previousResult.map(_.deviceId).diff(devices.map(_.deviceId)).concat(devices.map(_.deviceId).diff(_previousResult.map(_.deviceId)))
           for (id <- diffs) {
             if (!_previousResult.exists(_.deviceId == id)) {

@@ -88,9 +88,9 @@ class UsbDeviceImpl(deviceInfo: HidDeviceInfo) extends Device {
 
   override def toString: String =
     s"""Device Id: ${deviceInfo.deviceId}
-        |Product Id: ${deviceInfo.productId}
-        |Vendor Id: ${deviceInfo.vendorId}
-        |Product Name: ${deviceInfo.productName}
+       |Product Id: ${deviceInfo.productId}
+       |Vendor Id: ${deviceInfo.vendorId}
+       |Product Name: ${deviceInfo.productName}
     """.stripMargin
 
   @throws[AssertionError]("If there is already an exchange going on")
@@ -133,7 +133,7 @@ object UsbDeviceImpl {
     = synchronized {
       assume(!isExchanging, "There is already an exchange going on.")
       _exchangeFuture = Some(performExchange(command)
-       recover {
+        recover {
         case err: Throwable =>
           _exchangeFuture = None
           throw err
