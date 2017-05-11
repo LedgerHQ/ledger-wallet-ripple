@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Ledger Wallet Ripple",
   "description": "Ledger Wallet application for Ripple",
-  "version": "0.0.2",
+  "version": "0.0.1",
   "default_locale": "en",
   "minimum_chrome_version": "50",
   "app": {
@@ -10,7 +10,7 @@
       "scripts": ["background.js"]
     }
   },
-  "manifestUrl": "http://www.apps.ledgerwallet.com/ripple/",
+  "manifestUrl": "http://apps.ledgerwallet.com/ripple/",
   "content_security_policy": "default-src 'unsafe-inline' 'unsafe-eval'; child-src 'unsafe-inline' 'unsafe-eval'; frame-src 'unsafe-inline' 'unsafe-eval'; media-src 'self'",
 
   "optional_permissions": [

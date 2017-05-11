@@ -125,8 +125,8 @@ object Updater {
           println("download returned", updateFile)
           autoUpdate.unpack(updateFile).toFuture flatMap { (updateDir) =>
           //Future.successful() flatMap { (updateDir) =>
-            new ChromeGlobalPreferences("update.html").edit().putBoolean("readyToUpdate", true).commit()
-            println("flag is ",new ChromeGlobalPreferences("update.html").boolean("readyToUpdate"))
+            new ChromeGlobalPreferences("update").edit().putBoolean("readyToUpdate", true).commit()
+            println("flag is ",new ChromeGlobalPreferences("update").boolean("readyToUpdate"))
             Future.successful(None)
           }
         }
