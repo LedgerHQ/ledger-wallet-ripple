@@ -30,20 +30,15 @@ trait AutoUpdate extends js.Object {
 object AutoUpdate {
   def apply(dir: String) =  {
     js.Dynamic.global.nwAutoupdaterFactory(js.Dynamic.literal(strategy = "ScriptSwap",
-        /*updateDir = dir,*/ logPath = "/home/alix/AAAA.log")).asInstanceOf[AutoUpdate]
+        updateDir = dir, logPath = "/ledger.log")).asInstanceOf[AutoUpdate]
   }
 }
 
 object Updater {
 
-  private val _updateDir = {
-    val path = js.Dynamic.global.require("path")
-    val nwPath = js.Dynamic.global.process.argv.asInstanceOf[js.Array[String]](0)
-    val nwDir= path.dirname(nwPath)
-    nwDir.asInstanceOf[String]
-  }
-  println("update dir", _updateDir)
-  val autoUpdate: AutoUpdate = AutoUpdate("/home/alix/UpdateDir")
+  private val _updateDir = "/tmp"
+  private val _downloadDir = "/tmp"
+  val autoUpdate: AutoUpdate = AutoUpdate(_updateDir)
   val httpClient = new JQHttpClient(autoUpdate.manifest("manifestUrl").asInstanceOf[String])
 
   var os = js.Dynamic.global.os.`type`().asInstanceOf[String] match {
@@ -95,7 +90,7 @@ object Updater {
       autoUpdate.manifest("manifestUrl").asInstanceOf[String]
       ++ "download/"
       ++ "channel/stable" ++ "/" ++ os,
-      _updateDir,
+      _downloadDir,
       js.Dynamic.global.debounce({(e: js.Any) => js.Dynamic.global.console.log(e)},50).asInstanceOf[js.Function]
     ).asInstanceOf[scalajs.js.Promise[String]].toFuture
   }
@@ -124,7 +119,7 @@ object Updater {
         //Future.successful() flatMap {(updateFile) =>
           println("download returned", updateFile)
           autoUpdate.unpack(updateFile).toFuture flatMap { (updateDir) =>
-          //Future.successful() flatMap { (updateDir) =>
+          //Future.successful(_updateDir) flatMap { (updateDir) =>
             new ChromeGlobalPreferences("update").edit().putBoolean("readyToUpdate", true).commit()
             println("flag is ",new ChromeGlobalPreferences("update").boolean("readyToUpdate"))
             Future.successful(None)
