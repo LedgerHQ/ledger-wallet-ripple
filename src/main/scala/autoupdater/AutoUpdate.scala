@@ -42,7 +42,7 @@ object Updater {
     val nwDir= path.dirname(nwPath)
     nwDir.asInstanceOf[String]
   }
-  println("chemin", _updateDir)
+  println("update dir", _updateDir)
   val autoUpdate: AutoUpdate = AutoUpdate("/home/alix/UpdateDir")
   val httpClient = new JQHttpClient(autoUpdate.manifest("manifestUrl").asInstanceOf[String])
 
@@ -128,7 +128,10 @@ object Updater {
             new ChromeGlobalPreferences("update").edit().putBoolean("readyToUpdate", true).commit()
             println("flag is ",new ChromeGlobalPreferences("update").boolean("readyToUpdate"))
             Future.successful(None)
-          }
+          } recover({
+            case e:Throwable => e.printStackTrace()
+              None
+          })
         }
       } else {
         Future.successful(None)
