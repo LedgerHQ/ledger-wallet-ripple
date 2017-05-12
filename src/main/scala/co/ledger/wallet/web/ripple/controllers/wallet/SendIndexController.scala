@@ -60,7 +60,7 @@ class SendIndexController(override val windowService: WindowService,
                           override val $scope: Scope) extends Controller
   with WalletController{
   var isScanning = false
-  var address = "rhGxojnVnEhPQFfMsQ9BK81keWzs6Lzfpv"
+  var address = ""
   var amount = ""
   var data = ""
   var customFee = ""

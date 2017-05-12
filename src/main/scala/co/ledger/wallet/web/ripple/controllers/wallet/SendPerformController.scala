@@ -64,7 +64,7 @@ class SendPerformController(override val windowService: WindowService,
     RippleAccount($routeParams("recipient").trim)
     val data = $routeParams.lift("data").map(_.replace("0x", "")).map(HexUtils.decodeHex)
     val api = rippleLibApiService.api
-    var rippleAccount: RippleAccount = RippleAccount("rhGxojnVnEhPQFfMsQ9BK81keWzs6Lzfpv")
+    var rippleAccount: RippleAccount = RippleAccount("rrrrrrrrrrrrrrrrrrrrrhoLvTp")
     var derivationPath: DerivationPath = null
     var prepared: String = ""
     var deviceLocal: Device = null
