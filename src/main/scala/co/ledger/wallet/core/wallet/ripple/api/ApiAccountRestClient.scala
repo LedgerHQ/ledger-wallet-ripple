@@ -29,10 +29,14 @@ class ApiAccountRestClient(http: HttpClient,
       val request = http.get(s"/accounts/${
         accountRow.rippleAccount}/balances?currency=XRP")
       request.json map {
-        case (json, _) =>
-          var value = json.getJSONArray("balances").getJSONObject(0)
-            .getString("value")
-          new XRP((BigDecimal(value) * BigDecimal(10).pow(6)).toBigInt())
+        case (json, response) =>
+          if (response.statusCode == 500) {
+            XRP.Zero
+          } else {
+            var value = json.getJSONArray("balances").getJSONObject(0)
+              .getString("value")
+            new XRP((BigDecimal(value) * BigDecimal(10).pow(6)).toBigInt())
+          }
       }
   }
 

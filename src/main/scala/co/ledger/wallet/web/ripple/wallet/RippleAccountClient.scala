@@ -54,6 +54,7 @@ class RippleAccountClient(walletClient: RippleWalletClient,
           }
         } andThen {
           case all =>
+            println("and then")
             _synchronizationFuture = None
         }
       )

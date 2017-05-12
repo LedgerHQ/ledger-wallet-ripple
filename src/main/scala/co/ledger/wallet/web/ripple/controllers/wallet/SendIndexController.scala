@@ -66,7 +66,6 @@ class SendIndexController(override val windowService: WindowService,
   var customFee = ""
 
   var total = XRP.Zero.toBigInt.toString()
-  println(s"total = $total")
 
   val unit = sessionService.currentSession.get.chain.symbol
 

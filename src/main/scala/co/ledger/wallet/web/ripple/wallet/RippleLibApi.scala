@@ -494,7 +494,7 @@ class RippleLibApi() {
   //------------------
 
   //****************** error event management
-  dom.window.addEventListener("error", { (e: dom.ErrorEvent) => onError(e)})
+  /*dom.window.addEventListener("error", { (e: dom.ErrorEvent) => onError(e)})
 
   case class Error(
                     errorCode: String,
@@ -505,7 +505,7 @@ class RippleLibApi() {
   def onError(e: dom.ErrorEvent) = {
     println("error received in scala")
     println(e)
-  }
+  }*/
 
 
   //------------------

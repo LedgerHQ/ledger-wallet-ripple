@@ -56,10 +56,6 @@ class AccountController(override val windowService: WindowService,
 
   val accountId = $routeParams("id").toInt
 
-  if(Updater.restartIsNeeded().isDefined) {
-    println("trouve a account")
-  }
-
   def refresh(): Unit = {
     sessionService.currentSession.get.wallet.synchronize()
   }

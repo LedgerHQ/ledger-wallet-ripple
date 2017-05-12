@@ -43,11 +43,23 @@ class JsWebSocketFactory(override val baseUrl: URI) extends WebSocketFactory {
   override def connect(path: String): Future[WebSocket] = {
     val promise = Promise[WebSocket]()
     val ws = new org.scalajs.dom.WebSocket(baseUrl.toString + (if (path.startsWith("/")) "" else "/") + path)
+    println("ws created")
     ws.onopen = {(event: Event) =>
+      println("ws open")
       promise.success(new JsWebSocket(ws))
     }
     ws.onerror = {(event: ErrorEvent) =>
-      promise.failure(new Exception(event.message))
+      println("ws error")
+      try {
+        promise.failure(new Exception(event.message))
+        println("failure succeed")
+      } catch {
+        case all: Throwable => {
+          all.printStackTrace()
+          println("unloggble trigggered")
+          promise.failure(new Exception("Unlogable exception"))
+        }
+      }
     }
     promise.future
   }

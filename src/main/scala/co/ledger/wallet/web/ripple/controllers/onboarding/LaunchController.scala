@@ -60,11 +60,11 @@ class LaunchController(override val windowService: WindowService,
 
   import timers._
   private var _scanRequest: ScanRequest = null
-  private var _noRestart: Boolean = true
+  private var _noRestart: Boolean = false
   private val preferences = new ChromeGlobalPreferences("launch_screen")
 
 
-  if(Updater.restartIsNeeded().isDefined) {
+  /*if(Updater.restartIsNeeded().isDefined) {
     println("rerouting")
     $location.path(s"/onboarding/update")
     $route.reload()
@@ -72,7 +72,7 @@ class LaunchController(override val windowService: WindowService,
     println("flag not found")
     Updater.updateProcess()
     _noRestart = false
-  }
+  }*/
 
   private def animate(discover: Boolean) = {
     // Initialize default state
