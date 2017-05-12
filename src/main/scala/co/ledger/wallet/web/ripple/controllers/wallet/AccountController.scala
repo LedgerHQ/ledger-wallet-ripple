@@ -55,6 +55,8 @@ class AccountController(override val windowService: WindowService,
   extends Controller with WalletController with EventReceiver {
 
   val accountId = $routeParams("id").toInt
+  println("account path", js.JSON.stringify($routeParams))
+
 
   def refresh(): Unit = {
     sessionService.currentSession.get.wallet.synchronize()
@@ -147,8 +149,11 @@ class AccountController(override val windowService: WindowService,
   }
 
   def openTransactionDetails(hash: String): Unit = {
-    //WindowManager.open(s"https://charts.ripple.com/#/transactions/$hash")
-    js.Dynamic.global.open(s"https://charts.ripple.com/#/transactions/$hash")
+    try {
+      WindowManager.open(s"https://charts.ripple.com/#/transactions/$hash")
+    } catch {
+      case e:Throwable => e.printStackTrace()
+    }
   }
 
   sessionService.currentSession.get.wallet.eventEmitter.register(this)

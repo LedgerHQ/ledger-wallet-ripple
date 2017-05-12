@@ -63,12 +63,15 @@ class LaunchController(override val windowService: WindowService,
 
   import timers._
 
+  println("launch path", js.JSON.stringify($routeParams))
+
   private var _scanRequest: ScanRequest = null
   private var _discover: Int = $routeParams("discover").toInt
   private val preferences = new ChromeGlobalPreferences("launch_screen")
 
   private def animate(discover: Boolean) = {
     // Initialize default state
+    println("animate(discover=", discover)
     JQueryHelper.injectCustomEasings()
     val header = jQuery($element.find("> header").asInstanceOf[JQLite](0))
     header.height(98)
@@ -117,7 +120,7 @@ class LaunchController(override val windowService: WindowService,
     } onComplete {
       case Success(wallet) =>
         incrementNumberOfConnection()
-        if (true) { //TODO : check account maybe
+        if (true) {
           $location.url(s"/onboarding/opening")
           $route.reload()
         } else {
@@ -161,10 +164,7 @@ class LaunchController(override val windowService: WindowService,
     println("checking version")
     Updater.isNewVersion()
   }} map { (isupdate) => {
-      println("isupdate")
-      println(isupdate)
       if (isupdate.isDefined) {
-        println("redirecting")
         $location.path(s"/onboarding/download/" ++ isupdate.get)
         $route.reload()
         false
