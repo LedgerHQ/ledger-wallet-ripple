@@ -172,8 +172,9 @@ class LaunchController(override val windowService: WindowService,
         true
       }
     }
-  } map {
-    case true => {
+  } andThen {
+    case Success(false) => ()
+    case everytimeexeptfalse => {
       println("start discovery")
       if (numberOfConnection == 0 && OsHelper.requiresUdevRules && $element.attr("controller-mode") != "linux") {
         if ($routeParams.contains("animated")) {
@@ -190,9 +191,6 @@ class LaunchController(override val windowService: WindowService,
         }
       }
     }
-    case all => ()
-  } recover {
-    case all: Throwable => all.printStackTrace()
   }
 }
 

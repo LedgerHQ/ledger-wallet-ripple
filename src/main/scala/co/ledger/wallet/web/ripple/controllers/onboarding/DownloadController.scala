@@ -24,7 +24,7 @@ class DownloadController (override val windowService: WindowService,
 
   private val _tag = $routeParams("tag")
   def accept(): Unit = {
-    WindowManager.open(Updater.downloadLink())
+    WindowManager.open("https://www.ledgerwallet.com/apps/ripple#get-the-apps")
   }
 
   def skip(): Unit = {
