@@ -81,7 +81,8 @@ class RippleWalletClient(override val name: String,
     }
   }
   override def synchronize(): Future[Unit] = {
-    _synchronizationFuture.getOrElse({
+    println("synchro future=", _synchronizationFuture)
+    if (_synchronizationFuture.isEmpty || (_synchronizationFuture.isDefined && _synchronizationFuture.get.isCompleted && _synchronizationFuture.get.value.get.isFailure)){
       eventEmitter.emit(StartSynchronizationEvent())
       _synchronizationFuture = Some(
         accounts() flatMap {(accounts) =>
@@ -92,7 +93,9 @@ class RippleWalletClient(override val name: String,
         }
       )
       _synchronizationFuture.get
-    })
+    } else {
+      _synchronizationFuture.get
+    }
   }
 
   override def isSynchronizing(): Future[Boolean] = Future.successful(

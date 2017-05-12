@@ -35,7 +35,7 @@ class RippleAccountClient(walletClient: RippleWalletClient,
   override def wallet: Wallet = walletClient.asInstanceOf[Wallet]
 
   override def synchronize(): Future[Unit] = {
-    println("Synchronizing")
+    println("Synchronizing account")
     _synchronizationFuture.getOrElse({
       _synchronizationFuture = Some(
         _api.balance() flatMap {(bal) =>
@@ -54,7 +54,7 @@ class RippleAccountClient(walletClient: RippleWalletClient,
           }
         } andThen {
           case all =>
-            println("and then")
+            println("and then account")
             _synchronizationFuture = None
         }
       )
@@ -62,9 +62,10 @@ class RippleAccountClient(walletClient: RippleWalletClient,
     })
   }
 
-  override def isSynchronizing(): Future[Boolean] = Future.successful(
-    _synchronizationFuture.nonEmpty
-  )
+  override def isSynchronizing(): Future[Boolean] = {
+    println("is synchronizing called, ", _synchronizationFuture.nonEmpty)
+    Future.successful(_synchronizationFuture.nonEmpty)
+  }
 
   override def operations(limit: Int, batchSize: Int): Future[AsyncCursor[Operation]] = {
     walletClient.countOperations(index) map {(c) =>
