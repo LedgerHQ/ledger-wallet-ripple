@@ -1,0 +1,19 @@
+<div class="onboarding-view">
+    <div class="onboarding-container" ng-controller="DownloadController as ctrl">
+        <header>
+            <img src="images/onboarding/ic_logo.png" />
+        </header>
+        <section>
+            <div class="light-very-large-text almost-medium-top-margin" translate>download.title</div>
+            <div class="light-grey-text-almost-small almost-small-top-margin" translate>download.message</div>
+            <div class="spacer"></div>
+            <div class="light-grey-text-almost-small almost-small-top-margin" ng-click="ctrl.link()" translate>download.release</div>
+
+        </section>
+        <div class="footers-container">
+            <footer id="plugFooter">
+                <lbutton text="{{'download.skip' | translate}}" type="cancel" disabled="false" ng-click="ctrl.skip()"> <div class="spacer"></div> </lbutton> <lbutton text="{{'download.install' | translate}}" type="validate" disabled="false" ng-click="ctrl.accept()"></lbutton>
+            </footer>
+        </div>
+    </div>
+</div>

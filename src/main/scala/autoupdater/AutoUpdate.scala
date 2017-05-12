@@ -75,13 +75,21 @@ object Updater {
 
   var newVersion = ""
 
-  def isNewVersion(): Future[Boolean] = {
+  def isNewVersion(): Future[Option[String]] = {
     var api = new ApiUpdateRestClient(httpClient)
     api.lastVersion(os) map {(latest) =>
       println("latest", latest, "current",autoUpdate.manifest("version").asInstanceOf[String] )
       newVersion = latest
-      versionCompare(latest,autoUpdate.manifest("version").asInstanceOf[String]) > 0
+      if (versionCompare(latest,autoUpdate.manifest("version").asInstanceOf[String]) > 0) {
+        Some(newVersion)
+      } else {
+        None
+      }
     }
+  }
+
+  def downloadLink(): String = {
+    autoUpdate.manifest("manifestUrl").asInstanceOf[String] ++ "download/" ++ "channel/stable" ++ "/" ++ os
   }
 
   def download(): Future[String] = {
@@ -111,7 +119,7 @@ object Updater {
   def updateProcess(): Future[Option[String]] = {
     println("checking new updates")
     isNewVersion().flatMap({ (test) =>
-      if (test) {
+      if (test.isDefined) {
         print("test version", test)
         println("downloading")
         download() flatMap {(updateFile) =>

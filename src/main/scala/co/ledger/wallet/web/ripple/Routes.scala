@@ -36,18 +36,19 @@ object Routes {
 
   def declare($routeProvider: RouteProvider) = {
     $routeProvider
-      .when("/onboarding/launch/:animated?", Route(templateUrl = "/templates/onboarding/launch.html"))
+      .when("/onboarding/launch/:discover/:animated?", Route(templateUrl = "/templates/onboarding/launch.html"))
       .when("/onboarding/linux/:animated?", Route(templateUrl = "/templates/onboarding/linux.html"))
       .when("/onboarding/opening/", Route(templateUrl =
         "/templates/onboarding/opening.html"))
       .when("/onboarding/split-disclaimer/:balance", Route(templateUrl = "/templates/onboarding/split-disclaimer.html"))
       .when("/onboarding/update", Route(templateUrl = "/templates/onboarding/update.html"))
+      .when("/onboarding/download/:tag", Route(templateUrl = "/templates/onboarding/download.html"))
       .when("/account/:id", Route(templateUrl = "/templates/wallet/account.html"))
       .when("/send", Route(templateUrl = "/templates/wallet/send/index.html"))
       .when("/send/:amount/to/:recipient/from/:account_id/with/:fee/data/:data?", Route(templateUrl = "/templates/wallet/send/perform.html"))
       .when("/receive", Route(templateUrl = "/templates/wallet/receive.html"))
       .when("/help", Route(templateUrl = "/templates/wallet/help.html"))
-      .otherwise(Route(redirectTo = "/onboarding/launch/animated"))
+      .otherwise(Route(redirectTo = "/onboarding/launch/0/animated"))
   }
 
 }

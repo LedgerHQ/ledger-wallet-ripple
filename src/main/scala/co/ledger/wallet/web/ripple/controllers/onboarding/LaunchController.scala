@@ -1,6 +1,7 @@
 package co.ledger.wallet.web.ripple.controllers.onboarding
 
-import autoupdater.Updater
+import autoupdater.Updater._
+import autoupdater.{ApiUpdateRestClient, Updater}
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.{JQLite, Location}
 import biz.enef.angulate.{Controller, Scope}
@@ -14,6 +15,7 @@ import co.ledger.wallet.web.ripple.services.{DeviceService, WindowService}
 import org.scalajs.jquery.jQuery
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.scalajs.js
 import scala.scalajs.js.timers
 import scala.util.{Failure, Success}
@@ -56,23 +58,14 @@ class LaunchController(override val windowService: WindowService,
                        $route: js.Dynamic,
                        $routeParams: js.Dictionary[String])
   extends Controller with OnBoardingController {
+
   import LaunchController._
 
   import timers._
+
   private var _scanRequest: ScanRequest = null
-  private var _noRestart: Boolean = false
+  private var _discover: Int = $routeParams("discover").toInt
   private val preferences = new ChromeGlobalPreferences("launch_screen")
-
-
-  /*if(Updater.restartIsNeeded().isDefined) {
-    println("rerouting")
-    $location.path(s"/onboarding/update")
-    $route.reload()
-  } else {
-    println("flag not found")
-    Updater.updateProcess()
-    _noRestart = false
-  }*/
 
   private def animate(discover: Boolean) = {
     // Initialize default state
@@ -117,23 +110,23 @@ class LaunchController(override val windowService: WindowService,
   }
 
   def connectDevice(device: Device): Unit = {
-    device.connect() flatMap {(_) =>
+    device.connect() flatMap { (_) =>
       deviceService.registerDevice(device)
-    } flatMap {(_) =>
+    } flatMap { (_) =>
       LedgerApi(device).walletIdentifier()
     } onComplete {
-        case Success(wallet) =>
-          incrementNumberOfConnection()
-          if (true) { //TODO : check account maybe
-            $location.url(s"/onboarding/opening")
-            $route.reload()
-          } else {
-            $route.reload()
-          }
-        case Failure(ex) =>
-          ex.printStackTrace()
-          startDeviceDiscovery()
-      }
+      case Success(wallet) =>
+        incrementNumberOfConnection()
+        if (true) { //TODO : check account maybe
+          $location.url(s"/onboarding/opening")
+          $route.reload()
+        } else {
+          $route.reload()
+        }
+      case Failure(ex) =>
+        ex.printStackTrace()
+        startDeviceDiscovery()
+    }
   }
 
   def openHelpCenter(): Unit = {
@@ -145,35 +138,61 @@ class LaunchController(override val windowService: WindowService,
   }
 
   def numberOfConnection = new ChromeGlobalPreferences("launches").int("count").getOrElse(0)
+
   def incrementNumberOfConnection() = new ChromeGlobalPreferences("launches").edit().putInt("count", numberOfConnection + 1).commit()
 
   private def stopDeviceDiscovery(): Unit = {
-    Option(_scanRequest) foreach {(request) =>
+    Option(_scanRequest) foreach { (request) =>
       request.stop()
     }
   }
 
   jQuery($element.find("#introFooter")).height(11)
 
-  $scope.$on("$destroy", {(obj: js.Any, ob: js.Any) =>
+  $scope.$on("$destroy", { (obj: js.Any, ob: js.Any) =>
     stopDeviceDiscovery()
   })
 
-  if (!_noRestart) {
-    if (numberOfConnection == 0 && OsHelper.requiresUdevRules && $element.attr("controller-mode") != "linux") {
-      if ($routeParams.contains("animated")) {
-        animate(false)
-      }
-      $location.path("/onboarding/linux" + (if ($routeParams.contains("animated")) "/animated" else ""))
-      $route.reload()
-    } else {
-      if ($routeParams.contains("animated")) {
-        animate(true)
+
+  {if (_discover == 1) {
+    println("skip")
+    Future.successful(None)
+  } else {
+    println("checking version")
+    Updater.isNewVersion()
+  }} map { (isupdate) => {
+      println("isupdate")
+      println(isupdate)
+      if (isupdate.isDefined) {
+        println("redirecting")
+        $location.path(s"/onboarding/download/" ++ isupdate.get)
+        $route.reload()
+        false
       } else {
-        jQuery($element.find("#introFooter")).fadeOut(0)
-        startDeviceDiscovery()
+        true
       }
     }
+  } map {
+    case true => {
+      println("start discovery")
+      if (numberOfConnection == 0 && OsHelper.requiresUdevRules && $element.attr("controller-mode") != "linux") {
+        if ($routeParams.contains("animated")) {
+          animate(false)
+        }
+        $location.path("/onboarding/linux" + (if ($routeParams.contains("animated")) "/animated" else ""))
+        $route.reload()
+      } else {
+        if ($routeParams.contains("animated")) {
+          animate(true)
+        } else {
+          jQuery($element.find("#introFooter")).fadeOut(0)
+          startDeviceDiscovery()
+        }
+      }
+    }
+    case all => ()
+  } recover {
+    case all: Throwable => all.printStackTrace()
   }
 }
 

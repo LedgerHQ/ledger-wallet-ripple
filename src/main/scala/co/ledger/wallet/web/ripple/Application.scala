@@ -11,7 +11,7 @@ import co.ledger.wallet.core.utils.HexUtils
 import co.ledger.wallet.core.utils.logs._
 import co.ledger.wallet.web.ripple.components._
 import co.ledger.wallet.web.ripple.controllers.WindowController
-import co.ledger.wallet.web.ripple.controllers.onboarding.{LaunchController, OpeningController, SplitDisclaimerController, UpdateController}
+import co.ledger.wallet.web.ripple.controllers.onboarding._
 import co.ledger.wallet.web.ripple.controllers.wallet._
 import co.ledger.wallet.web.ripple.core.utils.ChromePreferences
 import co.ledger.wallet.web.ripple.filters.DateFormatFilter
@@ -60,6 +60,7 @@ object Application extends JSApp{
     HelpController.init(module)
     SplitDisclaimerController.init(module)
     UpdateController.init(module)
+    DownloadController.init(module)
 
     // Services
     WindowService.init(module)

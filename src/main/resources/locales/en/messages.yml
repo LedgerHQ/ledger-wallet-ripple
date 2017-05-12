@@ -37,8 +37,17 @@ onboarding:
 # Update screen
 update:
   title: Install new version
-  message: A new version has been dowloaded and is ready to install. The wallet will close and restart after a few seconds
+  message: A new version has been dowloaded and is ready to install. The wallet will close and restart after a few seconds.
   accept: Restart and install the update
+
+# Download screen
+download:
+  title: Update available
+  message: A new release of Ledger Wallet Ripple is available. To benefit the latest features in terms of security and stability we strongly recommend that you install it now.
+  release : View release notes
+  install : Install
+  skip : Dismiss
+
 
 # Navigation bar
 navigation_bar:

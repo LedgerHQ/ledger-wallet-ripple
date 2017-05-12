@@ -147,7 +147,8 @@ class AccountController(override val windowService: WindowService,
   }
 
   def openTransactionDetails(hash: String): Unit = {
-    WindowManager.open(s"https://charts.ripple.com/#/transactions/$hash")
+    //WindowManager.open(s"https://charts.ripple.com/#/transactions/$hash")
+    js.Dynamic.global.open(s"https://charts.ripple.com/#/transactions/$hash")
   }
 
   sessionService.currentSession.get.wallet.eventEmitter.register(this)

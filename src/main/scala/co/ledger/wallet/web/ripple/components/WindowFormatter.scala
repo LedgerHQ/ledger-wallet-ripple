@@ -15,6 +15,7 @@ object WindowManager {
       height = height,
       left = (dom.window.screen.availWidth - width),
       top = (dom.window.screen.availHeight - height))))*/
-    js.Dynamic.global.open(url)
+    js.Dynamic.global.gui.Shell.openExternal(url)
   }
 }
+//
