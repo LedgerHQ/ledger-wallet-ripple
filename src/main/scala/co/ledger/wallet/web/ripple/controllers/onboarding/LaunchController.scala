@@ -63,11 +63,13 @@ class LaunchController(override val windowService: WindowService,
   private var _noRestart: Boolean = true
   private val preferences = new ChromeGlobalPreferences("launch_screen")
 
+
   if(Updater.restartIsNeeded().isDefined) {
     println("rerouting")
     $location.path(s"/onboarding/update")
     $route.reload()
   } else {
+    println("flag not found")
     Updater.updateProcess()
     _noRestart = false
   }

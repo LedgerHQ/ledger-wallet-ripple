@@ -1,5 +1,6 @@
 package co.ledger.wallet.web.ripple.controllers.wallet
 
+import autoupdater.Updater
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.JQLite
 import biz.enef.angulate.{Controller, Scope}
@@ -54,6 +55,10 @@ class AccountController(override val windowService: WindowService,
   extends Controller with WalletController with EventReceiver {
 
   val accountId = $routeParams("id").toInt
+
+  if(Updater.restartIsNeeded().isDefined) {
+    println("trouve a account")
+  }
 
   def refresh(): Unit = {
     sessionService.currentSession.get.wallet.synchronize()

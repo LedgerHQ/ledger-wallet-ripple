@@ -36,7 +36,7 @@ object AutoUpdate {
 
 object Updater {
 
-  private val _updateDir = "/tmp"
+  private var _updateDir = "/tmp"
   private val _downloadDir = "/tmp"
   val autoUpdate: AutoUpdate = AutoUpdate(_updateDir)
   val httpClient = new JQHttpClient(autoUpdate.manifest("manifestUrl").asInstanceOf[String])
@@ -47,6 +47,9 @@ object Updater {
     case "Windows_NT" => "windows"
   }
 
+  if (os == "linux" || os == "windows") {
+    _updateDir = "/tmp/updateDir"
+  }
   if (js.Dynamic.global.os.arch().asInstanceOf[String] == "x64") {
     os = os ++ "_64"
   }
@@ -82,10 +85,6 @@ object Updater {
   }
 
   def download(): Future[String] = {
-    println("download arguments", autoUpdate.manifest("manifestUrl").asInstanceOf[String]
-      ++ "download/"
-      ++ "channel/stable" ++ "/" ++ os)
-    //println("update dir", js.Dynamic.global.env.UPDATE_DIR.asInstanceOf[String])
     js.Dynamic.global.request.download(
       autoUpdate.manifest("manifestUrl").asInstanceOf[String]
       ++ "download/"
