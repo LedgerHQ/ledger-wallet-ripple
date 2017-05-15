@@ -62,6 +62,7 @@ class SendPerformController(override val windowService: WindowService,
     XRP($routeParams("amount"))
     val to =
     RippleAccount($routeParams("recipient").trim)
+    val tag: Option[Int] = (if ($routeParams.contains("tag")) Some($routeParams("tag").toInt) else None)
     val data = $routeParams.lift("data").map(_.replace("0x", "")).map(HexUtils.decodeHex)
     val api = rippleLibApiService.api
     var rippleAccount: RippleAccount = RippleAccount("rrrrrrrrrrrrrrrrrrrrrhoLvTp")
@@ -82,7 +83,7 @@ class SendPerformController(override val windowService: WindowService,
             rippleAccount.toString,
             api.Payment(
               api.Source(rippleAccount.toString, amount = Some(api.LaxAmount(value = Some(amount.toXRP.toString)))),
-              api.Destination(to.toString, minAmount = Some(api.LaxAmount(value = Some(amount.toXRP.toString))))
+              api.Destination(to.toString, minAmount = Some(api.LaxAmount(value = Some(amount.toXRP.toString))), tag = tag)
             ),
             Some(api.Instructions(fee = /*None*/Some(fee.toXRP.toString),
               maxLedgerVersionOffset = Some(400)

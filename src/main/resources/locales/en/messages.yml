@@ -120,6 +120,7 @@ send:
   page_title: send XRP
   amount_placeholder: Amount
   max: max
+  drops: drops
   recipient: recipient address
   recipient_placeholder: Ripple address
   fees: fees
@@ -133,9 +134,8 @@ send:
   enable_data_title: Cannot add contract data
   enable_data_message: Data are not allowed in your device Ripple app
   bad_amount_title: Empty amount
-  bad_amount_message: An amount is required to send XRPs
-  bad_fees_title: Empty fees
-  bad_fees_message: Fees are required to send XRPs
+  bad_fees_title: Bad fees
+  bad_fees_message: The fees must be at least 10 drops
   bad_address_title: Invalid recipient address
   bad_address_message: A valid address is required to send XRPs
   network_unavailable_title: Network unavaiable

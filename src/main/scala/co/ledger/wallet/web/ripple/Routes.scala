@@ -45,9 +45,9 @@ object Routes {
       .when("/onboarding/download/:tag", Route(templateUrl = "/templates/onboarding/download.html"))
       .when("/account/:id", Route(templateUrl = "/templates/wallet/account.html"))
       .when("/send", Route(templateUrl = "/templates/wallet/send/index.html"))
-      .when("/send/:amount/to/:recipient/from/:account_id/with/:fee/data/:data?", Route(templateUrl = "/templates/wallet/send/perform.html"))
+      .when("/send/:amount/to/:recipient/from/:account_id/with/:fee/tag/:tag?", Route(templateUrl = "/templates/wallet/send/perform.html"))
       .when("/receive", Route(templateUrl = "/templates/wallet/receive.html"))
       .when("/help", Route(templateUrl = "/templates/wallet/help.html"))
-      .otherwise(Route(redirectTo = "/onboarding/launch/0/animated"))
+      .otherwise(Route(redirectTo = "/onboarding/launch/0"))
   }
 }
