@@ -14,7 +14,7 @@
                                class="large-text-input"
                                ng-pattern="/^[0-9]+[\.,]?[0-9]*$/"
                                ng-model="ctrl.amount"
-                               ng-change="ctrl.computeTotal()"
+                               ng-change="ctrl.computeTotal(true)"
                                autocomplete="off"/>
                         <label class="large-text-input">{{ctrl.unit}}</label>
                         <lbutton text="{{'send.max' | translate}}" type="cancel" disabled="false" ng-click="ctrl.max()" small="true"></lbutton>

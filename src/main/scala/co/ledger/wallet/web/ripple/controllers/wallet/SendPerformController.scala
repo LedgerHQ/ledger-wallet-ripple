@@ -84,7 +84,7 @@ class SendPerformController(override val windowService: WindowService,
               api.Source(rippleAccount.toString, amount = Some(api.LaxAmount(value = Some(amount.toXRP.toString)))),
               api.Destination(to.toString, minAmount = Some(api.LaxAmount(value = Some(amount.toXRP.toString))))
             ),
-            Some(api.Instructions(fee = None/*Some(fee.toXRP.toString)*/,
+            Some(api.Instructions(fee = /*None*/Some(fee.toXRP.toString),
               maxLedgerVersionOffset = Some(400)
             ))
           )

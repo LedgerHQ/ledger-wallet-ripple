@@ -4,6 +4,8 @@ import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.JQLite
 import biz.enef.angulate.{Controller, Scope}
 import co.ledger.wallet.core.device.ripple.LedgerApi
+import co.ledger.wallet.core.device.utils.EventReceiver
+import co.ledger.wallet.core.wallet.ripple.Wallet.StartSynchronizationEvent
 import co.ledger.wallet.core.wallet.ripple.api.ApiAccountRestClient
 import co.ledger.wallet.core.wallet.ripple.{RippleAccount, XRP}
 import co.ledger.wallet.web.ripple.components.{QrCodeScanner, SnackBar}
@@ -58,7 +60,7 @@ class SendIndexController(override val windowService: WindowService,
                           val deviceService: DeviceService,
                           $element: JQLite,
                           override val $scope: Scope) extends Controller
-  with WalletController{
+  with WalletController with EventReceiver{
   var isScanning = false
   var address = ""
   var amount = ""
@@ -75,6 +77,12 @@ class SendIndexController(override val windowService: WindowService,
 
   var isInAdvancedMode = false
   val supportAdvancedMode = sessionService.currentSession.get.dongleAppVersion > "1.0.0"
+
+  sessionService.currentSession.get.wallet.eventEmitter.register(this)
+
+  $scope.$on("$destroy", {() =>
+    sessionService.currentSession.foreach(_.wallet.eventEmitter.unregister(this))
+  })
 
   sessionService.currentSession.get.sessionPreferences.lift(SendIndexController.RestoreKey) foreach {(state) =>
     val restore = state.asInstanceOf[SendIndexController.RestoreState]
@@ -112,6 +120,7 @@ class SendIndexController(override val windowService: WindowService,
   }
 
   def computeFees(): Future[Unit] = {
+    println("compute fees")
     _api.fees().map({ (value) =>  //api.getFee() map {(value) =>
       fee = Some(value)
       val t = getAmountInput().map((amount) => amount + (fee.getOrElse(XRP.Zero).toBigInt)).map(new XRP(_)).getOrElse(XRP(0))
@@ -121,8 +130,20 @@ class SendIndexController(override val windowService: WindowService,
       }
     })
   }
-  def computeTotal(): XRP = {
-    this.computeFees()
+
+  override def receive: Receive = {
+    case StartSynchronizationEvent() =>
+      setTimeout(0) {
+        computeFees()
+      }
+  }
+
+  def computeTotal(fees: Boolean = true): XRP = {
+    println("Compute total")
+    if (fees == true) {
+      this.computeFees()
+    }
+    println("fees computed")
     val t = getAmountInput().map((amount) => amount + (fee.getOrElse(XRP.Zero).toBigInt)).map(new XRP(_)).getOrElse(XRP(0))
     total = t.toBigInt.toString()
     t
@@ -161,7 +182,7 @@ class SendIndexController(override val windowService: WindowService,
               println(s"Fee: $fee")
               sessionService.currentSession.get.wallet.balance() foreach {
                 (balance) =>
-                  if (computeTotal() > balance) {
+                  if (computeTotal(false) > balance) {
                     SnackBar.error("send.insufficient_funds_title", "send.insufficient_funds_message").show()
                   } else {
                     deviceService.lastConnectedDevice().flatMap(LedgerApi(_).getAppConfiguration()) foreach {(conf) =>
