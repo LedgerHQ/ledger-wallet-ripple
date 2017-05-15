@@ -35,7 +35,6 @@ import co.ledger.wallet.core.device.utils.{EventEmitter, EventReceiver}
 class JsEventEmitter extends EventEmitter {
   override def emit(event: AnyRef): Unit = {
     for (receiver <- _receivers) {
-      println("emmiting event", event)
       receiver.receive(event)
     }
   }

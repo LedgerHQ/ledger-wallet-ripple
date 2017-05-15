@@ -50,5 +50,4 @@ object Routes {
       .when("/help", Route(templateUrl = "/templates/wallet/help.html"))
       .otherwise(Route(redirectTo = "/onboarding/launch/0/animated"))
   }
-
 }
