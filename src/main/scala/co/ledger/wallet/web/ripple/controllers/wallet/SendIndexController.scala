@@ -154,7 +154,7 @@ class SendIndexController(override val windowService: WindowService,
         windowService.disableUserInterface()
         _api.account(recipient.get.toString) map {(exists) =>
           if (!exists && value.get<20000000) {
-            SnackBar.error("send.bad_amount_for_account_creation_title", "send.bad_amount_for_account_creation_message").show()
+            SnackBar.error("send.bad_amount_for_address_creation_title", "send.bad_amount_for_address_creation_message").show()
           } else {
               println(s"Amount: $amount")
               println(s"Recipient: $address")
