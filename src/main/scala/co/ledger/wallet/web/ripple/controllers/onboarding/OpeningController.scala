@@ -52,7 +52,7 @@ class OpeningController(override val windowService: WindowService,
                         $element: JQLite,
                         $routeParams: js.Dictionary[String])
   extends Controller with OnBoardingController {
-  println("open")
+  println("opening ctrl")
 
   var isInErrorMode = false
   deviceService.lastConnectedDevice() map {(device) =>

@@ -66,7 +66,7 @@ class LaunchController(override val windowService: WindowService,
   println("launch path", js.JSON.stringify($routeParams))
 
   private var _scanRequest: ScanRequest = null
-  private var _discover: Int = $routeParams("discover").toInt
+  private var _discover: Int = (if ($routeParams.contains("discover")) $routeParams("discover").toInt else 0)
   private val preferences = new ChromeGlobalPreferences("launch_screen")
 
   private def animate(discover: Boolean) = {

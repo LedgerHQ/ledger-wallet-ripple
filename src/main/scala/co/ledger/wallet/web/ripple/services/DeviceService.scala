@@ -83,7 +83,7 @@ class DeviceService($location: Location,  $route: js.Dynamic, sessionService: Se
       case Connect(_) =>
       case Disconnect(_) =>
         sessionService.stopCurrentSessions()
-        $location.path("/onboarding/launch")
+        $location.path("/onboarding/launch/1")
         $route.reload()
     }
   }
