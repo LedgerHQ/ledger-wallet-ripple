@@ -52,6 +52,7 @@ class WebSocketRipple(factory: WebSocketFactory,
   }
 
   private def onMessage(json: JSONObject): Unit = {
+    println("websocket triggered")
     if (json.getString("type") == "transaction") {
       setTimeout(1000) {
         wallet.synchronize()

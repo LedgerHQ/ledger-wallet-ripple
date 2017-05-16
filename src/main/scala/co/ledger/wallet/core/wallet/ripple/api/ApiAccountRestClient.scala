@@ -81,11 +81,9 @@ class ApiAccountRestClient(http: HttpClient,
 
   def account(address: String): Future[Boolean] = {
     val request = http.get(s"/accounts/$address")
-    Try {
-      request.json map {
-        case (json, _) =>
-          json.getString("result") == "success"
-      }
-    }.getOrElse(Future.failed(new Throwable()))
+    request.json map {
+      case (json, _) =>
+        json.getString("result") == "success"
+    } recover {case all => false }
   }
 }

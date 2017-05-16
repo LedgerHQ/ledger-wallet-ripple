@@ -66,7 +66,7 @@ class SendIndexController(override val windowService: WindowService,
   var amount = ""
   var data = ""
   var customFee = "10"
-  var tag: Option[Int] = None
+  var tag: String  = ""
 
 
   var total = XRP.Zero.toBigInt.toString()
@@ -117,21 +117,25 @@ class SendIndexController(override val windowService: WindowService,
       if (a.toBigInt < 0)
         a = XRP(0)
       amount = a.toXRP.toString()
-      computeTotal()
+      computeTotal(false)
       $scope.$apply()
     }
   }
 
   def computeFees(): Future[Unit] = {
-    println("compute fees")
-    _api.fees().map({ (value) =>  //api.getFee() map {(value) =>
-      fee = Some(value)
-      val t = getAmountInput().map((amount) => amount + (fee.getOrElse(XRP.Zero).toBigInt)).map(new XRP(_)).getOrElse(XRP(0))
-      total = t.toBigInt.toString()
-      setTimeout(0) {
-        $scope.$digest()
-      }
-    })
+    if (!isInAdvancedMode) {
+      println("compute fees")
+      _api.fees().map({ (value) => //api.getFee() map {(value) =>
+        fee = Some(value)
+        val t = getAmountInput().map((amount) => amount + (fee.getOrElse(XRP.Zero).toBigInt)).map(new XRP(_)).getOrElse(XRP(0))
+        total = t.toBigInt.toString()
+        setTimeout(0) {
+          $scope.$digest()
+        }
+      })
+    } else {
+      Future.successful()
+    }
   }
 
   override def receive: Receive = {
@@ -181,6 +185,7 @@ class SendIndexController(override val windowService: WindowService,
       } else {
         windowService.disableUserInterface()
         _api.account(recipient.get.toString) map {(exists) =>
+          println("exist", exists)
           if (!exists && value.get<20000000) {
             SnackBar.error("send.bad_amount_for_address_creation_title", "send.bad_amount_for_address_creation_message").show()
           } else {
@@ -198,8 +203,8 @@ class SendIndexController(override val windowService: WindowService,
                         SnackBar.error("send.enable_data_title", "send.enable_data_message").show()
                       } else {
                         var tagInt = ""
-                        if (tag.isDefined) {
-                          tagInt = "/" ++ tag.get.toString
+                        if (tag != "") {
+                          tagInt = "/" ++ tag
                         }
                         println(s"/send/${value.get.toString()}/to/$address/from/0/with/${fee.getOrElse(12)}/tag$tagInt")
                         $location.path(s"/send/${value.get.toString()}/to/$address/from/0/with/${fee.getOrElse(12)}/tag$tagInt")
@@ -246,5 +251,5 @@ class SendIndexController(override val windowService: WindowService,
 object SendIndexController {
   def init(module: RichModule) = module.controllerOf[SendIndexController]("SendIndexController")
   val RestoreKey = "SendIndexController#Restore"
-  case class RestoreState(amount: Try[XRP], to: String, customFee: String, tag: Option[Int], advancedMode: Boolean)
+  case class RestoreState(amount: Try[XRP], to: String, customFee: String, tag: String, advancedMode: Boolean)
 }

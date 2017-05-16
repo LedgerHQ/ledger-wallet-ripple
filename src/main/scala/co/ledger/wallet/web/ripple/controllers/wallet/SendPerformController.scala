@@ -113,7 +113,7 @@ class SendPerformController(override val windowService: WindowService,
       case all => rippleLibApiService.close()
     } onComplete {
       case Success(response) =>
-        println(s"7success at the end")
+        println(s"Success at the end")
         if (response.resultCode == "tesSUCCESS") {
           sessionService.currentSession.get.sessionPreferences.remove(SendIndexController.RestoreKey)
           SnackBar.success("send_perform.completed_title", "send_perform.completed_message").show()

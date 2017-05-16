@@ -124,6 +124,7 @@ send:
   recipient: recipient address
   recipient_placeholder: Ripple address
   fees: fees
+  tag: tag
   total_spent: total spent
   including_fees: (incl. fees)
   scan_qr_code: scan qr code
@@ -134,8 +135,9 @@ send:
   enable_data_title: Cannot add contract data
   enable_data_message: Data are not allowed in your device Ripple app
   bad_amount_title: Empty amount
+  bad_amount_message: The amount must be not null
   bad_fees_title: Bad fees
-  bad_fees_message: The fees must be at least 10 drops
+  bad_fees_message: The fees must be at least 12 drops
   bad_address_title: Invalid recipient address
   bad_address_message: A valid address is required to send XRPs
   network_unavailable_title: Network unavaiable
@@ -153,11 +155,13 @@ send_perform:
   review_1: Check the transaction displayed on your device
   review_2: and confirm (or reject) it to continue.
   completed_title: Transaction completed
-  queued_title: Transaction completed
+  queued_title: Transaction queued
   completed_message: Successfully broadcasted to network
-  completed_message_queued: Successfully queued to network
+  completed_message_queued: Successfully queued to network until escalated fees drop
   cancelled_title: Transaction failed
   cancelled_message: Transaction cancelled
   failed_title: Transaction failed
   failed_message: Transaction rejected by the server
   bottom_text: If nothing is displayed on your device, contact help center.
+
+# Wiping alert window

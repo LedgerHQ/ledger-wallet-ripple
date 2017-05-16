@@ -45,6 +45,18 @@
                         <label class="small-text-input" translate>send.drops</label>
                     </div>
                 </div>
+                <div ng-show="ctrl.isInAdvancedMode" >
+                    <div translate>send.tag</div>
+                    <div>
+                        <input
+                                style="text-transform: capitalize"
+                                placeholder="{{'send.tag' | translate}}"
+                                class="small-text-input"
+                                type="text"
+                                ng-pattern="/^[0-9]+$/"
+                                ng-model="ctrl.tag"/>
+                    </div>
+                </div>
                 <div ng-show="!ctrl.isInAdvancedMode" >
                     <div class="optional" translate>send.fees</div>
                     <div><div class="regular-grey-text-small">{{ctrl.feeDisplay.toString()}} {{ctrl.unit}}</div></div>
