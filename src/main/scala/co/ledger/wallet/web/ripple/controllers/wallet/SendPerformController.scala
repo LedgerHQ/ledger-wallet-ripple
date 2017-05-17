@@ -6,16 +6,27 @@ import biz.enef.angulate.{Controller, Scope}
 import co.ledger.wallet.core.device.Device
 import co.ledger.wallet.core.device.ripple.LedgerApi
 import co.ledger.wallet.core.device.ripple.LedgerCommonApiInterface.LedgerApiException
+import co.ledger.wallet.core.device.utils.EventReceiver
 import co.ledger.wallet.core.utils.{DerivationPath, HexUtils, Nullable}
+import co.ledger.wallet.core.wallet.ripple.api.ApiAccountRestClient
+import co.ledger.wallet.core.wallet.ripple.api.WebsocketRipple.WebsocketRippleEvent
 import co.ledger.wallet.core.wallet.ripple.{RippleAccount, XRP}
 import co.ledger.wallet.web.ripple.components.{RippleSerializer, SnackBar}
+import co.ledger.wallet.web.ripple.core.net.JQHttpClient
 import co.ledger.wallet.web.ripple.services.{DeviceService, RippleLibApiService, SessionService, WindowService}
+import co.ledger.wallet.web.ripple.wallet.RippleLibApi.LedgerEvent
+import co.ledger.wallet.web.ripple.wallet.RippleWalletClient
+import exceptions.RippleException
+import org.scalajs.dom
+import org.scalajs.dom.CustomEvent
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{Future, Promise}
 import scala.scalajs.js
 import scala.scalajs.js.JSON
 import scala.util.{Failure, Success}
+import scala.scalajs.js.timers.{SetTimeoutHandle, clearTimeout, setTimeout}
+
 
 /**
   *
@@ -55,6 +66,10 @@ class SendPerformController(override val windowService: WindowService,
                             $route: js.Dynamic,
                             $routeParams: js.Dictionary[String]) extends Controller with WalletController {
   private val fee = XRP($routeParams("fee").toInt)
+  private val _ledgerOffset = 12
+
+  case class ValidationTimeException() extends Exception("The transaction was not validated in time")
+
   def send() = {
     val accountId =
     $routeParams("account_id").toInt
@@ -86,7 +101,7 @@ class SendPerformController(override val windowService: WindowService,
               api.Destination(to.toString, minAmount = Some(api.LaxAmount(value = Some(amount.toXRP.toString))), tag = tag)
             ),
             Some(api.Instructions(fee = /*None*/Some(fee.toXRP.toString),
-              maxLedgerVersionOffset = Some(400)
+              maxLedgerVersionOffset = Some(_ledgerOffset)
             ))
           )
           )
@@ -105,15 +120,50 @@ class SendPerformController(override val windowService: WindowService,
         } flatMap { (signed) =>
           tx.TxnSignature = HexUtils.bytesToHex(signed).toUpperCase
           val encodedTx = RippleSerializer.encode(JSON.stringify(tx))
-          api.submit(new api.SubmitParam(HexUtils.bytesToHex(encodedTx))
-          )
+          api.submit(new api.SubmitParam(HexUtils.bytesToHex(encodedTx)))
         }
       }
+    } flatMap {(response) =>
+      val promise = Promise[api.SubmittedTransaction]()
+      var timeOut: SetTimeoutHandle = null
+      val receiver: EventReceiver = new EventReceiver {
+        override def receive = {
+          case WebsocketRippleEvent(txn) =>
+            if (false /*(txn == tx.TxnSignature)*/){
+              clearTimeout(timeOut)
+              sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].websocketRipple.emmiter.unregister(this)
+              api.emmiter.unregister(this)
+              promise.success(response)
+            }
+            if (txn == "disconnected") {
+              clearTimeout(timeOut)
+              sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].websocketRipple.emmiter.unregister(this)
+              api.emmiter.unregister(this)
+              promise.failure(RippleException())
+            }
+          case LedgerEvent(e) =>
+            println("test", e, tx.LastLedgerSequence)
+            if (e > tx.LastLedgerSequence.asInstanceOf[Double]) {
+              clearTimeout(timeOut)
+              sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].websocketRipple.emmiter.unregister(this)
+              api.emmiter.unregister(this)
+              promise.failure(ValidationTimeException())
+            }
+          case all =>
+        }
+        timeOut = setTimeout(80000){
+          sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].websocketRipple.emmiter.unregister(this)
+          api.emmiter.unregister(this)
+          promise.failure(new Exception("Network timed out"))
+        }
+      }
+      api.emmiter.register(receiver)
+      sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].websocketRipple.emmiter.register(receiver)
+      promise.future
     } andThen {
       case all => rippleLibApiService.close()
     } onComplete {
       case Success(response) =>
-        println(s"Success at the end")
         if (response.resultCode == "tesSUCCESS") {
           sessionService.currentSession.get.sessionPreferences.remove(SendIndexController.RestoreKey)
           SnackBar.success("send_perform.completed_title", "send_perform.completed_message").show()
@@ -125,9 +175,19 @@ class SendPerformController(override val windowService: WindowService,
         }
         $location.url("/send")
         $route.reload()
+      case  Failure(ex: ValidationTimeException) =>
+        SnackBar.error("send_perform.slow_validation_title", "send_perform.slow_validation_message").show()
+        $location.url("/send")
+        $route.reload()
       case Failure(ex: LedgerApiException) =>
         ex.printStackTrace()
         SnackBar.error("send_perform.cancelled_title", "send_perform.cancelled_message").show()
+        sessionService.currentSession.get.sessionPreferences.remove(SendIndexController.RestoreKey)
+        $location.url("/send")
+        $route.reload()
+      case Failure(ex: RippleException) =>
+        ex.printStackTrace()
+        SnackBar.error("ripple.down_title", "ripple.down_message").show()
         sessionService.currentSession.get.sessionPreferences.remove(SendIndexController.RestoreKey)
         $location.url("/send")
         $route.reload()
@@ -139,7 +199,10 @@ class SendPerformController(override val windowService: WindowService,
     }
   }
 
+
+
   send()
+
 
   $scope.$on("$destroy", {() =>
     windowService.enableUserInterface()

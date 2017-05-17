@@ -77,7 +77,7 @@ import scala.scalajs.js.annotation.{JSName, ScalaJSDefined}
   * SOFTWARE.
   *
   */
-class Spinner($parse: js.Dynamic) extends Directive {
+class  Spinner($parse: js.Dynamic) extends Directive {
   import js.Dynamic.{ global => g, newInstance => jsnew }
   import js.timers._
 

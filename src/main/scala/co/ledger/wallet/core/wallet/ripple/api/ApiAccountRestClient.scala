@@ -1,7 +1,7 @@
 package co.ledger.wallet.core.wallet.ripple.api
 
 import co.ledger.wallet.core.concurrent.AsyncCursor
-import co.ledger.wallet.core.net.HttpClient
+import co.ledger.wallet.core.net.{HttpClient, HttpException}
 import co.ledger.wallet.core.wallet.ripple._
 import co.ledger.wallet.core.wallet.ripple.database.AccountRow
 
@@ -11,6 +11,8 @@ import java.util.Date
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.Locale
+
+import exceptions.RippleException
 
 import scala.collection.mutable.ArrayBuffer
 import scala.scalajs.js
@@ -37,6 +39,10 @@ class ApiAccountRestClient(http: HttpClient,
               .getString("value")
             new XRP((BigDecimal(value) * BigDecimal(10).pow(6)).toBigInt())
           }
+      } recover {
+        case HttpException(json, response, _) =>
+            throw RippleException()
+        case other: Throwable => throw other
       }
   }
 
@@ -64,6 +70,10 @@ class ApiAccountRestClient(http: HttpClient,
           } else {
             Future.successful(transactionsBuffer.toArray)
           }
+      } recover {
+        case HttpException(json, response, _) =>
+            throw RippleException()
+        case other: Throwable => throw other
       }
     }
     iterate()
@@ -75,6 +85,11 @@ class ApiAccountRestClient(http: HttpClient,
       case (json, _) =>
         val fees = json.getJSONArray("rows").getJSONObject(0).getDouble("avg")
         new XRP((BigDecimal(fees) * BigDecimal(10).pow(6)).toBigInt())
+    } recover {
+      case HttpException(json, response, _) =>
+          throw RippleException()
+
+      case other: Throwable => throw other
     }
   }
 
@@ -84,6 +99,24 @@ class ApiAccountRestClient(http: HttpClient,
     request.json map {
       case (json, _) =>
         json.getString("result") == "success"
-    } recover {case all => false }
+    } recover {
+      case HttpException(json, response, _) =>
+        if (response.statusCode == 404) {
+          false
+        } else {
+          throw RippleException()
+        }
+      case other: Throwable => throw other
+
+    }
   }
+
+  def ledger(): Future[Double] = {
+    val request = http.get(s"/ledgers")
+    request.json map {
+      case (json, _) =>
+        json.getJSONObject("ledger").getDouble("ledger_index")
+    }
+  }
+
 }

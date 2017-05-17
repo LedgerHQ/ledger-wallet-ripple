@@ -128,5 +128,7 @@ class RippleWalletClient(override val name: String,
     _webSocketRipple.get.start()
   })
 
+  def websocketRipple = _webSocketRipple.get
+
 
 }

@@ -18,6 +18,9 @@ import io.circe.syntax._
 import io.circe._
 import io.circe.generic.semiauto._
 import co.ledger.wallet.core.utils.Nullable
+import co.ledger.wallet.web.ripple.core.event.JsEventEmitter
+import co.ledger.wallet.web.ripple.wallet.RippleLibApi.LedgerEvent
+import exceptions.RippleException
 import io.circe.generic.auto._
 import io.circe.generic.JsonCodec
 import org.scalajs.dom
@@ -110,7 +113,9 @@ class RippleLibApi() {
 
   def setOptions(options: APIOption): Future[SetOptionsResponse] = {
     val methodName = "setOption"
-    execute(methodName, options).map(decode[SetOptionsResponse](_).right.get)
+    execute(methodName, options).map(decode[SetOptionsResponse](_).right.get).recover({
+      case all: Throwable => throw RippleException()
+    })
   }
 
   def close(): Future[Unit] = {
@@ -525,9 +530,16 @@ class RippleLibApi() {
                    )
 
   def onLedger(e: dom.CustomEvent) = {
-    //println("new ledger received")
+    emmiter.emit(LedgerEvent(e.asInstanceOf[js.Dynamic].detail.ledger.ledgerVersion.asInstanceOf[Double]))
   }
+
+  val emmiter = new JsEventEmitter
+
 
 
   //------------------
+}
+
+object RippleLibApi {
+  case class LedgerEvent(index:Double)
 }

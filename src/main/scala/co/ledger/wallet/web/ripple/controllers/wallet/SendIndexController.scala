@@ -5,6 +5,7 @@ import biz.enef.angulate.core.JQLite
 import biz.enef.angulate.{Controller, Scope}
 import co.ledger.wallet.core.device.ripple.LedgerApi
 import co.ledger.wallet.core.device.utils.EventReceiver
+import co.ledger.wallet.core.net.HttpException
 import co.ledger.wallet.core.wallet.ripple.Wallet.StartSynchronizationEvent
 import co.ledger.wallet.core.wallet.ripple.api.ApiAccountRestClient
 import co.ledger.wallet.core.wallet.ripple.{RippleAccount, XRP}
@@ -12,6 +13,7 @@ import co.ledger.wallet.web.ripple.components.{QrCodeScanner, SnackBar}
 import co.ledger.wallet.web.ripple.core.net.JQHttpClient
 import co.ledger.wallet.web.ripple.core.utils.PermissionsHelper
 import co.ledger.wallet.web.ripple.services.{DeviceService, RippleLibApiService, SessionService, WindowService}
+import exceptions.RippleException
 import org.scalajs.dom
 
 import scala.concurrent._
@@ -133,6 +135,11 @@ class SendIndexController(override val windowService: WindowService,
         setTimeout(0) {
           $scope.$digest()
         }
+        ()
+      }).recover({
+        case response: RippleException =>
+          SnackBar.error("ripple.down_title", "ripple.down_message").show()
+        case ex: Throwable => throw ex
       })
     } else {
       Future.successful()
@@ -219,6 +226,8 @@ class SendIndexController(override val windowService: WindowService,
         windowService.enableUserInterface()
       }
     } catch {
+      case ex: RippleException =>
+        SnackBar.error("ripple.down_title", "ripple.down_message").show()
       case any: Throwable =>
         windowService.enableUserInterface()
         any.printStackTrace()

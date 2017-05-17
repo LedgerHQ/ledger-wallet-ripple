@@ -45,14 +45,9 @@ trait LedgerSignatureApi extends LedgerCommonApiInterface {
                       preparedPayment: String): Future[Array[Byte]] = {
     val batchSize: Int = 150
     val rawDerivationPath = new BytesWriter().writeDerivationPath(from).toByteArray
-    println(s"rawderiv ${rawDerivationPath.length}")
     val serialized = RippleSerializer.encode(preparedPayment)
-    println(s"serialized ${serialized.length}")
-    println("serialized", HexUtils.bytesToHex(serialized))
 
     def sendChunks(i: Int): Future[CommandResult] = {
-      println(s"chunk i $i")
-
       val offset = Math.max(i * batchSize - rawDerivationPath.length, 0)
       val length = batchSize - (if (i == 0) rawDerivationPath.length else 0)
       val chunk = (if (i == 0) rawDerivationPath else Array.empty[Byte]) ++ serialized.slice(offset, offset + length)

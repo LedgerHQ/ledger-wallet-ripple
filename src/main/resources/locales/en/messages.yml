@@ -134,19 +134,19 @@ send:
   insufficient_funds_title: Insufficient funds
   insufficient_funds_message: Your address doesn't have enough funds
   enable_data_title: Cannot add contract data
-  enable_data_message: Data are not allowed in your device Ripple app
+  enable_data_message: Data are not allowed in your device Ripple app.
   bad_amount_title: Empty amount
   bad_amount_message: The amount must be not null
   bad_fees_title: Bad fees
   bad_fees_message: The fees must be at least 12 drops
   bad_address_title: Invalid recipient address
-  bad_address_message: A valid address is required to send XRPs
+  bad_address_message: A valid address is required to send XRPs.
   network_unavailable_title: Network unavaiable
-  network_unavailable_message: Imposisble to reach the Ripple network
+  network_unavailable_message: Impossible to reach the Ripple network.
   advanced_mode: advanced mode
   standard_mode: standard mode
   bad_amount_for_address_creation_title: Insufficient initial transfer
-  bad_amount_for_address_creation_message: New Ripple addresss must be initialized with at least 20 XRP
+  bad_amount_for_address_creation_message: New Ripple addresss must be initialized with at least 20 XRP.
 
 
 # Send perform screen
@@ -162,7 +162,12 @@ send_perform:
   cancelled_title: Transaction failed
   cancelled_message: Transaction cancelled
   failed_title: Transaction failed
-  failed_message: Transaction rejected by the server
+  failed_message: Transaction not included in a validated ledger.
   bottom_text: If nothing is displayed on your device, contact help center.
+  slow_validation_title: Transaction expired
+  slow_validation_message: The transaction has expired without being included in a Ledger
 
-# Wiping alert window
+#ripple exception
+ripple:
+  down_title: Ripple Network Unavailable
+  down_message: The Ripple Network does not respond.
