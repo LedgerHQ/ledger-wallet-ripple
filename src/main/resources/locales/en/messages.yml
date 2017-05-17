@@ -166,6 +166,10 @@ send_perform:
   bottom_text: If nothing is displayed on your device, contact help center.
   slow_validation_title: Transaction expired
   slow_validation_message: The transaction has expired without being included in a Ledger
+  wait_title: Please wait
+  wait_message_1: The transaction is being broadcasted to the network and should be validated soon.
+  wait_message_2: Lower fees require more time to be accepted.
+
 
 #ripple exception
 ripple:

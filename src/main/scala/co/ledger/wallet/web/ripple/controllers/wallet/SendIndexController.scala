@@ -181,58 +181,61 @@ class SendIndexController(override val windowService: WindowService,
   }
 
   def send() = {
-    try {
-      val value = getAmountInput()
-      val recipient = getAddressInput()
-      if (value.isFailure) {
-        SnackBar.error("send.bad_amount_title", "send.bad_amount_message").show()
-      } else if (recipient.isFailure) {
-        SnackBar.error("send.bad_address_title", "send.bad_address_message").show()
-      }  else if (isInAdvancedMode && customFee.toInt < 10) {
-        SnackBar.error("send.bad_fees_title", "send.bad_fees_message").show()
-      } else {
-        windowService.disableUserInterface()
-        _api.account(recipient.get.toString) map {(exists) =>
-          println("exist", exists)
-          if (!exists && value.get<accountMinimum) {
-            SnackBar.error("send.bad_amount_for_address_creation_title", "send.bad_amount_for_address_creation_message").show()
-          } else {
-              println(s"Amount: $amount")
-              println(s"Recipient: $address")
-              println(s"Fee: $fee")
-              println(s"Tag: $tag")
-              sessionService.currentSession.get.wallet.balance() foreach {
-                (balance) =>
-                  if (computeTotal(false) > balance - XRP(accountMinimum)) {
-                    SnackBar.error("send.insufficient_funds_title", "send.insufficient_funds_message").show()
+    val value = getAmountInput()
+    val recipient = getAddressInput()
+    if (value.isFailure) {
+      SnackBar.error("send.bad_amount_title", "send.bad_amount_message").show()
+    } else if (recipient.isFailure) {
+      SnackBar.error("send.bad_address_title", "send.bad_address_message").show()
+    }  else if (isInAdvancedMode && customFee.toInt < 10) {
+      SnackBar.error("send.bad_fees_title", "send.bad_fees_message").show()
+    } else {
+      windowService.disableUserInterface()
+      _api.account(recipient.get.toString) map {(exists) =>
+        println("exist", exists)
+        if (!exists && value.get<accountMinimum) {
+          SnackBar.error("send.bad_amount_for_address_creation_title", "send.bad_amount_for_address_creation_message").show()
+        } else {
+          println(s"Amount: $amount")
+          println(s"Recipient: $address")
+          println(s"Fee: $fee")
+          println(s"Tag: $tag")
+          sessionService.currentSession.get.wallet.balance() foreach {
+            (balance) =>
+              if (computeTotal(false) > balance - XRP(accountMinimum)) {
+                SnackBar.error("send.insufficient_funds_title", "send.insufficient_funds_message").show()
+              } else {
+                deviceService.lastConnectedDevice().flatMap(LedgerApi(_).getAppConfiguration()) foreach { (conf) =>
+                  if (data.nonEmpty && !conf.isArbitraryDataSignatureEnabled) {
+                    SnackBar.error("send.enable_data_title", "send.enable_data_message").show()
                   } else {
-                    deviceService.lastConnectedDevice().flatMap(LedgerApi(_).getAppConfiguration()) foreach {(conf) =>
-                      if (data.nonEmpty && !conf.isArbitraryDataSignatureEnabled) {
-                        SnackBar.error("send.enable_data_title", "send.enable_data_message").show()
-                      } else {
-                        var tagInt = ""
-                        if (tag != "") {
-                          tagInt = "/" ++ tag
-                        }
-                        println(s"/send/${value.get.toString()}/to/$address/from/0/with/${fee.getOrElse(12)}/tag$tagInt")
-                        $location.path(s"/send/${value.get.toString()}/to/$address/from/0/with/${fee.getOrElse(12)}/tag$tagInt")
-                        $scope.$apply()
-                      }
+                    var tagInt = ""
+                    if (tag != "") {
+                      tagInt = "/" ++ tag
                     }
+                    println(s"/send/${value.get.toString()}/to/$address/from/0/with/${fee.getOrElse(12)}/tag$tagInt")
+                    $location.path(s"/send/${value.get.toString()}/to/$address/from/0/with/${fee.getOrElse(12)}/tag$tagInt")
+                    $scope.$apply()
                   }
+                }
               }
           }
         }
-        windowService.enableUserInterface()
       }
-    } catch {
-      case ex: RippleException =>
-        SnackBar.error("ripple.down_title", "ripple.down_message").show()
-      case any: Throwable =>
+    } onComplete {
+      case result =>
         windowService.enableUserInterface()
-        any.printStackTrace()
-        SnackBar.error("send.network_unavailable_title", "send.network_unavailable_message").show()
+        result match {
+          case Failure(ex: RippleException) =>
+            SnackBar.error("ripple.down_title", "ripple.down_message").show()
 
+          case Failure(any: Throwable) =>
+            windowService.enableUserInterface()
+            any.printStackTrace()
+            SnackBar.error("send.network_unavailable_title", "send.network_unavailable_message").show()
+
+          case all =>
+        }
     }
   }
   private val scanner = $element.find("qrcodescanner").scope().asInstanceOf[QrCodeScanner.Controller]

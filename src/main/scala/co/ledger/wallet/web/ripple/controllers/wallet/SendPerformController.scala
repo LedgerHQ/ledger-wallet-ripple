@@ -67,6 +67,7 @@ class SendPerformController(override val windowService: WindowService,
                             $routeParams: js.Dictionary[String]) extends Controller with WalletController {
   private val fee = XRP($routeParams("fee").toInt)
   private val _ledgerOffset = 12
+  var submitted = false
 
   case class ValidationTimeException() extends Exception("The transaction was not validated in time")
 
@@ -124,7 +125,11 @@ class SendPerformController(override val windowService: WindowService,
         }
       }
     } flatMap {(response) =>
-      val promise = Promise[api.SubmittedTransaction]()
+      submitted = true
+      setTimeout(0){
+        $scope.$digest()
+      }
+      val promise = Promise[Unit]()
       var timeOut: SetTimeoutHandle = null
       val receiver: EventReceiver = new EventReceiver {
         override def receive = {
@@ -133,7 +138,7 @@ class SendPerformController(override val windowService: WindowService,
               clearTimeout(timeOut)
               sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].websocketRipple.emmiter.unregister(this)
               api.emmiter.unregister(this)
-              promise.success(response)
+              promise.success()
             }
             if (txn == "disconnected") {
               clearTimeout(timeOut)
@@ -163,16 +168,9 @@ class SendPerformController(override val windowService: WindowService,
     } andThen {
       case all => rippleLibApiService.close()
     } onComplete {
-      case Success(response) =>
-        if (response.resultCode == "tesSUCCESS") {
-          sessionService.currentSession.get.sessionPreferences.remove(SendIndexController.RestoreKey)
-          SnackBar.success("send_perform.completed_title", "send_perform.completed_message").show()
-        } else if (response.resultCode == "terQUEUED") {
-          sessionService.currentSession.get.sessionPreferences.remove(SendIndexController.RestoreKey)
-          SnackBar.success("send_perform.queued_title", "send_perform.completed_message_queued").show()
-        } else {
-          SnackBar.error("send_perform.failed_title", "send_perform.failed_message").show()
-        }
+      case Success(e) =>
+        sessionService.currentSession.get.sessionPreferences.remove(SendIndexController.RestoreKey)
+        SnackBar.success("send_perform.completed_title", "send_perform.completed_message").show()
         $location.url("/send")
         $route.reload()
       case  Failure(ex: ValidationTimeException) =>
@@ -198,16 +196,10 @@ class SendPerformController(override val windowService: WindowService,
         $route.reload()
     }
   }
-
-
-
   send()
-
-
   $scope.$on("$destroy", {() =>
     windowService.enableUserInterface()
   })
-
 }
 
 object SendPerformController {

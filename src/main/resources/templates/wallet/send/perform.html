@@ -1,5 +1,5 @@
 <div class="wallet-view" ng-controller="SendPerformController as ctrl">
-    <section class="fullsize centered-content no-top-margin">
+    <section ng-hide="ctrl.submitted" class="fullsize centered-content no-top-margin">
         <header>
             <h1 translate>send_perform.page_title</h1>
         </header>
@@ -13,8 +13,29 @@
                 send_perform.review_2
             </div>
         </div>
+
+
         <div class="stick-to-bottom regular-soft-grey-text-small" translate>
             send_perform.bottom_text
+        </div>
+    </section>
+    <section ng-hide="!ctrl.submitted" class="fullsize centered-content no-top-margin">
+        <header>
+            <h1 translate>send_perform.page_title</h1>
+        </header>
+        <div>
+            <spinner></spinner>
+            <div class="almost-medium-top-margin regular-text" translate>send_perform.wait_title</div>
+            <div class="almost-small-top-margin regular-grey-text-small centered-text" translate>
+                send_perform.wait_message_1
+            </div>
+            <div class="almost-small-top-margin regular-grey-text-small centered-text" translate>
+                send_perform.wait_message_2
+            </div>
+        </div>
+
+
+        <div class="stick-to-bottom regular-soft-grey-text-small" translate>
         </div>
     </section>
 </div>
