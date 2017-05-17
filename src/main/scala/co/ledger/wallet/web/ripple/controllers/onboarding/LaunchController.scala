@@ -113,6 +113,7 @@ class LaunchController(override val windowService: WindowService,
   }
 
   def connectDevice(device: Device): Unit = {
+    println("connect device")
     device.connect() flatMap { (_) =>
       deviceService.registerDevice(device)
     } flatMap { (_) =>
@@ -158,7 +159,6 @@ class LaunchController(override val windowService: WindowService,
 
 
   {if (_discover == 1) {
-    println("skip")
     Future.successful(None)
   } else {
     println("checking version")

@@ -11,8 +11,8 @@
         <section ng-hide="!ctrl.isInErrorMode">
             <img src="images/common/ic_error_big_red.png" />
             <div class="light-very-large-text almost-medium-top-margin" translate>opening.sync_error.title</div>
-            <div class="light-grey-text-almost-small almost-small-top-margin" translate>opening.sync_error.detail_1</div>
-            <div class="light-grey-text-almost-small very-small-top-margin" translate>opening.sync_error.detail_2</div>
+            <div class="light-grey-text-almost-small almost-small-top-margin" translate>{{"opening.sync_error.detail_"+ctrl.errorType | translate}}</div>
+            <div class="light-grey-text-almost-small very-small-top-margin"  translate>opening.sync_error.detail_2</div>
         </section>
         <div class="footers-container">
             <footer id="plugFooter" ng-click="ctrl.openHelpCenter()"><a translate>onboarding.help_center</a></footer>

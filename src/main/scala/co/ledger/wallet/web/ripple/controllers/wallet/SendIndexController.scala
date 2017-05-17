@@ -67,6 +67,7 @@ class SendIndexController(override val windowService: WindowService,
   var data = ""
   var customFee = "10"
   var tag: String  = ""
+  val accountMinimum = 20000000
 
 
   var total = XRP.Zero.toBigInt.toString()
@@ -78,7 +79,7 @@ class SendIndexController(override val windowService: WindowService,
   def feeDisplay = fee.getOrElse(XRP.Zero).toXRP
 
   var isInAdvancedMode = false
-  val supportAdvancedMode = sessionService.currentSession.get.dongleAppVersion >= "1.0.0"
+  val supportAdvancedMode = true
 
   sessionService.currentSession.get.wallet.eventEmitter.register(this)
 
@@ -113,7 +114,7 @@ class SendIndexController(override val windowService: WindowService,
 
   def max(): Unit = {
     sessionService.currentSession.get.wallet.balance() foreach {(b) =>
-      var a = new XRP(b.toBigInt - fee.getOrElse(XRP.Zero).toBigInt) //minus fees
+      var a = new XRP(b.toBigInt - fee.getOrElse(XRP.Zero).toBigInt - XRP(accountMinimum).toBigInt) //minus fees
       if (a.toBigInt < 0)
         a = XRP(0)
       amount = a.toXRP.toString()
@@ -186,7 +187,7 @@ class SendIndexController(override val windowService: WindowService,
         windowService.disableUserInterface()
         _api.account(recipient.get.toString) map {(exists) =>
           println("exist", exists)
-          if (!exists && value.get<20000000) {
+          if (!exists && value.get<accountMinimum) {
             SnackBar.error("send.bad_amount_for_address_creation_title", "send.bad_amount_for_address_creation_message").show()
           } else {
               println(s"Amount: $amount")
@@ -195,7 +196,7 @@ class SendIndexController(override val windowService: WindowService,
               println(s"Tag: $tag")
               sessionService.currentSession.get.wallet.balance() foreach {
                 (balance) =>
-                  if (computeTotal(false) > balance) {
+                  if (computeTotal(false) > balance - XRP(accountMinimum)) {
                     SnackBar.error("send.insufficient_funds_title", "send.insufficient_funds_message").show()
                   } else {
                     deviceService.lastConnectedDevice().flatMap(LedgerApi(_).getAppConfiguration()) foreach {(conf) =>

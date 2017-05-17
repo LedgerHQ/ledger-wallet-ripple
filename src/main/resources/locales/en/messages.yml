@@ -77,6 +77,7 @@ opening:
     title: Unable to synchronize your wallet.
     detail_1: Quit and re-open the Ripple app on your device.
     detail_2: If the problem persists, please contact our help center.
+    detail_3: Another application is interfering with the wallet. Try closing it and restart your wallet.
 
 # Wallet common
 

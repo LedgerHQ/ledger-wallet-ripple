@@ -78,13 +78,16 @@ class DeviceService($location: Location,  $route: js.Dynamic, sessionService: Se
 
   private val _preferences = new ChromeGlobalPreferences("DeviceService")
 
+  var toto = 0
   private val _eventReceiver = new EventReceiver {
     override def receive: Receive = {
       case Connect(_) =>
       case Disconnect(_) =>
         sessionService.stopCurrentSessions()
-        $location.path("/onboarding/launch/1")
-        $route.reload()
+        if(!($location.path == "/onboarding/launch/1" || $location.path == "/onboarding/launch/0")){
+          $location.path("/")
+          $route.reload()
+        }
     }
   }
 

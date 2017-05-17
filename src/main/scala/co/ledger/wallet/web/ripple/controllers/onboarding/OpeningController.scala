@@ -55,6 +55,7 @@ class OpeningController(override val windowService: WindowService,
   println("opening ctrl")
 
   var isInErrorMode = false
+  var errorType = 2
   deviceService.lastConnectedDevice() map {(device) =>
     LedgerApi(device)
   } flatMap {(api) =>
@@ -71,10 +72,13 @@ class OpeningController(override val windowService: WindowService,
     Future.successful()
   } onComplete {
     case Success(_) =>
-      $location.url("/account/0")
+      $location.url("/account/0/")
       $route.reload()
     case Failure(ex) =>
       ex.printStackTrace()
+      if (ex.getMessage().contains("Invalid channel")) {
+        errorType = 3
+      }
       isInErrorMode = true
       $scope.$apply()
   }
