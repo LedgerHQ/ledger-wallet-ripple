@@ -174,7 +174,7 @@ class SendPerformController(override val windowService: WindowService,
         $location.url("/send")
         $route.reload()
       case  Failure(ex: ValidationTimeException) =>
-        SnackBar.error("send_perform.slow_validation_title", "send_perform.slow_validation_message").show()
+        SnackBar.error("send_perform.expired_title", "send_perform.expired_message").show()
         $location.url("/send")
         $route.reload()
       case Failure(ex: LedgerApiException) =>

@@ -136,17 +136,17 @@ send:
   enable_data_title: Cannot add contract data
   enable_data_message: Data are not allowed in your device Ripple app.
   bad_amount_title: Empty amount
-  bad_amount_message: The amount must be not null
+  bad_amount_message: The amount must not be empty
   bad_fees_title: Bad fees
-  bad_fees_message: The fees must be at least 12 drops
+  bad_fees_message: The fees must be at least 10 drops
   bad_address_title: Invalid recipient address
-  bad_address_message: A valid address is required to send XRPs.
-  network_unavailable_title: Network unavaiable
-  network_unavailable_message: Impossible to reach the Ripple network.
+  bad_address_message: A valid address is required to send XRPs
+  network_unavailable_title: Network unavailable
+  network_unavailable_message: Impossible to reach the Ripple network
   advanced_mode: advanced mode
   standard_mode: standard mode
   bad_amount_for_address_creation_title: Insufficient initial transfer
-  bad_amount_for_address_creation_message: New Ripple addresss must be initialized with at least 20 XRP.
+  bad_amount_for_address_creation_message: New Ripple addresss must be initialized with at least 20 XRP
 
 
 # Send perform screen
@@ -162,10 +162,10 @@ send_perform:
   cancelled_title: Transaction failed
   cancelled_message: Transaction cancelled
   failed_title: Transaction failed
-  failed_message: Transaction not included in a validated ledger.
+  failed_message: Transaction failed
   bottom_text: If nothing is displayed on your device, contact help center.
-  slow_validation_title: Transaction expired
-  slow_validation_message: The transaction has expired without being included in a Ledger
+  expired_title: Transaction expired
+  expired_message: The transaction has expired
   wait_title: Please wait
   wait_message_1: The transaction is being broadcasted to the network and should be validated soon.
   wait_message_2: Lower fees require more time to be accepted.
@@ -174,4 +174,4 @@ send_perform:
 #ripple exception
 ripple:
   down_title: Ripple Network Unavailable
-  down_message: The Ripple Network does not respond.
+  down_message: The Ripple Network does not respond

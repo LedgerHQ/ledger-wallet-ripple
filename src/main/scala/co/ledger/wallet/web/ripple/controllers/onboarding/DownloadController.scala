@@ -22,7 +22,7 @@ class DownloadController (override val windowService: WindowService,
                         $routeParams: js.Dictionary[String])
   extends Controller with OnBoardingController {
 
-  private val _tag = $routeParams("tag")
+  val tag = $routeParams("tag")
   def accept(): Unit = {
     WindowManager.open("https://www.ledgerwallet.com/apps/ripple#get-the-apps")
   }
@@ -36,7 +36,7 @@ class DownloadController (override val windowService: WindowService,
   }
 
   def link(): Unit = {
-    WindowManager.open("https://github.com/LedgerHQ/ledger-wallet-ripple/releases/tag/"+_tag)
+    WindowManager.open("https://github.com/LedgerHQ/ledger-wallet-ripple/releases/tag/"+tag)
 
   } //https://github.com/LedgerHQ/ledger-wallet-ripple/releases/tag/0.0.3
 

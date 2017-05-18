@@ -85,7 +85,7 @@ class DeviceService($location: Location,  $route: js.Dynamic, sessionService: Se
       case Disconnect(_) =>
         sessionService.stopCurrentSessions()
         if(!($location.path == "/onboarding/launch/1" || $location.path == "/onboarding/launch/0")){
-          $location.path("/")
+          $location.path("/") // the fact that we redirect to default instead of launch
           $route.reload()
         }
     }
