@@ -1,11 +1,16 @@
 package co.ledger.wallet.web.ripple.core.utils
 
 import co.ledger.wallet.core.utils.Preferences
+import co.ledger.wallet.web.ripple.core.database.QueryHelper
+import co.ledger.wallet.web.ripple.core.idb.IndexedDb
+import org.scalajs.dom.idb
+import org.scalajs.dom.raw.{ErrorEvent, Event}
 import upickle.Js
 
 import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js
+import scala.util.{Failure, Success}
 
 /**
   *
@@ -142,6 +147,7 @@ class ChromePreferences(name: String) extends Preferences {
     }
 
     override def commit(): Unit = {
+      import scala.concurrent.ExecutionContext.Implicits.global
       // Clear data if necessary
       if (_clearAll) {
         _data = Map[String, Any]()
@@ -181,32 +187,64 @@ class ChromeGlobalPreferences(name: String) extends ChromePreferences(name) {
 
 object ChromePreferences {
   import upickle.default._
+  import scala.concurrent.ExecutionContext.Implicits.global
+  private var _connection: Option[idb.Database] = None
+  private def connection: Option[idb.Database] = _connection
+  private def open(): Future[idb.Database] = {
+    IndexedDb.open("ChromePreferences", Some(1)) {(connection, transaction) =>
+      connection.createObjectStore("data")
+    } andThen {
+      case Success(connection) => _connection = Option(connection)
+      case Failure(ex) => ex.printStackTrace()
+    }
+  }
 
+  private def obtainConnection(): Future[idb.Database] = {
+    connection match {
+      case Some(c) => Future.successful(c)
+      case None => open()
+    }
+  }
   val GlobalStoreName = "global"
 
   def init(): Future[Unit] = load(GlobalStoreName, "", _globals)
 
   def load(name: String, password: String): Future[Unit] = load(name, password, _data)
 
-  private def load(name: String, password: String, map: scala.collection.mutable.Map[String, String]): Future[Unit] = {
+  private def load(name: String, password: String, map: scala.collection.mutable.Map[String, String])(implicit ec: ExecutionContext): Future[Unit] = {
     import js._
     import Dynamic._
 
     _currentStoreName = name
     val promise = scala.concurrent.Promise[Unit]()
-    val chrome = global.chrome
-    chrome.storage.local.get(name, {(result: Dictionary[String]) =>
-      val json = if (result.contains(name)) result(name) else "{}"
-      read[Map[String, String]](json) foreach {
-        case (key, value) =>
-          map(key) = value
+    obtainConnection() map { (db) =>
+      val request = db.transaction("data", "readonly").objectStore("data").get(name)
+      request.onsuccess = { (event: Event) =>
+        var jsonString = "{}"
+        var json = event.target.asInstanceOf[js.Dynamic].result
+        if (!js.isUndefined(json)){
+          jsonString = json.asInstanceOf[String]
+        }
+        read[Map[String, String]](jsonString) foreach {
+          case (key, value) =>
+            map(key) = value
+        }
+        promise.success()
+
       }
-      promise.success()
-    })
+      request.onerror = {(ex: ErrorEvent) =>
+        read[Map[String, String]]("{}") foreach {
+          case (key, value) =>
+            map(key) = value
+        }
+        promise.failure(new Exception("failed loading indexed db preferences"))
+
+      }
+    }
     promise.future
   }
 
-  private[ChromePreferences] def save(name: String, data: Map[String, _], global: Boolean): Unit = {
+  private[ChromePreferences] def save(name: String, data: Map[String, _], global: Boolean)(implicit ec: ExecutionContext): Unit = {
     val d = if (global) _globals else _data
     def scala2JsonValue(x: Any): Js.Value = {
       x match {
@@ -248,10 +286,9 @@ object ChromePreferences {
     save(global)
   }
 
-  private def save(isGlobal: Boolean): Unit = {
+  private def save(isGlobal: Boolean)(implicit ec: ExecutionContext): Unit = {
     import js._
     import Dynamic._
-    val chrome = global.chrome
 
     val name = if (isGlobal) GlobalStoreName else _currentStoreName
     val data = if (isGlobal) _globals else _data
@@ -261,9 +298,9 @@ object ChromePreferences {
         kvs = kvs :+ (key -> Js.Str(value))
     }
     val serialized = upickle.json.write(Js.Obj(kvs:_*))
-    chrome.storage.local.set(js.Dictionary[String](
-      name -> serialized
-    ))
+    obtainConnection() map { (db) =>
+      db.transaction("data", "readwrite").objectStore("data").put(serialized,name)
+    }
   }
 
   private[ChromePreferences] def get(name: String, global: Boolean): Map[String, _] = {

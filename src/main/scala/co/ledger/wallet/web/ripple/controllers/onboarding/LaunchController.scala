@@ -151,6 +151,14 @@ class LaunchController(override val windowService: WindowService,
 
   def incrementNumberOfConnection() = new ChromeGlobalPreferences("launches").edit().putInt("count", numberOfConnection + 1).commit()
 
+  def settings() = {
+    var default = new ChromeGlobalPreferences("Settings").string("node").getOrElse("wss://s1.ripple.com")
+    if (default==null) default = "wss://s1.ripple.com"
+    var input = js.Dynamic.global.prompt("Ripple Node :", default.asInstanceOf[String])
+    if (!js.isUndefined(input)) {
+      new ChromeGlobalPreferences("Settings").edit().putString("node", input.asInstanceOf[String]).commit()
+    }
+  }
   private def stopDeviceDiscovery(): Unit = {
     Option(_scanRequest) foreach { (request) =>
       request.stop()

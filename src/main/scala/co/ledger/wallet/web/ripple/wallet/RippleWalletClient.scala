@@ -13,6 +13,7 @@ import co.ledger.wallet.core.wallet.ripple.database.AccountRow
 import co.ledger.wallet.core.wallet.ripple.events.NewTransaction
 import co.ledger.wallet.web.ripple.core.event.JsEventEmitter
 import co.ledger.wallet.web.ripple.core.net.JsWebSocketFactory
+import co.ledger.wallet.web.ripple.core.utils.ChromeGlobalPreferences
 import co.ledger.wallet.web.ripple.services.SessionService
 import co.ledger.wallet.web.ripple.wallet.database.RippleDatabase
 
@@ -113,7 +114,7 @@ class RippleWalletClient(override val name: String,
       _webSocketRipple.get.stop()
     }
   }
-  private def websocketFactory: WebSocketFactory = new JsWebSocketFactory(new URI(s"wss://s1.ripple.com"))
+  private def websocketFactory: WebSocketFactory = new JsWebSocketFactory(new URI(new ChromeGlobalPreferences("Settings").string("node").get))
 
   private var _webSocketRipple: Option[WebSocketRipple] = None
 

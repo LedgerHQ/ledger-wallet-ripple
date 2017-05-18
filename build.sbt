@@ -30,7 +30,6 @@ libraryDependencies ++= Seq(
   "io.circe" %%% "circe-parser"
 ).map(_ % circeVersion)
 libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "0.2.0"
-
 libraryDependencies += "org.scala-js" %%% "scalajs-java-time" % "0.2.0"
 libraryDependencies += "biz.enef" %%% "scalajs-angulate" % "0.2.4"
 libraryDependencies += "net.lullabyte" %%% "scala-js-chrome" % "0.2.1"

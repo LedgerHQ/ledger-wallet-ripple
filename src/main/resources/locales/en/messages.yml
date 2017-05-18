@@ -33,6 +33,7 @@ common:
 # Onboarding common
 onboarding:
   help_center: Need assistance?
+  settings: Change Node
 
 # Update screen
 update:
@@ -42,11 +43,11 @@ update:
 
 # Download screen
 download:
-  title: Update available
+  title: update available
   message: A new release of Ledger Wallet Ripple is available. To benefit the latest features in terms of security and stability we strongly recommend that you install it now.
   release : View release notes
   install : Install
-  skip : Dismiss
+  skip : Ignore
 
 
 # Navigation bar
@@ -76,8 +77,9 @@ opening:
   sync_error:
     title: Unable to synchronize your wallet.
     detail_1: Quit and re-open the Ripple app on your device.
-    detail_2: If the problem persists, please contact our help center.
-    detail_3: Another application is interfering with the wallet. Try closing it and restart your wallet.
+    detail_4: If the problem persists, please contact our help center.
+    detail_2: Another application is interfering with the wallet.
+    detail_3: Try closing it and restart your wallet.
 
 # Wallet common
 
@@ -133,11 +135,9 @@ send:
   place_qr_code: Place the QR code in the center of the image
   insufficient_funds_title: Insufficient funds
   insufficient_funds_message: Your address doesn't have enough funds
-  enable_data_title: Cannot add contract data
-  enable_data_message: Data are not allowed in your device Ripple app.
   bad_amount_title: Empty amount
   bad_amount_message: The amount must not be empty
-  bad_fees_title: Bad fees
+  bad_fees_title: Insufficient fees
   bad_fees_message: The fees must be at least 10 drops
   bad_address_title: Invalid recipient address
   bad_address_message: A valid address is required to send XRPs

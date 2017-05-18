@@ -4,6 +4,7 @@ import co.ledger.wallet.core.device.utils.{EventEmitter, EventReceiver}
 import co.ledger.wallet.core.net.{WebSocket, WebSocketFactory}
 import co.ledger.wallet.core.wallet.ripple.events.{NewBlock, NewTransaction}
 import co.ledger.wallet.web.ripple.core.event.JsEventEmitter
+import co.ledger.wallet.web.ripple.core.utils.ChromeGlobalPreferences
 import co.ledger.wallet.web.ripple.wallet.RippleWalletClient
 import org.json.JSONObject
 
@@ -31,7 +32,7 @@ class WebSocketRipple(factory: WebSocketFactory,
 
   private def connect(): Unit = {
     println("connectiong socket")
-    _socket  = Some(factory.connect("wss://s1.ripple.com"))
+    _socket  = Some(factory.connect(""))
     _socket.get onComplete {
       case Success(ws) =>
         println("success socket")

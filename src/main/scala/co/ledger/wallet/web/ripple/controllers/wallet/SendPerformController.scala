@@ -13,6 +13,7 @@ import co.ledger.wallet.core.wallet.ripple.api.WebsocketRipple.WebsocketRippleEv
 import co.ledger.wallet.core.wallet.ripple.{RippleAccount, XRP}
 import co.ledger.wallet.web.ripple.components.{RippleSerializer, SnackBar}
 import co.ledger.wallet.web.ripple.core.net.JQHttpClient
+import co.ledger.wallet.web.ripple.core.utils.ChromeGlobalPreferences
 import co.ledger.wallet.web.ripple.services.{DeviceService, RippleLibApiService, SessionService, WindowService}
 import co.ledger.wallet.web.ripple.wallet.RippleLibApi.LedgerEvent
 import co.ledger.wallet.web.ripple.wallet.RippleWalletClient
@@ -87,7 +88,7 @@ class SendPerformController(override val windowService: WindowService,
     var deviceLocal: Device = null
     var tx: js.Dynamic = null
     windowService.disableUserInterface()
-    val apiOption = rippleLibApiService.api.APIOption(server = Some("wss://s1.ripple.com"))
+    val apiOption = rippleLibApiService.api.APIOption(server = Some(new ChromeGlobalPreferences("Settings").string("node").get))
     rippleLibApiService.init(apiOption) flatMap { (_) =>
       sessionService.currentSession.get.wallet.account(accountId) flatMap { (account) =>
         account.rippleAccount() flatMap { (rippleAccount_) =>
@@ -134,7 +135,7 @@ class SendPerformController(override val windowService: WindowService,
       val receiver: EventReceiver = new EventReceiver {
         override def receive = {
           case WebsocketRippleEvent(txn) =>
-            if (false /*(txn == tx.TxnSignature)*/){
+            if ((txn == tx.TxnSignature)){
               clearTimeout(timeOut)
               sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].websocketRipple.emmiter.unregister(this)
               api.emmiter.unregister(this)
