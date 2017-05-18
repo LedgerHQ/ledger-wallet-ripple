@@ -70,12 +70,9 @@ class LaunchController(override val windowService: WindowService,
   private var _discover: Int = (if ($routeParams.contains("discover")) $routeParams("discover").toInt else 0)
   private val preferences = new ChromeGlobalPreferences("launch_screen")
 
-  if (new ChromePreferences("update").int("skip").getOrElse(0) == 1) {
+  if (_discover == 1 || new ChromePreferences("update").int("skip").getOrElse(0) == 1) {
     _discover = 1
-    println("arti")
     new ChromePreferences("update").edit().putInt("skip", 1).commit()
-  } else {
-    println(new ChromePreferences("update").int("skip").getOrElse(0))
   }
 
   private def animate(discover: Boolean) = {
