@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Ledger Wallet Ripple",
   "description": "Ledger Wallet application for Ripple",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "default_locale": "en",
   "minimum_chrome_version": "50",
   "app": {
