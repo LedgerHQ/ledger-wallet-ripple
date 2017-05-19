@@ -154,6 +154,7 @@ class LaunchController(override val windowService: WindowService,
   def settings() = {
     var default = new ChromeGlobalPreferences("Settings").string("node").getOrElse("wss://s1.ripple.com")
     if (default==null) default = "wss://s1.ripple.com"
+
     var input = js.Dynamic.global.prompt("Ripple Node :", default.asInstanceOf[String])
     if (!js.isUndefined(input)) {
       new ChromeGlobalPreferences("Settings").edit().putString("node", input.asInstanceOf[String]).commit()
@@ -163,6 +164,9 @@ class LaunchController(override val windowService: WindowService,
     Option(_scanRequest) foreach { (request) =>
       request.stop()
     }
+  }
+  if (!new ChromeGlobalPreferences("Settings").contains("node")){
+    new ChromeGlobalPreferences("Settings").edit().putString("node", "wss://s1.ripple.com").commit()
   }
 
   jQuery($element.find("#introFooter")).height(11)
