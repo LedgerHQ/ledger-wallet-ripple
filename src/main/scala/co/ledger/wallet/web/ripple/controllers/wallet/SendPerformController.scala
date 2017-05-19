@@ -88,7 +88,7 @@ class SendPerformController(override val windowService: WindowService,
     var deviceLocal: Device = null
     var tx: js.Dynamic = null
     windowService.disableUserInterface()
-    val apiOption = rippleLibApiService.api.APIOption(server = Some(new ChromeGlobalPreferences("Settings").string("node").getOrElse("wss://s1.ripple.com")))
+    val apiOption = rippleLibApiService.api.APIOption(server = Some(new ChromeGlobalPreferences("Settings").string("node").get))
     rippleLibApiService.init(apiOption) flatMap { (_) =>
       sessionService.currentSession.get.wallet.account(accountId) flatMap { (account) =>
         account.rippleAccount() flatMap { (rippleAccount_) =>

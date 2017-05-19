@@ -159,8 +159,8 @@ send_perform:
   queued_title: Transaction queued
   completed_message: Successfully broadcasted to network
   completed_message_queued: Successfully queued to network until escalated fees drop
-  cancelled_title: Transaction cancelled
-  cancelled_message: Transaction cancelled by user
+  cancelled_title: Transaction failed
+  cancelled_message: Transaction cancelled
   failed_title: Transaction failed
   failed_message: Transaction failed
   bottom_text: If nothing is displayed on your device, contact help center.
