@@ -165,6 +165,10 @@ class LaunchController(override val windowService: WindowService,
     }
   }
 
+  if (!new ChromeGlobalPreferences("Settings").contains("node")) {
+    new ChromeGlobalPreferences("Settings").edit().putString("node", "wss://s1.ripple.com").commit()
+  }
+
   jQuery($element.find("#introFooter")).height(11)
 
   $scope.$on("$destroy", { (obj: js.Any, ob: js.Any) =>
