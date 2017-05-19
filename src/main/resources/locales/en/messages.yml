@@ -33,7 +33,7 @@ common:
 # Onboarding common
 onboarding:
   help_center: Need assistance?
-  settings: Change Node
+  settings: Change node
 
 # Update screen
 update:

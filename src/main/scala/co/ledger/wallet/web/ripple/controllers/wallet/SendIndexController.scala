@@ -183,7 +183,7 @@ class SendIndexController(override val windowService: WindowService,
   def send() = {
     val value = getAmountInput()
     val recipient = getAddressInput()
-    if (value.isFailure) {
+    if (value.isFailure || value.get == 0) {
       SnackBar.error("send.bad_amount_title", "send.bad_amount_message").show()
     } else if (recipient.isFailure) {
       SnackBar.error("send.bad_address_title", "send.bad_address_message").show()
