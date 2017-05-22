@@ -162,9 +162,9 @@ class LaunchController(override val windowService: WindowService,
       val regex = "ws(s)?:\\/\\/[0-9\\.a-zA-Z\\-_]+(:([\\d]+)([\\/([0-9\\.a-zA-Z\\-_]+)?)?".r.findFirstIn(input.asInstanceOf[String])
       if (regex.isDefined) {
         new ChromeGlobalPreferences("Settings").edit().putString("node", regex.get).commit()
-        println("test regex store")
+        SnackBar.success("launch.success_node_title", regex.get).show()
       } else {
-        SnackBar.error("launch.wrong_node_error", "launch.wrong_node_message").show()
+        SnackBar.error("launch.wrong_node_title", "").show()
       }
     }
   }

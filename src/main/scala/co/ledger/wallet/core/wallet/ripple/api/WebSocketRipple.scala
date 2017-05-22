@@ -30,12 +30,15 @@ class WebSocketRipple(factory: WebSocketFactory,
     }
   }
 
+  var connected = false
+
   private def connect(): Unit = {
     println("connectiong socket")
     _socket  = Some(factory.connect(""))
     _socket.get onComplete {
       case Success(ws) =>
         println("success socket")
+        connected = true
         val subscribeMessage = js.Dynamic.literal(
           command = "subscribe",
           accounts = js.Array(addresses(0))) //TODO: change in case of multi account
@@ -43,6 +46,7 @@ class WebSocketRipple(factory: WebSocketFactory,
         ws.onJsonMessage(onMessage _)
         ws onClose {(ex) =>
           println("close websocket")
+          connected = false
           emmiter.emit(WebsocketRippleEvent("disconnected"))
           ex.printStackTrace()
           if (isRunning)

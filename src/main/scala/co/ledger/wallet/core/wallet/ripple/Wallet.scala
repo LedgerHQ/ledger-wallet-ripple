@@ -48,6 +48,7 @@ trait Wallet {
   def operations(from: Int, batchSize: Int = Wallet.DefaultOperationsBatchSize)
     : Future[AsyncCursor[Operation]]
   def eventEmitter: EventEmitter
+  def isConnected(): Boolean
   def stop(): Unit
 }
 
