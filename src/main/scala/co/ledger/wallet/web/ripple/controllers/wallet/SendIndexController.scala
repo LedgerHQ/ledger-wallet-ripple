@@ -189,6 +189,8 @@ class SendIndexController(override val windowService: WindowService,
       SnackBar.error("send.bad_address_title", "send.bad_address_message").show()
     }  else if (isInAdvancedMode && customFee.toInt < 10) {
       SnackBar.error("send.bad_fees_title", "send.bad_fees_message").show()
+    }  else if (isInAdvancedMode && customFee.toInt < 10) {
+      SnackBar.error("send.bad_fees_title", "send.bad_fees_message").show()
     } else {
       windowService.disableUserInterface()
       _api.account(recipient.get.toString) map {(exists) =>

@@ -5,7 +5,7 @@ import biz.enef.angulate.core.{JQLite, Location}
 import biz.enef.angulate.{Controller, Scope}
 import co.ledger.wallet.core.device.ripple.LedgerApi
 import co.ledger.wallet.web.ripple.components.WindowManager
-import co.ledger.wallet.web.ripple.core.utils.ChromePreferences
+import co.ledger.wallet.web.ripple.core.utils.{ChromeGlobalPreferences, ChromePreferences}
 import co.ledger.wallet.web.ripple.services.{DeviceService, SessionService, WindowService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -54,6 +54,7 @@ class OpeningController(override val windowService: WindowService,
   extends Controller with OnBoardingController {
   println("opening ctrl")
 
+  println("Node value = ", new ChromeGlobalPreferences("Settings").string("node").getOrElse("else"))
   var isInErrorMode = false
   var errorType = 2
   deviceService.lastConnectedDevice() map {(device) =>

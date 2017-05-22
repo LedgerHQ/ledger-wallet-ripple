@@ -175,7 +175,7 @@ class RippleLibApi() {
   @JsonCodec case class Destination(
                                      address: String,
                                      amount: Option[LaxAmount] = None,
-                                     tag: Option[Int] = None,
+                                     tag: Option[Long] = None,
                                      minAmount: Option[LaxAmount] = None
                                    )
 

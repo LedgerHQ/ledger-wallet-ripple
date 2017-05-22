@@ -9,7 +9,7 @@ import co.ledger.wallet.core.device.DeviceFactory.{DeviceDiscovered, DeviceLost,
 import co.ledger.wallet.core.device.ripple.LedgerApi
 import co.ledger.wallet.core.device.{Device, DeviceFactory}
 import co.ledger.wallet.core.utils.DerivationPath
-import co.ledger.wallet.web.ripple.components.WindowManager
+import co.ledger.wallet.web.ripple.components.{SnackBar, WindowManager}
 import co.ledger.wallet.web.ripple.core.utils.{ChromeGlobalPreferences, ChromePreferences, JQueryHelper, OsHelper}
 import co.ledger.wallet.web.ripple.services.{DeviceService, WindowService}
 import org.scalajs.jquery.jQuery
@@ -63,6 +63,7 @@ class LaunchController(override val windowService: WindowService,
 
   import timers._
 
+  implicit val ws = windowService
   println("launch path", js.JSON.stringify($routeParams))
 
 
@@ -151,12 +152,20 @@ class LaunchController(override val windowService: WindowService,
 
   def incrementNumberOfConnection() = new ChromeGlobalPreferences("launches").edit().putInt("count", numberOfConnection + 1).commit()
 
-  def settings() = {
+  def settings(): Unit = {
     var default = new ChromeGlobalPreferences("Settings").string("node").getOrElse("wss://s1.ripple.com")
-    if (default==null) default = "wss://s1.ripple.com"
+    if (default==null) {
+      default = "wss://s1.ripple.com"
+    }
     var input = js.Dynamic.global.prompt("Ripple Node :", default.asInstanceOf[String])
-    if (!js.isUndefined(input)) {
-      new ChromeGlobalPreferences("Settings").edit().putString("node", input.asInstanceOf[String]).commit()
+    if (!js.isUndefined(input) && input!=null) {
+      val regex = "ws(s)?:\\/\\/[0-9\\.a-zA-Z\\-_]+(:([\\d]+)([\\/([0-9\\.a-zA-Z\\-_]+)?)?".r.findFirstIn(input.asInstanceOf[String])
+      if (regex.isDefined) {
+        new ChromeGlobalPreferences("Settings").edit().putString("node", regex.get).commit()
+        println("test regex store")
+      } else {
+        SnackBar.error("launch.wrong_node_error", "launch.wrong_node_message").show()
+      }
     }
   }
   private def stopDeviceDiscovery(): Unit = {

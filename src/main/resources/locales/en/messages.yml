@@ -61,6 +61,8 @@ launch:
   unlock_and_open_app: Then, open the Ripple app on your device.
   ripple_chain: Ripple chain
   xrp: XRP
+  wrong_node_title: Bad node address
+  wrong_node_message: The node' s address seems uncorrect
 
 # Linux launch screen
 

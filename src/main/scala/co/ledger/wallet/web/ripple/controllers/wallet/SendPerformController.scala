@@ -79,7 +79,7 @@ class SendPerformController(override val windowService: WindowService,
     XRP($routeParams("amount"))
     val to =
     RippleAccount($routeParams("recipient").trim)
-    val tag: Option[Int] = (if ($routeParams.contains("tag")) Some($routeParams("tag").toInt) else None)
+    val tag: Option[Long] = (if ($routeParams.contains("tag")) Some($routeParams("tag").toLong) else None)
     val data = $routeParams.lift("data").map(_.replace("0x", "")).map(HexUtils.decodeHex)
     val api = rippleLibApiService.api
     var rippleAccount: RippleAccount = RippleAccount("rrrrrrrrrrrrrrrrrrrrrhoLvTp")
