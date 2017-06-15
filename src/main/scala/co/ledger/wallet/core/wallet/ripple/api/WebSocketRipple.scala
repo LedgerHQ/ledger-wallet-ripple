@@ -29,6 +29,7 @@ class WebSocketRipple(factory: WebSocketFactory,
 
     }
   }
+  var connected = false
 
   private def connect(): Unit = {
     println("connectiong socket")
@@ -36,6 +37,7 @@ class WebSocketRipple(factory: WebSocketFactory,
     _socket.get onComplete {
       case Success(ws) =>
         println("success socket")
+        connected = true
         val subscribeMessage = js.Dynamic.literal(
           command = "subscribe",
           accounts = js.Array(addresses(0))) //TODO: change in case of multi account
@@ -43,7 +45,8 @@ class WebSocketRipple(factory: WebSocketFactory,
         ws.onJsonMessage(onMessage _)
         ws onClose {(ex) =>
           println("close websocket")
-          emmiter.emit(WebsocketRippleEvent("disconnected"))
+          connected = false
+          emmiter.emit(WebsocketDisconnectedEvent())
           ex.printStackTrace()
           if (isRunning)
             connect()
@@ -65,8 +68,9 @@ class WebSocketRipple(factory: WebSocketFactory,
 
     if (json.getString("type") == "transaction" &&
       json.getBoolean("validated") &&
-      json.getJSONObject("transaction").getString("Account") == addresses(0)){
-      emmiter.emit(WebsocketRippleEvent(json.getJSONObject("transaction").getString("TxnSignature")))
+      json.getJSONObject("transaction").getString("Account") == addresses(0) &&
+      json.getJSONObject("meta").getString("TransactionResult") == "tesSUCCESS"){
+      emmiter.emit(WebsocketTransactionSentEvent(json.getJSONObject("transaction").getString("TxnSignature")))
     }
 
   }
@@ -87,5 +91,9 @@ class WebSocketRipple(factory: WebSocketFactory,
 }
 
 object WebsocketRipple {
-  case class WebsocketRippleEvent(txn: String)
+  case class WebsocketTransactionSentEvent(txn: String)
+  case class WebsocketDisconnectedEvent()
+  case class WebsocketErrorEvent(error: String)
+  case class WebsocketTransactionReceived(txn: String)
+
 }

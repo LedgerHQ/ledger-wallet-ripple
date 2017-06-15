@@ -480,6 +480,7 @@ class RippleLibApi() {
 
   def onMessage(msg: dom.MessageEvent): Unit = {
     println("onMessage called")
+    println(msg.data.asInstanceOf[js.Dynamic].response.asInstanceOf[String])
     val callId: Int = msg.data.asInstanceOf[js.Dynamic].call_id
       .asInstanceOf[Int]
     val p = promisesTable.get(callId).get
