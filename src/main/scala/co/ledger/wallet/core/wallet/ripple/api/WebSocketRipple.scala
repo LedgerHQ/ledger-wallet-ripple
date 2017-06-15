@@ -60,17 +60,23 @@ class WebSocketRipple(factory: WebSocketFactory,
 
   private def onMessage(json: JSONObject): Unit = {
     println("websocket triggered", json)
-    if (json.getString("type") == "transaction" && json.getBoolean("validated")) {
+    /*if (json.getString("type") == "transaction" && json.getBoolean("validated")) {
       setTimeout(4000) {
         wallet.synchronize()
       }
-    }
+    }*/
 
     if (json.getString("type") == "transaction" &&
       json.getBoolean("validated") &&
       json.getJSONObject("transaction").getString("Account") == addresses(0) &&
       json.getJSONObject("meta").getString("TransactionResult") == "tesSUCCESS"){
       emmiter.emit(WebsocketTransactionSentEvent(json.getJSONObject("transaction").getString("TxnSignature")))
+    }
+
+    if (json.getString("type") == "transaction" &&
+      json.getJSONObject("transaction").getString("Account") == addresses(0) &&
+      json.getJSONObject("meta").getString("TransactionResult") == "tecDST_TAG_NEEDED"){
+      emmiter.emit(WebsocketErrorEvent("tecDST_TAG_NEEDED", json.getJSONObject("transaction").getString("TxnSignature")))
     }
 
   }
@@ -93,7 +99,7 @@ class WebSocketRipple(factory: WebSocketFactory,
 object WebsocketRipple {
   case class WebsocketTransactionSentEvent(txn: String)
   case class WebsocketDisconnectedEvent()
-  case class WebsocketErrorEvent(error: String)
-  case class WebsocketTransactionReceived(txn: String)
+  case class WebsocketErrorEvent(name: String, data: String)
+  case class WebsocketTransactionReceivedEvent(txn: String)
 
 }

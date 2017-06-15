@@ -176,6 +176,8 @@ send_perform:
   wait_message_3: Lower fees require more time to be accepted.
   disconnected_title: Connection lost
   disconnected_message: Impossible to check transaction status
+  missing_tag_title: Missing destination tag
+  missing_tag_message: Use advanced mode to specify the destination tag
 
 
 #ripple exception

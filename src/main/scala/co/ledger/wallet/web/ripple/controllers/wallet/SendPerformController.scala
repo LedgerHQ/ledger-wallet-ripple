@@ -9,7 +9,7 @@ import co.ledger.wallet.core.device.ripple.LedgerCommonApiInterface.LedgerApiExc
 import co.ledger.wallet.core.device.utils.EventReceiver
 import co.ledger.wallet.core.utils.{DerivationPath, HexUtils, Nullable}
 import co.ledger.wallet.core.wallet.ripple.api.ApiAccountRestClient
-import co.ledger.wallet.core.wallet.ripple.api.WebsocketRipple.{WebsocketDisconnectedEvent, WebsocketTransactionSentEvent}
+import co.ledger.wallet.core.wallet.ripple.api.WebsocketRipple.{WebsocketDisconnectedEvent, WebsocketErrorEvent, WebsocketTransactionSentEvent}
 import co.ledger.wallet.core.wallet.ripple.{RippleAccount, XRP}
 import co.ledger.wallet.web.ripple.components.{RippleSerializer, SnackBar}
 import co.ledger.wallet.web.ripple.core.net.JQHttpClient
@@ -17,7 +17,7 @@ import co.ledger.wallet.web.ripple.core.utils.ChromeGlobalPreferences
 import co.ledger.wallet.web.ripple.services.{DeviceService, RippleLibApiService, SessionService, WindowService}
 import co.ledger.wallet.web.ripple.wallet.RippleLibApi.LedgerEvent
 import co.ledger.wallet.web.ripple.wallet.RippleWalletClient
-import exceptions.{DisconnectedException, RippleException}
+import exceptions.{DisconnectedException, MissingTagException, RippleException}
 import org.scalajs.dom
 import org.scalajs.dom.CustomEvent
 
@@ -148,9 +148,15 @@ class SendPerformController(override val windowService: WindowService,
             sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].websocketRipple.emmiter.unregister(this)
             api.emmiter.unregister(this)
             promise.failure(DisconnectedException())
-
+          case WebsocketErrorEvent(name, data) =>
+            if (name == "tecDST_TAG_NEEDED" && data == tx.TxnSignature) {
+              clearTimeout(timeOut)
+              sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].websocketRipple.emmiter.unregister(this)
+              api.emmiter.unregister(this)
+              promise.failure(MissingTagException())
+            }
           case LedgerEvent(e) =>
-            println("test", e, tx.LastLedgerSequence)
+            println("New ledger:", e, tx.LastLedgerSequence)
             if (e > tx.LastLedgerSequence.asInstanceOf[Double]) {
               clearTimeout(timeOut)
               sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].websocketRipple.emmiter.unregister(this)
@@ -195,6 +201,12 @@ class SendPerformController(override val windowService: WindowService,
       case Failure(ex: DisconnectedException) =>
         ex.printStackTrace()
         SnackBar.error("send_perform.disconnected_title", "send_perform.disconnected_message").show()
+        sessionService.currentSession.get.sessionPreferences.remove(SendIndexController.RestoreKey)
+        $location.url("/send")
+        $route.reload()
+      case Failure(ex: MissingTagException) =>
+        ex.printStackTrace()
+        SnackBar.error("send_perform.missing_tag_title", "send_perform.missing_tag_message").show()
         sessionService.currentSession.get.sessionPreferences.remove(SendIndexController.RestoreKey)
         $location.url("/send")
         $route.reload()

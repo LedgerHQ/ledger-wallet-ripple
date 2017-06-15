@@ -7,4 +7,6 @@ package object exceptions {
 
   case class DisconnectedException() extends Exception("The Ripple Network stopped responding abruptly")
 
+  case class MissingTagException() extends Exception("The recipient requires a destination tag")
+
 }
