@@ -180,6 +180,7 @@ class SendPerformController(override val windowService: WindowService,
       case Success(e) =>
         sessionService.currentSession.get.sessionPreferences.remove(SendIndexController.RestoreKey)
         SnackBar.success("send_perform.completed_title", "send_perform.completed_message").show()
+        sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].synchronize()
         $location.url("/send")
         $route.reload()
       case  Failure(ex: ValidationTimeException) =>

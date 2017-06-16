@@ -65,11 +65,11 @@ class WebSocketRipple(factory: WebSocketFactory,
 
   private def onMessage(json: JSONObject): Unit = {
     println("websocket triggered", json)
-    /*if (json.getString("type") == "transaction" && json.getBoolean("validated")) {
-      setTimeout(4000) {
+    if (json.optString("type", "") == "transaction" && json.optBoolean("validated", false) && json.optString("engine_result", "") == "tesSUCCESS") {
+      setTimeout(2000) {
         wallet.synchronize()
       }
-    }*/
+    }
 
     if (json.optString("type","") == "transaction" &&
       json.optBoolean("validated", false) &&
