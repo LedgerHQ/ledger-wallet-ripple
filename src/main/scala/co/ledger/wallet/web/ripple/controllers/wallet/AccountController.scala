@@ -158,12 +158,23 @@ class AccountController(override val windowService: WindowService,
 
   sessionService.currentSession.get.wallet.eventEmitter.register(this)
 
+  println("passed 1")
+
   $scope.$on("$destroy", {() =>
     sessionService.currentSession.foreach(_.wallet.eventEmitter.unregister(this))
   })
 
+  println("passed 2")
+
+
   reloadBalance()
+
+  println("passed 3")
+
   reloadOperations()
+
+  println("passed 4")
+
 
   import timers._
   override def receive: Receive = {
@@ -185,6 +196,8 @@ class AccountController(override val windowService: WindowService,
       }
     case drop =>
   }
+  println("passed 5")
+
 
   sessionService.currentSession.get.wallet.isSynchronizing() foreach {(sync) =>
     isRefreshing = sync
@@ -192,6 +205,8 @@ class AccountController(override val windowService: WindowService,
       $scope.$digest()
     }
   }
+  println("passed 6")
+
 
 }
 
