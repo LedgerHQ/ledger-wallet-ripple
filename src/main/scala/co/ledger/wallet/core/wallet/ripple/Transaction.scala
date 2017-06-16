@@ -39,7 +39,7 @@ trait Transaction {
   def destination: RippleAccount
   def receivedAt: Date
   def hash: String
-  def height: Option[Long]
+  def ledger: Long
 
 
   override def toString: String =

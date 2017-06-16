@@ -35,6 +35,7 @@ trait Operation {
   def account: Account
   def transaction: Transaction
   def `type`: String
+  def ledger: Long
 }
 
 object Operation {
