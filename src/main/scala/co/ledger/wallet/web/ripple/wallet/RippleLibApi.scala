@@ -89,7 +89,7 @@ class RippleLibApi() {
 
 
   @JsonCodec case class APIOption(
-                                   server: Option[String] = Some("wss://s1.ripple.com"),
+                                   server: Option[String] = Some("wss://s2.ripple.com"),
                                    feeCushion: Option[Double] = None,
                                    trace: Option[Boolean] = None,
                                    proxy: Option[Nullable[String]] = None,// = Some(Nullable[String](None)),

@@ -21,7 +21,7 @@ import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
 import scala.scalajs.js.timers.setTimeout
-import scala.scalajs.js.{Dynamic, timers}
+import scala.scalajs.js.{Dynamic, UndefOr, timers}
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -187,9 +187,9 @@ class SendIndexController(override val windowService: WindowService,
       SnackBar.error("send.bad_amount_title", "send.bad_amount_message").show()
     } else if (recipient.isFailure) {
       SnackBar.error("send.bad_address_title", "send.bad_address_message").show()
-    }  else if (isInAdvancedMode && customFee.toInt < 10) {
-      SnackBar.error("send.bad_fees_title", "send.bad_fees_message").show()
-    }  else if (isInAdvancedMode && customFee.toInt < 10) {
+    } else if (!sessionService.currentSession.get.wallet.isConnected()) {
+      SnackBar.error("ripple.down_title", "ripple.down_message").show()
+    } else if (isInAdvancedMode && customFee.toInt < 10) {
       SnackBar.error("send.bad_fees_title", "send.bad_fees_message").show()
     } else {
       windowService.disableUserInterface()

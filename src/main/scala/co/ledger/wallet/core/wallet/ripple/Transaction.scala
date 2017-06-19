@@ -49,6 +49,8 @@ trait Transaction {
        |  fee: $fee
        |  account: $account
        |  destination: $destination
+       |  ledger: $ledger
+       |  receivedAt: $receivedAt
        |}
        |""".stripMargin
 }

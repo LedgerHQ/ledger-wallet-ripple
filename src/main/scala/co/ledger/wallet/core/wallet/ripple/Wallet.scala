@@ -49,6 +49,7 @@ trait Wallet {
     : Future[AsyncCursor[Operation]]
   def eventEmitter: EventEmitter
   def stop(): Unit
+  def isConnected(): Boolean
 }
 
 object Wallet {

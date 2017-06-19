@@ -117,7 +117,6 @@ class SendPerformController(override val windowService: WindowService,
           tx = js.JSON.parse(prepared)
           tx.SigningPubKey = HexUtils.bytesToHex(pubAddressResult.publicKey).toUpperCase
           println(tx.SigningPubKey)
-          println("csdhjdsajvfd")
           val stringToSign = JSON.stringify(tx)
           js.Dynamic.global.console.log(stringToSign)
           LedgerApi(deviceLocal).signTransaction(derivationPath, stringToSign)

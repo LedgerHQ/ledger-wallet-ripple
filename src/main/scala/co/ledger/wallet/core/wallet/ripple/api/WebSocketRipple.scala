@@ -8,9 +8,10 @@ import co.ledger.wallet.web.ripple.core.event.JsEventEmitter
 import co.ledger.wallet.web.ripple.core.utils.ChromeGlobalPreferences
 import co.ledger.wallet.web.ripple.wallet.RippleLibApi.LedgerEvent
 import co.ledger.wallet.web.ripple.wallet.RippleWalletClient
-import exceptions.{DisconnectedException, MissingTagException}
+import exceptions.{DisconnectedException, MissingTagException, RippleException}
 import io.circe.JsonObject
 import org.json.{JSONArray, JSONObject}
+import org.scalajs.dom
 
 import scala.collection.mutable.ArrayBuffer
 import scala.scalajs.js.timers
@@ -45,11 +46,17 @@ class WebSocketRipple(factory: WebSocketFactory,
       case Success(ws) =>
         println("success socket")
         _ws = Some(ws)
+        ws.onJsonMessage(onMessage _)
         val subscribeMessage = js.Dynamic.literal(
           command = "subscribe",
           accounts = js.Array(addresses(0))) //TODO: change in case of multi account
-        ws.send(js.JSON.stringify(subscribeMessage))
-        ws.onJsonMessage(onMessage _)
+        send(subscribeMessage) map {(msg) =>
+          if (!connected) {
+            println("Subscribed")
+            connected = true
+            connecting.success()
+          }
+        }
         ws onClose { (ex) =>
           println("close websocket")
           connecting = Promise[Unit]()
@@ -66,8 +73,42 @@ class WebSocketRipple(factory: WebSocketFactory,
     }
   }
 
-  private def onMessage(json: JSONObject): Unit = {
-    println("websocket triggered", json)
+  var promisesTable: Map[Int,Promise[JSONObject]] = Map.empty
+
+  def onMessage(msg: JSONObject): Unit = {
+    println("received",msg.toString.substring(0,400))
+    if (msg.has("id")) {
+      val callId = msg.getInt("id")
+      val p = promisesTable.get(callId).get
+      promisesTable -= callId
+      if (!p.isCompleted){
+        p success msg
+      }
+    }
+    if (msg.optString("type","") == "transaction" && msg.optBoolean("validated", false) && msg.optJSONObject("transaction") != null) {
+      if (msg.optJSONObject("transaction").optString("Account", "") == addresses(0) &&
+        msg.optJSONObject("meta").optString("TransactionResult", "") == "tesSUCCESS") {
+        println("transactions received")
+        emmiter.emit(WebsocketTransactionSentEvent(msg.optJSONObject("transaction").optString("TxnSignature", "")))
+      }
+    }
+    if (msg.optString("type", "") == "transaction" && msg.optBoolean("validated", false) && msg.optString("engine_result", "") == "tesSUCCESS") {
+      if (msg.optJSONObject("transaction").optString("Account", addresses(0)) != addresses(0)) {
+        wallet.synchronize()
+      }
+    }
+    if (msg.optString("type","") == "transaction" && msg.optBoolean("validated", false) && msg.optJSONObject("transaction") != null) {
+      if (msg.optJSONObject("transaction").optString("Account", "") == addresses(0) &&
+        msg.optJSONObject("meta").optString("TransactionResult", "") == "tecDST_TAG_NEEDED") {
+        emmiter.emit(WebsocketErrorEvent("tecDST_TAG_NEEDED", msg.optJSONObject("transaction").optString("TxnSignature", "")))
+      }
+    }
+
+  }
+
+  /*private def onMessage(json: JSONObject): Unit = {
+    println(json.toString.substring(0,200))
+
     if (json.optString("type", "") == "transaction" && json.optBoolean("validated", false) && json.optString("engine_result", "") == "tesSUCCESS") {
       setTimeout(2000) {
         wallet.synchronize()
@@ -110,10 +151,32 @@ class WebSocketRipple(factory: WebSocketFactory,
       if (json.optJSONObject("result").optString("account","") == addresses(0) &&
         json.optJSONObject("result").has("transactions")) {
         println("transactions received")
+        println(json.getJSONObject("result").getJSONArray("transactions").length())
         emmiter.emit(WebsocketResponseEvent("transactions", json))
       }
     }
 
+  }*/
+
+  private var callCounter=0
+  private def _callId = {
+    callCounter+=1
+    callCounter
+  }
+
+  def send(json: js.Dynamic) = {
+    val callId = _callId +10
+    val p = Promise[JSONObject]()
+    json.updateDynamic("id")(callId)
+    promisesTable += (callId->p)
+    println("Sending", js.JSON.stringify(json))
+    _ws.get.send(js.JSON.stringify(json))
+    setTimeout(2000) {
+      if (!p.isCompleted) {
+        p failure(RippleException())
+      }
+    }
+    p.future
   }
 
   def stop(): Unit = {
@@ -124,63 +187,24 @@ class WebSocketRipple(factory: WebSocketFactory,
   }
 
   def balance(): Future[XRP] = {
-    println("balance 1")
-
-    val promise = Promise[XRP]()
     if (!connected) {
-      promise.failure(DisconnectedException())
-      promise.future
+      Future.failed(DisconnectedException())
     } else {
       val balance = js.Dynamic.literal(
         command = "account_info",
         account = addresses(0))
-      println("Sending", js.JSON.stringify(balance))
-      _ws.get.send(js.JSON.stringify(balance))
-      println("balance 2")
-
-      var timeOut: SetTimeoutHandle = null
-      val receiver: EventReceiver = new EventReceiver {
-        override def receive = {
-          case WebsocketResponseEvent(name, bal) =>
-            if (name == "balance") {
-              clearTimeout(timeOut)
-              WebSocketRipple.this.emmiter.unregister(this)
-              promise.success(XRP(bal.optJSONObject("result").getJSONObject("account_data").optString("Balance", "")))
-            }
-          case WebsocketDisconnectedEvent() =>
-            clearTimeout(timeOut)
-            WebSocketRipple.this.emmiter.unregister(this)
-            promise.failure(DisconnectedException())
-          case WebsocketErrorEvent(name, data) =>
-            clearTimeout(timeOut)
-            WebSocketRipple.this.emmiter.unregister(this)
-            promise.failure(DisconnectedException())
-
-          case all =>
-        }
-        timeOut = setTimeout(3000) {
-          WebSocketRipple.this.emmiter.unregister(this)
-          promise.failure(new Exception("Network timed out"))
-        }
+      send(balance) map {(msg) =>
+        XRP(msg.optJSONObject("result").getJSONObject("account_data").optString("Balance", ""))
       }
-      println("balance 3")
-
-      this.emmiter.register(receiver)
-      promise.future
     }
   }
 
-  def transactions(ledger_min: Long = -1): Future[Array[JsonTransaction]] = {
-    println("transaction 1")
-
-    val promise = Promise[Array[JsonTransaction]]()
+  def transactions(ledger_min: Long = 0): Future[Array[JsonTransaction]] = {
     if (!connected) {
-      promise.failure(DisconnectedException())
-      promise.future
+      Future.failed(DisconnectedException())
     } else {
       var offset: Int = 0
       var transactionsBuffer = ArrayBuffer[JsonTransaction]()
-      println("transaction 2")
 
       def iterate(off: Int = 0): Future[Array[JsonTransaction]] = {
         val txs = js.Dynamic.literal(
@@ -190,46 +214,23 @@ class WebSocketRipple(factory: WebSocketFactory,
           forward = true,
           offset = off
         )
-        println("Sending", js.JSON.stringify(txs))
-        _ws.get.send(js.JSON.stringify(txs))
-        var timeOut: SetTimeoutHandle = null
-        val receiver: EventReceiver = new EventReceiver {
-          override def receive = {
-            case WebsocketResponseEvent(name, json) =>
-              if (name == "transactions") {
-                clearTimeout(timeOut)
-                WebSocketRipple.this.emmiter.unregister(this)
-                if (json.getJSONObject("result").getJSONArray("transactions").length() > 0) {
-                  val txs = json.getJSONObject("result").getJSONArray("transactions")
-                  (0 until txs.length()) map { (index: Int) =>
-                    transactionsBuffer.append(new JsonTransaction(txs.getJSONObject(index)))
-                  }
-                  offset = offset + json.getJSONObject("result").getJSONArray("transactions").length()
-                  println("iterate", offset)
-                  iterate(offset)
-                } else {
-                  promise.success(transactionsBuffer.toArray)
-                }
+        send(txs) flatMap {(json) =>
+          println("length received",json.getJSONObject("result").getJSONArray("transactions").length())
+          if (json.getJSONObject("result").getJSONArray("transactions").length() > 0) {
+            val txs = json.getJSONObject("result").getJSONArray("transactions")
+            (0 until txs.length()) map { (index: Int) =>
+              if (txs.getJSONObject(index).getJSONObject("meta").getString("TransactionResult") == "tesSUCCESS") {
+                transactionsBuffer.append(new JsonTransaction(txs.getJSONObject(index)))
+                println(transactionsBuffer.last)
               }
-            case WebsocketDisconnectedEvent() =>
-              clearTimeout(timeOut)
-              WebSocketRipple.this.emmiter.unregister(this)
-              promise.failure(DisconnectedException())
-            case WebsocketErrorEvent(name, data) =>
-              clearTimeout(timeOut)
-              WebSocketRipple.this.emmiter.unregister(this)
-              promise.failure(DisconnectedException())
-
-            case all =>
-          }
-
-          timeOut = setTimeout(3000) {
-            WebSocketRipple.this.emmiter.unregister(this)
-            promise.failure(new Exception("Network timed out"))
+            }
+            println("buffer length",transactionsBuffer.length)
+            offset = offset + json.getJSONObject("result").getJSONArray("transactions").length()
+            iterate(offset)
+          } else {
+            Future.successful(transactionsBuffer.toArray)
           }
         }
-        this.emmiter.register(receiver)
-        promise.future
       }
       iterate()
     }

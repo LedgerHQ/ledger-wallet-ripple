@@ -25,7 +25,7 @@ class JsonTransaction(obj: JSONObject) extends Transaction {
   override def destination: RippleAccount = RippleAccount(obj
     .getJSONObject("tx").getString("Destination"))
 
-  override def receivedAt: Date = new Date(obj.getJSONObject("tx").getLong("date"))
+  override def receivedAt: Date = new Date((obj.getJSONObject("tx").getLong("date")*1000)+946684800000L)
 
   override def hash: String = obj.getJSONObject("tx").getString("hash")
 

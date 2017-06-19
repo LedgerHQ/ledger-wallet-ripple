@@ -50,14 +50,18 @@ class RippleAccountClient(walletClient: RippleWalletClient,
                     .rippleAccount, bal), transaction).proxy(this, transaction)))
                 }
               }
+            } recover {
+              case all:Throwable =>
+                all.printStackTrace()
             }
           }
         } andThen {
           case all =>
-            println("and then account")
+            println("synchro over")
             _synchronizationFuture = None
         }
       )
+      println("synchro over")
       _synchronizationFuture.get
     })
   }

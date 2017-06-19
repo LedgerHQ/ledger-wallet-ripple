@@ -141,7 +141,7 @@ trait RippleDatabase {
         if (cursor.value.isDefined) {
           cursor.value.get.ledger().get
         } else {
-          -1
+          1000
         }
       })
   }
