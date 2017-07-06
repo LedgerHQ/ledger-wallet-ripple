@@ -1771,8 +1771,8 @@ function zbarProcessImageData(imgData) {
             moduleOverrides[key] = Module[key]
         }
     }
-    var ENVIRONMENT_IS_NODE = typeof process === "object" && typeof require === "function";
-    var ENVIRONMENT_IS_WEB = typeof window === "object";
+    var ENVIRONMENT_IS_NODE = false; //typeof process === "object" && typeof require === "function";
+    var ENVIRONMENT_IS_WEB = true; // typeof window === "object";
     var ENVIRONMENT_IS_WORKER = typeof importScripts === "function";
     var ENVIRONMENT_IS_SHELL = !ENVIRONMENT_IS_WEB && !ENVIRONMENT_IS_NODE && !ENVIRONMENT_IS_WORKER;
     if (ENVIRONMENT_IS_NODE) {
@@ -1800,7 +1800,7 @@ function zbarProcessImageData(imgData) {
         Module["load"] = function(t) {
             globalEval(read(t))
         };
-        Module["thisProgram"] = process["argv"][1].replace(/\\/g, "/");
+        Module["thisProgram"] = "/home/alix/ripple_wallet/target/chrome-app";
         Module["arguments"] = process["argv"].slice(2);
         if (typeof module !== "undefined") {
             module["exports"] = Module
