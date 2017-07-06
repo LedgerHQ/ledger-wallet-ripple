@@ -13,7 +13,7 @@ import co.ledger.wallet.web.ripple.components.{QrCodeScanner, SnackBar}
 import co.ledger.wallet.web.ripple.core.net.JQHttpClient
 import co.ledger.wallet.web.ripple.core.utils.PermissionsHelper
 import co.ledger.wallet.web.ripple.services.{DeviceService, RippleLibApiService, SessionService, WindowService}
-import exceptions.RippleException
+import exceptions.{FeesException, RippleException}
 import org.scalajs.dom
 
 import scala.concurrent._
@@ -78,7 +78,7 @@ class SendIndexController(override val windowService: WindowService,
 
   var fee: Option[XRP] = None
 
-  def feeDisplay = fee.getOrElse(XRP.Zero).toXRP
+  def feeDisplay = fee.getOrElse(XRP(10)).toXRP
 
   var isInAdvancedMode = false
   val supportAdvancedMode = true
@@ -137,8 +137,8 @@ class SendIndexController(override val windowService: WindowService,
         }
         ()
       }).recover({
-        case response: RippleException =>
-          SnackBar.error("ripple.down_title", "ripple.down_message").show()
+        case response: FeesException =>
+          SnackBar.error("ripple.fees_down_title", "ripple.fees_down_message").show()
         case ex: Throwable => throw ex
       })
     } else {
@@ -193,7 +193,7 @@ class SendIndexController(override val windowService: WindowService,
       SnackBar.error("send.bad_fees_title", "send.bad_fees_message").show()
     } else {
       windowService.disableUserInterface()
-      sessionService.currentSession.get.wallet.balance() map {(exists) =>
+      sessionService.currentSession.get.wallet.webSocket.get.balance(address) map {(exists) =>
         println("exist", exists)
         if ((exists == XRP.Zero) && value.get<accountMinimum) {
           SnackBar.error("send.bad_amount_for_address_creation_title", "send.bad_amount_for_address_creation_message").show()

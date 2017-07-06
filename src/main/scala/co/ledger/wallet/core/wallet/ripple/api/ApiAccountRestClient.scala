@@ -12,7 +12,7 @@ import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-import exceptions.RippleException
+import exceptions.{FeesException, RippleException}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.scalajs.js
@@ -87,7 +87,7 @@ class ApiAccountRestClient(http: HttpClient,
         new XRP((BigDecimal(fees) * BigDecimal(10).pow(6)).toBigInt())
     } recover {
       case HttpException(json, response, _) =>
-          throw RippleException()
+          throw FeesException()
 
       case other: Throwable => throw other
     }

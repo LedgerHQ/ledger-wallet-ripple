@@ -185,3 +185,5 @@ send_perform:
 ripple:
   down_title: Ripple Network Unavailable
   down_message: The Ripple Network does not respond
+  fees_down_title: Unable to compute automatic fees
+  fees_down_message: The Ripple Network does not respond

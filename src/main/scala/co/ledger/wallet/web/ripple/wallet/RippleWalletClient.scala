@@ -139,7 +139,7 @@ class RippleWalletClient(override val name: String,
     _webSocketRipple.get.start()
   })
 
-  def websocketRipple = _webSocketRipple.get
+  override def webSocket = _webSocketRipple
 
   override def isConnected(): Boolean = {
     if (_webSocketRipple.isDefined){

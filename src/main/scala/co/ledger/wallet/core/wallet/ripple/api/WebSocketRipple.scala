@@ -198,6 +198,7 @@ class WebSocketRipple(factory: WebSocketFactory,
       val balance = js.Dynamic.literal(
         command = "account_info",
         account = target)
+      println("target",target)
       send(balance) map {(msg) =>
         if (msg.optString("status","error")=="success"){
           XRP(msg.optJSONObject("result").getJSONObject("account_data").optString("Balance", ""))
