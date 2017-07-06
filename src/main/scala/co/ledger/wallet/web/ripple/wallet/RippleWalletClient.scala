@@ -82,19 +82,29 @@ class RippleWalletClient(override val name: String,
     }
   }
   override def synchronize(): Future[Unit] = {
-    if (_synchronizationFuture.isEmpty || (_synchronizationFuture.isDefined && _synchronizationFuture.get.isCompleted && _synchronizationFuture.get.value.get.isFailure)){
-      eventEmitter.emit(StartSynchronizationEvent())
-      _synchronizationFuture = Some(
-        accounts() flatMap {(accounts) =>
-          Future.sequence(accounts.map(_.synchronize()).toSeq)
-        } map { _ =>
-          _synchronizationFuture = None
-          eventEmitter.emit(StopSynchronizationEvent())
-        }
-      )
-      _synchronizationFuture.get
+    println("Synchronizing wallet started")
+    (if (_webSocketRipple.get.connected) {
+      println("Websocket already connected")
+      Future.successful(Unit)
     } else {
-      _synchronizationFuture.get
+      println("Waiting on ws to connect")
+      _webSocketRipple.get.connecting.future
+    }) flatMap { (_) =>
+      println("Checking future for synchronization")
+      if ((_synchronizationFuture.isEmpty || (_synchronizationFuture.isDefined && _synchronizationFuture.get.isCompleted && _synchronizationFuture.get.value.get.isFailure))) {
+        eventEmitter.emit(StartSynchronizationEvent())
+        _synchronizationFuture = Some(
+          accounts() flatMap { (accounts) =>
+            Future.sequence(accounts.map(_.synchronize()).toSeq)
+          } map { _ =>
+            _synchronizationFuture = None
+            eventEmitter.emit(StopSynchronizationEvent())
+          }
+        )
+        _synchronizationFuture.get
+      } else {
+        _synchronizationFuture.get
+      }
     }
   }
 

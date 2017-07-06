@@ -41,6 +41,7 @@ class OperationModel extends Model("operations") {
   val operationType = string("operationType")
   val transactionHash = string("transactionHash").index().encrypted()
   val time = date("time").index()
+  val ledger = long("ledger").index()
 
   def proxy(accountParam: Account, transactionParam: Transaction): Operation = {
     new Operation {
@@ -56,6 +57,8 @@ class OperationModel extends Model("operations") {
       } else {
         "receive"
       }
+
+      override def ledger: Long = OperationModel.this.ledger().get
     }
   }
 }

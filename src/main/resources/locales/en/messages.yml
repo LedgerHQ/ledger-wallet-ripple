@@ -169,10 +169,16 @@ send_perform:
   bottom_text: If nothing is displayed on your device, contact help center.
   expired_title: Transaction expired
   expired_message: The transaction has expired
+  unknown_title: Unexpected error
+  unknown_message: An unexpected error occured
   wait_title: Please wait
   wait_message_1: The transaction is being broadcasted to the network
   wait_message_2: and should be validated soon.
   wait_message_3: Lower fees require more time to be accepted.
+  disconnected_title: Connection lost
+  disconnected_message: Impossible to check transaction status
+  missing_tag_title: Missing destination tag
+  missing_tag_message: Use advanced mode to specify the destination tag
 
 
 #ripple exception

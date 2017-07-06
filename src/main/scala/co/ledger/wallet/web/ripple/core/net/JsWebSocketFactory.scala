@@ -49,7 +49,6 @@ class JsWebSocketFactory(override val baseUrl: URI) extends WebSocketFactory {
     ws.onerror = {(event: ErrorEvent) =>
       try {
         promise.failure(new Exception(event.message))
-        println("failure succeed")
       } catch {
         case all: Throwable => {
           all.printStackTrace()

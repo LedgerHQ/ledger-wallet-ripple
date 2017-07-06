@@ -50,6 +50,7 @@ trait Wallet {
   def eventEmitter: EventEmitter
   def isConnected(): Boolean
   def stop(): Unit
+  def isConnected(): Boolean
 }
 
 object Wallet {

@@ -158,12 +158,17 @@ class AccountController(override val windowService: WindowService,
 
   sessionService.currentSession.get.wallet.eventEmitter.register(this)
 
+
   $scope.$on("$destroy", {() =>
     sessionService.currentSession.foreach(_.wallet.eventEmitter.unregister(this))
   })
 
+
+
   reloadBalance()
+
   reloadOperations()
+
 
   import timers._
   override def receive: Receive = {
@@ -192,6 +197,7 @@ class AccountController(override val windowService: WindowService,
       $scope.$digest()
     }
   }
+
 
 }
 

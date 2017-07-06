@@ -12,6 +12,7 @@ class DatabaseOperation( operation: OperationModel,
 
   override val transaction: Transaction = transactionModel.proxy
   override val `type`: String = operation.operationType().get
+  override val ledger: Long = this.transaction.ledger
   }
 
 object DatabaseOperation {

@@ -43,11 +43,12 @@ class TransactionModel extends Model("transactions") {
   val fee = long("fee")
   val value = long("value")
   val destination = string("destination")
+  val ledger = long("ledger").index()
 
   def proxy: Transaction = {
     new Transaction {
 
-      override def height: Option[Long] = None
+      override def ledger: Long = TransactionModel.this.ledger().get
 
       override def account: RippleAccount = RippleAccount(TransactionModel
         .this.account().get)
