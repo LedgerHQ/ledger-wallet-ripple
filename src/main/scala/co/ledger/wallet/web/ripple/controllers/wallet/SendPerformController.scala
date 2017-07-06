@@ -189,25 +189,21 @@ class SendPerformController(override val windowService: WindowService,
       case Failure(ex: LedgerApiException) =>
         ex.printStackTrace()
         SnackBar.error("send_perform.cancelled_title", "send_perform.cancelled_message").show()
-        sessionService.currentSession.get.sessionPreferences.remove(SendIndexController.RestoreKey)
         $location.url("/send")
         $route.reload()
       case Failure(ex: RippleException) =>
         ex.printStackTrace()
         SnackBar.error("ripple.down_title", "ripple.down_message").show()
-        sessionService.currentSession.get.sessionPreferences.remove(SendIndexController.RestoreKey)
         $location.url("/send")
         $route.reload()
       case Failure(ex: DisconnectedException) =>
         ex.printStackTrace()
         SnackBar.error("send_perform.disconnected_title", "send_perform.disconnected_message").show()
-        sessionService.currentSession.get.sessionPreferences.remove(SendIndexController.RestoreKey)
         $location.url("/send")
         $route.reload()
       case Failure(ex: MissingTagException) =>
         ex.printStackTrace()
         SnackBar.error("send_perform.missing_tag_title", "send_perform.missing_tag_message").show()
-        sessionService.currentSession.get.sessionPreferences.remove(SendIndexController.RestoreKey)
         $location.url("/send")
         $route.reload()
       case Failure(ex) =>

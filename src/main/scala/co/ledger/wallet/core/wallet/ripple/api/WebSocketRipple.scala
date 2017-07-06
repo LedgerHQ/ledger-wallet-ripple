@@ -187,18 +187,28 @@ class WebSocketRipple(factory: WebSocketFactory,
     }
   }
 
-  def balance(): Future[XRP] = {
+  def balance(account: String = ""): Future[XRP] = {
     if (!connected) {
       Future.failed(DisconnectedException())
     } else {
+      var target = account
+      if (account == ""){
+        target = addresses(0)
+      }
       val balance = js.Dynamic.literal(
         command = "account_info",
-        account = addresses(0))
+        account = target)
       send(balance) map {(msg) =>
-        XRP(msg.optJSONObject("result").getJSONObject("account_data").optString("Balance", ""))
+        if (msg.optString("status","error")=="success"){
+          XRP(msg.optJSONObject("result").getJSONObject("account_data").optString("Balance", ""))
+        } else {
+          XRP.Zero
+        }
       }
     }
   }
+
+
 
   def transactions(ledger_min: Long = 0): Future[Array[JsonTransaction]] = {
     if (!connected) {

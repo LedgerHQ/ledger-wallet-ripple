@@ -3,8 +3,8 @@
 ==================
 - Fixed the transaction being displayed successful while missing a required destination tag
 - Fixed transaction amount being false for partial payments
-- The app does'nt use the Data API anymore to collect balance and transactions for it was unavailable most of the time
-- The QRcode scanning functionality is now functional
+- The app does'nt use the Data API anymore to collect balance, transactions and check accounts (for it was unavailable most of the time)
+- The QR Code scanning functionality is now functional
 
 
 1.0.1 (2017-05-22)

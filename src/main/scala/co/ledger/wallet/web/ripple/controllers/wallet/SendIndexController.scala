@@ -193,9 +193,9 @@ class SendIndexController(override val windowService: WindowService,
       SnackBar.error("send.bad_fees_title", "send.bad_fees_message").show()
     } else {
       windowService.disableUserInterface()
-      _api.account(recipient.get.toString) map {(exists) =>
+      sessionService.currentSession.get.wallet.balance() map {(exists) =>
         println("exist", exists)
-        if (!exists && value.get<accountMinimum) {
+        if ((exists == XRP.Zero) && value.get<accountMinimum) {
           SnackBar.error("send.bad_amount_for_address_creation_title", "send.bad_amount_for_address_creation_message").show()
         } else {
           println(s"Amount: $amount")
