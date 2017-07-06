@@ -153,9 +153,9 @@ class LaunchController(override val windowService: WindowService,
   def incrementNumberOfConnection() = new ChromeGlobalPreferences("launches").edit().putInt("count", numberOfConnection + 1).commit()
 
   def settings(): Unit = {
-    var default = new ChromeGlobalPreferences("Settings").string("node").getOrElse("wss://s1.ripple.com")
+    var default = new ChromeGlobalPreferences("Settings").string("node").getOrElse("wss://s2.ripple.com")
     if (default==null) {
-      default = "wss://s1.ripple.com"
+      default = "wss://s2.ripple.com"
     }
     var input = js.Dynamic.global.prompt("Ripple Node :", default.asInstanceOf[String])
     if (!js.isUndefined(input) && input!=null) {
@@ -175,7 +175,7 @@ class LaunchController(override val windowService: WindowService,
   }
 
   if (!new ChromeGlobalPreferences("Settings").contains("node")) {
-    new ChromeGlobalPreferences("Settings").edit().putString("node", "wss://s1.ripple.com").commit()
+    new ChromeGlobalPreferences("Settings").edit().putString("node", "wss://s2.ripple.com").commit()
   }
 
   jQuery($element.find("#introFooter")).height(11)

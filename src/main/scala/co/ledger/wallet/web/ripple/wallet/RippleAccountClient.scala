@@ -38,10 +38,10 @@ class RippleAccountClient(walletClient: RippleWalletClient,
     println("Synchronizing account")
     _synchronizationFuture.getOrElse({
       _synchronizationFuture = Some(
-        _api.balance() flatMap {(bal) =>
+        walletClient.websocketRipple.balance() flatMap {(bal) =>
           walletClient.putAccount(new AccountRow(row.index, row.rippleAccount, bal))
-          walletClient.lastOperationDate() flatMap {(last) =>
-            _api.transactions(last) map { (transactions) =>
+          walletClient.lastOperationLedger() flatMap {(ledger) =>
+            walletClient.websocketRipple.transactions(ledger) map { (transactions) =>
               for (transaction <- transactions) {
                 walletClient.putTransaction(transaction)
                 walletClient.putOperation(new AccountRow(row.index, row
@@ -50,14 +50,18 @@ class RippleAccountClient(walletClient: RippleWalletClient,
                     .rippleAccount, bal), transaction).proxy(this, transaction)))
                 }
               }
+            } recover {
+              case all:Throwable =>
+                all.printStackTrace()
             }
           }
         } andThen {
           case all =>
-            println("and then account")
+            println("synchro over")
             _synchronizationFuture = None
         }
       )
+      println("synchro over")
       _synchronizationFuture.get
     })
   }

@@ -57,6 +57,7 @@ trait RippleDatabase {
       } else {
         model.operationType.set("receive")
       }
+      model.ledger.set(transaction.ledger)
       model
     }
   }
@@ -70,12 +71,12 @@ trait RippleDatabase {
     def apply(transaction: Transaction): TransactionModel = {
       val model = new TransactionModel()
       model.hash.set(transaction.hash)
-      model.height.set(transaction.height.get)
       model.destination.set(transaction.destination.toString)
       model.fee.set(transaction.fee.toBigInt.toLong)
       model.value.set(transaction.value.toBigInt.toLong)
       model.receivedAt.set(new js.Date(transaction.receivedAt.getTime))
       model.account.set(transaction.account.toString)
+      model.ledger.set(transaction.ledger)
       model
     }
   }
@@ -130,6 +131,17 @@ trait RippleDatabase {
           cursor.value.get.time().get.toJSON()
         } else {
           "2017-01-01T00:00:00.000Z"
+        }
+      })
+  }
+
+  def lastOperationLedger(): Future[Long] = {
+    OperationModel.readonly(password).openCursor("ledger").reverse().cursor
+      .map({(cursor) =>
+        if (cursor.value.isDefined) {
+          cursor.value.get.ledger().get
+        } else {
+          1000
         }
       })
   }

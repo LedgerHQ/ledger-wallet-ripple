@@ -89,7 +89,7 @@ class RippleLibApi() {
 
 
   @JsonCodec case class APIOption(
-                                   server: Option[String] = Some("wss://s1.ripple.com"),
+                                   server: Option[String] = Some("wss://s2.ripple.com"),
                                    feeCushion: Option[Double] = None,
                                    trace: Option[Boolean] = None,
                                    proxy: Option[Nullable[String]] = None,// = Some(Nullable[String](None)),
@@ -480,6 +480,7 @@ class RippleLibApi() {
 
   def onMessage(msg: dom.MessageEvent): Unit = {
     println("onMessage called")
+    println(msg.data.asInstanceOf[js.Dynamic].response.asInstanceOf[String])
     val callId: Int = msg.data.asInstanceOf[js.Dynamic].call_id
       .asInstanceOf[Int]
     val p = promisesTable.get(callId).get
