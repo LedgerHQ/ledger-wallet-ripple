@@ -44,7 +44,7 @@ update:
 # Download screen
 download:
   title: update available
-  message: A new release of Ledger Wallet Ripple is available. To benefit the latest features in terms of security and stability we strongly recommend that you install it now.
+  message: A new release of Ledger Wallet Ripple is available. To benefit from the latest features in terms of security and stability we strongly recommend that you install it now.
   release : View release notes
   install : Install
   skip : Ignore
