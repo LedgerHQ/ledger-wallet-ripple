@@ -86,10 +86,7 @@ class ApiAccountRestClient(http: HttpClient,
         val fees = json.getJSONArray("rows").getJSONObject(0).getDouble("avg")
         new XRP((BigDecimal(fees) * BigDecimal(10).pow(6)).toBigInt())
     } recover {
-      case HttpException(json, response, _) =>
-          throw FeesException()
-
-      case other: Throwable => throw other
+      case all => XRP(10)
     }
   }
 
