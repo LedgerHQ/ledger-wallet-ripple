@@ -45,7 +45,6 @@ class WebSocketRipple(factory: WebSocketFactory,
     _socket.get onComplete {
       case Success(ws) =>
         println("success socket")
-        connected = true
         _ws = Some(ws)
         ws.onJsonMessage(onMessage _)
         val subscribeMessage = js.Dynamic.literal(
