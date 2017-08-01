@@ -110,7 +110,7 @@ help:
   diagnostic: diagnostic
   export_logs: Export logs
   logs_disclaimer: Logs contain anonymous events that are recorded and encrypted locally on your computer. These data are not sent to our servers and may only be exported manually when requested by the Ledger support team.
-
+  reset_data: Reset transactions history
 # Receive screen
 
 receive:

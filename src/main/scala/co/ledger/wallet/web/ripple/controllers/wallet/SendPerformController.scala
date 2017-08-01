@@ -138,19 +138,19 @@ class SendPerformController(override val windowService: WindowService,
           case WebsocketTransactionSentEvent(txn) =>
             if ((txn == tx.TxnSignature)){
               clearTimeout(timeOut)
-              sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].websocketRipple.emmiter.unregister(this)
+              sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].webSocket.get.emmiter.unregister(this)
               api.emmiter.unregister(this)
               promise.success()
             }
           case WebsocketDisconnectedEvent() =>
             clearTimeout(timeOut)
-            sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].websocketRipple.emmiter.unregister(this)
+            sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].webSocket.get.emmiter.unregister(this)
             api.emmiter.unregister(this)
             promise.failure(DisconnectedException())
           case WebsocketErrorEvent(name, data) =>
             if (name == "tecDST_TAG_NEEDED" && data == tx.TxnSignature) {
               clearTimeout(timeOut)
-              sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].websocketRipple.emmiter.unregister(this)
+              sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].webSocket.get.emmiter.unregister(this)
               api.emmiter.unregister(this)
               promise.failure(MissingTagException())
             }
@@ -158,20 +158,20 @@ class SendPerformController(override val windowService: WindowService,
             println("New ledger:", e, tx.LastLedgerSequence)
             if (e > tx.LastLedgerSequence.asInstanceOf[Double]) {
               clearTimeout(timeOut)
-              sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].websocketRipple.emmiter.unregister(this)
+              sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].webSocket.get.emmiter.unregister(this)
               api.emmiter.unregister(this)
               promise.failure(ValidationTimeException())
             }
           case all =>
         }
         timeOut = setTimeout(80000){
-          sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].websocketRipple.emmiter.unregister(this)
+          sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].webSocket.get.emmiter.unregister(this)
           api.emmiter.unregister(this)
           promise.failure(new Exception("Network timed out"))
         }
       }
       api.emmiter.register(receiver)
-      sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].websocketRipple.emmiter.register(receiver)
+      sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].webSocket.get.emmiter.register(receiver)
       promise.future
     } andThen {
       case all => rippleLibApiService.close()

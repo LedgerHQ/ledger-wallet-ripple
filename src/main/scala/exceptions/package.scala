@@ -9,4 +9,6 @@ package object exceptions {
 
   case class MissingTagException() extends Exception("The recipient requires a destination tag")
 
+  case class FeesException() extends Exception("The ripple API does not respond")
+
 }

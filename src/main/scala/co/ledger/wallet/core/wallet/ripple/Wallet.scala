@@ -2,6 +2,7 @@ package co.ledger.wallet.core.wallet.ripple
 
 import co.ledger.wallet.core.concurrent.AsyncCursor
 import co.ledger.wallet.core.device.utils.EventEmitter
+import co.ledger.wallet.core.wallet.ripple.api.WebSocketRipple
 
 import scala.concurrent.Future
 
@@ -42,6 +43,7 @@ trait Wallet {
   def account(index: Int): Future[Account]
   def accounts(): Future[Array[Account]]
   def balance(): Future[XRP]
+  def webSocket(): Option[WebSocketRipple]
   def synchronize(): Future[Unit]
   def isSynchronizing(): Future[Boolean]
   def pushTransaction(transaction: Array[Byte]): Future[Unit]

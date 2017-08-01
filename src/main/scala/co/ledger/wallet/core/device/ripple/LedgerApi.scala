@@ -2,12 +2,15 @@ package co.ledger.wallet.core.device.ripple
 
 import java.util.UUID
 
+import co.ledger.wallet.core.crypto.SHA256
 import co.ledger.wallet.core.device.Device
 import co.ledger.wallet.core.device.DeviceManager.ConnectivityTypes
 import co.ledger.wallet.core.utils.{DerivationPath, HexUtils}
 import co.ledger.wallet.core.utils.DerivationPath.Root
+import co.ledger.wallet.web.ripple.core.utils.ChromeGlobalPreferences
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.scalajs.js
 
 /**
   *
@@ -48,7 +51,10 @@ class LedgerApi(override val device: Device)
   override implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
   def walletIdentifier(): Future[String] = {
     derivePublicAddress(DerivationPath("44'/144'/0'/0'")).map {(result) =>
-      result.account.toString
+      val node = new ChromeGlobalPreferences("Settings").string("node").getOrElse("else")
+      var nodehash = HexUtils.bytesToHex(SHA256.hash256(node.getBytes()))
+      js.Dynamic.global.currentDb = "wallet_" + result.account.toString + nodehash
+      result.account.toString + nodehash
     }
   }
   def walletMetaPassword(): Future[String] = {

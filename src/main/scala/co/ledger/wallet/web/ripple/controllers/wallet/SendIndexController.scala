@@ -13,7 +13,7 @@ import co.ledger.wallet.web.ripple.components.{QrCodeScanner, SnackBar}
 import co.ledger.wallet.web.ripple.core.net.JQHttpClient
 import co.ledger.wallet.web.ripple.core.utils.PermissionsHelper
 import co.ledger.wallet.web.ripple.services.{DeviceService, RippleLibApiService, SessionService, WindowService}
-import exceptions.RippleException
+import exceptions.{FeesException, RippleException}
 import org.scalajs.dom
 
 import scala.concurrent._
@@ -78,7 +78,7 @@ class SendIndexController(override val windowService: WindowService,
 
   var fee: Option[XRP] = None
 
-  def feeDisplay = fee.getOrElse(XRP.Zero).toXRP
+  def feeDisplay = fee.getOrElse(XRP(10)).toXRP
 
   var isInAdvancedMode = false
   val supportAdvancedMode = true
@@ -128,7 +128,8 @@ class SendIndexController(override val windowService: WindowService,
   def computeFees(): Future[Unit] = {
     if (!isInAdvancedMode) {
       println("compute fees")
-      _api.fees().map({ (value) => //api.getFee() map {(value) =>
+      //_api.fees().map({ (value) => //api.getFee() map {(value) =>
+      sessionService.currentSession.get.wallet.webSocket.map((_.fee())).getOrElse(Future.successful(XRP(10))) map {(value: XRP) =>
         fee = Some(value)
         val t = getAmountInput().map((amount) => amount + (fee.getOrElse(XRP.Zero).toBigInt)).map(new XRP(_)).getOrElse(XRP(0))
         total = t.toBigInt.toString()
@@ -136,9 +137,9 @@ class SendIndexController(override val windowService: WindowService,
           $scope.$digest()
         }
         ()
-      }).recover({
-        case response: RippleException =>
-          SnackBar.error("ripple.down_title", "ripple.down_message").show()
+      } recover({
+        case response: FeesException =>
+          SnackBar.error("ripple.fees_down_title", "ripple.fees_down_message").show()
         case ex: Throwable => throw ex
       })
     } else {
@@ -159,7 +160,8 @@ class SendIndexController(override val windowService: WindowService,
       this.computeFees()
     }
     if (isInAdvancedMode) {
-      fee = Some(XRP(customFee.toInt))
+      if (customFee.toInt<10) customFee = "10"
+      fee = Some(XRP(Math.max(10, customFee.toInt)))
     }
     val t = getAmountInput().map((amount) => amount + (fee.getOrElse(XRP.Zero).toBigInt)).map(new XRP(_)).getOrElse(XRP(0))
     total = t.toBigInt.toString()
@@ -193,9 +195,9 @@ class SendIndexController(override val windowService: WindowService,
       SnackBar.error("send.bad_fees_title", "send.bad_fees_message").show()
     } else {
       windowService.disableUserInterface()
-      _api.account(recipient.get.toString) map {(exists) =>
+      sessionService.currentSession.get.wallet.webSocket.get.balance(address) map {(exists) =>
         println("exist", exists)
-        if (!exists && value.get<accountMinimum) {
+        if ((exists == XRP.Zero) && value.get<accountMinimum) {
           SnackBar.error("send.bad_amount_for_address_creation_title", "send.bad_amount_for_address_creation_message").show()
         } else {
           println(s"Amount: $amount")

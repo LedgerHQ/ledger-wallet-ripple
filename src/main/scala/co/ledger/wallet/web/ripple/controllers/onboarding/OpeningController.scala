@@ -3,7 +3,9 @@ package co.ledger.wallet.web.ripple.controllers.onboarding
 import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.{JQLite, Location}
 import biz.enef.angulate.{Controller, Scope}
+import co.ledger.wallet.core.crypto.SHA256
 import co.ledger.wallet.core.device.ripple.LedgerApi
+import co.ledger.wallet.core.utils.HexUtils
 import co.ledger.wallet.web.ripple.components.WindowManager
 import co.ledger.wallet.web.ripple.core.utils.{ChromeGlobalPreferences, ChromePreferences}
 import co.ledger.wallet.web.ripple.services.{DeviceService, SessionService, WindowService}
@@ -53,8 +55,8 @@ class OpeningController(override val windowService: WindowService,
                         $routeParams: js.Dictionary[String])
   extends Controller with OnBoardingController {
   println("opening ctrl")
-
-  println("Node value = ", new ChromeGlobalPreferences("Settings").string("node").getOrElse("else"))
+  var node = new ChromeGlobalPreferences("Settings").string("node").getOrElse("else")
+  println("Node value = ", node)
   var isInErrorMode = false
   var errorType = 2
   deviceService.lastConnectedDevice() map {(device) =>

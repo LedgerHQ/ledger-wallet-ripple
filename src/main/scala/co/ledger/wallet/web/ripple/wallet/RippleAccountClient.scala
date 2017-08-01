@@ -38,10 +38,10 @@ class RippleAccountClient(walletClient: RippleWalletClient,
     println("Synchronizing account")
     _synchronizationFuture.getOrElse({
       _synchronizationFuture = Some(
-        walletClient.websocketRipple.balance() flatMap {(bal) =>
+        walletClient.webSocket.get.balance() flatMap {(bal) =>
           walletClient.putAccount(new AccountRow(row.index, row.rippleAccount, bal))
           walletClient.lastOperationLedger() flatMap {(ledger) =>
-            walletClient.websocketRipple.transactions(ledger) map { (transactions) =>
+            walletClient.webSocket.get.transactions(ledger) map { (transactions) =>
               for (transaction <- transactions) {
                 walletClient.putTransaction(transaction)
                 walletClient.putOperation(new AccountRow(row.index, row

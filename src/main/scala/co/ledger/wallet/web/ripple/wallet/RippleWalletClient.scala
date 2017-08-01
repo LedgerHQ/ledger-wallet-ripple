@@ -50,6 +50,8 @@ class RippleWalletClient(override val name: String,
     }
   }
 
+  private var _firstConnection: Boolean = false
+
   private def createNewAccount(index: Int): Future[AccountRow] = {
     provider.getRippleAccount(DerivationPath(s"44'/${chain.coinType}'/$index'/0/0"))
     .flatMap {(account) =>
@@ -88,11 +90,17 @@ class RippleWalletClient(override val name: String,
       Future.successful(Unit)
     } else {
       println("Waiting on ws to connect")
+      eventEmitter.emit(StartSynchronizationEvent())
+      _firstConnection = true
       _webSocketRipple.get.connecting.future
     }) flatMap { (_) =>
       println("Checking future for synchronization")
       if ((_synchronizationFuture.isEmpty || (_synchronizationFuture.isDefined && _synchronizationFuture.get.isCompleted && _synchronizationFuture.get.value.get.isFailure))) {
-        eventEmitter.emit(StartSynchronizationEvent())
+        if (_firstConnection) {
+          _firstConnection = false
+        } else {
+          eventEmitter.emit(StartSynchronizationEvent())
+        }
         _synchronizationFuture = Some(
           accounts() flatMap { (accounts) =>
             Future.sequence(accounts.map(_.synchronize()).toSeq)
@@ -139,7 +147,7 @@ class RippleWalletClient(override val name: String,
     _webSocketRipple.get.start()
   })
 
-  def websocketRipple = _webSocketRipple.get
+  override def webSocket = _webSocketRipple
 
   override def isConnected(): Boolean = {
     if (_webSocketRipple.isDefined){
