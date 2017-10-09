@@ -53,7 +53,7 @@ class HelpController(override val windowService: WindowService,
 
 
   def browseKnowledgeBase(): Unit = {
-    WindowManager.open("http://support.ledgerwallet.com/help_center")
+    WindowManager.open("http://support.ledgerwallet.com/")
   }
 
   def contactSupport(): Unit = {

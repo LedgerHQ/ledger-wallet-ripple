@@ -1,4 +1,12 @@
 # Changelog
+
+1.0.3 (2017-10-09)
+==================
+- Removing direct mail contact for support
+- Using base fees as default instead of mean fees
+- Separating wallets when using different nodes
+- Add option in the help section to reset the data
+
 1.0.2 (2017-07-06)
 ==================
 - Fixed the transaction being displayed successful while missing a required destination tag

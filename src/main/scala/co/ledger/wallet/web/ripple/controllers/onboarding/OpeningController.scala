@@ -91,7 +91,7 @@ class OpeningController(override val windowService: WindowService,
   }
 
   def openHelpCenter(): Unit = {
-    WindowManager.open("http://support.ledgerwallet.com/help_center")
+    WindowManager.open("http://support.ledgerwallet.com/")
   }
 
 }
