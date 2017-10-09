@@ -40,8 +40,8 @@
                                placeholder="{{'send.fees' | translate}}"
                                class="small-text-input"
                                type="text"
-                               ng-pattern="/^[0-9]{2,}$/"
-                               ng-change="ctrl.computeTotal(true)"
+                               ng-pattern="/^[0-9]*$/"
+                               ng-blur="ctrl.computeTotal(true)"
                                ng-model="ctrl.customFee"/>
                         <label class="small-text-input" translate>send.drops</label>
                     </div>

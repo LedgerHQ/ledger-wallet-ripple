@@ -208,7 +208,21 @@ class WebSocketRipple(factory: WebSocketFactory,
     }
   }
 
-
+  def fee(): Future[XRP] = {
+    if (!connected) {
+      Future.failed(DisconnectedException())
+    } else {
+      val fee = js.Dynamic.literal(
+        command = "fee" )
+      send(fee) map {(msg) =>
+        if (msg.optString("status","error")=="success"){
+          XRP(msg.optJSONObject("result").getJSONObject("drops").optString("base_fee", "10"))
+        } else {
+          XRP(10)
+        }
+      }
+    }
+  }
 
   def transactions(ledger_min: Long = 0): Future[Array[JsonTransaction]] = {
     if (!connected) {

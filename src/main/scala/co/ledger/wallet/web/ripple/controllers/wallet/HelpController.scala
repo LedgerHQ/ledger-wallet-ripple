@@ -76,6 +76,10 @@ class HelpController(override val windowService: WindowService,
     }
   }
 
+  def resetData(): Unit = {
+    js.Dynamic.global.resetData()
+  }
+
 }
 
 object HelpController {

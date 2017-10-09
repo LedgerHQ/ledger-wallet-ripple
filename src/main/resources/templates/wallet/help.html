@@ -37,10 +37,20 @@
         <table>
             <thead>
             <tr>
+                <td class="stretch-content" style="padding-top: 50px;">missing transactions</td>
+                <td class="fit-content"><a ng-click="ctrl.resetData()" class="uppercase-action"><i class="fa fa-trash-o" aria-hidden="true"></i><span translate>help.reset_data</span></a></td>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <table>
+            <thead>
+            <tr>
                 <td class="stretch-content" style="padding-top: 50px;">diagnostic</td>
                 <td class="fit-content"><a ng-click="ctrl.exportLogs()" class="uppercase-action"><i class="fa fa-external-link-square" aria-hidden="true"></i><span translate>help.export_logs</span></a></td>
             </tr>
             </thead>
+            <tbody></tbody>
         </table>
         <div class="centered-text regular-soft-grey-text-small regular-line-height extra-small-top-margin" translate>
             help.logs_disclaimer

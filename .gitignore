@@ -2,3 +2,4 @@
 target/
 .DS_Store
 crowdin.yaml
+src/main/resources/node_modules/

@@ -128,7 +128,8 @@ class SendIndexController(override val windowService: WindowService,
   def computeFees(): Future[Unit] = {
     if (!isInAdvancedMode) {
       println("compute fees")
-      _api.fees().map({ (value) => //api.getFee() map {(value) =>
+      //_api.fees().map({ (value) => //api.getFee() map {(value) =>
+      sessionService.currentSession.get.wallet.webSocket.map((_.fee())).getOrElse(Future.successful(XRP(10))) map {(value: XRP) =>
         fee = Some(value)
         val t = getAmountInput().map((amount) => amount + (fee.getOrElse(XRP.Zero).toBigInt)).map(new XRP(_)).getOrElse(XRP(0))
         total = t.toBigInt.toString()
@@ -136,7 +137,7 @@ class SendIndexController(override val windowService: WindowService,
           $scope.$digest()
         }
         ()
-      }).recover({
+      } recover({
         case response: FeesException =>
           SnackBar.error("ripple.fees_down_title", "ripple.fees_down_message").show()
         case ex: Throwable => throw ex
@@ -159,7 +160,8 @@ class SendIndexController(override val windowService: WindowService,
       this.computeFees()
     }
     if (isInAdvancedMode) {
-      fee = Some(XRP(customFee.toInt))
+      if (customFee.toInt<10) customFee = "10"
+      fee = Some(XRP(Math.max(10, customFee.toInt)))
     }
     val t = getAmountInput().map((amount) => amount + (fee.getOrElse(XRP.Zero).toBigInt)).map(new XRP(_)).getOrElse(XRP(0))
     total = t.toBigInt.toString()

@@ -211,6 +211,7 @@ abstract class QueryHelper[M >: Null <: Model](implicit classTag: ClassTag[M]) {
       val r = root
       val result = new MutableQueryResult
       database.obtainConnection() flatMap {(connection) =>
+        js.Dynamic.global.currentDbConnection = connection
         val transaction = connection.transaction(js.Array(modelDeclaration.entityName), mode)
         def iterate(step: QueryStep): Future[Unit] = {
           if (step == null)
