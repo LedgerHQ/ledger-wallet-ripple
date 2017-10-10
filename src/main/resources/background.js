@@ -73,7 +73,7 @@ function tryStartApp() {
 }
 
 chrome.app.runtime.onLaunched.addListener(function () {
-    tryStartApp();
+    startApp();
 });
 
 chrome.runtime.onMessageExternal.addListener(

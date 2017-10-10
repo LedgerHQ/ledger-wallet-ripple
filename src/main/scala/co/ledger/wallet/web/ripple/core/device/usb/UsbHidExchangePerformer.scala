@@ -10,6 +10,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Future, Promise}
 import scala.scalajs.js
+import scala.scalajs.js.UndefOr
 import scala.util.{Failure, Success}
 
 /**
@@ -116,11 +117,17 @@ class UsbHidExchangePerformer(connection: UsbDeviceImpl.Connection,
   private def receive(): Future[Array[Byte]] = {
     import scala.scalajs.js.typedarray._
     val promise = Promise[Array[Byte]]()
-    chrome.hid.receive(connection.connectionId, {(reportId: Int, data: TypedArray[_, _]) =>
-      if (js.isUndefined(chrome.runtime.lastError))
-        promise.success(int8Array2ByteArray(new Int8Array(data)))
-      else
-        promise.failure(CommunicationException(chrome.runtime.lastError.message.toString))
+    chrome.hid.receive(connection.connectionId, {(reportId: UndefOr[Int], data: UndefOr[TypedArray[_, _]]) =>
+      if (reportId.toOption.isEmpty) {
+        promise.failure(CommunicationException("wrong types for receive"))
+      } else {
+        if (js.isUndefined(chrome.runtime.lastError)) {
+          promise.success(int8Array2ByteArray(new Int8Array(data.toOption.get)))
+        }
+        else {
+          promise.failure(CommunicationException(chrome.runtime.lastError.message.toString))
+        }
+      }
     })
     promise.future
   }

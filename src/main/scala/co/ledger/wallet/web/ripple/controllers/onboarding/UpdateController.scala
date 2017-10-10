@@ -27,7 +27,7 @@ class UpdateController (override val windowService: WindowService,
   }
 
   def openHelpCenter(): Unit = {
-    WindowManager.open("https://ledger.groovehq.com/knowledge_base/topics/ripple-classic-etc-important-notice")
+    WindowManager.open("https://support.ledgerwallet.com")
   }
 }
 
