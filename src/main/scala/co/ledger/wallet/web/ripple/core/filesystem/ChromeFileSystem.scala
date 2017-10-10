@@ -63,8 +63,11 @@ class ChromeFileSystem {
           truncated = true
           // You need to explicitly set the file size to truncate
           // any content that might have been there before
-          writer.truncate(blob.size)
-          promise.success()
+          if (!truncated) {
+            writer.truncate(blob.size)
+            promise.success()
+          }
+
         }
         writer.onerror = {(e: js.Dynamic) =>
           promise.failure(new Exception(e.toString()))
