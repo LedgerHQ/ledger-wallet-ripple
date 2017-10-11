@@ -1,0 +1,12 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+Icon[en_US]=/usr/share/ledger_wallet_ripple/ripple.ico
+Name[en_US]=Ledger Wallet Ripple
+Exec=/usr/bin/LedgerWalletRipple
+Comment[en_US]=Manage your XRP with the Ledger Wallet Ripple
+Name=Ledger Wallet Ripple
+Icon=/usr/share/ledger_wallet_ripple/ripple.ico
+Keywords=wallet;ripple;ledger

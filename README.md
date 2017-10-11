@@ -43,4 +43,11 @@ Download and extract [x64 version](https://dl.nwjs.io/v0.25.4/nwjs-sdk-v0.25.4-w
 nwjs-sdk-v0.25.4-win-x64/nwjs.exe target/chrome-app/
 ```
 
+#Packaging
+##Linux Deb/Rpm/Zip
+```
+cd packaging/linux
+sudo chmod +x release_script.sh
+./release_script.sh
+```
 
