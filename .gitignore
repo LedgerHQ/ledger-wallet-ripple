@@ -7,3 +7,6 @@ src/main/resources/images/common/.directory
 src/main/resources/images/opening/.directory
 src/main/resources/images/app_icon/.directory
 nwjs*
+packaging/linux/releases
+packaging/linux/temp
+project/project/

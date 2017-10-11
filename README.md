@@ -46,8 +46,15 @@ nwjs-sdk-v0.25.4-win-x64/nwjs.exe target/chrome-app/
 #Packaging
 ##Linux Deb/Rpm/Zip
 ```
+sudo apt-get install alien -y
 cd packaging/linux
-sudo chmod +x release_script.sh
+sudo chmod +x release_script.sh 1.0.3
 ./release_script.sh
+```
+
+##OSX
+Install [packages](http://s.sudre.free.fr/Software/Packages/about.html)
+```$xslt
+
 ```
 
