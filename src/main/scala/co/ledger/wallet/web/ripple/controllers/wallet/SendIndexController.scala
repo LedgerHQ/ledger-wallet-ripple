@@ -193,6 +193,8 @@ class SendIndexController(override val windowService: WindowService,
       SnackBar.error("ripple.down_title", "ripple.down_message").show()
     } else if (isInAdvancedMode && customFee.toInt < 10) {
       SnackBar.error("send.bad_fees_title", "send.bad_fees_message").show()
+    } else if (isInAdvancedMode && tag.toLong > 4294967295L) {
+      SnackBar.error("send.bad_tag_title", "send.bad_tag_message").show()
     } else {
       windowService.disableUserInterface()
       sessionService.currentSession.get.wallet.webSocket.get.balance(address) map {(exists) =>

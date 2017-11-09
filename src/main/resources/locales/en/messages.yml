@@ -150,6 +150,8 @@ send:
   standard_mode: standard mode
   bad_amount_for_address_creation_title: Insufficient initial transfer
   bad_amount_for_address_creation_message: New Ripple addresss must be initialized with at least 20 XRP
+  bad_tag_title: Wrong Tag
+  bad_tag_message: Destination tag must be between 0 and 4294967295
 
 
 # Send perform screen
