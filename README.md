@@ -14,7 +14,8 @@ During installation, choose the option to install the git bash
 
 ## Building
 
-Install [sbt](http://www.scala-sbt.org/index.html) then open a terminal and paste the commands below: (Windows users, right click and select "open git bash here")
+Install [Java SDK 8 for your platform](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+Install [SBT 1.x.x](https://www.scala-sbt.org/download.html) then open a terminal and paste the commands below: (Windows users, right click and select "open git bash here")
 
 ```bash
 git clone https://github.com/LedgerHQ/ledger-wallet-ripple.git

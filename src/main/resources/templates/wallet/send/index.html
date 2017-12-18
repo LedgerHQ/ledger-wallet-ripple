@@ -70,7 +70,7 @@
         </section>
         <div class="spacer"></div>
         <actions-bottom-bar style="padding-left: 0; padding-right: 0;">
-            <a class="uppercase-action" ng-click="ctrl.isInAdvancedMode = true; ctrl.computeTotal(true)" ng-show="!ctrl.isInAdvancedMode && ctrl.supportAdvancedMode" translate>send.advanced_mode</a>
+            <a class="uppercase-action" ng-click="ctrl.initCustomFee(); ctrl.isInAdvancedMode = true; ctrl.computeTotal(true)" ng-show="!ctrl.isInAdvancedMode && ctrl.supportAdvancedMode" translate>send.advanced_mode</a>
             <a class="uppercase-action" style="margin-left: 0;" ng-click="ctrl.isInAdvancedMode = false; ctrl.computeTotal(true)" ng-show="ctrl.isInAdvancedMode && ctrl.supportAdvancedMode" translate>send.standard_mode</a>
             <div class="spacer" ng-show="ctrl.supportAdvancedMode"></div>
             <lbutton icon="camera" type="cancel" disabled="false" ng-click="ctrl.scanQrCode()"></lbutton>

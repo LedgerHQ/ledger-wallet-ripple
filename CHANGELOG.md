@@ -1,13 +1,15 @@
 # Changelog
 
-1.0.3 (2017-10-10)
+1.0.3 (2017-18-12)
 ==================
 - Removing direct mail contact for support
 - Using base fees as default instead of mean fees
 - Separating wallets when using different nodes
 - Add option in the help section to reset the data
+- Custom fees are now set to match base fees by default
 - Corrected logs saving
 - Corrected device discovery
+- Changed class names to avoid cache error when compiling
 
 1.0.2 (2017-07-06)
 ==================
