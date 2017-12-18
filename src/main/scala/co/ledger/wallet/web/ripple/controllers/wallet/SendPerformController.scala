@@ -9,7 +9,7 @@ import co.ledger.wallet.core.device.ripple.LedgerCommonApiInterface.LedgerApiExc
 import co.ledger.wallet.core.device.utils.EventReceiver
 import co.ledger.wallet.core.utils.{DerivationPath, HexUtils, Nullable}
 import co.ledger.wallet.core.wallet.ripple.api.ApiAccountRestClient
-import co.ledger.wallet.core.wallet.ripple.api.WebsocketRipple.{WebsocketDisconnectedEvent, WebsocketErrorEvent, WebsocketTransactionSentEvent}
+import co.ledger.wallet.core.wallet.ripple.api.WebSocketRipple.{WebSocketDisconnectedEvent, WebSocketErrorEvent, WebSocketTransactionSentEvent}
 import co.ledger.wallet.core.wallet.ripple.{RippleAccount, XRP}
 import co.ledger.wallet.web.ripple.components.{RippleSerializer, SnackBar}
 import co.ledger.wallet.web.ripple.core.net.JQHttpClient
@@ -135,19 +135,19 @@ class SendPerformController(override val windowService: WindowService,
       var timeOut: SetTimeoutHandle = null
       val receiver: EventReceiver = new EventReceiver {
         override def receive = {
-          case WebsocketTransactionSentEvent(txn) =>
+          case WebSocketTransactionSentEvent(txn) =>
             if ((txn == tx.TxnSignature)){
               clearTimeout(timeOut)
               sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].webSocket.get.emmiter.unregister(this)
               api.emmiter.unregister(this)
               promise.success()
             }
-          case WebsocketDisconnectedEvent() =>
+          case WebSocketDisconnectedEvent() =>
             clearTimeout(timeOut)
             sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].webSocket.get.emmiter.unregister(this)
             api.emmiter.unregister(this)
             promise.failure(DisconnectedException())
-          case WebsocketErrorEvent(name, data) =>
+          case WebSocketErrorEvent(name, data) =>
             if (name == "tecDST_TAG_NEEDED" && data == tx.TxnSignature) {
               clearTimeout(timeOut)
               sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].webSocket.get.emmiter.unregister(this)

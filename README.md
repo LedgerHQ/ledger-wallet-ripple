@@ -1,7 +1,20 @@
-#Ledger Wallet Ripple
+# Ledger Wallet Ripple
 
-#Build
-You need [SBT](http://www.scala-sbt.org/0.13/docs/Setup.html) installed. (For Windows user, we recommand you install and use the [Git bash](https://git-scm.com/download/win)
+# Build
+
+## Windows Users
+
+We recommend you install and use the [Git bash](https://git-scm.com/download/win)
+
+- Open control panel
+- Go to: System and Security -> System -> Advanced system settings (on th left) -> environment variables
+- Under " System variables" click on "New"
+- Name: JAVA_OPTS and Value: -Xms512m -Xmx1024m
+- Confirm and apply
+
+## All platform
+
+You need [SBT](http://www.scala-sbt.org/1.x/docs/Setup.html) and [JSDK 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)  installed.
 ```bash
 git clone https://github.com/LedgerHQ/ledger-wallet-ripple.git
 cd ledger-wallet-ripple
@@ -32,13 +45,13 @@ nwjs-sdk-v0.25.4-osx-x64/nwjs.app/Content/MacOS/nwjs target/chrome-app/
 ```
 
 ##Windows x32
-Download and extract [x64 version](https://dl.nwjs.io/v0.25.4/nwjs-sdk-v0.25.4-win-ia32.zip) or [x32 version](https://dl.nwjs.io/v0.25.4/nwjs-sdk-v0.25.4-win-ia32.zip) at the root of the repository
+Download and extract [x64 version](https://dl.nwjs.io/v0.25.4/nwjs-sdk-v0.25.4-win-ia32.zip) at the root of the repository
 ```
 nwjs-sdk-v0.25.4-win-ia32/nwjs.exe target/chrome-app/
 ```
 
 ##Windows x64
-Download and extract [x64 version](https://dl.nwjs.io/v0.25.4/nwjs-sdk-v0.25.4-win-x64.zip) or [x32 version](https://dl.nwjs.io/v0.25.4/nwjs-sdk-v0.25.4-win-ia32.zip) at the root of the repository
+Download and extract [x64 version](https://dl.nwjs.io/v0.25.4/nwjs-sdk-v0.25.4-win-x64.zip) at the root of the repository
 ```
 nwjs-sdk-v0.25.4-win-x64/nwjs.exe target/chrome-app/
 ```
@@ -57,4 +70,3 @@ Install [packages](http://s.sudre.free.fr/Software/Packages/about.html)
 ```$xslt
 
 ```
-

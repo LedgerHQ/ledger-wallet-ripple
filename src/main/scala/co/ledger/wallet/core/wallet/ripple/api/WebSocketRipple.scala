@@ -27,7 +27,7 @@ import scala.scalajs.js.timers.{SetTimeoutHandle, clearTimeout, setTimeout}
 class WebSocketRipple(factory: WebSocketFactory,
                       addresses: Array[String],
                      wallet: RippleWalletClient) {
-  import WebsocketRipple._
+  import WebSocketRipple._
 
   def start(): Unit = {
     if (_socket.isEmpty) {
@@ -61,7 +61,7 @@ class WebSocketRipple(factory: WebSocketFactory,
           println("close websocket")
           connecting = Promise[Unit]()
           connected = false
-          emmiter.emit(WebsocketDisconnectedEvent())
+          emmiter.emit(WebSocketDisconnectedEvent())
           ex.printStackTrace()
           if (isRunning)
             connect()
@@ -89,7 +89,7 @@ class WebSocketRipple(factory: WebSocketFactory,
       if (msg.optJSONObject("transaction").optString("Account", "") == addresses(0) &&
         msg.optJSONObject("meta").optString("TransactionResult", "") == "tesSUCCESS") {
         println("transactions received")
-        emmiter.emit(WebsocketTransactionSentEvent(msg.optJSONObject("transaction").optString("TxnSignature", "")))
+        emmiter.emit(WebSocketTransactionSentEvent(msg.optJSONObject("transaction").optString("TxnSignature", "")))
       }
     }
     if (msg.optString("type", "") == "transaction" && msg.optBoolean("validated", false) && msg.optString("engine_result", "") == "tesSUCCESS") {
@@ -100,7 +100,7 @@ class WebSocketRipple(factory: WebSocketFactory,
     if (msg.optString("type","") == "transaction" && msg.optBoolean("validated", false) && msg.optJSONObject("transaction") != null) {
       if (msg.optJSONObject("transaction").optString("Account", "") == addresses(0) &&
         msg.optJSONObject("meta").optString("TransactionResult", "") == "tecDST_TAG_NEEDED") {
-        emmiter.emit(WebsocketErrorEvent("tecDST_TAG_NEEDED", msg.optJSONObject("transaction").optString("TxnSignature", "")))
+        emmiter.emit(WebSocketErrorEvent("tecDST_TAG_NEEDED", msg.optJSONObject("transaction").optString("TxnSignature", "")))
       }
     }
 
@@ -119,7 +119,7 @@ class WebSocketRipple(factory: WebSocketFactory,
       if (json.optJSONObject("result").has("account_data")) {
         if (json.optJSONObject("result").getJSONObject("account_data").optString("Account","") == addresses(0)) {
           println("balance received")
-          emmiter.emit(WebsocketResponseEvent("balance", json))
+          emmiter.emit(WebSocketResponseEvent("balance", json))
         }
       }
     }
@@ -136,14 +136,14 @@ class WebSocketRipple(factory: WebSocketFactory,
       if (json.optJSONObject("transaction").optString("Account", "") == addresses(0) &&
         json.optJSONObject("meta").optString("TransactionResult", "") == "tesSUCCESS") {
         println("transactions received")
-        emmiter.emit(WebsocketTransactionSentEvent(json.optJSONObject("transaction").optString("TxnSignature", "")))
+        emmiter.emit(WebSocketTransactionSentEvent(json.optJSONObject("transaction").optString("TxnSignature", "")))
       }
     }
 
     if (json.optString("type","") == "transaction" && json.optBoolean("validated", false) && json.optJSONObject("transaction") != null) {
       if (json.optJSONObject("transaction").optString("Account", "") == addresses(0) &&
         json.optJSONObject("meta").optString("TransactionResult", "") == "tecDST_TAG_NEEDED") {
-        emmiter.emit(WebsocketErrorEvent("tecDST_TAG_NEEDED", json.optJSONObject("transaction").optString("TxnSignature", "")))
+        emmiter.emit(WebSocketErrorEvent("tecDST_TAG_NEEDED", json.optJSONObject("transaction").optString("TxnSignature", "")))
       }
     }
 
@@ -152,7 +152,7 @@ class WebSocketRipple(factory: WebSocketFactory,
         json.optJSONObject("result").has("transactions")) {
         println("transactions received")
         println(json.getJSONObject("result").getJSONArray("transactions").length())
-        emmiter.emit(WebsocketResponseEvent("transactions", json))
+        emmiter.emit(WebSocketResponseEvent("transactions", json))
       }
     }
 
@@ -267,11 +267,11 @@ class WebSocketRipple(factory: WebSocketFactory,
   private var _socket: Option[Future[WebSocket]] = None
 }
 
-object WebsocketRipple {
-  case class WebsocketTransactionSentEvent(txn: String)
-  case class WebsocketDisconnectedEvent()
-  case class WebsocketErrorEvent(name: String, data: String)
-  case class WebsocketTransactionReceivedEvent(txn: String, tx: JSONObject)
-  case class WebsocketResponseEvent(name: String, response: JSONObject)
+object WebSocketRipple {
+  case class WebSocketDisconnectedEvent()
+  case class WebSocketErrorEvent(name: String, data: String)
+  case class WebSocketTransactionSentEvent(txn: String)
+  case class WebSocketTransactionReceivedEvent(txn: String, tx: JSONObject)
+  case class WebSocketResponseEvent(name: String, response: JSONObject)
 
 }

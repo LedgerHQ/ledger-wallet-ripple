@@ -80,6 +80,10 @@ class SendIndexController(override val windowService: WindowService,
 
   def feeDisplay = fee.getOrElse(XRP(10)).toXRP
 
+  def initCustomFee() = {
+    customFee = fee.getOrElse(XRP(10)).toString()
+  }
+
   var isInAdvancedMode = false
   val supportAdvancedMode = true
 
@@ -193,6 +197,8 @@ class SendIndexController(override val windowService: WindowService,
       SnackBar.error("ripple.down_title", "ripple.down_message").show()
     } else if (isInAdvancedMode && customFee.toInt < 10) {
       SnackBar.error("send.bad_fees_title", "send.bad_fees_message").show()
+    } else if (isInAdvancedMode && tag.toLong > 4294967295L) {
+      SnackBar.error("send.bad_tag_title", "send.bad_tag_message").show()
     } else {
       windowService.disableUserInterface()
       sessionService.currentSession.get.wallet.webSocket.get.balance(address) map {(exists) =>
@@ -217,8 +223,8 @@ class SendIndexController(override val windowService: WindowService,
                     if (tag != "") {
                       tagInt = "/" ++ tag
                     }
-                    println(s"/send/${value.get.toString()}/to/$address/from/0/with/${fee.getOrElse(12)}/tag$tagInt")
-                    $location.path(s"/send/${value.get.toString()}/to/$address/from/0/with/${fee.getOrElse(12)}/tag$tagInt")
+                    println(s"/send/${value.get.toString()}/to/$address/from/0/with/${fee.getOrElse(10)}/tag$tagInt")
+                    $location.path(s"/send/${value.get.toString()}/to/$address/from/0/with/${fee.getOrElse(10)}/tag$tagInt")
                     $scope.$apply()
                   }
                 }
