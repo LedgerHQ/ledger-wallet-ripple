@@ -63,7 +63,7 @@ launch:
   xrp: XRP
   wrong_node_title: Bad node address
   success_node_title: Node changed
-  wrong_node_message: The node' s address seems uncorrect
+  ledger_default: Ledger's default
 
 # Linux launch screen
 

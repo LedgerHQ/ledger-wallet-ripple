@@ -70,6 +70,7 @@ class LaunchController(override val windowService: WindowService,
   private var _scanRequest: ScanRequest = null
   private var _discover: Int = (if ($routeParams.contains("discover")) $routeParams("discover").toInt else 0)
   private val preferences = new ChromeGlobalPreferences("launch_screen")
+  private val _defaultNode = "wss://s2.ripple.com"
 
   if (_discover == 1 || new ChromePreferences("update").int("skip").getOrElse(0) == 1) {
     _discover = 1
@@ -152,19 +153,27 @@ class LaunchController(override val windowService: WindowService,
 
   def incrementNumberOfConnection() = new ChromeGlobalPreferences("launches").edit().putInt("count", numberOfConnection + 1).commit()
 
-  def settings(): Unit = {
-    var default = new ChromeGlobalPreferences("Settings").string("node").getOrElse("wss://s2.ripple.com")
-    if (default==null) {
-      default = "wss://s2.ripple.com"
+  def settings(default: String = ""): Unit = {
+    var field = ""
+    if (default == "") {
+      field = new ChromeGlobalPreferences("Settings").string("node").getOrElse("")
+      if (field==null || field == _defaultNode) {
+        field = ""
+      }
     }
-    var input = js.Dynamic.global.prompt("Ripple Node :", default.asInstanceOf[String])
-    if (!js.isUndefined(input) && input!=null) {
+    val input = js.Dynamic.global.prompt("Enter Ripple node (leave empty to use Ledger’s default):", field)
+    if (input!= null) {
       val regex = "ws(s)?:\\/\\/[0-9\\.a-zA-Z\\-_]+(:([\\d]+)([\\/([0-9\\.a-zA-Z\\-_]+)?)?".r.findFirstIn(input.asInstanceOf[String])
-      if (regex.isDefined) {
+      if ("^[\\s\\t]*$".r.findFirstIn(input.asInstanceOf[String]).isDefined) {
+        new ChromeGlobalPreferences("Settings").edit().putString("node", _defaultNode).commit()
+        SnackBar.success("launch.success_node_title", "launch.ledger_default").show()
+      } else if (regex.isDefined) {
         new ChromeGlobalPreferences("Settings").edit().putString("node", regex.get).commit()
+        js.Dynamic.global.console.log(regex.get)
         SnackBar.success("launch.success_node_title", regex.get).show()
       } else {
-        SnackBar.error("launch.wrong_node_title", "").show()
+        js.Dynamic.global.alert("The address should be a websocket address !")
+        settings(input.asInstanceOf[String])
       }
     }
   }
@@ -175,7 +184,7 @@ class LaunchController(override val windowService: WindowService,
   }
 
   if (!new ChromeGlobalPreferences("Settings").contains("node")) {
-    new ChromeGlobalPreferences("Settings").edit().putString("node", "wss://s2.ripple.com").commit()
+    new ChromeGlobalPreferences("Settings").edit().putString("node", _defaultNode).commit()
   }
 
   jQuery($element.find("#introFooter")).height(11)
