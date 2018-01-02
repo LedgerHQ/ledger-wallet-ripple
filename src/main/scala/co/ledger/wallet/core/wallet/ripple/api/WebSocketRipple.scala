@@ -39,6 +39,16 @@ class WebSocketRipple(factory: WebSocketFactory,
   val emmiter = new JsEventEmitter
   private var _ws: Option[WebSocket] = None
 
+  js.Dynamic.global.gui.Window.get().on("close", () => {
+    if(isRunning){
+      _ws.get.close()
+      _socket = None
+    }
+    js.Dynamic.global.gui.Window.get().close(true)
+  })
+
+
+
   private def connect(): Unit = {
     println("connecting socket")
     _socket = Some(factory.connect(""))

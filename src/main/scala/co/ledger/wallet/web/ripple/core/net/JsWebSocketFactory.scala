@@ -52,7 +52,7 @@ class JsWebSocketFactory(override val baseUrl: URI) extends WebSocketFactory {
       } catch {
         case all: Throwable => {
           all.printStackTrace()
-          println("unloggble trigggered")
+          println("unlogable triggered")
           promise.failure(new Exception("Unlogable exception"))
         }
       }
