@@ -11,4 +11,8 @@ package object exceptions {
 
   case class FeesException() extends Exception("The Ripple API does not respond")
 
+  case class UnfundedException() extends Exception("The payment exceeds the balance capacity")
+
+  case class UnknownException(val name: String) extends Exception("Unknown exception occured")
+
 }

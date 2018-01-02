@@ -95,25 +95,26 @@ class WebSocketRipple(factory: WebSocketFactory,
         p success msg
       }
     }
-    if (msg.optString("type","") == "transaction" && msg.optBoolean("validated", false) && msg.optJSONObject("transaction") != null) {
-      if (msg.optJSONObject("transaction").optString("Account", "") == addresses(0) &&
-        msg.optJSONObject("meta").optString("TransactionResult", "") == "tesSUCCESS") {
-        println("transactions received")
-        emmiter.emit(WebSocketTransactionSentEvent(msg.optJSONObject("transaction").optString("TxnSignature", "")))
-      }
-    }
+
     if (msg.optString("type", "") == "transaction" && msg.optBoolean("validated", false) && msg.optString("engine_result", "") == "tesSUCCESS") {
       if (msg.optJSONObject("transaction").optString("Account", addresses(0)) != addresses(0)) {
         wallet.synchronize()
       }
     }
     if (msg.optString("type","") == "transaction" && msg.optBoolean("validated", false) && msg.optJSONObject("transaction") != null) {
-      if (msg.optJSONObject("transaction").optString("Account", "") == addresses(0) &&
-        msg.optJSONObject("meta").optString("TransactionResult", "") == "tecDST_TAG_NEEDED") {
-        emmiter.emit(WebSocketErrorEvent("tecDST_TAG_NEEDED", msg.optJSONObject("transaction").optString("TxnSignature", "")))
+      if (msg.optJSONObject("transaction").optString("Account", "") == addresses(0)) {
+        msg.optJSONObject("meta").optString("TransactionResult", "") match {
+          case "tesSUCCESS" => {
+            println("transactions received")
+            emmiter.emit(WebSocketTransactionSentEvent(msg.optJSONObject("transaction").optString("TxnSignature", "")))
+          }
+          case other => {
+            println("error with tx")
+            emmiter.emit(WebSocketErrorEvent(other, msg.optJSONObject("transaction").optString("TxnSignature", "")))
+          }
+        }
       }
     }
-
   }
 
   /*private def onMessage(json: JSONObject): Unit = {

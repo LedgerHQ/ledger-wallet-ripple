@@ -252,7 +252,15 @@ class SendIndexController(override val windowService: WindowService,
 
   scanner.$on("qr-code", { (event: js.Any, value: String) =>
     cancelScanQrCode()
-    address = value.replace("iban:", "")
+    val regexAddress = "r([1-9A-HJ-NP-Za-km-z]){29,34}".r.findFirstIn(value)
+    if(regexAddress.isDefined) {
+      address = regexAddress.get
+    }
+    val regexTag = "\\?dt=[0-9]{0,10}".r.findFirstIn(value)
+    if (regexTag.isDefined) {
+      isInAdvancedMode = true
+      tag = regexTag.get.replace("?dt=", "")
+    }
     $scope.$apply()
   })
   $scope.$on("$destroy", {() =>
