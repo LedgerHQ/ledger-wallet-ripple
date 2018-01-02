@@ -132,22 +132,30 @@ class RippleLibApi() {
   //****************** make call
   def preparePayment(parameters: PaymentParam): Future[PrepareResponse] = {
     execute("preparePayment", parameters)
-      .map(decode[PrepareResponse](_).right.get)
+      .map(decode[PrepareResponse](_).right.get).recover({
+      case all: Throwable => throw RippleException()
+    })
   }
 
   def sign(parameters: SignParam): Future[SignedTransaction] = {
     execute("sign", parameters)
-      .map(decode[SignedTransaction](_).right.get)
+      .map(decode[SignedTransaction](_).right.get).recover({
+      case all: Throwable => throw RippleException()
+    })
   }
 
   def submit(parameters: SubmitParam): Future[SubmittedTransaction] = {
     execute("submit", parameters)
-      .map(decode[SubmittedTransaction](_).right.get)
+      .map(decode[SubmittedTransaction](_).right.get).recover({
+      case all: Throwable => throw RippleException()
+    })
   }
 
   def getFee(): Future[GetFeeResponse] = {
     execute("getFee", new APIOption(feeCushion = Some(1)))
-      .map(decode[GetFeeResponse](_).right.get)
+      .map(decode[GetFeeResponse](_).right.get).recover({
+      case all: Throwable => throw RippleException()
+    })
   }
   //--------------------------------------
 
