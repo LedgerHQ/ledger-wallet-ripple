@@ -74,7 +74,7 @@ class UsbDeviceFactory extends DeviceFactory {
       _running = true
       def tick(): Unit = {
         chrome.hid.getDevices( js.Dictionary(("filters", js.Array(js.Dynamic.literal(vendorId = 11415)))), {(devices: js.Array[HidDeviceInfo]) =>
-          val diffs = _previousResult.map(_.deviceId).diff(devices.map(_.deviceId)).concat(devices.map(_.deviceId).diff(_previousResult.map(_.deviceId)))
+          val diffs = _previousResult.filter(x => x.collections(0).usagePage == 65440).map(_.deviceId).diff(devices.map(_.deviceId)).concat(devices.filter(x => x.collections(0).usagePage == 65440).map(_.deviceId).diff(_previousResult.map(_.deviceId)))
           for (id <- diffs) {
             if (!_previousResult.exists(_.deviceId == id)) {
               val device = new UsbDeviceImpl(devices.find(_.deviceId == id).get)
@@ -121,11 +121,17 @@ class UsbDeviceFactory extends DeviceFactory {
 
 object UsbDeviceFactory {
   @js.native
+  trait Collection extends js.Object {
+    val usagePage: Int = js.native
+  }
+
+  @js.native
   trait HidDeviceInfo extends js.Object {
     val deviceId: Int = js.native
     val vendorId: Int = js.native
     val productId: Int = js.native
     val productName: String = js.native
     val serialNumber: String = js.native
+    val collections: js.Array[Collection] = js.native
   }
 }

@@ -70,7 +70,7 @@ class LaunchController(override val windowService: WindowService,
   private var _scanRequest: ScanRequest = null
   private var _discover: Int = (if ($routeParams.contains("discover")) $routeParams("discover").toInt else 0)
   private val preferences = new ChromeGlobalPreferences("launch_screen")
-  private val _defaultNode = "wss://s2.ripple.com"
+  private val _defaultNode = "ws://ripple.ledger.com:8532"
 
   if (_discover == 1 || new ChromePreferences("update").int("skip").getOrElse(0) == 1) {
     _discover = 1
