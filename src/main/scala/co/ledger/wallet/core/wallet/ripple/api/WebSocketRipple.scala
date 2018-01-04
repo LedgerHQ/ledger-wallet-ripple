@@ -40,11 +40,14 @@ class WebSocketRipple(factory: WebSocketFactory,
   private var _ws: Option[WebSocket] = None
 
   js.Dynamic.global.gui.Window.get().on("close", () => {
-    if(isRunning){
-      _ws.get.close()
-      _socket = None
+    try {
+      if(isRunning && _ws.isDefined){
+        _ws.get.close()
+        _socket = None
+      }
+    } finally {
+      js.Dynamic.global.gui.Window.get().close(true)
     }
-    js.Dynamic.global.gui.Window.get().close(true)
   })
 
 

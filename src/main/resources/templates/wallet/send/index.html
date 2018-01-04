@@ -27,6 +27,7 @@
                                placeholder="{{'send.recipient_placeholder' | translate}}"
                                class="small-text-input"
                                type="text"
+                               ng-paste="ctrl.parsePasteEvent($event)"
                                ng-pattern="/^r([1-9A-HJ-NP-Za-km-z]){0,34}$/"
                                ng-model="ctrl.address"
                                autocomplete="off"/>

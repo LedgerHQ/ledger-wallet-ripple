@@ -70,7 +70,7 @@ class LaunchController(override val windowService: WindowService,
   private var _scanRequest: ScanRequest = null
   private var _discover: Int = (if ($routeParams.contains("discover")) $routeParams("discover").toInt else 0)
   private val preferences = new ChromeGlobalPreferences("launch_screen")
-  private val _defaultNode = "ws://ripple.ledger.com:8532"
+  private val _defaultNode = "ws://ripple.ledger.fr:8532"
 
   if (_discover == 1 || new ChromePreferences("update").int("skip").getOrElse(0) == 1) {
     _discover = 1
@@ -164,7 +164,7 @@ class LaunchController(override val windowService: WindowService,
     val input = js.Dynamic.global.prompt("Enter Ripple node (leave empty to use Ledger’s default):", field)
     if (input!= null) {
       val regex = "ws(s)?:\\/\\/[0-9\\.a-zA-Z\\-_]+(:([\\d]+)([\\/([0-9\\.a-zA-Z\\-_]+)?)?".r.findFirstIn(input.asInstanceOf[String])
-      if ("^[\\s\\t]*$".r.findFirstIn(input.asInstanceOf[String]).isDefined) {
+      if ("^[\\s\\t]*$".r.findFirstIn(input.asInstanceOf[String]).isDefined || input == _defaultNode) {
         new ChromeGlobalPreferences("Settings").edit().putString("node", _defaultNode).commit()
         SnackBar.success("launch.success_node_title", "launch.ledger_default").show()
       } else if (regex.isDefined) {
@@ -172,7 +172,7 @@ class LaunchController(override val windowService: WindowService,
         js.Dynamic.global.console.log(regex.get)
         SnackBar.success("launch.success_node_title", regex.get).show()
       } else {
-        js.Dynamic.global.alert("The address should be a websocket address !")
+        js.Dynamic.global.alert("The address should be a websocket address")
         settings(input.asInstanceOf[String])
       }
     }

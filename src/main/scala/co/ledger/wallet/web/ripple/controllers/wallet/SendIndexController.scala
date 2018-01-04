@@ -186,6 +186,23 @@ class SendIndexController(override val windowService: WindowService,
     Try(RippleAccount(address))
   }
 
+
+  def parsePasteEvent(e: js.Any): Unit = {
+    println("pasted")
+    val value = e.asInstanceOf[SendIndexController.PasteEvent].originalEvent.clipboardData.getData("Text")
+    js.Dynamic.global.console.log(value)
+    val regexAddress = "r([1-9A-HJ-NP-Za-km-z]){29,34}".r.findFirstIn(value)
+    if(regexAddress.isDefined) {
+      address = regexAddress.get
+    }
+    val regexTag = "\\?dt=[0-9]{0,10}".r.findFirstIn(value)
+    if (regexTag.isDefined) {
+      isInAdvancedMode = true
+      tag = regexTag.get.replace("?dt=", "")
+    }
+  }
+
+
   def send() = {
     val value = getAmountInput()
     val recipient = getAddressInput()
@@ -283,4 +300,19 @@ object SendIndexController {
   def init(module: RichModule) = module.controllerOf[SendIndexController]("SendIndexController")
   val RestoreKey = "SendIndexController#Restore"
   case class RestoreState(amount: Try[XRP], to: String, customFee: String, tag: String, advancedMode: Boolean)
+
+  @js.native
+  trait ClipboardData extends js.Object {
+    def getData(f: String): String = js.native
+  }
+
+  @js.native
+  trait OriginalEvent extends js.Object {
+    val clipboardData: ClipboardData = js.native
+  }
+
+  @js.native
+  trait PasteEvent extends js.Object {
+    val originalEvent: OriginalEvent = js.native
+  }
 }
