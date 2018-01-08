@@ -1,6 +1,7 @@
 window.binary = require('ripple-binary-codec')
 window.gui = require('nw.gui')
 window.open = require('opn')
+window.logzio = require('logzio-nodejs')
 
 function resetData() {
     console.log("Global desktop keyboard shortcut: " + this.key + " active.");

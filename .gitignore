@@ -2,7 +2,6 @@
 target/
 .DS_Store
 crowdin.yaml
-src/main/resources/node_modules/
 src/main/resources/images/common/.directory
 src/main/resources/images/opening/.directory
 src/main/resources/images/app_icon/.directory

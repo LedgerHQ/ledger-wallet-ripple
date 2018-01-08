@@ -8,6 +8,8 @@ import co.ledger.wallet.core.device.utils.EventReceiver
 import co.ledger.wallet.web.ripple.Application
 import co.ledger.wallet.web.ripple.components.NavigationBar.NavigationBarScope
 import co.ledger.wallet.web.ripple.components.SnackBar.SnackBarScope
+import co.ledger.wallet.web.ripple.logz.LogzManager
+import co.ledger.wallet.web.ripple.sentry.SentryManager
 import co.ledger.wallet.web.ripple.services.WindowService
 
 import scala.scalajs.js
@@ -106,6 +108,8 @@ class WindowController(windowService: WindowService, $scope: Scope, $element: JQ
 object WindowController {
 
   def init(module: RichModule) = {
+    SentryManager.init()
+    LogzManager.init()
     module.controllerOf[WindowController]("WindowController")
   }
 

@@ -46,6 +46,7 @@ lazy val root = (project in file(".")).enablePlugins(SbtWeb)
 includeFilter in (Assets, LessKeys.less) := "common.less"
 
 val sentryURL = Option(System.getProperty("sentryURL")).getOrElse("")
+val logzToken = Option(System.getProperty("logzToken")).getOrElse("")
 
 sourceGenerators in Compile <+= sourceManaged in Compile map { dir =>
   val file = dir / "co" / "ledger" / "wallet" / "web" / "ripple" / "i18n" / "I18nLanguagesManifest.scala"
@@ -53,9 +54,11 @@ sourceGenerators in Compile <+= sourceManaged in Compile map { dir =>
   new BuildI18nFiles().buildManifest(new File("src/main/resources/locales"), file)
   val file2 = dir / "co" / "ledger" / "wallet" / "web" / "ripple" / "sentry"
   file2.mkdirs()
-  println("building with secret = "+sentryURL)
   val file3 =  new BuildSentryFile().build(file2, sentryURL)
-  Seq(file, file3)
+  val file4 = dir / "co" / "ledger" / "wallet" / "web" / "ripple" / "logz"
+  file4.mkdir()
+  val file5 = new BuildLogzFile().build(file4, logzToken)
+  Seq(file, file3, file5)
 }
 
 build := {

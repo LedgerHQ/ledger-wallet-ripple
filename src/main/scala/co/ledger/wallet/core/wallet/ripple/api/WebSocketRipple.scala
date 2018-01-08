@@ -21,6 +21,7 @@ import scala.util.{Failure, Success, Try}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js.timers.{SetTimeoutHandle, clearTimeout, setTimeout}
 import co.ledger.wallet.web.ripple.sentry.SentryManager
+import co.ledger.wallet.web.ripple.logz.LogzManager
 
 /**
   * Created by alix on 5/2/17.
@@ -54,7 +55,6 @@ class WebSocketRipple(factory: WebSocketFactory,
 
   private def connect(): Unit = {
     println("connecting socket")
-    SentryManager.init()
     _socket = Some(factory.connect(""))
     _socket.get onComplete {
       case Success(ws) =>
@@ -73,6 +73,7 @@ class WebSocketRipple(factory: WebSocketFactory,
         }
         ws onClose { (ex) =>
           println("close websocket")
+          LogzManager.log("Web socket closed")
           connecting = Promise[Unit]()
           connected = false
           emmiter.emit(WebSocketDisconnectedEvent())
