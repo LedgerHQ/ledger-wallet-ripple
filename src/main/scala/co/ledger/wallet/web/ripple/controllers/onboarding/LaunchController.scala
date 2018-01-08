@@ -166,9 +166,12 @@ class LaunchController(override val windowService: WindowService,
       val regex = "ws(s)?:\\/\\/[0-9\\.a-zA-Z\\-_]+(:([\\d]+)([\\/([0-9\\.a-zA-Z\\-_]+)?)?".r.findFirstIn(input.asInstanceOf[String])
       if ("^[\\s\\t]*$".r.findFirstIn(input.asInstanceOf[String]).isDefined || input == _defaultNode) {
         new ChromeGlobalPreferences("Settings").edit().putString("node", _defaultNode).commit()
+        new ChromeGlobalPreferences("Settings").edit().putBoolean("using_default", true).commit()
         SnackBar.success("launch.success_node_title", "launch.ledger_default").show()
       } else if (regex.isDefined) {
         new ChromeGlobalPreferences("Settings").edit().putString("node", regex.get).commit()
+        new ChromeGlobalPreferences("Settings").edit().putBoolean("using_default", false).commit()
+
         js.Dynamic.global.console.log(regex.get)
         SnackBar.success("launch.success_node_title", regex.get).show()
       } else {
@@ -185,6 +188,7 @@ class LaunchController(override val windowService: WindowService,
 
   if (!new ChromeGlobalPreferences("Settings").contains("node")) {
     new ChromeGlobalPreferences("Settings").edit().putString("node", _defaultNode).commit()
+    new ChromeGlobalPreferences("Settings").edit().putBoolean("using_default", true).commit()
   }
 
   jQuery($element.find("#introFooter")).height(11)

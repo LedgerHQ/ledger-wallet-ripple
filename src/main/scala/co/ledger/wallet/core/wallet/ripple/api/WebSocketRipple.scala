@@ -20,6 +20,7 @@ import scala.scalajs.js
 import scala.util.{Failure, Success, Try}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js.timers.{SetTimeoutHandle, clearTimeout, setTimeout}
+import co.ledger.wallet.web.ripple.sentry.SentryManager
 
 /**
   * Created by alix on 5/2/17.
@@ -38,7 +39,6 @@ class WebSocketRipple(factory: WebSocketFactory,
   var connected = false
   val emmiter = new JsEventEmitter
   private var _ws: Option[WebSocket] = None
-
   js.Dynamic.global.gui.Window.get().on("close", () => {
     try {
       if(isRunning && _ws.isDefined){
@@ -54,6 +54,7 @@ class WebSocketRipple(factory: WebSocketFactory,
 
   private def connect(): Unit = {
     println("connecting socket")
+    SentryManager.init()
     _socket = Some(factory.connect(""))
     _socket.get onComplete {
       case Success(ws) =>
@@ -81,6 +82,9 @@ class WebSocketRipple(factory: WebSocketFactory,
         }
       case Failure(ex) =>
         println("failure websocket")
+        ex.printStackTrace()
+        SentryManager.log("[Failure connecting] "+ex.getMessage)
+
         if (isRunning)
           connect()
     }

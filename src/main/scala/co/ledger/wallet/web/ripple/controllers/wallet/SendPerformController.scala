@@ -14,6 +14,7 @@ import co.ledger.wallet.core.wallet.ripple.{RippleAccount, XRP}
 import co.ledger.wallet.web.ripple.components.{RippleSerializer, SnackBar}
 import co.ledger.wallet.web.ripple.core.net.JQHttpClient
 import co.ledger.wallet.web.ripple.core.utils.ChromeGlobalPreferences
+import co.ledger.wallet.web.ripple.sentry.SentryManager
 import co.ledger.wallet.web.ripple.services.{DeviceService, RippleLibApiService, SessionService, WindowService}
 import co.ledger.wallet.web.ripple.wallet.RippleLibApi.LedgerEvent
 import co.ledger.wallet.web.ripple.wallet.RippleWalletClient
@@ -237,11 +238,13 @@ class SendPerformController(override val windowService: WindowService,
       case Failure(ex: UnknownException) =>
         ex.printStackTrace()
         SnackBar.error("send_perform.unknown_title", ex.name).show()
+        SentryManager.log("[Unknown error] "+ex.getMessage)
         $location.url("/send")
         $route.reload()
       case Failure(ex) =>
         ex.printStackTrace()
         SnackBar.error("send_perform.unexpected_title", "send_perform.unexpected_message").show()
+        SentryManager.log("[Unexpected error] "+ex.getMessage)
         $location.url("/send")
         $route.reload()
     }

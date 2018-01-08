@@ -2,6 +2,7 @@ import java.io.{FileReader, StringWriter}
 
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.events.ScalarEvent
+import complete.DefaultParsers._
 
 name := "ledger-wallet-ripple-chrome"
 
@@ -17,7 +18,7 @@ addCompilerPlugin(
 
 enablePlugins(ScalaJSPlugin)
 
-val build = taskKey[Unit]("Build the chrome packaged app")
+val build = inputKey[Unit]("Build the chrome packaged app")
 
 persistLauncher := true
 relativeSourceMaps := true
@@ -44,11 +45,17 @@ resolvers += Resolver.sonatypeRepo("releases")
 lazy val root = (project in file(".")).enablePlugins(SbtWeb)
 includeFilter in (Assets, LessKeys.less) := "common.less"
 
+val sentryURL = Option(System.getProperty("sentryURL")).getOrElse("")
+
 sourceGenerators in Compile <+= sourceManaged in Compile map { dir =>
   val file = dir / "co" / "ledger" / "wallet" / "web" / "ripple" / "i18n" / "I18nLanguagesManifest.scala"
   file.getParentFile.mkdirs()
   new BuildI18nFiles().buildManifest(new File("src/main/resources/locales"), file)
-  Seq(file)
+  val file2 = dir / "co" / "ledger" / "wallet" / "web" / "ripple" / "sentry"
+  file2.mkdirs()
+  println("building with secret = "+sentryURL)
+  val file3 =  new BuildSentryFile().build(file2, sentryURL)
+  Seq(file, file3)
 }
 
 build := {
@@ -58,7 +65,6 @@ build := {
 
   // Copy all resources in chrome unpackaged directory
   IO.copyDirectory(resDir, appDir)
-
   // Build the application and copy to app directory
   val sourceFile = fastOptJS.in(Compile).value.data
   IO.copyFile(sourceFile, new File(appDir, sourceFile.name))
@@ -73,6 +79,8 @@ build := {
 
   // Compile i18n files
   new BuildI18nFiles().build(resDir, appDir)
+
+
   ()
 }
 

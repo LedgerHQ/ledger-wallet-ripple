@@ -2,7 +2,6 @@ window.binary = require('ripple-binary-codec')
 window.gui = require('nw.gui')
 window.open = require('opn')
 
-
 function resetData() {
     console.log("Global desktop keyboard shortcut: " + this.key + " active.");
     if (confirm("Are you sure you want to reset transactions history? The wallet will close after cleaning the database.")) {

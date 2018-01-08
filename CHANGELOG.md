@@ -1,7 +1,9 @@
 # Changelog
-1.0.4
+1.1.0
 ==================
-- Added Ledger Node support
+- Added Ledger Default Node support
+- Support for Shapeshift address format mit tag
+- Support for future firmware using hid and u2f
 
 1.0.3 (2017-18-12)
 ==================
