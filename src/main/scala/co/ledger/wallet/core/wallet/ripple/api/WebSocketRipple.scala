@@ -83,7 +83,7 @@ class WebSocketRipple(factory: WebSocketFactory,
         }
         ws onError { (ex) =>
           println("websocket error: "+ex.getMessage())
-          LogzManager.log("Web socket error: "+ex.getMessage())
+          SentryManager.log("[Websocket error]: "+ex.getMessage())
         }
       case Failure(ex) =>
         println("failure websocket"+ex.getMessage())

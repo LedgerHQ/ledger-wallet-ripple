@@ -25,6 +25,7 @@ function onMessage(event) {
         console.log("message from api solved "+method);
         var toScala = {
                         call_id: event.data.call_id,
+                        error: false,
                         response: JSON.stringify(message)
                       };
         if(method == "setOption"){
@@ -45,7 +46,9 @@ function onMessage(event) {
             console.log(message)
             var toScala = {
                             call_id: event.data.call_id,
-                            response: JSON.stringify(message)
+                            error: true,
+                            name: message.message,
+                            message: message.data?message.data.resultMessage:"Could not submit"
                           };
             if(method == "setOption"){
               toScala.response = JSON.stringify({

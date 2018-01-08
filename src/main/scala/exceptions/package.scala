@@ -16,4 +16,6 @@ package object exceptions {
   case class UnknownException(val name: String) extends Exception("Unknown exception occured")
 
   case class SelfSendException() extends Exception("Sending funds to self")
+
+  case class SubmitException(val name: String, val message: String) extends Exception("Submit failed")
 }

@@ -19,7 +19,7 @@ import co.ledger.wallet.web.ripple.sentry.SentryManager
 import co.ledger.wallet.web.ripple.services.{DeviceService, RippleLibApiService, SessionService, WindowService}
 import co.ledger.wallet.web.ripple.wallet.RippleLibApi.LedgerEvent
 import co.ledger.wallet.web.ripple.wallet.RippleWalletClient
-import exceptions.{DisconnectedException, MissingTagException, RippleException, UnfundedException, UnknownException, SelfSendException}
+import exceptions._
 import org.scalajs.dom
 import org.scalajs.dom.CustomEvent
 
@@ -150,7 +150,6 @@ class SendPerformController(override val windowService: WindowService,
             api.emmiter.unregister(this)
             promise.failure(DisconnectedException())
           case WebSocketErrorEvent(name, data) =>
-            LogzManager.log("Ripple error: "+name)
             if (data == tx.TxnSignature) {
               name match {
                 case "tecDST_TAG_NEEDED" => {
@@ -246,6 +245,12 @@ class SendPerformController(override val windowService: WindowService,
       case Failure(ex: SelfSendException) =>
         ex.printStackTrace()
         SnackBar.error("send_perform.self_title", "send_perform.self_message").show()
+        $location.url("/send")
+        $route.reload()
+      case Failure(ex: SubmitException) =>
+        ex.printStackTrace()
+        SentryManager.log("[Submit error] "+ex.name+ex.message)
+        SnackBar.error(ex.name, ex.message).show()
         $location.url("/send")
         $route.reload()
       case Failure(ex: UnknownException) =>

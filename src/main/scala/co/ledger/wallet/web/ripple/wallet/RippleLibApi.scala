@@ -20,7 +20,7 @@ import io.circe.generic.semiauto._
 import co.ledger.wallet.core.utils.Nullable
 import co.ledger.wallet.web.ripple.core.event.JsEventEmitter
 import co.ledger.wallet.web.ripple.wallet.RippleLibApi.LedgerEvent
-import exceptions.RippleException
+import exceptions.{RippleException, SubmitException}
 import io.circe.generic.auto._
 import io.circe.generic.JsonCodec
 import org.scalajs.dom
@@ -146,9 +146,7 @@ class RippleLibApi() {
 
   def submit(parameters: SubmitParam): Future[SubmittedTransaction] = {
     execute("submit", parameters)
-      .map(decode[SubmittedTransaction](_).right.get).recover({
-      case all: Throwable => throw RippleException()
-    })
+      .map(decode[SubmittedTransaction](_).right.get)
   }
 
   def getFee(): Future[GetFeeResponse] = {
@@ -239,6 +237,16 @@ class RippleLibApi() {
                                )
 
   //--------------------
+  // ******* errors *****
+  @JsonCodec case class DataError(
+                                         resultMessage: String
+                                       )
+
+  @JsonCodec case class ErrorResponse(
+                                         message: String,
+                                         data: DataError
+                                       )
+  //------------------
   //************** Universal "prepare" methods ********
 
   @JsonCodec case class PaymentParam(
@@ -488,12 +496,16 @@ class RippleLibApi() {
 
   def onMessage(msg: dom.MessageEvent): Unit = {
     println("onMessage called")
-    println(msg.data.asInstanceOf[js.Dynamic].response.asInstanceOf[String])
     val callId: Int = msg.data.asInstanceOf[js.Dynamic].call_id
       .asInstanceOf[Int]
+    val error: Boolean = msg.data.asInstanceOf[js.Dynamic].error.asInstanceOf[Boolean]
     val p = promisesTable.get(callId).get
-    js.Dynamic.global.console.log(msg.data.asInstanceOf[js.Dynamic].response)
-    p success msg.data.asInstanceOf[js.Dynamic].response.asInstanceOf[String]
+    js.Dynamic.global.console.log(msg.data.asInstanceOf[js.Dynamic])
+    if(error) {
+      p failure SubmitException(msg.data.asInstanceOf[js.Dynamic].name.asInstanceOf[String], msg.data.asInstanceOf[js.Dynamic].message.asInstanceOf[String])
+    } else {
+      p success msg.data.asInstanceOf[js.Dynamic].response.asInstanceOf[String]
+    }
     promisesTable -= callId
   }
 
