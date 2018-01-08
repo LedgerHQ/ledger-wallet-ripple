@@ -14,11 +14,12 @@ import co.ledger.wallet.core.wallet.ripple.{RippleAccount, XRP}
 import co.ledger.wallet.web.ripple.components.{RippleSerializer, SnackBar}
 import co.ledger.wallet.web.ripple.core.net.JQHttpClient
 import co.ledger.wallet.web.ripple.core.utils.ChromeGlobalPreferences
+import co.ledger.wallet.web.ripple.logz.LogzManager
 import co.ledger.wallet.web.ripple.sentry.SentryManager
 import co.ledger.wallet.web.ripple.services.{DeviceService, RippleLibApiService, SessionService, WindowService}
 import co.ledger.wallet.web.ripple.wallet.RippleLibApi.LedgerEvent
 import co.ledger.wallet.web.ripple.wallet.RippleWalletClient
-import exceptions.{DisconnectedException, MissingTagException, RippleException, UnfundedException, UnknownException}
+import exceptions.{DisconnectedException, MissingTagException, RippleException, UnfundedException, UnknownException, SelfSendException}
 import org.scalajs.dom
 import org.scalajs.dom.CustomEvent
 
@@ -149,6 +150,7 @@ class SendPerformController(override val windowService: WindowService,
             api.emmiter.unregister(this)
             promise.failure(DisconnectedException())
           case WebSocketErrorEvent(name, data) =>
+            LogzManager.log("Ripple error: "+name)
             if (data == tx.TxnSignature) {
               name match {
                 case "tecDST_TAG_NEEDED" => {
@@ -161,7 +163,7 @@ class SendPerformController(override val windowService: WindowService,
                   clearTimeout (timeOut)
                   sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].webSocket.get.emmiter.unregister (this)
                   api.emmiter.unregister (this)
-                  promise.failure (UnfundedException() )
+                  promise.failure (UnfundedException())
                 }
                 case "tejMaxLedger" => {
                   clearTimeout (timeOut)
@@ -169,11 +171,17 @@ class SendPerformController(override val windowService: WindowService,
                   api.emmiter.unregister (this)
                   promise.failure (ValidationTimeException() )
                 }
+                case "temREDUNDANT" => {
+                  clearTimeout (timeOut)
+                  sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].webSocket.get.emmiter.unregister (this)
+                  api.emmiter.unregister (this)
+                  promise.failure (SelfSendException() )
+                }
                 case rest => {
                   clearTimeout (timeOut)
                   sessionService.currentSession.get.wallet.asInstanceOf[RippleWalletClient].webSocket.get.emmiter.unregister (this)
                   api.emmiter.unregister (this)
-                  promise.failure (UnknownException(name.toString()) )
+                  promise.failure (UnknownException(name) )
                 }
               }
             }
@@ -233,6 +241,11 @@ class SendPerformController(override val windowService: WindowService,
       case Failure(ex: UnfundedException) =>
         ex.printStackTrace()
         SnackBar.error("send_perform.unfunded_title", "send_perform.unfunded_message").show()
+        $location.url("/send")
+        $route.reload()
+      case Failure(ex: SelfSendException) =>
+        ex.printStackTrace()
+        SnackBar.error("send_perform.self_title", "send_perform.self_message").show()
         $location.url("/send")
         $route.reload()
       case Failure(ex: UnknownException) =>

@@ -12,6 +12,7 @@ import exceptions.{DisconnectedException, MissingTagException, RippleException}
 import io.circe.JsonObject
 import org.json.{JSONArray, JSONObject}
 import org.scalajs.dom
+import org.scalajs.dom.{CloseEvent, ErrorEvent}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.scalajs.js.timers
@@ -72,19 +73,22 @@ class WebSocketRipple(factory: WebSocketFactory,
           }
         }
         ws onClose { (ex) =>
-          println("close websocket")
-          LogzManager.log("Web socket closed")
+          println("close websocket: "+ex.getMessage())
+          LogzManager.log("Web socket closed: "+ex.getMessage())
           connecting = Promise[Unit]()
           connected = false
           emmiter.emit(WebSocketDisconnectedEvent())
-          ex.printStackTrace()
           if (isRunning)
             connect()
         }
+        ws onError { (ex) =>
+          println("websocket error: "+ex.getMessage())
+          LogzManager.log("Web socket error: "+ex.getMessage())
+        }
       case Failure(ex) =>
-        println("failure websocket")
+        println("failure websocket"+ex.getMessage())
         ex.printStackTrace()
-        SentryManager.log("[Failure connecting] "+ex.getMessage)
+        SentryManager.log("[Failure connecting] "+ex.getMessage())
 
         if (isRunning)
           connect()
