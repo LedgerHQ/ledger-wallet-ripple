@@ -4,6 +4,7 @@
 - Added Ledger Default Node support
 - Support for Shapeshift address format mit tag
 - Support for future firmware using hid and u2f
+- Add monitoring
 
 1.0.3 (2017-18-12)
 ==================
