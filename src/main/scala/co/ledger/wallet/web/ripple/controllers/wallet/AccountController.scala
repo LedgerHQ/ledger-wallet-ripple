@@ -12,11 +12,13 @@ import co.ledger.wallet.web.ripple.i18n.DateFormat
 import co.ledger.wallet.web.ripple.services.{SessionService, WindowService}
 import org.scalajs
 import org.scalajs.dom
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
 import scala.scalajs.js.{JSON, timers}
 import scala.util.{Failure, Success}
+import js.JSConverters._
+import co.ledger.wallet.web.ripple.core.utils.{ChromeGlobalPreferences}
+
 /**
   *
   * OperationController
@@ -53,7 +55,11 @@ class AccountController(override val windowService: WindowService,
                         $element: JQLite,
                         $routeParams: js.Dictionary[String])
   extends Controller with WalletController with EventReceiver {
-
+  import timers._
+  var node = new ChromeGlobalPreferences("Settings").string("node").getOrElse("")
+  if(node == "ws://ripple.ledger.fr:8532") {
+    node = "launch.ledger_default"
+  }
   val accountId = $routeParams("id").toInt
   println("account path", js.JSON.stringify($routeParams))
 
@@ -61,9 +67,10 @@ class AccountController(override val windowService: WindowService,
   def refresh(): Unit = {
     sessionService.currentSession.get.wallet.synchronize()
   }
-
+  var address = ""
   var isRefreshing = false
   var hideLoader = true
+  var hideHistory = true
 
   var operations = js.Array[js.Dictionary[js.Any]]()
 
@@ -75,35 +82,39 @@ class AccountController(override val windowService: WindowService,
     val nonce = reloadOperationNonce
     sessionService.currentSession.get.wallet.account(accountId).flatMap {
       _.operations(-1, 10)
-    } foreach {cursor =>
+    } foreach { cursor =>
       var isLoading = false
       def loadMore(): Unit = {
         isLoading = true
-        cursor.loadNextChunk() andThen {
-          case Success(ops) =>
-            ops foreach {(op) =>
-              if (!operations.toArray.exists(_("uid").asInstanceOf[String] == op.uid)){
-                operations.push(js.Dictionary[js.Any](
-                  "uid" -> op.uid,
-                  "hash" -> op.transaction.hash,
-                  "date" -> new js.Date(op.transaction.receivedAt.getTime),
-                  "amount" -> (
-                    (if (op.`type` == Operation.SendType) -1 else 1) *
-                      op.transaction.value.toBigInt -
-                      (if (op.`type` == Operation.SendType) op.transaction
-                        .fee.toBigInt else 0)
-                    ).toString(),
-                  "isSend" -> (op.`type` == Operation.SendType)
-                ))
-              }
+        cursor.loadNextChunk() map { (ops) =>
+          ops foreach { (op) =>
+            if (!operations.toArray.exists(_ ("uid").asInstanceOf[String] == op.uid)) {
+              operations.push(js.Dictionary[js.Any](
+                "uid" -> op.uid,
+                "hash" -> op.transaction.hash,
+                "date" -> new js.Date(op.transaction.receivedAt.getTime),
+                "amount" -> (
+                  (if (op.`type` == Operation.SendType) -1 else 1) *
+                    op.transaction.value.toBigInt -
+                    (if (op.`type` == Operation.SendType) op.transaction
+                      .fee.toBigInt else 0)
+                  ).toString(),
+                "isSend" -> (op.`type` == Operation.SendType)
+              ))
             }
-            $scope.$digest()
-          case Failure(ex) => ex.printStackTrace()
+          }
+          operations = operations.toArray.sortBy(-_("date").asInstanceOf[js.Date].getTime).toJSArray
+        } recover {
+          case ex => ex.printStackTrace
+        } map { (all) =>
+          hideLoader = cursor.loadedChunkCount >= cursor.chunkCount
+          hideHistory = !hideLoader || balance == "0"
+          isLoading = false
+          refresh()
+        } recover {
+          case ex => ex.printStackTrace
         } andThen {
-          case all =>
-            hideLoader = cursor.loadedChunkCount >= cursor.chunkCount
-            isLoading = false
-            refresh()
+          case all => $scope.$digest()
         }
       }
 
@@ -122,19 +133,21 @@ class AccountController(override val windowService: WindowService,
         }
       }
 
-      $element.asInstanceOf[js.Dynamic].scroll({() =>
+      $element.asInstanceOf[js.Dynamic].scroll({ () =>
         refresh()
       })
 
-      js.Dynamic.global.$(js.Dynamic.global.window).resize({() =>
+      js.Dynamic.global.$(js.Dynamic.global.window).resize({ () =>
         refresh()
       })
       loadMore()
     }
+
   }
 
   var balance = sessionService.currentSession.get.sessionPreferences
     .lift("balance_cache").getOrElse("").toString
+
   def reloadBalance(): Unit = {
     sessionService.currentSession.get.wallet.account(accountId) flatMap {(account) =>
       account.balance()
@@ -156,7 +169,22 @@ class AccountController(override val windowService: WindowService,
     }
   }
 
+  def openAccountExplorer(): Unit = {
+    try {
+      WindowManager.open(s"https://bithomp.com/explorer/$address")
+    } catch {
+      case e:Throwable => e.printStackTrace()
+    }
+  }
+
   sessionService.currentSession.get.wallet.eventEmitter.register(this)
+
+  sessionService.currentSession.get.wallet.account(0) foreach {(account) =>
+    account.rippleAccount() foreach { (a) =>
+      address = a.toString
+      $scope.$digest()
+    }
+  }
 
 
   $scope.$on("$destroy", {() =>
@@ -170,7 +198,6 @@ class AccountController(override val windowService: WindowService,
   reloadOperations()
 
 
-  import timers._
   override def receive: Receive = {
     case StartSynchronizationEvent() =>
       isRefreshing = true
@@ -188,6 +215,7 @@ class AccountController(override val windowService: WindowService,
         reloadOperations()
         reloadBalance()
       }
+
     case drop =>
   }
 

@@ -10,7 +10,6 @@ function resetData() {
             window.currentDbConnection.close()
             indexedDB.deleteDatabase(window.currentDb);
         }
-        indexedDB.deleteDatabase("ChromePreferences");
         window.gui.App.quit();
     }
 }

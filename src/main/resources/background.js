@@ -31,9 +31,9 @@ function startApp() {
     chrome.app.window.create('window.html', {
             id: "main_window",
             innerBounds: {
-                width: 430,
+                width: 527,
                 height: 560,
-                minWidth: 430,
+                minWidth: 527,
                 minHeight: 560
             }
         }

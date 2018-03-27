@@ -8,11 +8,13 @@
             <thead>
             <tr>
                 <td class="stretch-content" style="padding-bottom: 14px;" translate>wallet.balance</td>
+                <td class="stretch-content" style="padding-bottom: 14px; text-align: right;" translate>wallet.node</td>
             </tr>
             </thead>
             <tbody>
             <tr class="no-border">
                 <td id="balanceRow"><amount value="ctrl.balance" type="balance"></amount></td>
+                <td id="nodeAddress" class="light-grey-text-almost-small"><p translate="">{{ctrl.node}}</p></td>
             </tr>
             </tbody>
         </table>
@@ -31,15 +33,16 @@
             </tr>
             </thead>
             <tbody>
-            <tr class="fit-content" ng-click="ctrl.openTransactionDetails(operation.hash)" ng-class="{'no-border': $last}" ng-repeat="operation in ctrl.operations">
+            <tr class="fit-content" ng-click="ctrl.openTransactionDetails(operation.hash)" ng-repeat="operation in ctrl.operations">
                 <td class="regular-grey-text" style="padding-right: 0px">{{operation.date | date: 'standard'}}</td>
                 <td class="align-right"><amount value="operation.amount" type="operation"></amount></td>
             </tr>
             </tbody>
         </table>
         <div ng-hide="ctrl.hideLoader" id="loadMore" class="full-width centered-text light-grey-text-almost-small" translate>account.load_more</div>
+        <div ng-hide="ctrl.hideHistory" ng-click="ctrl.openAccountExplorer()" id="fullHistory" class="full-width centered-text light-grey-text-almost-small" translate>account.show_full_history</div>
     </section>
-    <div ng-hide="ctrl.operations.length > 0" class="spacer vertically-centered-text light-grey-text-almost-small" translate>
+    <div ng-hide="ctrl.balance > 0" class="spacer vertically-centered-text light-grey-text-almost-small" translate>
         account.no_operation
     </div>
 </div>
