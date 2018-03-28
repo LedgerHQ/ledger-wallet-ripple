@@ -91,6 +91,7 @@ wallet:
   last_operations: last operations
   date_and_time: date & time
   amount: amount
+  node: node
 
 # Account screen
 
@@ -98,6 +99,7 @@ account:
   default_name: my account
   load_more: Loading next operations...
   no_operation: No operations for this account.
+  show_full_history: Show full history
 
 # Help screen
 
@@ -112,6 +114,8 @@ help:
   export_logs: Export logs
   logs_disclaimer: Logs contain anonymous events that are recorded and encrypted locally on your computer. These data are not sent to our servers and may only be exported manually when requested by the Ledger support team.
   reset_data: Reset transactions history
+  visit_our_help_center: visit our help center
+  our_customer_care: Our customer care is available Monday to Friday from 9am - 5pm CET
 # Receive screen
 
 receive:

@@ -1,4 +1,4 @@
-var temporaryLocalStorage = {}
+var temporaryLocalStLocalStorageorage = {}
 var ripple =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache

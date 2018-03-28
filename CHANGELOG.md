@@ -1,8 +1,15 @@
 # Changelog
+1.1.1
+==================
+- Added node indicator on account page
+- Fixed a rare bug with sorting of displayed transactions
+- Reworded the help page
+- Added a link to see full account history on bithomp explorer
+
 1.1.0
 ==================
 - Added Ledger Default Node support
-- Support for Shapeshift address format mit tag
+- Support for Shapeshift address format with tag
 - Support for future firmware using hid and u2f
 - Add monitoring
 
