@@ -155,6 +155,7 @@ class AccountController(override val windowService: WindowService,
       case Success(b) =>
         sessionService.currentSession.get.sessionPreferences("balance_cache") = b.toBigInt.toString()
         balance = b.toBigInt.toString()
+        hideHistory = !hideLoader || balance == "0"
         $scope.$digest()
       case Failure(ex) =>
         ex.printStackTrace()
