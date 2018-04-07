@@ -19,9 +19,9 @@
 - Using base fees as default instead of mean fees
 - Separating wallets when using different nodes
 - Add option in the help section to reset the data
-- Custom fees are now set to match base fees by default
 - Corrected logs saving
 - Corrected device discovery
+- Custom fees are now set to match base fees by default
 - Changed class names to avoid cache error when compiling
 
 1.0.2 (2017-07-06)
