@@ -5,19 +5,20 @@ import biz.enef.angulate.Module.RichModule
 import biz.enef.angulate.core.JQLite
 import biz.enef.angulate.{Controller, Scope}
 import co.ledger.wallet.core.device.utils.EventReceiver
-import co.ledger.wallet.core.wallet.ripple.Operation
+import co.ledger.wallet.core.wallet.ripple.{Operation, XRP}
 import co.ledger.wallet.core.wallet.ripple.Wallet.{NewOperationEvent, StartSynchronizationEvent, StopSynchronizationEvent}
 import co.ledger.wallet.web.ripple.components.{SnackBar, WindowManager}
 import co.ledger.wallet.web.ripple.i18n.DateFormat
 import co.ledger.wallet.web.ripple.services.{SessionService, WindowService}
 import org.scalajs
 import org.scalajs.dom
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
 import scala.scalajs.js.{JSON, timers}
 import scala.util.{Failure, Success}
 import js.JSConverters._
-import co.ledger.wallet.web.ripple.core.utils.{ChromeGlobalPreferences}
+import co.ledger.wallet.web.ripple.core.utils.ChromeGlobalPreferences
 
 /**
   *
@@ -71,8 +72,11 @@ class AccountController(override val windowService: WindowService,
   var isRefreshing = false
   var hideLoader = true
   var hideHistory = true
+  var noOperations = true
 
   var operations = js.Array[js.Dictionary[js.Any]]()
+  var balance = sessionService.currentSession.get.sessionPreferences
+    .lift("balance_cache").getOrElse("").toString
 
   private var reloadOperationNonce = 0
   def reloadOperations(): Unit = {
@@ -108,7 +112,8 @@ class AccountController(override val windowService: WindowService,
           case ex => ex.printStackTrace
         } map { (all) =>
           hideLoader = cursor.loadedChunkCount >= cursor.chunkCount
-          hideHistory = !hideLoader || balance == "0"
+          hideHistory = ((!hideLoader || XRP(balance) < XRP(20)) && !(operations.toArray.length > 0))
+          noOperations = hideLoader && hideHistory
           isLoading = false
           refresh()
         } recover {
@@ -145,17 +150,18 @@ class AccountController(override val windowService: WindowService,
 
   }
 
-  var balance = sessionService.currentSession.get.sessionPreferences
-    .lift("balance_cache").getOrElse("").toString
 
   def reloadBalance(): Unit = {
     sessionService.currentSession.get.wallet.account(accountId) flatMap {(account) =>
       account.balance()
     } onComplete {
       case Success(b) =>
+        println("success balance")
+        println(b)
         sessionService.currentSession.get.sessionPreferences("balance_cache") = b.toBigInt.toString()
         balance = b.toBigInt.toString()
-        hideHistory = !hideLoader || balance == "0"
+        hideHistory = ((!hideLoader || XRP(balance) < XRP(20)) && !(operations.toArray.length > 0))
+        noOperations = hideLoader && hideHistory
         $scope.$digest()
       case Failure(ex) =>
         ex.printStackTrace()
