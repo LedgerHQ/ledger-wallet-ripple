@@ -2,6 +2,8 @@
 1.1.2
 ==================
 - Adapted onboarding logo to high resolution displays
+- Added high resolution onboarding icon
+- Fixed "no operations on this account" being wrongly displayed in case of a node failure
 
 1.1.1
 ==================
