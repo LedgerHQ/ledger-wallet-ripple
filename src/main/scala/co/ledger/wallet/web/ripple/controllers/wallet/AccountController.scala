@@ -6,7 +6,7 @@ import biz.enef.angulate.core.JQLite
 import biz.enef.angulate.{Controller, Scope}
 import co.ledger.wallet.core.device.utils.EventReceiver
 import co.ledger.wallet.core.wallet.ripple.{Operation, XRP}
-import co.ledger.wallet.core.wallet.ripple.Wallet.{NewOperationEvent, StartSynchronizationEvent, StopSynchronizationEvent}
+import co.ledger.wallet.core.wallet.ripple.Wallet.{NewOperationEvent, RippleExceptionEvent, StartSynchronizationEvent, StopSynchronizationEvent}
 import co.ledger.wallet.web.ripple.components.{SnackBar, WindowManager}
 import co.ledger.wallet.web.ripple.i18n.DateFormat
 import co.ledger.wallet.web.ripple.services.{SessionService, WindowService}
@@ -62,8 +62,6 @@ class AccountController(override val windowService: WindowService,
     node = "launch.ledger_default"
   }
   val accountId = $routeParams("id").toInt
-  println("account path", js.JSON.stringify($routeParams))
-
 
   def refresh(): Unit = {
     sessionService.currentSession.get.wallet.synchronize()
@@ -117,7 +115,8 @@ class AccountController(override val windowService: WindowService,
           isLoading = false
           refresh()
         } recover {
-          case ex => ex.printStackTrace
+          case ex =>
+            ex.printStackTrace
         } andThen {
           case all => $scope.$digest()
         }
@@ -156,8 +155,6 @@ class AccountController(override val windowService: WindowService,
       account.balance()
     } onComplete {
       case Success(b) =>
-        println("success balance")
-        println(b)
         sessionService.currentSession.get.sessionPreferences("balance_cache") = b.toBigInt.toString()
         balance = b.toBigInt.toString()
         hideHistory = ((!hideLoader || XRP(balance) < XRP(20)) && !(operations.toArray.length > 0))
@@ -222,9 +219,11 @@ class AccountController(override val windowService: WindowService,
         reloadOperations()
         reloadBalance()
       }
-
-    case drop =>
-  }
+    case RippleExceptionEvent() =>
+      SnackBar.error("ripple.down_title", "ripple.down_message").show()
+      setTimeout(0) {
+        $scope.$digest()
+      }  }
 
   sessionService.currentSession.get.wallet.isSynchronizing() foreach {(sync) =>
     isRefreshing = sync

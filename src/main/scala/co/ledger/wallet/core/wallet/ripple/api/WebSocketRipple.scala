@@ -225,7 +225,7 @@ class WebSocketRipple(factory: WebSocketFactory,
         if (msg.optString("status","error")=="success"){
           XRP(msg.optJSONObject("result").getJSONObject("account_data").optString("Balance", ""))
         } else {
-          XRP.Zero
+          throw RippleException()
         }
       }
     }

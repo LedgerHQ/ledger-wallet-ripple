@@ -6,7 +6,7 @@ import co.ledger.wallet.core.concurrent.{AbstractAsyncCursor, AsyncCursor}
 import co.ledger.wallet.core.device.utils.{EventEmitter, EventReceiver}
 import co.ledger.wallet.core.net.WebSocketFactory
 import co.ledger.wallet.core.utils.DerivationPath
-import co.ledger.wallet.core.wallet.ripple.Wallet.{StartSynchronizationEvent, StopSynchronizationEvent}
+import co.ledger.wallet.core.wallet.ripple.Wallet.{RippleExceptionEvent, StartSynchronizationEvent, StopSynchronizationEvent}
 import co.ledger.wallet.core.wallet.ripple._
 import co.ledger.wallet.core.wallet.ripple.api.WebSocketRipple
 import co.ledger.wallet.core.wallet.ripple.database.AccountRow
@@ -107,6 +107,12 @@ class RippleWalletClient(override val name: String,
           } map { _ =>
             _synchronizationFuture = None
             eventEmitter.emit(StopSynchronizationEvent())
+          } recover {
+            case all =>
+              _synchronizationFuture = None
+              eventEmitter.emit(StopSynchronizationEvent())
+              eventEmitter.emit(RippleExceptionEvent())
+              throw all
           }
         )
         _synchronizationFuture.get

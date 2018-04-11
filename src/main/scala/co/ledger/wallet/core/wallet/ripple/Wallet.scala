@@ -60,4 +60,5 @@ object Wallet {
   case class NewOperationEvent(account: Account, operation: Operation)
   case class StartSynchronizationEvent()
   case class StopSynchronizationEvent()
+  case class RippleExceptionEvent()
 }
