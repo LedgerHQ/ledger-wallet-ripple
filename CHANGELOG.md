@@ -1,4 +1,8 @@
 # Changelog
+1.1.2
+==================
+- Adapted onboarding logo to high resolution displays
+
 1.1.1
 ==================
 - Added node indicator on account page
